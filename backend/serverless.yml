@@ -38,15 +38,8 @@ provider:
     AUDITORIA_TABLE: AtlasAuditoria-${self:provider.stage}
     NOTAS_TABLE: AtlasNotas-${self:provider.stage}
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
-    USER_POOL_ID: !Ref CognitoUserPool
-    USER_POOL_CLIENT_ID: !Ref CognitoUserPoolClient
     SES_FROM_EMAIL: noreply@atlashub.com.br
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
-
-  apiGateway:
-    throttle:
-      burstLimit: 500
-      rateLimit: 200
 
   logRetentionInDays: 14
 
@@ -466,6 +459,8 @@ functions:
     role: !GetAtt AdminUsuarioCriarLambdaRole.Arn
     timeout: 15
     description: "Creates a new analyst account (admin master only)"
+    environment:
+      USER_POOL_ID: !Ref CognitoUserPool
     events:
       - http:
           path: admin/usuarios
@@ -480,6 +475,8 @@ functions:
     role: !GetAtt AdminUsuarioDesativarLambdaRole.Arn
     timeout: 10
     description: "Deactivates an analyst account (admin master only)"
+    environment:
+      USER_POOL_ID: !Ref CognitoUserPool
     events:
       - http:
           path: admin/usuarios/{id}/desativar
@@ -533,7 +530,7 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                 - Effect: Allow
                   Action: [cognito-idp:AdminAddUserToGroup]
-                  Resource: !GetAtt CognitoUserPool.Arn
+                  Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
     IncorporadoraGetPerfilLambdaRole:
       Type: AWS::IAM::Role
@@ -1216,7 +1213,7 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
                 - Effect: Allow
                   Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup]
-                  Resource: !GetAtt CognitoUserPool.Arn
+                  Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
     AdminUsuarioDesativarLambdaRole:
       Type: AWS::IAM::Role
@@ -1240,7 +1237,7 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
                 - Effect: Allow
                   Action: [cognito-idp:AdminDisableUser]
-                  Resource: !GetAtt CognitoUserPool.Arn
+                  Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
     # ── Cognito ────────────────────────────────────────────────────────
 
