@@ -1,0 +1,14 @@
+# Build output
+dist/
+.serverless/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env.local
+.env.*.local
+
+# Editor
+.DS_Store
+*.log
