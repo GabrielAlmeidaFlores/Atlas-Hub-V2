@@ -11,7 +11,19 @@ const region  = process.env['REGION'] ?? 'sa-east-1';
 const poolId  = process.env['POOL_ID'] ?? '';
 const email   = process.env['ADMIN_EMAIL'] ?? '';
 const table   = process.env['ADMINS_TABLE'] ?? 'AtlasAdmins-prod';
-const tempPwd = `Atlas@${Math.random().toString(36).slice(2, 10)}!`;
+
+function generateTempPassword(): string {
+  const upper   = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower   = 'abcdefghjkmnpqrstuvwxyz';
+  const digits  = '23456789';
+  const symbols = '!@#$%&*';
+  const all     = upper + lower + digits + symbols;
+  const rand    = (chars: string): string => chars[Math.floor(Math.random() * chars.length)] ?? chars[0]!;
+  const base    = Array.from({ length: 8 }, () => rand(all)).join('');
+  return rand(upper) + rand(lower) + rand(digits) + rand(symbols) + base;
+}
+
+const tempPwd = generateTempPassword();
 
 if (!poolId || !email) {
   console.error('POOL_ID e ADMIN_EMAIL são obrigatórios');

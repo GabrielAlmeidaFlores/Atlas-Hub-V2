@@ -157,7 +157,7 @@ jobs:
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist-prod
+          name: frontend-dist-master
           path: frontend/dist
           retention-days: 1
 
@@ -172,10 +172,29 @@ jobs:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            ${{ vars.AWS_REGION }}
+      - name: Ensure Amplify branch exists
+        env:
+          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          REGION: ${{ vars.AWS_REGION }}
+        run: |
+          BRANCH_EXISTS=$(aws amplify get-branch \
+            --app-id "$APP_ID" --branch-name "master" \
+            --region "$REGION" \
+            --query 'branch.branchName' --output text 2>/dev/null || echo "")
+          if [ "$BRANCH_EXISTS" != "prod" ]; then
+            echo "Branch 'prod' não existe — criando..."
+            aws amplify create-branch \
+              --app-id "$APP_ID" \
+              --branch-name "master" \
+              --region "$REGION"
+            echo "✓ Branch 'prod' criado"
+          else
+            echo "✓ Branch 'prod' já existe"
+          fi
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
-          name: frontend-dist-prod
+          name: frontend-dist-master
           path: dist
       - name: Create zip
         run: cd dist && zip -r /tmp/dist.zip .
@@ -186,7 +205,7 @@ jobs:
           REGION: ${{ vars.AWS_REGION }}
         run: |
           DEPLOY=$(aws amplify create-deployment \
-            --app-id "$APP_ID" --branch-name "prod" \
+            --app-id "$APP_ID" --branch-name "master" \
             --region "$REGION" --output json)
           echo "job_id=$(echo "$DEPLOY"     | python3 -c "import sys,json; print(json.load(sys.stdin)['jobId'])")"     >> $GITHUB_OUTPUT
           echo "upload_url=$(echo "$DEPLOY" | python3 -c "import sys,json; print(json.load(sys.stdin)['zipUploadUrl'])")" >> $GITHUB_OUTPUT
@@ -202,7 +221,7 @@ jobs:
           REGION: ${{ vars.AWS_REGION }}
         run: |
           aws amplify start-deployment \
-            --app-id "$APP_ID" --branch-name "prod" \
+            --app-id "$APP_ID" --branch-name "master" \
             --job-id "${{ steps.amplify.outputs.job_id }}" \
             --region "$REGION"
       - name: Wait for completion
@@ -212,7 +231,7 @@ jobs:
         run: |
           for i in $(seq 1 30); do
             STATUS=$(aws amplify get-job \
-              --app-id "$APP_ID" --branch-name "prod" \
+              --app-id "$APP_ID" --branch-name "master" \
               --job-id "${{ steps.amplify.outputs.job_id }}" \
               --region "$REGION" --output json \
               | python3 -c "import sys,json; print(json.load(sys.stdin)['job']['summary']['status'])")
