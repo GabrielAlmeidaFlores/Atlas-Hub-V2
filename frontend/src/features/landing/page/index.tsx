@@ -22,20 +22,12 @@ function useScrolled(threshold = 24): boolean {
 
 /* ── Navbar ──────────────────────────────────────────── */
 function Navbar(): ReactNode {
-  const scrolled = useScrolled();
   const [open, setOpen] = useState(false);
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        scrolled
-          ? "bg-white/98 shadow-[0_1px_0_#E5E7EB] backdrop-blur-xl"
-          : "bg-transparent",
-      )}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-        <Logo size="md" scheme={scrolled ? "light" : "dark"} />
+    <header className="fixed inset-x-0 top-0 z-50 bg-navy shadow-[0_1px_0_rgb(255_255_255_/_0.08)]">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 lg:px-8">
+        <Logo size="md" scheme="dark" />
 
         {/* Desktop links */}
         <nav className="hidden items-center gap-8 lg:flex">
@@ -47,10 +39,7 @@ function Navbar(): ReactNode {
             <a
               key={label}
               href={href}
-              className={cn(
-                "text-sm font-medium transition-colors",
-                scrolled ? "text-slate-600 hover:text-navy" : "text-white/80 hover:text-white",
-              )}
+              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
             >
               {label}
             </a>
@@ -58,16 +47,11 @@ function Navbar(): ReactNode {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            to="/login"
-            className={cn(
-              "text-sm font-semibold transition-colors",
-              scrolled ? "text-slate-700 hover:text-navy" : "text-white/80 hover:text-white",
-            )}
-          >
+          <Link to="/login" className="text-sm font-semibold text-white/70 transition-colors hover:text-white">
             Entrar
           </Link>
-          <Link to="/cadastro" className="btn btn-navy btn-sm rounded-xl font-semibold">
+          <Link to="/cadastro"
+            className="rounded-xl border border-gold/60 bg-gold/10 px-4 py-2 text-sm font-bold text-gold transition-all hover:bg-gold hover:text-white">
             Cadastrar incorporadora
           </Link>
         </div>
@@ -75,7 +59,7 @@ function Navbar(): ReactNode {
         <button
           type="button"
           onClick={() => setOpen((p) => !p)}
-          className={cn("lg:hidden", scrolled ? "text-slate-700" : "text-white")}
+          className="text-white/80 hover:text-white lg:hidden"
           aria-label="Menu"
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -84,7 +68,7 @@ function Navbar(): ReactNode {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="border-t border-slate-100 bg-white px-5 py-4 shadow-lg lg:hidden">
+        <div className="border-t border-white/10 bg-navy-dark px-5 py-4 lg:hidden">
           <div className="flex flex-col gap-1">
             {[
               ["Para Incorporadoras", "#incorporadoras"],
@@ -95,15 +79,15 @@ function Navbar(): ReactNode {
                 key={label}
                 href={href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white"
               >
                 {label}
               </a>
             ))}
           </div>
-          <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4">
-            <Link to="/login"    onClick={() => setOpen(false)} className="btn btn-outline w-full justify-center">Entrar</Link>
-            <Link to="/cadastro" onClick={() => setOpen(false)} className="btn btn-navy w-full justify-center">Cadastrar incorporadora</Link>
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
+            <Link to="/login"    onClick={() => setOpen(false)} className="btn rounded-xl border border-white/20 text-white/80 hover:bg-white/5 w-full justify-center">Entrar</Link>
+            <Link to="/cadastro" onClick={() => setOpen(false)} className="btn bg-gold text-white hover:bg-gold-light w-full justify-center">Cadastrar incorporadora</Link>
           </div>
         </div>
       )}
@@ -237,29 +221,6 @@ function Hero(): ReactNode {
 }
 
 /* ── Logos / Trust ───────────────────────────────────── */
-function TrustBar(): ReactNode {
-  return (
-    <div className="border-y border-slate-100 bg-white py-8">
-      <div className="mx-auto max-w-6xl px-5 lg:px-8">
-        <p className="mb-6 text-center text-xs font-semibold uppercase tracking-widest text-slate-400">
-          Infraestrutura regulatória parceira
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-8 opacity-50 grayscale">
-          {[
-            "Divify",
-            "CVM",
-            "Banco Central",
-            "Pagar.me",
-            "Stark Bank",
-          ].map((name) => (
-            <span key={name} className="text-sm font-bold tracking-wide text-slate-500">{name}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ── Como Funciona ───────────────────────────────────── */
 function ComoFunciona(): ReactNode {
   const steps = [
@@ -722,7 +683,6 @@ export default function LandingPage(): ReactNode {
     <>
       <Navbar />
       <Hero />
-      <TrustBar />
       <ComoFunciona />
       <ParaIncorporadoras />
       <ParaInvestidores />
