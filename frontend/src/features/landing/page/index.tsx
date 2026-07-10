@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useEffect, useRef } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight, ShieldCheck, CheckCircle, ChevronDown,
@@ -114,91 +114,122 @@ function Navbar(): ReactNode {
 /* ── Hero ────────────────────────────────────────────── */
 function Hero(): ReactNode {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#0d1830]">
-      {/* Gradient blobs */}
+    <section className="relative overflow-hidden bg-[#0d1830]">
+      {/* Background */}
       <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute -left-40 top-0 h-[300px] w-[300px] sm:h-[600px] sm:w-[600px] rounded-full opacity-30 blur-[120px]"
-          style={{ background: "radial-gradient(circle, #1B2B5E 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute -right-20 top-20 h-[250px] w-[250px] sm:h-[500px] sm:w-[500px] rounded-full opacity-20 blur-[100px]"
-          style={{ background: "radial-gradient(circle, #C49020 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute bottom-0 left-1/2 h-[200px] w-[400px] sm:h-[400px] sm:w-[800px] -translate-x-1/2 rounded-full opacity-10 blur-[100px]"
-          style={{ background: "radial-gradient(circle, #4B6BDA 0%, transparent 70%)" }}
-        />
+        <div className="absolute -left-40 top-0 h-[300px] w-[300px] rounded-full opacity-25 blur-[100px] sm:h-[600px] sm:w-[600px]"
+          style={{ background: "radial-gradient(circle, #1B2B5E 0%, transparent 70%)" }} />
+        <div className="absolute -right-20 top-20 h-[250px] w-[250px] rounded-full opacity-20 blur-[80px] sm:h-[500px] sm:w-[500px]"
+          style={{ background: "radial-gradient(circle, #C49020 0%, transparent 70%)" }} />
       </div>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{ backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-      {/* Grid texture */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
-        }}
-      />
+      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 sm:pb-20 sm:pt-32 lg:px-8">
 
-      <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-center min-h-screen px-5 pb-24 pt-32 text-center lg:px-8">
-
-        {/* Pill badge */}
-        <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-5 py-2 backdrop-blur-sm">
-          <span className="flex h-2 w-2 rounded-full bg-green-400 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]" />
-          <span className="text-sm font-medium text-white/80">Plataforma regulada pela CVM Resolução 88</span>
+        {/* ── Linha 1: o que é ── */}
+        <div className="flex justify-center">
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/70 backdrop-blur-sm">
+            <span className="flex h-2 w-2 rounded-full bg-green-400 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]" />
+            Crowdfunding Imobiliário · Regulado pela CVM Resolução 88
+          </div>
         </div>
 
-        {/* Headline */}
-        <h1 className="mx-auto max-w-5xl text-5xl font-black leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
-          Construa sem banco.{" "}
-          <br className="hidden sm:block" />
-          <span className="text-gradient-gold">Capte com investidores.</span>
-        </h1>
+        {/* ── Linha 2: headline direta ── */}
+        <div className="mt-8 text-center">
+          <h1 className="mx-auto max-w-4xl text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+            Incorporadora capta recursos.<br />
+            <span className="text-gradient-gold">Investidor aplica em imóveis.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-white/55 leading-relaxed sm:text-lg lg:text-xl">
+            A Atlas Hub é a plataforma onde <strong className="text-white/80">incorporadoras financiam suas obras
+            sem banco</strong> — e <strong className="text-white/80">investidores entram em projetos imobiliários
+            curados a partir de R$10.</strong>
+          </p>
+        </div>
 
-        <p className="mx-auto mt-7 max-w-2xl text-lg text-white/60 leading-relaxed sm:text-xl">
-          A Atlas Hub conecta incorporadoras a investidores em projetos imobiliários curados.
-          Sem juros mensais, sem burocracia bancária — apenas 10% sobre o captado.
-        </p>
-
-        {/* CTAs */}
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        {/* ── Linha 3: duas audiências lado a lado ── */}
+        <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* Card incorporadora */}
           <Link
             to="/cadastro"
-            className="group inline-flex items-center gap-2.5 rounded-2xl bg-gold px-8 py-4 text-base font-bold text-white shadow-gold-sm transition-all hover:bg-gold-light hover:shadow-[0_4px_20px_rgb(196,144,32,0.5)] active:scale-[0.98]"
+            className="group relative overflow-hidden rounded-2xl border border-gold/30 bg-gold/10 p-5 text-left transition-all hover:border-gold/60 hover:bg-gold/15"
           >
-            Cadastrar incorporadora
-            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gold/20">
+              <Building2 className="h-5 w-5 text-gold" />
+            </div>
+            <p className="text-xs font-bold uppercase tracking-widest text-gold/70">Para Incorporadoras</p>
+            <p className="mt-1 text-base font-bold text-white">Capte sem banco</p>
+            <p className="mt-1 text-sm text-white/50">
+              10% sobre o captado. Sem juros mensais. Sem burocracia bancária.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-gold group-hover:gap-2.5 transition-all">
+              Cadastrar minha incorporadora <ArrowRight className="h-4 w-4" />
+            </div>
           </Link>
+
+          {/* Card investidor */}
           <a
-            href="#como-funciona"
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-8 py-4 text-base font-medium text-white/80 transition-all hover:border-white/30 hover:bg-white/5"
+            href="#investidores"
+            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition-all hover:border-white/20 hover:bg-white/8"
           >
-            Como funciona
-            <ChevronDown className="h-4 w-4 opacity-60" />
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+              <TrendingUp className="h-5 w-5 text-white/70" />
+            </div>
+            <p className="text-xs font-bold uppercase tracking-widest text-white/40">Para Investidores</p>
+            <p className="mt-1 text-base font-bold text-white">Invista em imóveis</p>
+            <p className="mt-1 text-sm text-white/50">
+              A partir de R$10 por cota. Projetos curados. 15–30% a.a. estimado.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-white/60 group-hover:gap-2.5 transition-all">
+              Saiba como funciona <ArrowRight className="h-4 w-4" />
+            </div>
           </a>
         </div>
 
-        {/* Stats strip */}
-        <div className="mt-16 grid w-full max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
+        {/* ── Linha 4: como funciona em 3 passos ── */}
+        <div className="mx-auto mt-12 max-w-3xl">
+          <p className="mb-5 text-center text-xs font-semibold uppercase tracking-widest text-white/25">
+            Como funciona em 3 passos
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              { num: "1", icon: FileCheck, label: "Incorporadora submete o projeto", desc: "Dados, documentos e equipe. Nossa curadoria analisa em até 5 dias." },
+              { num: "2", icon: ShieldCheck, label: "Atlas Hub cuida e publica a oferta", desc: "Oferta regulada CVM 88 vai ao ar. Investidores de todo o Brasil aportam." },
+              { num: "3", icon: Banknote, label: "Recursos liberados para a obra", desc: "Meta atingida → capital vai direto para a SPE. Zero intermediários." },
+            ].map(({ num, icon: Icon, label, desc }) => (
+              <div key={num} className="flex gap-3 rounded-2xl border border-white/8 bg-white/4 p-4 backdrop-blur-sm">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-black text-white/60">
+                  {num}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/80">{label}</p>
+                  <p className="mt-0.5 text-xs text-white/40 leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Linha 5: stats ── */}
+        <div className="mx-auto mt-10 grid w-full max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           {[
-            { value: "10%",   label: "Taxa única" },
-            { value: "R$0",   label: "Taxa de cartório" },
-            { value: "CVM",   label: "88 Regulado" },
-            { value: "100%",  label: "Digital" },
+            { value: "10%",  label: "Taxa única total" },
+            { value: "R$10", label: "Mínimo por cota" },
+            { value: "5 dias", label: "Análise curadoria" },
+            { value: "CVM 88", label: "100% regulado" },
           ].map(({ value, label }) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-white/8 bg-white/4 px-4 py-5 backdrop-blur-sm"
-            >
-              <p className="text-2xl font-black text-gold sm:text-3xl">{value}</p>
-              <p className="mt-1 text-xs text-white/50">{label}</p>
+            <div key={label} className="rounded-xl border border-white/8 bg-white/4 px-3 py-4 text-center backdrop-blur-sm sm:px-4 sm:py-5">
+              <p className="text-xl font-black text-gold sm:text-2xl">{value}</p>
+              <p className="mt-0.5 text-[10px] text-white/40 sm:text-xs">{label}</p>
             </div>
           ))}
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40">
-          <ChevronDown className="h-5 w-5 text-white" />
+        <div className="mt-10 flex justify-center">
+          <a href="#como-funciona" className="animate-bounce opacity-30">
+            <ChevronDown className="h-5 w-5 text-white" />
+          </a>
         </div>
       </div>
     </section>
