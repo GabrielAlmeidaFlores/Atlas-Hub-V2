@@ -73,16 +73,33 @@ export default function CadastroPage(): ReactNode {
         </div>
 
         {/* Steps */}
-        <div className="mb-6 flex items-center justify-center gap-2">
+        <div className="mb-6 flex items-center justify-center gap-0">
           {STEPS.map(({ num, label }, idx) => (
-            <div key={num} className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5">
-                <div className={cn("step-item", step > num ? "step-done" : step === num ? "step-active" : "step-pending")}>
-                  {step > num ? <Check className="h-4 w-4" /> : String(num)}
+            <div key={num} className="flex items-center">
+              <div className="flex flex-col items-center gap-1.5">
+                <div className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all duration-200",
+                  step > num
+                    ? "bg-green-500 text-white shadow-sm"
+                    : step === num
+                    ? "bg-navy text-white shadow-[0_0_0_4px_rgb(27_43_94_/_0.15)]"
+                    : "bg-[#E5E7EB] text-[#9CA3AF]",
+                )}>
+                  {step > num ? <Check className="h-3.5 w-3.5" /> : String(num)}
                 </div>
-                <span className={cn("hidden text-xs font-medium sm:block", step === num ? "text-navy" : "text-[#9CA3AF]")}>{label}</span>
+                <span className={cn(
+                  "text-[10px] font-semibold hidden sm:block",
+                  step === num ? "text-navy" : step > num ? "text-green-600" : "text-[#9CA3AF]",
+                )}>
+                  {label}
+                </span>
               </div>
-              {idx < STEPS.length - 1 && <div className={cn("h-px w-8 sm:w-12", step > num ? "bg-green-400" : "bg-[#E5E7EB]")} />}
+              {idx < STEPS.length - 1 && (
+                <div className={cn(
+                  "mb-5 h-px w-10 sm:w-16 mx-1 transition-all duration-300",
+                  step > num ? "bg-green-400" : "bg-[#E5E7EB]",
+                )} />
+              )}
             </div>
           ))}
         </div>
