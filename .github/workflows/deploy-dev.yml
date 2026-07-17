@@ -241,19 +241,20 @@ jobs:
           APP_ID: ${{ vars.AMPLIFY_APP_ID }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
+          BRANCH="develop"
           BRANCH_EXISTS=$(aws amplify get-branch \
-            --app-id "$APP_ID" --branch-name "develop" \
+            --app-id "$APP_ID" --branch-name "$BRANCH" \
             --region "$REGION" \
             --query 'branch.branchName' --output text 2>/dev/null || echo "")
-          if [ "$BRANCH_EXISTS" != "dev" ]; then
-            echo "Branch 'dev' não existe — criando..."
+          if [ "$BRANCH_EXISTS" != "$BRANCH" ]; then
+            echo "Branch '$BRANCH' não existe — criando..."
             aws amplify create-branch \
               --app-id "$APP_ID" \
-              --branch-name "develop" \
+              --branch-name "$BRANCH" \
               --region "$REGION"
-            echo "✓ Branch 'dev' criado"
+            echo "✓ Branch '$BRANCH' criado"
           else
-            echo "✓ Branch 'dev' já existe"
+            echo "✓ Branch '$BRANCH' já existe"
           fi
 
       - name: Download dist artifact
