@@ -56,7 +56,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
 
     await putAuditoria(auditoria);
-    await putNotificacao(notificacao);
+    try {
+      await putNotificacao(notificacao);
+    } catch (notifyErr) {
+      log.error('Failed to create analysis-started notification', notifyErr);
+    }
 
     log.info('Analysis started', { projetoId: id, analistaId });
     return ok(event, { status: 'EM_ANALISE' });

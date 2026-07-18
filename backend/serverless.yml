@@ -895,6 +895,7 @@ resources:
                   Action: [dynamodb:PutItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
                 - Effect: Allow
                   Action: [ses:SendEmail]
                   Resource: '*'
