@@ -67,7 +67,7 @@ export function Logo({
               className={cn(
                 "leading-none",
                 SUBTITLE_SIZES[size],
-                scheme === "dark" ? "text-white/50" : "text-[#9CA3AF]",
+                scheme === "dark" ? "text-white/50" : "text-muted-foreground",
               )}
             >
               {subtitle}

@@ -7,7 +7,16 @@ Este repositório cobre o **MVP de originador + curadoria**:
 - **Portal da Incorporadora** — cadastro, perfil, submissão de projetos, acompanhamento
 - **Painel de Curadoria (Admin)** — fila de análise, scorecard, aprovação/reprovação, CRM
 
-> Spec de produto: [`product.md`](product.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
+> Spec de produto: [`product.md`](product.md) · Escopo MVP: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
+
+### Fronteira Atlas × Divify
+
+| Atlas Hub (MVP) | Divify (imediato) | Fase 2 (bloqueada) |
+|---|---|---|
+| Portal Incorporadora + Admin Curadoria | Vitrine, KYC, escrow, cotas, oferta | Portal investidor Atlas + APIs/webhooks |
+| Oferta registrada manualmente após aprovação | Painel cria/publica a oferta | Sync de captação / carteira |
+
+Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos pré-Divify **não** são backlog deste repo.
 
 ---
 
@@ -37,6 +46,8 @@ Este repositório cobre o **MVP de originador + curadoria**:
 | Recurso | Valor |
 |---|---|
 | **Frontend** | https://dev.dng6v0yvgarue.amplifyapp.com |
+| **Admin** | https://dev.dng6v0yvgarue.amplifyapp.com/admin |
+| **Login** | https://dev.dng6v0yvgarue.amplifyapp.com/login |
 | **API** | https://9oyxstx009.execute-api.sa-east-1.amazonaws.com/dev |
 | **Health check** | https://9oyxstx009.execute-api.sa-east-1.amazonaws.com/dev/health |
 | **Cognito User Pool** | `sa-east-1_FyjlSJmHK` |
@@ -44,6 +55,27 @@ Este repositório cobre o **MVP de originador + curadoria**:
 | **Amplify App** | `atlas-hub-dev` (`dng6v0yvgarue`) |
 | **Amplify branch** | `dev` |
 | **S3 documentos** | `atlas-hub-documents-dev` |
+
+**Credenciais DEV (seed):**
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Admin master | `gabriel@atlashub.com.br` | `AtlasHub!Dev2026` |
+| Analista | `analista@atlashub.com.br` | `AtlasHub!Dev2026` |
+| Incorporadora | `contato@horizonconstrutora.com.br` | `AtlasHub!Dev2026` |
+| Incorporadora | `projetos@verdeurbano.com.br` | `AtlasHub!Dev2026` |
+| Incorporadora | `admin@atlanticresidencial.com.br` | `AtlasHub!Dev2026` |
+
+Seed de dados fake (reexecutável):
+
+```bash
+cd backend
+AWS_PROFILE=atlas-hub \
+POOL_ID=sa-east-1_FyjlSJmHK \
+REGION=sa-east-1 \
+STAGE=dev \
+npx tsx scripts/seed-dev-data.ts
+```
 
 ---
 
@@ -449,7 +481,8 @@ Fluxo em cada push:
 |---|---|
 | `AWS_REGION` | `sa-east-1` |
 | `VITE_AWS_REGION` | `sa-east-1` |
-| `AMPLIFY_APP_ID` | `d3vqf6k21x668r` |
+| `AMPLIFY_APP_ID` | `d3vqf6k21x668r` (prod) |
+| `AMPLIFY_APP_ID_DEV` | `dng6v0yvgarue` (dev) |
 | `ADMIN_MASTER_EMAIL` | `gabrielalmeidaflores@hotmail.com` |
 
 ---

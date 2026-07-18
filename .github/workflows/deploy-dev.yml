@@ -238,10 +238,10 @@ jobs:
 
       - name: Ensure Amplify branch exists
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
-          BRANCH="develop"
+          BRANCH="dev"
           BRANCH_EXISTS=$(aws amplify get-branch \
             --app-id "$APP_ID" --branch-name "$BRANCH" \
             --region "$REGION" \
@@ -269,8 +269,8 @@ jobs:
       - name: Create Amplify deployment
         id: amplify
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
-          BRANCH: develop
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
+          BRANCH: dev
           REGION: ${{ vars.AWS_REGION }}
         run: |
           DEPLOY=$(aws amplify create-deployment \
@@ -288,8 +288,8 @@ jobs:
 
       - name: Start deployment
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
-          BRANCH: develop
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
+          BRANCH: dev
           REGION: ${{ vars.AWS_REGION }}
         run: |
           aws amplify start-deployment \
@@ -299,8 +299,8 @@ jobs:
 
       - name: Wait for completion
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
-          BRANCH: develop
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
+          BRANCH: dev
           REGION: ${{ vars.AWS_REGION }}
         run: |
           for i in $(seq 1 30); do

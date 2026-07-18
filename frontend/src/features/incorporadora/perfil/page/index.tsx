@@ -47,12 +47,12 @@ export default function IncorporadoraPerfilPage(): ReactNode {
             {/* Dados cadastrais (readonly) */}
             <div className="card p-5 sm:p-6">
               <div className="mb-4 flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-50">
+                <div className="flex h-8 w-8 items-center justify-center   bg-navy-50">
                   <Building2 className="h-4 w-4 text-navy" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-[#111827]">Dados Cadastrais</h2>
-                  <p className="text-xs text-[#9CA3AF]">Não editáveis — entre em contato para alterar</p>
+                  <h2 className="font-semibold text-foreground">Dados Cadastrais</h2>
+                  <p className="text-xs text-muted-foreground">Não editáveis — entre em contato para alterar</p>
                 </div>
               </div>
               <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
@@ -65,11 +65,11 @@ export default function IncorporadoraPerfilPage(): ReactNode {
                   { icon: Mail, label: "E-mail", value: user?.email },
                   { icon: Phone, label: "Telefone", value: perfil?.telefone },
                 ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-start gap-2.5 rounded-lg bg-[#F9FAFB] px-3 py-2.5">
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />
+                  <div key={label} className="flex items-start gap-2.5   bg-muted px-3 py-2.5">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-[#9CA3AF]">{label}</p>
-                      <p className="font-medium text-[#374151]">{value ?? "—"}</p>
+                      <p className="text-xs text-muted-foreground">{label}</p>
+                      <p className="font-medium text-foreground">{value ?? "—"}</p>
                     </div>
                   </div>
                 ))}
@@ -79,12 +79,12 @@ export default function IncorporadoraPerfilPage(): ReactNode {
             {/* Complementar (editável) */}
             <div className="card p-5 sm:p-6">
               <div className="mb-4 flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold-50">
+                <div className="flex h-8 w-8 items-center justify-center   bg-gold-50">
                   <Globe className="h-4 w-4 text-gold" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-[#111827]">Informações Complementares</h2>
-                  <p className="text-xs text-[#9CA3AF]">Visíveis para os analistas durante a curadoria</p>
+                  <h2 className="font-semibold text-foreground">Informações Complementares</h2>
+                  <p className="text-xs text-muted-foreground">Visíveis para os analistas durante a curadoria</p>
                 </div>
               </div>
 
@@ -96,7 +96,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
                 <div className="form-group">
                   <label className="form-label">Site da empresa</label>
                   <div className="relative">
-                    <Globe className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                    <Globe className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input type="url" className="input-base pl-10" placeholder="https://suaempresa.com.br" value={form.site} onChange={(e) => setForm((p) => ({ ...p, site: e.target.value }))} />
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
                 </div>
                 <div className="flex justify-end pt-2">
                   <button type="submit" disabled={isSaving} className="btn btn-primary">
-                    {isSaving ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Salvando...</> : "Salvar alterações"}
+                    {isSaving ? <><span className="h-4 w-4 animate-spin   border-2 border-white/30 border-t-white" />Salvando...</> : "Salvar alterações"}
                   </button>
                 </div>
               </form>
@@ -120,16 +120,16 @@ export default function IncorporadoraPerfilPage(): ReactNode {
           {/* Sidebar */}
           <div>
             <div className="card p-5">
-              <h3 className="mb-3 text-sm font-semibold text-[#111827]">Documentos da Empresa</h3>
+              <h3 className="mb-3 text-sm font-semibold text-foreground">Documentos da Empresa</h3>
               <div className="space-y-2">
                 {[
                   { label: "Contrato Social", hint: "PDF" },
                   { label: "Comprovante CNPJ", hint: "PDF ou imagem" },
                 ].map(({ label, hint }) => (
-                  <div key={label} className="flex items-center justify-between rounded-lg border border-dashed border-[#D1D5DB] px-3 py-2.5 text-sm">
+                  <div key={label} className="flex items-center justify-between   border border-dashed border-input px-3 py-2.5 text-sm">
                     <div>
-                      <p className="font-medium text-[#374151]">{label}</p>
-                      <p className="text-xs text-[#9CA3AF]">{hint}</p>
+                      <p className="font-medium text-foreground">{label}</p>
+                      <p className="text-xs text-muted-foreground">{hint}</p>
                     </div>
                     <label className="btn btn-secondary btn-sm cursor-pointer">
                       <input type="file" className="sr-only" accept=".pdf,.jpg,.png" />
@@ -138,7 +138,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-[#9CA3AF]">Recomendado antes de submeter o primeiro projeto</p>
+              <p className="mt-3 text-xs text-muted-foreground">Recomendado antes de submeter o primeiro projeto</p>
             </div>
           </div>
         </div>

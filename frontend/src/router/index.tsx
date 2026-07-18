@@ -26,7 +26,7 @@ const AdminIncorporadoraDetalhePage = React.lazy(() => import("@/features/admin/
 
 function Spinner(): ReactNode {
   return (
-    <div className="flex h-screen items-center justify-center bg-[#F4F6FA]">
+    <div className="flex h-screen items-center justify-center bg-background">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-navy/20 border-t-navy" />
     </div>
   );

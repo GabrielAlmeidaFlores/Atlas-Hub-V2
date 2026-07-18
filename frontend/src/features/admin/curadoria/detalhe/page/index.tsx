@@ -43,9 +43,9 @@ const TABS: { key: Tab; label: string; icon: typeof FileText }[] = [
 
 function NoteItem(nota: NotaInterna): ReactNode {
   return (
-    <div className="rounded-xl bg-amber-50 p-3.5">
-      <p className="text-sm text-[#374151]">{nota.texto}</p>
-      <p className="mt-2 text-xs text-[#9CA3AF]">{nota.analistaNome} · {formatDateTime(nota.criadoEm)}</p>
+    <div className="border border-status-warning-border bg-status-warning-subtle p-3.5">
+      <p className="text-sm text-foreground">{nota.texto}</p>
+      <p className="mt-2 text-xs text-muted-foreground">{nota.analistaNome} · {formatDateTime(nota.criadoEm)}</p>
     </div>
   );
 }
@@ -129,7 +129,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
   }
 
   if (isLoading) return <PageSpinner />;
-  if (data === null) return <div className="p-8 text-center text-[#6B7280]">Projeto não encontrado</div>;
+  if (data === null) return <div className="p-8 text-center text-muted-foreground">Projeto não encontrado</div>;
 
   const { projeto } = data;
 
@@ -139,13 +139,13 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
         title={projeto.nome}
         description={`${projeto.cidade}, ${projeto.estado}`}
         breadcrumb={
-          <Link to="/admin/curadoria" className="inline-flex items-center gap-1 text-xs text-[#9CA3AF] hover:text-navy">
+          <Link to="/admin/curadoria" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-navy">
             <ArrowLeft className="h-3 w-3" /> Fila
           </Link>
         }
         action={
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#F3F4F6] px-2.5 py-1 text-xs text-[#6B7280]">Rev. {String(projeto.revisao)}</span>
+            <span className="  bg-muted px-2.5 py-1 text-xs text-muted-foreground">Rev. {String(projeto.revisao)}</span>
             <StatusBadge status={projeto.status} size="md" />
           </div>
         }
@@ -155,13 +155,13 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
         {/* Iniciar análise */}
         {projeto.status === "SUBMETIDO" && (
           <div className="alert alert-info animate-in">
-            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-status-info" />
             <div>
-              <p className="font-semibold text-blue-800">Projeto aguardando análise</p>
-              <p className="mt-0.5 text-sm text-blue-700">Clique para iniciar e atribuir este projeto a você.</p>
+              <p className="font-semibold text-status-info">Projeto aguardando análise</p>
+              <p className="mt-0.5 text-sm text-status-info">Clique para iniciar e atribuir este projeto a você.</p>
               <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/iniciar`, {}), "Análise iniciada!")} disabled={actionLoading}
                 className="btn btn-primary btn-sm mt-3">
-                {actionLoading ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : null}
+                {actionLoading ? <span className="h-3.5 w-3.5 animate-spin   border-2 border-white/30 border-t-white" /> : null}
                 Iniciar análise
               </button>
             </div>
@@ -170,14 +170,14 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
 
         {/* Confirmar publicação */}
         {projeto.status === "APROVADO" && (
-          <div className="card p-5 border-green-200 animate-in">
+          <div className="card p-5 border-status-success-border animate-in">
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100">
-                <ThumbsUp className="h-5 w-5 text-green-600" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center   bg-status-success-subtle">
+                <ThumbsUp className="h-5 w-5 text-status-success" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-green-800">Projeto aprovado — Criar oferta na Divify</p>
-                <ol className="mt-2 list-decimal list-inside space-y-0.5 text-sm text-green-700">
+                <p className="font-semibold text-status-success">Projeto aprovado — Criar oferta na Divify</p>
+                <ol className="mt-2 list-decimal list-inside space-y-0.5 text-sm text-status-success">
                   <li>Acesse o painel admin da Divify</li>
                   <li>Crie a oferta com os dados do projeto</li>
                   <li>Registre o ID e o link da oferta abaixo</li>
@@ -189,7 +189,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 <button type="button"
                   onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/confirmar-publicacao`, { ofertaId, ofertaLink }), "Publicação confirmada!", "/admin/historico")}
                   disabled={actionLoading || ofertaId === "" || ofertaLink === ""}
-                  className="btn mt-3 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50">
+                  className="btn mt-3 bg-status-success text-white hover:opacity-90 disabled:opacity-50">
                   <ExternalLink className="h-4 w-4" />
                   {actionLoading ? "Confirmando..." : "Confirmar Publicação"}
                 </button>
@@ -218,12 +218,12 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                       ["Nome", projeto.nome], ["Modelo", projeto.modelo], ["Tipo", projeto.tipoImovel],
                       ["Localização", `${projeto.cidade}, ${projeto.estado}`], ["Oferta", projeto.tipoOferta ?? "—"],
                     ].map(([k, v]) => (
-                      <div key={k}><dt className="text-[#9CA3AF]">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>
+                      <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>
                     ))}
-                    <div className="col-span-2"><dt className="text-[#9CA3AF]">Endereço</dt><dd className="mt-0.5 font-medium flex items-center gap-1"><MapPin className="h-3 w-3 text-[#9CA3AF]" />{projeto.endereco}</dd></div>
+                    <div className="col-span-2"><dt className="text-muted-foreground">Endereço</dt><dd className="mt-0.5 font-medium flex items-center gap-1"><MapPin className="h-3 w-3 text-muted-foreground" />{projeto.endereco}</dd></div>
                     <div className="col-span-2 mt-2">
-                      <dt className="mb-1.5 text-[#9CA3AF]">Descrição</dt>
-                      <dd className="text-[#374151] leading-relaxed">{projeto.descricao}</dd>
+                      <dt className="mb-1.5 text-muted-foreground">Descrição</dt>
+                      <dd className="text-foreground leading-relaxed">{projeto.descricao}</dd>
                     </div>
                   </dl>
                 )}
@@ -238,12 +238,12 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                       ["Rentabilidade", projeto.rentabilidadeEstimada !== undefined ? `${String(projeto.rentabilidadeEstimada)}% a.a.` : "—"],
                       ["Modelo Retorno", projeto.modeloRetorno ?? "—"],
                     ].map(([k, v]) => (
-                      <div key={k}><dt className="text-[#9CA3AF]">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>
+                      <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>
                     ))}
                     {projeto.planoSaida !== undefined && (
                       <div className="col-span-2">
-                        <dt className="text-[#9CA3AF]">Plano de Saída</dt>
-                        <dd className="mt-0.5 text-[#374151]">{projeto.planoSaida}</dd>
+                        <dt className="text-muted-foreground">Plano de Saída</dt>
+                        <dd className="mt-0.5 text-foreground">{projeto.planoSaida}</dd>
                       </div>
                     )}
                   </dl>
@@ -257,16 +257,16 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                           const urls = Array.isArray(url) ? url : [url as string];
                           return urls.map((u: string, i: number) => (
                             <a key={`${key}-${String(i)}`} href={u} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center justify-between rounded-xl border border-[#E5E7EB] px-4 py-3 hover:bg-[#F9FAFB]">
+                              className="flex items-center justify-between   border border-border px-4 py-3 hover:bg-muted">
                               <div className="flex items-center gap-2.5">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-50"><FileText className="h-4 w-4 text-navy" /></div>
-                                <span className="text-sm font-medium text-[#374151]">{key}</span>
+                                <div className="flex h-8 w-8 items-center justify-center   bg-navy-50"><FileText className="h-4 w-4 text-navy" /></div>
+                                <span className="text-sm font-medium text-foreground">{key}</span>
                               </div>
-                              <ExternalLink className="h-4 w-4 text-[#9CA3AF]" />
+                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
                             </a>
                           ));
                         })
-                      : <p className="py-6 text-center text-sm text-[#9CA3AF]">Nenhum documento</p>
+                      : <p className="py-6 text-center text-sm text-muted-foreground">Nenhum documento</p>
                     }
                   </div>
                 )}
@@ -274,11 +274,11 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 {tab === "equipe" && (
                   <div className="animate-in space-y-3">
                     {(projeto.equipe ?? []).length === 0
-                      ? <p className="py-6 text-center text-sm text-[#9CA3AF]">Nenhum membro</p>
+                      ? <p className="py-6 text-center text-sm text-muted-foreground">Nenhum membro</p>
                       : (projeto.equipe ?? []).map((m, i) => (
-                          <div key={i} className="flex gap-3 rounded-xl border border-[#E5E7EB] p-3.5">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy-100 font-bold text-navy">{m.nome.charAt(0)}</div>
-                            <div><p className="font-semibold text-[#111827]">{m.nome}</p><p className="text-xs text-[#9CA3AF]">{m.cargo}</p><p className="mt-1 text-sm text-[#374151]">{m.bio}</p></div>
+                          <div key={i} className="flex gap-3   border border-border p-3.5">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center   bg-navy-100 font-bold text-navy">{m.nome.charAt(0)}</div>
+                            <div><p className="font-semibold text-foreground">{m.nome}</p><p className="text-xs text-muted-foreground">{m.cargo}</p><p className="mt-1 text-sm text-foreground">{m.bio}</p></div>
                           </div>
                         ))
                     }
@@ -295,27 +295,27 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                             ["CNPJ", data.incorporadora.cnpj || "—"],
                             ["Responsável", data.incorporadora.nomeResponsavel || "—"],
                             ["E-mail", data.incorporadora.email],
-                          ].map(([k, v]) => <div key={k}><dt className="text-[#9CA3AF]">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>)}
+                          ].map(([k, v]) => <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>)}
                         </dl>
                         {data.incorporadora.descricao !== undefined && (
-                          <div className="mt-3"><p className="text-xs text-[#9CA3AF]">Descrição</p><p className="mt-0.5 text-sm text-[#374151]">{data.incorporadora.descricao}</p></div>
+                          <div className="mt-3"><p className="text-xs text-muted-foreground">Descrição</p><p className="mt-0.5 text-sm text-foreground">{data.incorporadora.descricao}</p></div>
                         )}
                         <Link to={`/admin/incorporadoras/${projeto.incorporadoraId}`} className="btn btn-secondary btn-sm mt-4 inline-flex">
                           Ver perfil completo <ExternalLink className="h-3.5 w-3.5" />
                         </Link>
                       </>
-                    ) : <p className="text-sm text-[#9CA3AF]">Dados não disponíveis</p>}
+                    ) : <p className="text-sm text-muted-foreground">Dados não disponíveis</p>}
                   </div>
                 )}
 
                 {tab === "historico" && (
                   <ol className="animate-in space-y-3">
                     {data.historico.length === 0
-                      ? <p className="py-6 text-center text-sm text-[#9CA3AF]">Sem histórico</p>
+                      ? <p className="py-6 text-center text-sm text-muted-foreground">Sem histórico</p>
                       : data.historico.map((e) => (
-                          <li key={e.criadoEm} className="flex gap-3 pb-3 border-b border-[#F3F4F6] last:border-0">
-                            <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-navy" />
-                            <div><p className="text-sm font-medium text-[#111827]">{e.descricao}</p><p className="mt-0.5 text-xs text-[#9CA3AF]">{e.userName} · {formatDateTime(e.criadoEm)}</p></div>
+                          <li key={e.criadoEm} className="flex gap-3 pb-3 border-b border-border last:border-0">
+                            <div className="mt-2 h-2 w-2 shrink-0   bg-navy" />
+                            <div><p className="text-sm font-medium text-foreground">{e.descricao}</p><p className="mt-0.5 text-xs text-muted-foreground">{e.userName} · {formatDateTime(e.criadoEm)}</p></div>
                           </li>
                         ))
                     }
@@ -337,7 +337,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                     </div>
                     <div className="space-y-2">
                       {data.notas.length === 0
-                        ? <p className="text-sm text-[#9CA3AF]">Nenhuma nota</p>
+                        ? <p className="text-sm text-muted-foreground">Nenhuma nota</p>
                         : data.notas.map((n) => <NoteItem key={n.criadoEm} {...n} />)
                       }
                     </div>
@@ -353,9 +353,9 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
               <>
                 <div className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-semibold text-[#111827]">Scorecard</h3>
+                    <h3 className="font-semibold text-foreground">Scorecard</h3>
                     {notaGeral !== null && (
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+                      <div className="flex h-9 w-9 items-center justify-center   bg-navy text-sm font-bold text-white">
                         {String(notaGeral)}
                       </div>
                     )}
@@ -365,8 +365,8 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                     {CRITERIOS.map(({ key, label, peso }) => (
                       <div key={key}>
                         <div className="mb-1 flex items-center justify-between">
-                          <p className="text-xs font-medium text-[#374151]">{label}</p>
-                          <span className="text-[10px] text-[#9CA3AF]">{peso}</span>
+                          <p className="text-xs font-medium text-foreground">{label}</p>
+                          <span className="text-[10px] text-muted-foreground">{peso}</span>
                         </div>
                         <div className="flex flex-col gap-2 sm:flex-row">
                           <input type="number" min={1} max={10}
@@ -383,7 +383,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                   </div>
 
                   <div className="mt-3">
-                    <p className="mb-1.5 text-xs font-medium text-[#374151]">Parecer Final</p>
+                    <p className="mb-1.5 text-xs font-medium text-foreground">Parecer Final</p>
                     <textarea value={parecer} onChange={(e) => setParecer(e.target.value)} rows={3}
                       className="input-base resize-none text-xs" placeholder="Resumo da análise e justificativa..." />
                   </div>
@@ -395,14 +395,14 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 </div>
 
                 <div className="card p-5 space-y-3">
-                  <h3 className="font-semibold text-[#111827]">Decisão</h3>
+                  <h3 className="font-semibold text-foreground">Decisão</h3>
 
                   <div>
                     <textarea value={textoAjuste} onChange={(e) => setTextoAjuste(e.target.value)} rows={2}
                       className="input-base resize-none text-xs" placeholder="Descreva o ajuste necessário..." />
                     <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/ajuste`, { scorecard: buildScorecardBody(), textoAjuste }), "Ajuste solicitado!", "/admin/curadoria")}
                       disabled={actionLoading || textoAjuste.length < 20}
-                      className="btn w-full mt-2 border border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100 btn-sm">
+                      className="btn btn-sm w-full mt-2 border border-status-warning bg-status-warning-subtle text-status-warning hover:opacity-90">
                       <AlertCircle className="h-3.5 w-3.5" /> Solicitar Ajuste
                     </button>
                   </div>
@@ -419,7 +419,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
 
                   <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, { scorecard: buildScorecardBody() }), "Projeto aprovado!")}
                     disabled={actionLoading || parecer.length < 20}
-                    className="btn w-full bg-green-600 text-white hover:bg-green-700 disabled:opacity-50">
+                    className="btn w-full bg-status-success text-white hover:opacity-90 disabled:opacity-50">
                     <ThumbsUp className="h-4 w-4" />
                     {actionLoading ? "Aprovando..." : "Aprovar Projeto"}
                   </button>
@@ -430,15 +430,15 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
             {projeto.status !== "EM_ANALISE" && projeto.status !== "SUBMETIDO" && data.scorecards[0] !== undefined && (
               <div className="card p-5">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-semibold text-[#111827]">Scorecard Final</h3>
+                  <h3 className="font-semibold text-foreground">Scorecard Final</h3>
                   {data.scorecards[0].notaGeral !== undefined && (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+                    <div className="flex h-9 w-9 items-center justify-center   bg-navy text-sm font-bold text-white">
                       {String(data.scorecards[0].notaGeral)}
                     </div>
                   )}
                 </div>
                 {data.scorecards[0].parecer !== undefined && (
-                  <p className="text-sm text-[#374151]">{data.scorecards[0].parecer}</p>
+                  <p className="text-sm text-foreground">{data.scorecards[0].parecer}</p>
                 )}
               </div>
             )}

@@ -83,6 +83,9 @@ A Divify fornece uma plataforma white-label completa. Tudo abaixo já está disp
 - **Portal da Incorporadora** — onde incorporadoras se cadastram, submetem projetos, acompanham o status e recebem feedbacks
 - **Painel de Curadoria (Admin)** — onde a equipe interna analisa, pontua e aprova projetos; funciona também como CRM de projetos e incorporadoras
 
+Fronteira de escopo MVP (o que não construir): [`docs/SCOPE.md`](docs/SCOPE.md).  
+Checklist operacional de curadoria (atas históricas → scorecard): [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md).
+
 ---
 
 ## 3. Usuários do Sistema Atlas Hub

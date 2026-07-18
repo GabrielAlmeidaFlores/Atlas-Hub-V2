@@ -1,93 +1,56 @@
-import { type ReactNode, useState, useEffect } from "react";
+import { type ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight, ShieldCheck, CheckCircle, ChevronDown,
   Menu, X, TrendingUp, Banknote, FileCheck, Clock,
   Building2, Users, Star, BarChart3, Lock,
-  MapPin, Phone,
 } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
+import { AnimateIn } from "@/components/animate-in";
 import { cn } from "@/lib/utils";
 
-/* ── Helpers ─────────────────────────────────────────── */
-function useScrolled(threshold = 24): boolean {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const fn = (): void => setScrolled(window.scrollY > threshold);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, [threshold]);
-  return scrolled;
-}
-
-/* ── Navbar ──────────────────────────────────────────── */
 function Navbar(): ReactNode {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-navy shadow-[0_1px_0_rgb(255_255_255_/_0.08)]">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 lg:px-8">
+    <header className="sticky top-0 z-50 h-16 border-b border-white/10 bg-navy-dark/95 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
         <Logo size="md" scheme="dark" />
-
-        {/* Desktop links */}
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {[
             ["Para Incorporadoras", "#incorporadoras"],
-            ["Para Investidores",   "#investidores"],
-            ["Como Funciona",       "#como-funciona"],
+            ["Para Investidores", "#investidores"],
+            ["Como Funciona", "#como-funciona"],
           ].map(([label, href]) => (
-            <a
-              key={label}
-              href={href}
-              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-            >
+            <a key={label} href={href} className="text-[11px] font-bold uppercase tracking-wider text-white/65 transition-colors hover:text-white">
               {label}
             </a>
           ))}
         </nav>
-
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link to="/login" className="text-sm font-semibold text-white/70 transition-colors hover:text-white">
-            Entrar
-          </Link>
-          <Link to="/cadastro"
-            className="rounded-xl border border-gold/60 bg-gold/10 px-4 py-2 text-sm font-bold text-gold transition-all hover:bg-gold hover:text-white">
-            Cadastrar incorporadora
-          </Link>
+        <div className="hidden items-center gap-3 md:flex">
+          <Link to="/login" className="text-[11px] font-bold uppercase tracking-wider text-white/70 hover:text-white">Entrar</Link>
+          <Link to="/cadastro" className="btn btn-gold btn-lp text-[11px] uppercase tracking-wider">Cadastrar</Link>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setOpen((p) => !p)}
-          className="text-white/80 hover:text-white lg:hidden"
-          aria-label="Menu"
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button type="button" onClick={() => setOpen((p) => !p)} className="border border-white/20 p-1.5 text-white md:hidden" aria-label="Menu">
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
-
-      {/* Mobile drawer */}
       {open && (
-        <div className="border-t border-white/10 bg-navy-dark px-5 py-4 lg:hidden">
+        <div className="border-t border-white/10 bg-navy-dark px-6 py-4 md:hidden">
           <div className="flex flex-col gap-1">
             {[
               ["Para Incorporadoras", "#incorporadoras"],
-              ["Para Investidores",   "#investidores"],
-              ["Como Funciona",       "#como-funciona"],
+              ["Para Investidores", "#investidores"],
+              ["Como Funciona", "#como-funciona"],
             ].map(([label, href]) => (
-              <a
-                key={label}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white"
-              >
+              <a key={label} href={href} onClick={() => setOpen(false)} className="px-2 py-2.5 text-[11px] font-bold uppercase tracking-wider text-white/70 hover:text-white">
                 {label}
               </a>
             ))}
           </div>
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
-            <Link to="/login"    onClick={() => setOpen(false)} className="btn rounded-xl border border-white/20 text-white/80 hover:bg-white/5 w-full justify-center">Entrar</Link>
-            <Link to="/cadastro" onClick={() => setOpen(false)} className="btn bg-gold text-white hover:bg-gold-light w-full justify-center">Cadastrar incorporadora</Link>
+            <Link to="/login" onClick={() => setOpen(false)} className="btn btn-outline w-full justify-center border-white/20 text-white">Entrar</Link>
+            <Link to="/cadastro" onClick={() => setOpen(false)} className="btn btn-gold w-full justify-center">Cadastrar incorporadora</Link>
           </div>
         </div>
       )}
@@ -95,192 +58,80 @@ function Navbar(): ReactNode {
   );
 }
 
-/* ── Hero ────────────────────────────────────────────── */
 function Hero(): ReactNode {
   return (
-    <section className="relative overflow-hidden bg-[#0d1830]">
-      {/* Background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 top-0 h-[300px] w-[300px] rounded-full opacity-25 blur-[100px] sm:h-[600px] sm:w-[600px]"
-          style={{ background: "radial-gradient(circle, #1B2B5E 0%, transparent 70%)" }} />
-        <div className="absolute -right-20 top-20 h-[250px] w-[250px] rounded-full opacity-20 blur-[80px] sm:h-[500px] sm:w-[500px]"
-          style={{ background: "radial-gradient(circle, #C49020 0%, transparent 70%)" }} />
-      </div>
-      <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+    <section className="relative overflow-hidden lp-hero-bg pb-20 pt-16">
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{ backgroundImage: "radial-gradient(circle at 1px 1px, #C49020 1px, transparent 0)", backgroundSize: "28px 28px" }}
+      />
+      <div className="lp-float pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px]  " style={{ background: "radial-gradient(circle, rgb(196 144 32 / 0.18) 0%, transparent 70%)" }} />
 
-      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 sm:pb-20 sm:pt-32 lg:px-8">
-
-        {/* ── Linha 1: o que é ── */}
-        <div className="flex justify-center">
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/70 backdrop-blur-sm">
-            <span className="flex h-2 w-2 rounded-full bg-green-400 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]" />
-            Crowdfunding Imobiliário · Regulado pela CVM Resolução 88
-          </div>
+      <div className="relative mx-auto max-w-6xl px-6 text-center">
+        <div className="mb-6 inline-flex items-center gap-2 border border-gold/30 bg-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gold" style={{ animation: "lp-fade-in 0.5s ease-out both" }}>
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Crowdfunding · CVM Resolução 88
         </div>
-
-        {/* ── Linha 2: headline direta ── */}
-        <div className="mt-8 text-center">
-          <h1 className="mx-auto max-w-4xl text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
-            Incorporadora capta recursos.<br />
-            <span className="text-gradient-gold">Investidor aplica em imóveis.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-white/55 leading-relaxed sm:text-lg lg:text-xl">
-            A Atlas Hub é a plataforma onde <strong className="text-white/80">incorporadoras financiam suas obras
-            sem banco</strong> — e <strong className="text-white/80">investidores entram em projetos imobiliários
-            curados a partir de R$10.</strong>
-          </p>
-        </div>
-
-        {/* ── Linha 3: duas audiências lado a lado ── */}
-        <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
-          {/* Card incorporadora */}
-          <Link
-            to="/cadastro"
-            className="group relative overflow-hidden rounded-2xl border border-gold/30 bg-gold/10 p-5 text-left transition-all hover:border-gold/60 hover:bg-gold/15"
-          >
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gold/20">
-              <Building2 className="h-5 w-5 text-gold" />
-            </div>
-            <p className="text-xs font-bold uppercase tracking-widest text-gold/70">Para Incorporadoras</p>
-            <p className="mt-1 text-base font-bold text-white">Capte sem banco</p>
-            <p className="mt-1 text-sm text-white/50">
-              10% sobre o captado. Sem juros mensais. Sem burocracia bancária.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-gold group-hover:gap-2.5 transition-all">
-              Cadastrar minha incorporadora <ArrowRight className="h-4 w-4" />
-            </div>
+        <h1 className="lp-hero-title mb-6 text-5xl font-extrabold leading-tight tracking-tight md:text-6xl" style={{ animation: "lp-fade-in-up 0.7s 0.1s ease-out both" }}>
+          Construa sem banco.
+          <br />
+          Capte com investidores.
+        </h1>
+        <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/55 md:text-xl" style={{ animation: "lp-fade-in-up 0.7s 0.2s ease-out both" }}>
+          Atlas Hub origina e curadoria projetos imobiliários. Após aprovação, a oferta vai ao ar na Divify — infraestrutura regulatória completa.
+        </p>
+        <div className="flex flex-col justify-center gap-3 sm:flex-row" style={{ animation: "lp-fade-in-up 0.7s 0.32s ease-out both" }}>
+          <Link to="/cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
+            Cadastrar incorporadora <ArrowRight className="h-4 w-4" />
           </Link>
-
-          {/* Card investidor */}
-          <a
-            href="#investidores"
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition-all hover:border-white/20 hover:bg-white/8"
-          >
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-              <TrendingUp className="h-5 w-5 text-white/70" />
-            </div>
-            <p className="text-xs font-bold uppercase tracking-widest text-white/40">Para Investidores</p>
-            <p className="mt-1 text-base font-bold text-white">Invista em imóveis</p>
-            <p className="mt-1 text-sm text-white/50">
-              A partir de R$10 por cota. Projetos curados. 15–30% a.a. estimado.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-white/60 group-hover:gap-2.5 transition-all">
-              Saiba como funciona <ArrowRight className="h-4 w-4" />
-            </div>
+          <a href="#como-funciona" className="btn btn-lp inline-flex items-center justify-center gap-2 border-2 border-white/25 bg-transparent text-sm font-bold text-white hover:bg-white/5">
+            Como funciona
           </a>
         </div>
 
-        {/* ── Linha 4: como funciona em 3 passos ── */}
-        <div className="mx-auto mt-12 max-w-3xl">
-          <p className="mb-5 text-center text-xs font-semibold uppercase tracking-widest text-white/25">
-            Como funciona em 3 passos
-          </p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {[
-              { num: "1", icon: FileCheck, label: "Incorporadora submete o projeto", desc: "Dados, documentos e equipe. Nossa curadoria analisa em até 5 dias." },
-              { num: "2", icon: ShieldCheck, label: "Atlas Hub cuida e publica a oferta", desc: "Oferta regulada CVM 88 vai ao ar. Investidores de todo o Brasil aportam." },
-              { num: "3", icon: Banknote, label: "Recursos liberados para a obra", desc: "Meta atingida → capital vai direto para a SPE. Zero intermediários." },
-            ].map(({ num, icon: Icon, label, desc }) => (
-              <div key={num} className="flex gap-3 rounded-2xl border border-white/8 bg-white/4 p-4 backdrop-blur-sm">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-black text-white/60">
-                  {num}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white/80">{label}</p>
-                  <p className="mt-0.5 text-xs text-white/40 leading-relaxed">{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Linha 5: stats ── */}
-        <div className="mx-auto mt-10 grid w-full max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          {[
-            { value: "10%",  label: "Taxa única total" },
-            { value: "R$10", label: "Mínimo por cota" },
-            { value: "5 dias", label: "Análise curadoria" },
-            { value: "CVM 88", label: "100% regulado" },
-          ].map(({ value, label }) => (
-            <div key={label} className="rounded-xl border border-white/8 bg-white/4 px-3 py-4 text-center backdrop-blur-sm sm:px-4 sm:py-5">
-              <p className="text-xl font-black text-gold sm:text-2xl">{value}</p>
-              <p className="mt-0.5 text-[10px] text-white/40 sm:text-xs">{label}</p>
+        <div className="mt-16 flex flex-wrap justify-center gap-10 border-t border-white/10 pt-10 text-sm text-white/45" style={{ animation: "lp-fade-in-up 0.7s 0.5s ease-out both" }}>
+          {(
+            [
+              ["10%", "Taxa sobre o captado"],
+              ["R$15M", "Limite CVM por oferta"],
+              ["100%", "Curadoria humana"],
+            ] as [string, string][]
+          ).map(([num, label]) => (
+            <div key={label} className="text-center">
+              <div className="text-3xl font-extrabold text-gold">{num}</div>
+              <div className="mt-1 text-[10px] font-bold uppercase tracking-widest">{label}</div>
             </div>
           ))}
-        </div>
-
-        <div className="mt-10 flex justify-center">
-          <a href="#como-funciona" className="animate-bounce opacity-30">
-            <ChevronDown className="h-5 w-5 text-white" />
-          </a>
         </div>
       </div>
     </section>
   );
 }
 
-/* ── Logos / Trust ───────────────────────────────────── */
-/* ── Como Funciona ───────────────────────────────────── */
 function ComoFunciona(): ReactNode {
   const steps = [
-    {
-      num: "01",
-      label: "Submeta o projeto",
-      desc: "Preencha o formulário com dados do empreendimento, documentos e equipe. Simples, digital, sem papelada.",
-      icon: FileCheck,
-      color: "bg-blue-500",
-    },
-    {
-      num: "02",
-      label: "Curadoria Atlas Hub",
-      desc: "Nossa equipe analisa viabilidade, localização e documentação. Resposta em até 5 dias úteis.",
-      icon: ShieldCheck,
-      color: "bg-amber-500",
-    },
-    {
-      num: "03",
-      label: "Oferta vai ao ar",
-      desc: "Publicamos a oferta na plataforma regulada pela CVM 88. Investidores de todo o Brasil acessam.",
-      icon: TrendingUp,
-      color: "bg-navy",
-    },
-    {
-      num: "04",
-      label: "Recursos liberados",
-      desc: "Ao bater a meta, os recursos vão direto para a sua SPE. Sem intermediários, sem atrasos.",
-      icon: Banknote,
-      color: "bg-gold",
-    },
+    { icon: Building2, title: "Cadastre-se", desc: "Crie a conta da incorporadora e complete o perfil da empresa." },
+    { icon: FileCheck, title: "Submeta o projeto", desc: "Wizard em 5 etapas: dados, financeiro, documentos, equipe e revisão." },
+    { icon: BarChart3, title: "Curadoria Atlas", desc: "Analistas pontuam scorecard e decidem: ajuste, reprovação ou aprovação." },
+    { icon: TrendingUp, title: "Oferta no ar", desc: "Após aprovação, a oferta é publicada na Divify para investidores." },
   ];
 
   return (
-    <section id="como-funciona" className="bg-[#F8FAFC] py-24 lg:py-32">
-      <div className="container-max section-pad py-0">
-        <div className="mb-16 max-w-xl">
-          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-navy">Processo</p>
-          <h2 className="text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
-            Do projeto à captação em{" "}
-            <span className="text-gradient-navy">4 etapas</span>
-          </h2>
-          <p className="mt-4 text-lg text-slate-500">
-            Toda a estrutura regulatória já está montada. Você só precisa do projeto.
-          </p>
-        </div>
-
-        <div className="relative grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Connector line desktop */}
-          <div className="absolute left-0 right-0 top-10 hidden h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent lg:block" />
-
-          {steps.map(({ num, label, desc, icon: Icon, color }) => (
-            <div key={num} className="relative card p-6 card-lift">
-              <div className={cn("mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-sm", color)}>
-                <Icon className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-black text-slate-300">{num}</span>
-              <h3 className="mt-1 text-base font-bold text-slate-900">{label}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-500">{desc}</p>
-            </div>
+    <section id="como-funciona" className="lp-steps-section py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <AnimateIn className="mb-14 text-center">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Fluxo</p>
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Como funciona</h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Do cadastro à oferta publicada — um funil claro para incorporadoras.</p>
+        </AnimateIn>
+        <div className="grid gap-0 border border-border md:grid-cols-4">
+          {steps.map(({ icon: Icon, title, desc }, i) => (
+            <AnimateIn key={title} delay={i * 90} className="border-b border-r border-border bg-card p-6 last:border-r-0 md:border-b-0">
+              <div className="lp-step-number mb-4">{i + 1}</div>
+              <Icon className="mb-3 h-5 w-5 text-navy" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{title}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+            </AnimateIn>
           ))}
         </div>
       </div>
@@ -288,169 +139,119 @@ function ComoFunciona(): ReactNode {
   );
 }
 
-/* ── Para Incorporadoras ─────────────────────────────── */
-function ParaIncorporadoras(): ReactNode {
-  const benefits = [
-    { icon: Banknote,   title: "Taxa única de 10%",          desc: "Sem juros mensais durante a obra. Você sabe exatamente o que vai custar antes de começar." },
-    { icon: Clock,      title: "Resposta em até 5 dias",     desc: "Nossa curadoria é ágil. Sem filas, sem burocracia, sem reuniões desnecessárias." },
-    { icon: Users,      title: "Acesso a investidores",      desc: "Sua oferta alcança investidores qualificados de todo o Brasil interessados em imóveis." },
-    { icon: ShieldCheck,title: "Estrutura jurídica pronta",  desc: "SPE, SCP, contratos e documentação CVM 88 — tudo já montado para você usar." },
-    { icon: TrendingUp, title: "Obra em andamento converte", desc: "Projetos com obra iniciada atraem mais investidores. A plataforma mostra isso em destaque." },
-    { icon: Lock,       title: "Patrimônio de afetação",     desc: "Seu projeto fica protegido do seu patrimônio pessoal. Mais segurança para todos." },
+function Incorporadoras(): ReactNode {
+  const diffs = [
+    { icon: Banknote, title: "Sem juros bancários", desc: "Custo previsível: 10% sobre o captado, sem cartório e sem dependência de banco." },
+    { icon: Clock, title: "Capital na obra", desc: "Acesso a investidores enquanto o empreendimento está em construção." },
+    { icon: Lock, title: "Compliance CVM", desc: "Patrimônio de afetação, SPE/SCP e seguro de obra validados na curadoria." },
   ];
 
   return (
-    <section id="incorporadoras" className="bg-white py-24 lg:py-32">
-      <div className="container-max section-pad py-0">
-        <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-
-          {/* Left */}
-          <div>
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-navy">Para Incorporadoras</p>
-            <h2 className="text-4xl font-black leading-[1.15] tracking-tight text-slate-900 sm:text-5xl">
-              Financiamento bancário
-              <br />
-              <span className="line-through text-slate-300">a 1,8% ao mês</span>
-              {" "}ou{" "}
-              <span className="text-gradient-gold">10% total</span>
-            </h2>
-            <p className="mt-5 text-lg text-slate-500 leading-relaxed">
-              Em 18 meses de obra, o banco cobra o equivalente a 37% do valor financiado.
-              A Atlas Hub cobra 10% — uma única vez, sobre o que você captar.
-            </p>
-
-            {/* Comparison box */}
-            <div className="mt-8 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
-              <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-                <div className="p-5">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Banco tradicional</p>
-                  <p className="mt-3 text-3xl font-black text-red-500">~37%</p>
-                  <p className="mt-1 text-xs text-slate-400">em 18 meses de obra (1,8% a.m.)</p>
-                  <ul className="mt-4 space-y-1.5 text-xs text-slate-400">
-                    <li className="flex items-center gap-1.5"><X className="h-3 w-3 text-red-400" /> Taxas de cartório</li>
-                    <li className="flex items-center gap-1.5"><X className="h-3 w-3 text-red-400" /> Garantias reais</li>
-                    <li className="flex items-center gap-1.5"><X className="h-3 w-3 text-red-400" /> Burocracia lenta</li>
-                  </ul>
-                </div>
-                <div className="bg-navy p-5">
-                  <p className="text-xs font-bold uppercase tracking-wider text-navy-200">Atlas Hub</p>
-                  <p className="mt-3 text-3xl font-black text-gold">10%</p>
-                  <p className="mt-1 text-xs text-navy-200/60">uma vez, sobre o captado</p>
-                  <ul className="mt-4 space-y-1.5 text-xs text-navy-200">
-                    <li className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3 text-green-400" /> Zero taxas de cartório</li>
-                    <li className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3 text-green-400" /> 100% digital</li>
-                    <li className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3 text-green-400" /> Resposta em 5 dias</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <Link to="/cadastro" className="btn btn-navy btn-lg mt-8 inline-flex rounded-2xl">
-              Cadastrar meu projeto <ArrowRight className="h-5 w-5" />
-            </Link>
-          </div>
-
-          {/* Right — benefit cards */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {benefits.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="card card-lift p-5">
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-navy-50">
-                  <Icon className="h-4 w-4 text-navy" />
-                </div>
-                <p className="text-sm font-bold text-slate-800">{title}</p>
-                <p className="mt-1 text-xs leading-relaxed text-slate-500">{desc}</p>
-              </div>
-            ))}
-          </div>
+    <section id="incorporadoras" className="py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <AnimateIn className="mb-14 max-w-2xl">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Incorporadoras</p>
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Financiamento além do banco</h2>
+          <p className="mt-3 text-muted-foreground">Submeta projetos, receba feedback da curadoria e publique ofertas com investidores reais.</p>
+        </AnimateIn>
+        <div className="grid gap-4 md:grid-cols-3">
+          {diffs.map(({ icon: Icon, title, desc }, i) => (
+            <AnimateIn key={title} delay={i * 100} className="lp-feature-card">
+              <Icon className="mb-4 h-5 w-5 text-navy" />
+              <h3 className="text-sm font-bold uppercase tracking-wider">{title}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+            </AnimateIn>
+          ))}
         </div>
+        <AnimateIn delay={280} className="mt-10">
+          <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center gap-2">
+            Começar agora <ArrowRight className="h-4 w-4" />
+          </Link>
+        </AnimateIn>
       </div>
     </section>
   );
 }
 
-/* ── Para Investidores ───────────────────────────────── */
-function ParaInvestidores(): ReactNode {
+function Investidores(): ReactNode {
+  const items = [
+    { icon: Users, title: "Ofertas curadas", desc: "Só projetos aprovados pela equipe Atlas entram na vitrine Divify." },
+    { icon: ShieldCheck, title: "Escrow e KYC", desc: "Infraestrutura regulatória, tokenização e compliance ficam com a Divify." },
+    { icon: Star, title: "Retorno imobiliário", desc: "Participação no lucro da venda ou dívida pré-fixada (Modelo 1 — MVP)." },
+  ];
+
   return (
-    <section id="investidores" className="relative overflow-hidden bg-[#0d1830] py-24 lg:py-32">
-      {/* Blobs */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute right-0 top-0 h-96 w-96 rounded-full opacity-20 blur-[80px]" style={{ background: "radial-gradient(circle, #C49020 0%, transparent 70%)" }} />
-      </div>
-
-      <div className="container-max section-pad relative py-0">
-        <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-
-          {/* Left cards */}
-          <div className="order-2 lg:order-1 grid gap-4">
-            {[
-              { tag: "Rentabilidade",  icon: TrendingUp,  color: "text-green-400",  title: "Acima da Selic",               desc: "Projetos imobiliários curados com rentabilidade estimada entre 15% e 30% a.a." },
-              { tag: "Segurança",      icon: ShieldCheck, color: "text-blue-400",   title: "Curadoria rigorosa",            desc: "Cada projeto passa por análise de localização, viabilidade financeira e documentação." },
-              { tag: "Regulamentação", icon: Lock,        color: "text-gold",       title: "CVM 88 — 100% regulamentado",   desc: "Contratos, escrow automático, direito de desistência — tudo conforme a lei." },
-            ].map(({ tag, icon: Icon, color, title, desc }) => (
-              <div key={title} className="card-glass flex gap-4 p-5">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5">
-                  <Icon className={cn("h-5 w-5", color)} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">{tag}</p>
-                  <p className="mt-0.5 font-bold text-white">{title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-white/50">{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right text */}
-          <div className="order-1 lg:order-2">
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-gold">Para Investidores</p>
-            <h2 className="text-4xl font-black leading-[1.15] tracking-tight text-white sm:text-5xl">
-              Imóveis fracionados{" "}
-              <br />
-              <span className="text-gradient-gold">a partir de R$10</span>
-            </h2>
-            <p className="mt-5 text-lg text-white/55 leading-relaxed">
-              Participe de projetos imobiliários curados com as mesmas vantagens dos grandes fundos —
-              fracionado, digital e totalmente regulamentado.
-            </p>
-            <ul className="mt-7 space-y-3">
-              {[
-                "Depósito e saque via PIX em segundos",
-                "Acompanhe seus investimentos em tempo real",
-                "Cancelamento garantido em até 5 dias (CVM 88)",
-                "Mercado secundário para liquidez antecipada",
-                "Informe de rendimentos automático para o IR",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-white/60">
-                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-400" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+    <section id="investidores" className="lp-section-alt py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <AnimateIn className="mb-14 text-center">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Investidores</p>
+          <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Investimento com curadoria</h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">A interface do investidor é white-label Divify — o Atlas garante a qualidade da origem.</p>
+        </AnimateIn>
+        <div className="grid gap-4 md:grid-cols-3">
+          {items.map(({ icon: Icon, title, desc }, i) => (
+            <AnimateIn key={title} delay={i * 100} className="lp-feature-card-gold">
+              <Icon className="mb-4 h-5 w-5 text-gold" />
+              <h3 className="text-sm font-bold uppercase tracking-wider">{title}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+            </AnimateIn>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-/* ── Numbers ─────────────────────────────────────────── */
 function Numeros(): ReactNode {
+  return (
+    <section className="border-y border-border bg-navy py-16 text-white">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 md:grid-cols-4">
+        {(
+          [
+            ["CVM 88", "Regulação"],
+            ["5 etapas", "Wizard de projeto"],
+            ["5 critérios", "Scorecard"],
+            ["3 perfis", "Acesso controlado"],
+          ] as [string, string][]
+        ).map(([v, l], i) => (
+          <AnimateIn key={l} delay={i * 80} className="text-center">
+            <div className="text-2xl font-extrabold text-gold md:text-3xl">{v}</div>
+            <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-white/50">{l}</div>
+          </AnimateIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FAQ(): ReactNode {
+  const [open, setOpen] = useState<number | null>(0);
   const items = [
-    { value: "10%",     label: "Taxa única sobre o captado",        sub: "vs. 37% do banco em 18 meses" },
-    { value: "5 dias",  label: "Prazo de análise da curadoria",     sub: "processo 100% digital" },
-    { value: "R$15M",   label: "Limite por oferta pública",         sub: "regulado pela CVM Resolução 88" },
-    { value: "R$10",    label: "Investimento mínimo por cota",       sub: "acesso democratizado" },
+    { q: "Quem pode captar via Atlas Hub?", a: "Incorporadoras com receita bruta anual de até R$40 milhões (CVM 88), sujeitas à curadoria interna." },
+    { q: "O que a Divify faz?", a: "KYC, escrow, tokenização, vitrine de ofertas e toda a operação do investidor. O Atlas origina e curadoria." },
+    { q: "Qual a taxa da plataforma?", a: "10% sobre o valor captado, cobrado progressivamente — configurado no spread da oferta na Divify." },
+    { q: "Posso resubmeter um projeto reprovado?", a: "Sim. Não há limite de tentativas. O histórico e scorecards anteriores ficam visíveis ao analista." },
   ];
 
   return (
-    <section className="bg-navy py-16">
-      <div className="container-max px-5 lg:px-8">
-        <div className="grid grid-cols-2 gap-px sm:grid-cols-4 bg-white/10 overflow-hidden rounded-2xl lg:grid-cols-4">
-          {items.map(({ value, label, sub }) => (
-            <div key={label} className="bg-navy px-8 py-9 text-center">
-              <p className="text-4xl font-black text-gold lg:text-5xl">{value}</p>
-              <p className="mt-2 text-sm font-semibold text-white/80">{label}</p>
-              <p className="mt-1 text-xs text-white/35">{sub}</p>
+    <section className="py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <AnimateIn className="mb-10 text-center">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">FAQ</p>
+          <h2 className="text-3xl font-extrabold tracking-tight">Perguntas frequentes</h2>
+        </AnimateIn>
+        <div className="border border-border">
+          {items.map(({ q, a }, i) => (
+            <div key={q} className="border-b border-border last:border-b-0">
+              <button
+                type="button"
+                onClick={() => setOpen(open === i ? null : i)}
+                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+              >
+                <span className="text-sm font-bold uppercase tracking-wider text-foreground">{q}</span>
+                <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open === i && "rotate-180")} />
+              </button>
+              {open === i && <p className="px-5 pb-4 text-xs leading-relaxed text-muted-foreground">{a}</p>}
             </div>
           ))}
         </div>
@@ -459,238 +260,62 @@ function Numeros(): ReactNode {
   );
 }
 
-/* ── Depoimentos ─────────────────────────────────────── */
-function Depoimentos(): ReactNode {
-  const items = [
-    {
-      quote: "Financiávamos com banco a 1,8% ao mês. Com a Atlas Hub, pagamos 10% sobre o captado uma única vez. A economia foi enorme e conseguimos escalar para 3 projetos simultâneos.",
-      nome: "R. Santos",
-      cargo: "Diretor — Construtora Horizonte Ltda",
-      cidade: "São Paulo, SP",
-    },
-    {
-      quote: "O processo foi impressionante: submeti terça, aprovado na quinta, oferta publicada na semana seguinte. Em 3 semanas captamos 60% da meta. Nunca vi isso com banco.",
-      nome: "M. Ferreira",
-      cargo: "Sócio — Incorporadora Villa Verde",
-      cidade: "Campinas, SP",
-    },
-    {
-      quote: "Precisávamos de R$800k para tocar a obra sem sócio financeiro. A plataforma nos deu acesso a dezenas de investidores de forma organizada, segura e totalmente regulamentada.",
-      nome: "C. Oliveira",
-      cargo: "CEO — Serra Alta Empreendimentos",
-      cidade: "Balneário Camboriú, SC",
-    },
-  ];
-
-  return (
-    <section className="bg-[#F8FAFC] py-24 lg:py-32">
-      <div className="container-max section-pad py-0">
-        <div className="mb-14">
-          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-navy">Depoimentos</p>
-          <h2 className="max-w-xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
-            Incorporadoras que escolheram a{" "}
-            <span className="text-gradient-navy">captação inteligente</span>
-          </h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {items.map(({ quote, nome, cargo, cidade }) => (
-            <div key={nome} className="card p-7 card-lift flex flex-col">
-              {/* Stars */}
-              <div className="mb-5 flex gap-1">
-                {[1,2,3,4,5].map((s) => (
-                  <Star key={s} className="h-4 w-4 fill-gold text-gold" />
-                ))}
-              </div>
-              <p className="flex-1 text-sm leading-relaxed text-slate-600">"{quote}"</p>
-              <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-sm font-black text-white">
-                  {nome.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">{nome}</p>
-                  <p className="text-xs text-slate-400">{cargo}</p>
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
-                    <MapPin className="h-3 w-3" />{cidade}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── FAQ ─────────────────────────────────────────────── */
-function Faq(): ReactNode {
-  const [open, setOpen] = useState<number | null>(null);
-
-  const items = [
-    { q: "Quanto custa usar a plataforma?",             a: "A taxa é de apenas 10% sobre o valor captado, cobrada uma única vez. Não há mensalidades, taxas de cartório ou cobranças ocultas." },
-    { q: "Quanto tempo leva a análise do meu projeto?", a: "Nossa curadoria responde em até 5 dias úteis. O processo é 100% digital — você acompanha o status em tempo real pelo painel." },
-    { q: "Precisa de SPE para captar?",                 a: "Sim. A SPE (Sociedade de Propósito Específico) é exigida pela CVM 88 para captação pública. Podemos indicar assessoria jurídica para a constituição." },
-    { q: "Qual o valor máximo de captação?",            a: "Pela CVM Resolução 88, o limite é de R$15 milhões por SPE por ano em oferta pública. Para valores maiores, trabalhamos com ofertas privadas (club deal)." },
-    { q: "O investidor pode desistir depois de aportar?", a: "Sim. A CVM 88 garante ao investidor 5 dias para cancelar o investimento sem penalidade. Após esse prazo, a cota é definitiva." },
-  ];
-
-  return (
-    <section className="bg-white py-24 lg:py-32">
-      <div className="container-max section-pad py-0">
-        <div className="grid gap-16 lg:grid-cols-2 lg:items-start">
-          <div>
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-navy">Dúvidas</p>
-            <h2 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
-              Perguntas frequentes
-            </h2>
-            <p className="mt-4 text-lg text-slate-500">
-              Tem outra dúvida? Entre em contato — respondemos em menos de 24h.
-            </p>
-            <div className="mt-8 flex items-center gap-3 rounded-2xl bg-navy-50 p-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy">
-                <Phone className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-navy">Fale com a gente</p>
-                <p className="text-xs text-slate-500">contato@atlashub.com.br</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-slate-50 overflow-hidden">
-            {items.map(({ q, a }, i) => (
-              <div key={q}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(open === i ? null : i)}
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-white"
-                >
-                  <span className="text-sm font-semibold text-slate-800">{q}</span>
-                  <span className={cn(
-                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-all",
-                    open === i && "rotate-45 border-navy text-navy",
-                  )}>
-                    <ArrowRight className="h-3 w-3 rotate-[-45deg]" />
-                  </span>
-                </button>
-                {open === i && (
-                  <div className="animate-in px-6 pb-5">
-                    <p className="text-sm leading-relaxed text-slate-500">{a}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── CTA final ───────────────────────────────────────── */
 function CtaFinal(): ReactNode {
   return (
-    <section className="relative overflow-hidden bg-navy py-24 lg:py-32">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
-        <div className="absolute right-0 top-0 h-80 w-80 rounded-full opacity-20 blur-[80px]" style={{ background: "radial-gradient(circle, #C49020, transparent)" }} />
-      </div>
-
-      <div className="container-max relative px-5 text-center lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <p className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Pronto para começar?</p>
-          <h2 className="text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-            Seu próximo projeto começa aqui
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-white/55">
-            Cadastre sua incorporadora gratuitamente. Nossa curadoria analisa seu projeto em até 5 dias úteis.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link
-              to="/cadastro"
-              className="group inline-flex items-center gap-2.5 rounded-2xl bg-gold px-8 py-4 text-base font-bold text-white shadow-gold-sm transition-all hover:bg-gold-light hover:shadow-[0_4px_20px_rgb(196,144,32,0.5)] active:scale-[0.98]"
-            >
-              Criar conta gratuitamente
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-8 py-4 text-base font-medium text-white/70 transition-all hover:border-white/30 hover:bg-white/5"
-            >
-              Já tenho conta
-            </Link>
-          </div>
-
-          <p className="mt-6 text-xs text-white/25">
-            Sem taxa de cadastro · Curadoria em até 5 dias · CVM Resolução 88
-          </p>
+    <section className="lp-section-alt py-24">
+      <AnimateIn className="mx-auto max-w-6xl border border-border bg-card px-6 py-14 text-center sm:px-12">
+        <CheckCircle className="mx-auto mb-4 h-8 w-8 text-navy" />
+        <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Pronto para submeter seu projeto?</h2>
+        <p className="mx-auto mt-3 max-w-lg text-muted-foreground">Cadastre a incorporadora e inicie o wizard de submissão em minutos.</p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">Criar conta <ArrowRight className="h-4 w-4" /></Link>
+          <Link to="/login" className="btn btn-outline btn-lp inline-flex items-center justify-center">Já tenho conta</Link>
         </div>
-      </div>
+      </AnimateIn>
     </section>
   );
 }
 
-/* ── Footer ──────────────────────────────────────────── */
 function Footer(): ReactNode {
   return (
-    <footer className="bg-[#080f1f] py-14">
-      <div className="container-max px-5 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-2 lg:col-span-2">
-            <Logo size="md" scheme="dark" />
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/35">
-              Plataforma de crowdfunding imobiliário regulada pela CVM Resolução 88.
-              Conectamos incorporadoras e investidores de forma segura e transparente.
-            </p>
-            <div className="mt-5 flex items-center gap-2 text-xs text-white/20">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Licenciado pela Divify · Regulado pela CVM
-            </div>
+    <footer className="border-t border-border bg-navy-dark py-12 text-white/50">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-start md:justify-between">
+        <div>
+          <Logo size="sm" scheme="dark" />
+          <p className="mt-3 max-w-xs text-xs leading-relaxed">Crowdfunding imobiliário regulado pela CVM Resolução 88.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-8 text-[10px] font-bold uppercase tracking-widest">
+          <div className="space-y-2">
+            <p className="text-white/80">Produto</p>
+            <a href="#como-funciona" className="block hover:text-white">Como funciona</a>
+            <a href="#incorporadoras" className="block hover:text-white">Incorporadoras</a>
+            <Link to="/login" className="block hover:text-white">Entrar</Link>
           </div>
-
-          <div>
-            <p className="mb-4 text-xs font-bold uppercase tracking-widest text-white/30">Plataforma</p>
-            <ul className="space-y-3 text-sm text-white/40">
-              {["Para Incorporadoras","Para Investidores","Como Funciona","Regulamentação"].map((item) => (
-                <li key={item}><a href="#" className="transition-colors hover:text-white/70">{item}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="mb-4 text-xs font-bold uppercase tracking-widest text-white/30">Conta</p>
-            <ul className="space-y-3 text-sm text-white/40">
-              <li><Link to="/login"    className="transition-colors hover:text-white/70">Entrar</Link></li>
-              <li><Link to="/cadastro" className="transition-colors hover:text-white/70">Cadastrar Incorporadora</Link></li>
-            </ul>
+          <div className="space-y-2">
+            <p className="text-white/80">Contato</p>
+            <p>contato@atlashub.com.br</p>
           </div>
         </div>
-
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-8 sm:flex-row">
-          <p className="text-xs text-white/20">© 2026 Atlas Hub. Todos os direitos reservados.</p>
-          <p className="text-xs text-white/15">Investimentos envolvem riscos. Leia o prospecto antes de investir.</p>
-        </div>
+      </div>
+      <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 px-6 pt-6 text-[10px] font-bold uppercase tracking-widest">
+        © 2026 Atlas Hub
       </div>
     </footer>
   );
 }
 
-/* ── Page ─────────────────────────────────────────────── */
 export default function LandingPage(): ReactNode {
   return (
-    <>
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <Hero />
       <ComoFunciona />
-      <ParaIncorporadoras />
-      <ParaInvestidores />
+      <Incorporadoras />
+      <Investidores />
       <Numeros />
-      <Depoimentos />
-      <Faq />
+      <FAQ />
       <CtaFinal />
       <Footer />
-    </>
+    </div>
   );
 }
