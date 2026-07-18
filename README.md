@@ -7,7 +7,16 @@ Este repositório cobre o **MVP de originador + curadoria**:
 - **Portal da Incorporadora** — cadastro, perfil, submissão de projetos, acompanhamento
 - **Painel de Curadoria (Admin)** — fila de análise, scorecard, aprovação/reprovação, CRM
 
-> Spec de produto: [`product.md`](product.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
+> Spec de produto: [`product.md`](product.md) · Escopo MVP: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
+
+### Fronteira Atlas × Divify
+
+| Atlas Hub (MVP) | Divify (imediato) | Fase 2 (bloqueada) |
+|---|---|---|
+| Portal Incorporadora + Admin Curadoria | Vitrine, KYC, escrow, cotas, oferta | Portal investidor Atlas + APIs/webhooks |
+| Oferta registrada manualmente após aprovação | Painel cria/publica a oferta | Sync de captação / carteira |
+
+Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos pré-Divify **não** são backlog deste repo.
 
 ---
 
