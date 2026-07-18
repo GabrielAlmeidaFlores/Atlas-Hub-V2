@@ -26,7 +26,6 @@ function assertFile(file: File, mimeType: string): void {
   }
 }
 
-/** Obtém URL pré-assinada e faz PUT do arquivo no S3. Retorna a location pública/persistível. */
 export async function uploadToS3(
   presignPath: string,
   file: File,

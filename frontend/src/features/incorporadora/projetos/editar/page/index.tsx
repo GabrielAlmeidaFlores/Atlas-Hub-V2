@@ -9,6 +9,14 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PageSpinner } from "@/components/ui/spinner";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { cn } from "@/lib/utils";
+import {
+  ViabilidadeCalculator,
+  formToViabilidade,
+  viabilidadeToForm,
+  VIABILIDADE_FORM_EMPTY,
+  type ViabilidadeFormState,
+} from "@/components/shared/viabilidade-calculator";
+import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
@@ -41,6 +49,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [form, setForm] = useState({
     nome: "",
     descricao: "",
@@ -63,6 +72,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       .then((p) => {
         setProjeto(p);
         setDocumentos(p.documentos ?? {});
+        setViabilidadeForm(viabilidadeToForm(p.viabilidade));
         setForm({
           nome: p.nome,
           descricao: p.descricao,
@@ -117,6 +127,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     }
     setIsSaving(true);
     try {
+      const viabilidade = formToViabilidade(viabilidadeForm);
       await api.put(`/projetos/${id}`, {
         nome: form.nome,
         descricao: form.descricao,
@@ -132,6 +143,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         planoSaida: form.planoSaida,
         tipoOferta: form.tipoOferta,
         documentos,
+        ...(viabilidade !== null && { viabilidade }),
       });
       if (projeto.status === "RASCUNHO") {
         await api.post(`/projetos/${id}/submeter`, {});
@@ -187,6 +199,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           <div className="alert alert-warn text-sm">{projeto.textoAjuste}</div>
         )}
 
+        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-5">
         <div className="card p-5 sm:p-6 space-y-4">
           <h2 className="font-semibold text-foreground">Dados do projeto</h2>
           <div className="form-group">
@@ -255,6 +269,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             <label className="form-label">Plano de saída</label>
             <textarea className="input-base resize-none" rows={3} value={form.planoSaida} onChange={setField("planoSaida")} required />
           </div>
+          <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
         </div>
 
         <div className="card p-5 sm:p-6 space-y-3">
@@ -299,6 +314,24 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           <button type="submit" disabled={isSaving} className="btn btn-primary">
             {isSaving ? "Enviando…" : projeto.status === "RASCUNHO" ? "Salvar e submeter" : "Salvar e resubmeter"}
           </button>
+        </div>
+        </div>
+        <div>
+          <ProjetoProgressBar items={getProjetoProgressItems({
+            ...projeto,
+            descricao: form.descricao,
+            valorTotal: form.valorTotal !== "" ? parseFloat(form.valorTotal) : undefined,
+            valorCaptar: form.valorCaptar !== "" ? parseFloat(form.valorCaptar) : undefined,
+            prazoObra: form.prazoObra !== "" ? parseInt(form.prazoObra, 10) : undefined,
+            prazoRetorno: form.prazoRetorno !== "" ? parseInt(form.prazoRetorno, 10) : undefined,
+            rentabilidadeEstimada: form.rentabilidadeEstimada !== "" ? parseFloat(form.rentabilidadeEstimada) : undefined,
+            modeloRetorno: form.modeloRetorno as Projeto["modeloRetorno"],
+            planoSaida: form.planoSaida,
+            tipoOferta: form.tipoOferta as Projeto["tipoOferta"],
+            documentos,
+            viabilidade: formToViabilidade(viabilidadeForm) ?? undefined,
+          })} />
+        </div>
         </div>
       </form>
     </div>

@@ -13,6 +13,7 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
 
 interface CuradoriaDetalhe {
   projeto: Projeto;
@@ -237,7 +238,8 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 )}
 
                 {tab === "financeiro" && (
-                  <dl className="animate-in grid grid-cols-2 gap-3 text-sm">
+                  <div className="animate-in space-y-5">
+                  <dl className="grid grid-cols-2 gap-3 text-sm">
                     {[
                       ["Valor Total", projeto.valorTotal !== undefined ? formatCurrency(projeto.valorTotal) : "—"],
                       ["A Captar", projeto.valorCaptar !== undefined ? formatCurrency(projeto.valorCaptar) : "—"],
@@ -255,6 +257,15 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                       </div>
                     )}
                   </dl>
+                  {projeto.viabilidade !== undefined ? (
+                    <div className="border border-border p-4">
+                      <h4 className="mb-2 text-sm font-semibold text-foreground">Viabilidade calculada</h4>
+                      <ViabilidadeReadOnly data={projeto.viabilidade} />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Incorporadora ainda não preencheu a calculadora de viabilidade.</p>
+                  )}
+                  </div>
                 )}
 
                 {tab === "docs" && (

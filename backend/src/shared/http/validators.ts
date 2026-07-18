@@ -80,6 +80,30 @@ export const atualizarProjetoSchema = z.object({
     cndUrl: z.string().url().optional(),
     outrosUrls: z.array(z.string().url()).max(10).optional(),
   }).optional(),
+  viabilidade: z.object({
+    inputs: z.object({
+      unidades: z.number().positive(),
+      custoObra: z.number().nonnegative(),
+      precoMedioUnidade: z.number().positive(),
+      prazoMeses: z.number().int().min(1).max(120),
+      taxaDescontoInvestidor: z.number().min(0).max(100).optional(),
+      valorTerreno: z.number().nonnegative().optional(),
+      unidadesPermuta: z.number().nonnegative().optional(),
+    }),
+    outputs: z.object({
+      vgv: z.number(),
+      custoPorUnidade: z.number(),
+      custoTerrenoEstimado: z.number(),
+      investimentoTotal: z.number(),
+      retornoLiquido: z.number(),
+      roiPercent: z.number(),
+      fluxoMensal: z.array(z.object({
+        mes: z.number().int().min(1),
+        valor: z.number(),
+      })).max(120),
+    }),
+    atualizadoEm: z.string().min(1),
+  }).optional(),
 });
 
 export const presignSchema = z.object({

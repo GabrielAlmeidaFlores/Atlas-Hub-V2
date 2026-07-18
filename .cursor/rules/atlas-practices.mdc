@@ -1,0 +1,18 @@
+---
+description: Atlas Hub V2 — práticas obrigatórias (sem comentários, sem mocks em PRD, escopo MVP)
+alwaysApply: true
+---
+
+# Atlas Hub — agent practices
+
+Antes de editar, leia o `AGENTS.md` da pasta alvo (`/`, `frontend/`, `backend/`, `docs/`).
+
+## Hard rules
+
+- Sem comentários no código (`//`, `/* */`, JSDoc).
+- Sem mocks/dados fake em produção; MSW só em `frontend/src/mocks` + `import.meta.env.DEV`.
+- Escopo: originador + curadoria (`docs/SCOPE.md`). Não expandir investidor.
+- Diff mínimo; sem commit/deploy sem pedido explícito.
+- Design frontend: `frontend/DESIGN.md`.
+- S3: presign real + PUT; buckets `atlas-hub-documents-{dev|prod}`.
+- Projeto editável só em `RASCUNHO` | `AJUSTE_SOLICITADO` | `REPROVADO`.

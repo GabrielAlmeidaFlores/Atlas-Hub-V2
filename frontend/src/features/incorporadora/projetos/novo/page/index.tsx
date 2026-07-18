@@ -7,6 +7,13 @@ import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
 import type { DocumentosProjeto } from "@/types";
+import {
+  ViabilidadeCalculator,
+  formToViabilidade,
+  VIABILIDADE_FORM_EMPTY,
+  type ViabilidadeFormState,
+} from "@/components/shared/viabilidade-calculator";
+import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -69,6 +76,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [projetoId, setProjetoId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -133,6 +141,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       setEtapa(3);
       return;
     }
+    const viabilidade = formToViabilidade(viabilidadeForm);
     setIsLoading(true);
     try {
       await api.put(`/projetos/${projetoId}`, {
@@ -141,6 +150,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
         documentos,
+        ...(viabilidade !== null && { viabilidade }),
       });
       await api.post(`/projetos/${projetoId}/submeter`, {});
       addToast({ type: "success", title: "Projeto submetido!", description: "Aguarde a análise da nossa equipe." });
@@ -153,6 +163,22 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   }
 
   const progress = Math.round(((etapa - 1) / 4) * 100);
+
+  const progressItems: ProgressItem[] = [
+    { id: "dados", label: "Dados gerais", done: gerais.nome.length >= 3 && gerais.descricao.length >= 200 },
+    {
+      id: "financeiro",
+      label: "Dados financeiros",
+      done: financeiros.valorTotal !== "" && financeiros.valorCaptar !== "" && financeiros.prazoObra !== ""
+        && financeiros.prazoRetorno !== "" && financeiros.rentabilidadeEstimada !== "" && financeiros.planoSaida !== "",
+    },
+    { id: "viabilidade", label: "Calculadora de viabilidade", done: formToViabilidade(viabilidadeForm) !== null },
+    ...DOC_FIELDS.filter((d) => d.required).map((d) => ({
+      id: d.key,
+      label: d.label,
+      done: typeof documentos[d.key] === "string" && documentos[d.key] !== "",
+    })),
+  ];
 
   return (
     <div className="animate-in">
@@ -184,7 +210,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
           </div>
         </div>
 
-        <div className="card p-5 sm:p-6">
+        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2 card p-5 sm:p-6">
           {etapa === 1 && (
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Dados do Projeto</h2>
@@ -244,6 +271,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <Field label="Plano de Saída dos Investidores" hint="Como e quando os investidores receberão o retorno">
                 <textarea className="input-base resize-none" rows={3} placeholder="Ex: Após a venda das unidades, lucro distribuído proporcionalmente às cotas..." value={financeiros.planoSaida} onChange={fin("planoSaida")} required />
               </Field>
+              <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
             </div>
           )}
 
@@ -368,6 +396,10 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               </button>
             )}
           </div>
+        </div>
+        <div className="space-y-4">
+          <ProjetoProgressBar items={progressItems} />
+        </div>
         </div>
       </div>
     </div>

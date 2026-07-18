@@ -81,6 +81,32 @@ export interface DocumentosProjeto {
   readonly outrosUrls?: string[];
 }
 
+export interface ViabilidadeInputs {
+  readonly unidades: number;
+  readonly custoObra: number;
+  readonly precoMedioUnidade: number;
+  readonly prazoMeses: number;
+  readonly taxaDescontoInvestidor?: number;
+  readonly valorTerreno?: number;
+  readonly unidadesPermuta?: number;
+}
+
+export interface ViabilidadeOutputs {
+  readonly vgv: number;
+  readonly custoPorUnidade: number;
+  readonly custoTerrenoEstimado: number;
+  readonly investimentoTotal: number;
+  readonly retornoLiquido: number;
+  readonly roiPercent: number;
+  readonly fluxoMensal: readonly { readonly mes: number; readonly valor: number }[];
+}
+
+export interface ViabilidadeProjeto {
+  readonly inputs: ViabilidadeInputs;
+  readonly outputs: ViabilidadeOutputs;
+  readonly atualizadoEm: string;
+}
+
 /** Project record stored in AtlasProjetos DynamoDB table. */
 export interface Projeto {
   readonly id: string;
@@ -108,6 +134,7 @@ export interface Projeto {
   readonly numParcelas?: number;
   readonly percentualEntrada?: number;
   readonly documentos?: DocumentosProjeto;
+  readonly viabilidade?: ViabilidadeProjeto;
   readonly equipe?: MembroEquipe[];
   readonly analistaId?: string;
   readonly analistaNome?: string;

@@ -8,6 +8,7 @@ import "@/styles/globals.css";
 configureAmplify();
 
 async function enableMocking(): Promise<void> {
+  if (!import.meta.env.DEV) return;
   if (VITE_MODE !== "development") return;
   const { worker, workerOptions } = await import("@/mocks/browser");
   await worker.start(workerOptions);

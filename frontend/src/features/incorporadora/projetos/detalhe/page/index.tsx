@@ -11,6 +11,8 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
+import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
 
 type Tab = "visao-geral" | "documentos" | "equipe" | "historico";
 
@@ -147,6 +149,12 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                         <p className="text-sm leading-relaxed text-foreground">{projeto.planoSaida}</p>
                       </div>
                     )}
+                    {projeto.viabilidade !== undefined && (
+                      <div className="border border-border p-4">
+                        <p className="mb-2 text-xs font-medium text-muted-foreground">Viabilidade calculada</p>
+                        <ViabilidadeReadOnly data={projeto.viabilidade} />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -218,6 +226,7 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
 
           {/* Sidebar */}
           <div className="space-y-4">
+            <ProjetoProgressBar items={getProjetoProgressItems(projeto)} />
             <div className="card p-5">
               <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Status Atual</p>
               <StatusBadge status={projeto.status} size="md" />

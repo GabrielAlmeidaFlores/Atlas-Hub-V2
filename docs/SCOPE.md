@@ -28,3 +28,5 @@ Portal investidor customizado no domínio Atlas e sync de progresso de captaçã
 ## Docs históricos
 
 Pasta local `~/Downloads/personal/projects/atlas-hub/documents` = **Plano A (plataforma completa)**. Índice: `documents/README.md` nessa pasta.
+
+Referência Escalada (UX/viabilidade, não clonar): [`docs/escalada-referencias.md`](escalada-referencias.md).
