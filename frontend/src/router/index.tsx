@@ -12,6 +12,7 @@ const RedefinirSenhaPage   = React.lazy(() => import("@/features/auth/redefinir-
 const IncorporadoraLayout          = React.lazy(() => import("@/app/layouts/incorporadora-layout"));
 const IncorporadoraDashboardPage   = React.lazy(() => import("@/features/incorporadora/dashboard/page"));
 const IncorporadoraProjetoNovoPage = React.lazy(() => import("@/features/incorporadora/projetos/novo/page"));
+const IncorporadoraProjetoEditarPage = React.lazy(() => import("@/features/incorporadora/projetos/editar/page"));
 const IncorporadoraProjetoDetalhePage = React.lazy(() => import("@/features/incorporadora/projetos/detalhe/page"));
 const IncorporadoraPerfilPage      = React.lazy(() => import("@/features/incorporadora/perfil/page"));
 const IncorporadoraNotificacoesPage = React.lazy(() => import("@/features/incorporadora/notificacoes/page"));
@@ -23,6 +24,7 @@ const AdminCuradoriaDetalhePage    = React.lazy(() => import("@/features/admin/c
 const AdminHistoricoPage           = React.lazy(() => import("@/features/admin/historico/page"));
 const AdminIncorporadorasListaPage = React.lazy(() => import("@/features/admin/incorporadoras/lista/page"));
 const AdminIncorporadoraDetalhePage = React.lazy(() => import("@/features/admin/incorporadoras/detalhe/page"));
+const AdminUsuariosPage            = React.lazy(() => import("@/features/admin/usuarios/page"));
 
 function Spinner(): ReactNode {
   return (
@@ -70,10 +72,11 @@ const router = createBrowserRouter([
     ),
     children: [
       { path: "/dashboard",        element: withSuspense(<IncorporadoraDashboardPage />) },
-      { path: "/projetos/novo",    element: withSuspense(<IncorporadoraProjetoNovoPage />) },
-      { path: "/projetos/:id",     element: withSuspense(<IncorporadoraProjetoDetalhePage />) },
-      { path: "/perfil",           element: withSuspense(<IncorporadoraPerfilPage />) },
-      { path: "/notificacoes",     element: withSuspense(<IncorporadoraNotificacoesPage />) },
+      { path: "/projetos/novo",       element: withSuspense(<IncorporadoraProjetoNovoPage />) },
+      { path: "/projetos/:id/editar", element: withSuspense(<IncorporadoraProjetoEditarPage />) },
+      { path: "/projetos/:id",        element: withSuspense(<IncorporadoraProjetoDetalhePage />) },
+      { path: "/perfil",              element: withSuspense(<IncorporadoraPerfilPage />) },
+      { path: "/notificacoes",        element: withSuspense(<IncorporadoraNotificacoesPage />) },
     ],
   },
 
@@ -92,6 +95,7 @@ const router = createBrowserRouter([
       { path: "historico",           element: withSuspense(<AdminHistoricoPage />) },
       { path: "incorporadoras",      element: withSuspense(<AdminIncorporadorasListaPage />) },
       { path: "incorporadoras/:id",  element: withSuspense(<AdminIncorporadoraDetalhePage />) },
+      { path: "usuarios",            element: withSuspense(<AdminUsuariosPage />) },
     ],
   },
 

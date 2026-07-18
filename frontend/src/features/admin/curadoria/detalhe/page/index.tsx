@@ -68,6 +68,14 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
   const [ofertaId, setOfertaId] = useState("");
   const [ofertaLink, setOfertaLink] = useState("");
   const [notaTexto, setNotaTexto] = useState("");
+  const [checklist, setChecklist] = useState({
+    patrimonioAfetacao: false,
+    seguroObra: false,
+    speScp: false,
+    elegibilidadeCvm: false,
+  });
+
+  const checklistOk = checklist.patrimonioAfetacao && checklist.seguroObra && checklist.speScp && checklist.elegibilidadeCvm;
 
   async function reload(): Promise<void> {
     if (id === undefined) return;
@@ -417,8 +425,37 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                     </button>
                   </div>
 
-                  <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, { scorecard: buildScorecardBody() }), "Projeto aprovado!")}
-                    disabled={actionLoading || parecer.length < 20}
+                  <div className="border border-border bg-muted/40 p-3 space-y-2">
+                    <p className="text-xs font-semibold text-foreground">Checklist pré-aprovação</p>
+                    <p className="text-xs text-muted-foreground">Confirme antes de aprovar (obrigatório).</p>
+                    {([
+                      { key: "patrimonioAfetacao" as const, label: "Patrimônio de afetação (cláusula no contrato)" },
+                      { key: "seguroObra" as const, label: "Seguro de obra (apólice antes da oferta)" },
+                      { key: "speScp" as const, label: "SPE/SCP constituída ou em processo" },
+                      { key: "elegibilidadeCvm" as const, label: "Elegibilidade CVM 88 (receita ≤ R$40M / até R$80M)" },
+                    ]).map(({ key, label }) => (
+                      <label key={key} className="flex items-start gap-2 text-xs text-foreground cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="mt-0.5"
+                          checked={checklist[key]}
+                          onChange={(e) => setChecklist((p) => ({ ...p, [key]: e.target.checked }))}
+                        />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!checklistOk) {
+                        addToast({ type: "error", title: "Checklist incompleto", description: "Marque todos os itens pré-aprovação antes de aprovar." });
+                        return;
+                      }
+                      void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, { scorecard: buildScorecardBody() }), "Projeto aprovado!");
+                    }}
+                    disabled={actionLoading || parecer.length < 20 || !checklistOk}
                     className="btn w-full bg-status-success text-white hover:opacity-90 disabled:opacity-50">
                     <ThumbsUp className="h-4 w-4" />
                     {actionLoading ? "Aprovando..." : "Aprovar Projeto"}

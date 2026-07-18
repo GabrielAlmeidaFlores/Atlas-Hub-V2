@@ -158,7 +158,7 @@ functions:
     handler: src/functions/projeto-atualizar.handler
     role: !GetAtt ProjetoAtualizarLambdaRole.Arn
     timeout: 10
-    description: "Updates a project draft (only when RASCUNHO or AJUSTE_SOLICITADO)"
+    description: "Updates a project draft (RASCUNHO, AJUSTE_SOLICITADO or REPROVADO)"
     events:
       - http:
           path: projetos/{id}

@@ -73,9 +73,12 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
         {projeto.status === "REPROVADO" && projeto.justificativaReprovacao !== undefined && (
           <div className="alert alert-error animate-in">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-status-danger" />
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="font-semibold text-status-danger">Projeto reprovado</p>
               <p className="mt-1 text-sm text-status-danger">{projeto.justificativaReprovacao}</p>
+              <Link to={`/projetos/${projeto.id}/editar`} className="btn btn-sm btn-primary mt-3 inline-flex">
+                Corrigir e resubmeter
+              </Link>
             </div>
           </div>
         )}

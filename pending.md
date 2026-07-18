@@ -54,7 +54,7 @@ Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não hou
 
 ## 4. Infraestrutura AWS (a provisionar antes do deploy)
 
-- [ ] **Bucket S3** — para uploads de documentos, fotos de projeto e atualizações de obra
+- [x] **Bucket S3** — `atlas-hub-documents-dev` / `atlas-hub-documents-prod` (sa-east-1); backend pré-assinatura + upload no frontend (wizard, perfil, editar)
 - [ ] **SES configurado** — domínio validado + templates de e-mail criados
 - [ ] **SSM Parameter Store** — secrets sensíveis (ex: chaves de integração futura)
 - [ ] **Conta AWS** — confirmar qual conta será usada (a mesma do Syntonia ou uma nova?)

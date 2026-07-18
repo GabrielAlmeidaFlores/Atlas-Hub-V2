@@ -119,6 +119,8 @@ export const handlers = [
   http.get(`${BASE}/incorporadora/perfil`, () => HttpResponse.json(mockIncorporadora)),
   http.put(`${BASE}/incorporadora/perfil`, () => HttpResponse.json({ updated: true })),
   http.post(`${BASE}/incorporadora/documentos/pre-sign`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/upload?presigned=1", location: "https://example.s3.amazonaws.com/doc.pdf" })),
+  http.put("https://example.s3.amazonaws.com/upload", () => new HttpResponse(null, { status: 200 })),
+  http.put("https://example.s3.amazonaws.com/upload*", () => new HttpResponse(null, { status: 200 })),
 
   http.get(`${BASE}/projetos`, () => HttpResponse.json({ items: mockProjetos, cursor: null, hasMore: false })),
   http.post(`${BASE}/projetos`, () => HttpResponse.json({ id: `proj-${Date.now()}` }, { status: 201 })),
