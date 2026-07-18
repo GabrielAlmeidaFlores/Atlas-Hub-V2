@@ -21,18 +21,18 @@ Antes de `APROVADO`:
 
 - [ ] Patrimônio de afetação (cláusula no contrato)
 - [ ] Seguro de obra (apólice antes da oferta ir ao ar)
-- [ ] SPE/SCP constituída ou em processo (emissora na Divify)
+- [ ] SPE/SCP constituída ou em processo (emissora na plataforma)
 - [ ] Elegibilidade CVM 88: receita bruta incorporadora ≤ R$40M (até R$80M nos casos da norma)
 
-## Pós-aprovação (handoff Divify)
+## Pós-aprovação (publicação da oferta)
 
-- [ ] SPE/SCP cadastrada como emissora na Divify (KYC PJ se necessário)
-- [ ] Oferta criada no painel Divify (pública ou privada)
+- [ ] SPE/SCP cadastrada como emissora na plataforma (KYC PJ se necessário)
+- [ ] Oferta criada no painel da plataforma (pública ou privada)
 - [ ] ID + link da oferta registrados no Atlas → `OFERTA_CRIADA`
 
 ## Explicitamente fora deste checklist (não construir no Atlas MVP)
 
-Suitability do investidor, carteira/PIX, CDB, ranking anônimo, vitrine, notificações de urgência de captação, avanço de obra para investidor — ficam na **Divify** ou Fase 2.
+Suitability do investidor, carteira/PIX, CDB, ranking anônimo, vitrine, notificações de urgência de captação, avanço de obra para investidor — ficam na experiência do investidor Atlas Hub ou na Fase 2.
 
 ## Fontes históricas
 

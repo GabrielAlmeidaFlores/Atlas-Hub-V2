@@ -336,8 +336,8 @@ async function run(): Promise<void> {
       tipoOferta: 'PRIVADA',
       dias: 35,
       analista: true,
-      ofertaId: 'divify-offer-demo-001',
-      ofertaLink: 'https://atlashub.divify.example/ofertas/atlantic-jurere',
+      ofertaId: 'offer-demo-001',
+      ofertaLink: 'https://investir.atlashub.example/ofertas/atlantic-jurere',
     },
     {
       id: randomUUID(),

@@ -95,10 +95,10 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
             <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-status-success" />
             <div>
               <p className="font-semibold text-status-success">Oferta publicada!</p>
-              <p className="mt-1 text-sm text-status-success">Sua oferta está disponível para investidores na plataforma Divify.</p>
+              <p className="mt-1 text-sm text-status-success">Sua oferta está disponível para investidores na plataforma Atlas Hub.</p>
               <a href={projeto.ofertaLink} target="_blank" rel="noopener noreferrer"
                 className="btn btn-sm btn-primary mt-3 inline-flex items-center gap-1.5">
-                <ExternalLink className="h-3.5 w-3.5" /> Ver oferta na Divify
+                <ExternalLink className="h-3.5 w-3.5" /> Ver oferta
               </a>
             </div>
           </div>

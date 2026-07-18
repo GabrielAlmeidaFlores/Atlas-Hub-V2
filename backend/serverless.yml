@@ -344,7 +344,7 @@ functions:
     handler: src/functions/admin-curadoria-confirmar-publicacao.handler
     role: !GetAtt AdminCuradoriaConfirmarPublicacaoLambdaRole.Arn
     timeout: 10
-    description: "Registers the Divify offer ID and confirms publication"
+    description: "Registers the offer ID and confirms publication"
     events:
       - http:
           path: admin/curadoria/{id}/confirmar-publicacao

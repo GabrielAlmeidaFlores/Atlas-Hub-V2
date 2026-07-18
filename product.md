@@ -6,13 +6,13 @@
 
 O **Atlas Hub** é uma plataforma de crowdfunding imobiliário regulada pela **CVM Resolução 88**. Atua como intermediária entre incorporadoras que precisam captar recursos para seus empreendimentos e investidores que buscam rentabilidade no setor imobiliário.
 
-O Atlas Hub opera como **originador de projetos**: capta projetos de incorporadoras, realiza curadoria interna e, após aprovação, publica as ofertas de investimento. Toda a infraestrutura regulatória, financeira e a interface do investidor são fornecidas pela **Divify**, da qual o Atlas Hub é um tenant licenciado (white-label).
+O Atlas Hub opera como **originador de projetos**: capta projetos de incorporadoras, realiza curadoria interna e, após aprovação, publica as ofertas de investimento sob a **marca Atlas Hub**. A infraestrutura regulatória e financeira (KYC, escrow, tokenização, vitrine) roda em stack white-label — o investidor vê apenas Atlas Hub.
 
 ### 1.1 Modelo de Negócio
 
 - O Atlas Hub cobra **10% sobre o valor captado** em cada oferta, cobrado progressivamente conforme o capital entra — não é success fee
-- A Divify é a plataforma homologada pela CVM; o Atlas Hub opera como licenciado identificado por um `x-tenant-id` (UUID) em todas as chamadas de API
-- A taxa de 10% é configurada diretamente no spread da oferta dentro do painel admin da Divify
+- A operação é homologada pela CVM via stack white-label; o Atlas Hub é identificado por um `x-tenant-id` (UUID) em todas as chamadas de API
+- A taxa de 10% é configurada diretamente no spread da oferta dentro do painel da plataforma
 - O emissor (SPE/SCP da incorporadora) recebe os recursos líquidos após a dedução da taxa
 
 ### 1.2 Modelos de Investimento
@@ -39,13 +39,13 @@ Todo projeto aprovado deve atender os seguintes requisitos antes da oferta ir ao
 
 ---
 
-## 2. Divisão de Responsabilidades: Atlas Hub vs. Divify
+## 2. Divisão de Responsabilidades: originador vs. infraestrutura
 
-### 2.1 O que a Divify entrega (não construímos)
+### 2.1 O que a infraestrutura white-label entrega (não construímos neste repo)
 
-A Divify fornece uma plataforma white-label completa. Tudo abaixo já está disponível e operacional:
+A stack white-label (experiência 100% Atlas Hub) já entrega o abaixo — não construímos neste repositório:
 
-**Para o investidor (via white-label):**
+**Para o investidor (marca Atlas Hub):**
 - Landing page com vitrine de ofertas (cards com progresso de captação, rentabilidade, investimento mínimo)
 - Página de detalhe de cada oferta (vídeo YouTube embed, fotos em carrossel, pitch deck, documentos CVM, equipe, FAQ, fórum)
 - Fluxo de cadastro completo (PF e PJ) com KYC automatizado — PF aprovação instantânea, PJ até 2 dias úteis
@@ -58,13 +58,13 @@ A Divify fornece uma plataforma white-label completa. Tudo abaixo já está disp
 - Informe de rendimentos anual (para declaração de IR) — gerado automaticamente
 - Interface 100% responsiva (mobile-first, sem app nativo)
 
-**Para o admin Atlas Hub (via painel Divify):**
+**Para o admin Atlas Hub (via painel da plataforma):**
 - Criação de ofertas públicas (CVM 88) e privadas (club deal, até 15 investidores)
-- Validação jurídica da oferta pelo time Divify (até 3 dias úteis — apenas oferta pública)
+- Validação jurídica da oferta pelo time da plataforma (até 3 dias úteis — apenas oferta pública)
 - Gerenciamento de status das ofertas
 - Lista completa de investidores com dados KYC e documentos
 - Monitoramento de transações em tempo real
-- Distribuição de rendimentos (semi-manual: Atlas Hub informa o valor, Divify emite invoice e distribui automaticamente)
+- Distribuição de rendimentos (semi-manual: Atlas Hub informa o valor, plataforma emite invoice e distribui automaticamente)
 - Moderação do fórum de cada oferta
 - Envio de comunicados e relatórios RI
 - Gerenciamento de equipe interna com diferentes perfis de acesso
@@ -94,7 +94,7 @@ Checklist operacional de curadoria (atas históricas → scorecard): [`docs/cura
 
 - Empresa identificada por CNPJ com receita bruta anual de até R$40M (CVM 88)
 - Acessa exclusivamente o **Portal da Incorporadora**
-- Não tem acesso ao painel de curadoria interno nem ao painel admin da Divify
+- Não tem acesso ao painel de curadoria interno nem ao painel da plataforma
 - Pode: criar conta, completar perfil da empresa, submeter projetos, acompanhar status, responder ajustes solicitados, receber feedbacks e visualizar link da oferta publicada
 - Um CNPJ = uma conta. Múltiplos usuários por empresa não são suportados no MVP
 
@@ -102,7 +102,7 @@ Checklist operacional de curadoria (atas históricas → scorecard): [`docs/cura
 
 - Membro da equipe interna do Atlas Hub
 - Acessa exclusivamente o **Painel de Curadoria**
-- Pode: visualizar todos os projetos submetidos, iniciar análises, preencher scorecard, deixar notas internas, solicitar ajustes, aprovar ou reprovar projetos, confirmar a criação de ofertas na Divify e gerenciar o cadastro de incorporadoras
+- Pode: visualizar todos os projetos submetidos, iniciar análises, preencher scorecard, deixar notas internas, solicitar ajustes, aprovar ou reprovar projetos, confirmar a criação de ofertas na plataforma e gerenciar o cadastro de incorporadoras
 - Contas de analista são criadas manualmente por um administrador master — não há cadastro público
 
 ---
@@ -148,20 +148,20 @@ Pode adicionar notas internas (não visíveis à incorporadora)
               Status → APROVADO
               Incorporadora recebe notificação + e-mail
                       ↓
-              [PRÉ-REQUISITO — antes de ir para a Divify]
-              Verificar se SPE/SCP está constituída e registrada na Divify como emissora
-              Se não estiver, orientar incorporadora a cadastrar PJ na Divify
-              (KYC PJ da Divify: até 2 dias úteis)
+              [PRÉ-REQUISITO — antes de ir para a plataforma]
+              Verificar se SPE/SCP está constituída e registrada na plataforma como emissora
+              Se não estiver, orientar incorporadora a cadastrar PJ na plataforma
+              (KYC PJ da plataforma: até 2 dias úteis)
                       ↓
               [ANALISTA — ação manual fora do sistema]
-              Acessa painel admin da Divify
+              Acessa painel da plataforma
               Cria a oferta com os dados do projeto aprovado
               Define: tipo (pública ou privada), contrato, taxas, parâmetros
-              Para oferta pública: aguarda validação jurídica Divify (até 3 dias úteis)
-              Copia o ID da oferta gerado pela Divify
+              Para oferta pública: aguarda validação jurídica da plataforma (até 3 dias úteis)
+              Copia o ID da oferta gerado pela plataforma
                       ↓
               Retorna ao Painel de Curadoria Atlas Hub
-              Preenche o campo "ID da oferta Divify" e "Link da oferta"
+              Preenche o campo "ID da oferta" e "Link da oferta"
               Confirma a publicação
                       ↓
               Status → OFERTA_CRIADA
@@ -179,8 +179,8 @@ Pode adicionar notas internas (não visíveis à incorporadora)
 | `EM_ANALISE` | Analista | Analista iniciou a revisão. Projeto atribuído a ele |
 | `AJUSTE_SOLICITADO` | Analista | Analista identificou pendências. Campos voltam a ser editáveis para a incorporadora |
 | `REPROVADO` | Analista | Projeto reprovado com justificativa. Incorporadora pode corrigir e resubmeter |
-| `APROVADO` | Analista | Projeto aprovado. Aguarda criação da oferta na Divify |
-| `OFERTA_CRIADA` | Analista | Oferta criada e publicada na Divify. ID e link da oferta registrados no sistema |
+| `APROVADO` | Analista | Projeto aprovado. Aguarda criação da oferta na plataforma |
+| `OFERTA_CRIADA` | Analista | Oferta criada e publicada na plataforma. ID e link da oferta registrados no sistema |
 
 ### Regras de Transição
 
@@ -193,7 +193,7 @@ Pode adicionar notas internas (não visíveis à incorporadora)
 | `EM_ANALISE` | `APROVADO` | Analista | Todos os critérios preenchidos + parecer |
 | `AJUSTE_SOLICITADO` | `SUBMETIDO` | Incorporadora | Editar e resubmeter |
 | `REPROVADO` | `SUBMETIDO` | Incorporadora | Corrigir e resubmeter |
-| `APROVADO` | `OFERTA_CRIADA` | Analista | ID e link da oferta Divify preenchidos + confirmação |
+| `APROVADO` | `OFERTA_CRIADA` | Analista | ID e link da oferta preenchidos + confirmação |
 
 ### Regras de Reatribuição
 
@@ -352,7 +352,7 @@ O progresso é salvo automaticamente como rascunho ao avançar cada etapa. A inc
 | Modelo de retorno | Sim | Participação nos lucros da SPE (SCP) / Dívida (Nota Comercial) |
 | Plano de saída | Sim | Como e quando os investidores receberão o retorno |
 | Tipo de oferta desejada | Sim | Pública (CVM 88, ilimitado de investidores) / Privada (club deal, até 15 investidores) |
-| Investimento parcelado | Não | Se sim: número de parcelas e % de entrada — configurado pelo analista na Divify |
+| Investimento parcelado | Não | Se sim: número de parcelas e % de entrada — configurado pelo analista na plataforma |
 
 #### Etapa 3 — Documentos
 
@@ -443,7 +443,7 @@ Tela completa com todas as informações e painel lateral de status.
 
 **Quando status = `OFERTA_CRIADA`:**
 - Banner verde de confirmação
-- Link direto para a oferta na plataforma Divify
+- Link direto para a oferta Atlas Hub
 - Instrução para compartilhar o link com potenciais investidores
 
 ---
@@ -461,7 +461,7 @@ A incorporadora recebe notificações **in-app** e por **e-mail** nos seguintes 
 | Ajuste solicitado | In-app + E-mail | Nome do projeto + texto completo do analista |
 | Projeto reprovado | In-app + E-mail | Nome do projeto + justificativa completa |
 | Projeto aprovado | In-app + E-mail | Parabéns — oferta será criada em breve |
-| Oferta publicada | In-app + E-mail | Link direto para a oferta na Divify |
+| Oferta publicada | In-app + E-mail | Link direto para a oferta na plataforma |
 
 ---
 
@@ -507,7 +507,7 @@ O painel admin serve como **CRM de projetos e incorporadoras** da equipe interna
 | Aguardando ajuste da incorporadora | Tempo real |
 | Aprovados | Mês atual / Acumulado |
 | Reprovados | Mês atual / Acumulado |
-| Aguardando publicação na Divify | Tempo real |
+| Aguardando publicação na plataforma | Tempo real |
 | Ofertas publicadas | Mês atual / Acumulado |
 | Tempo médio de análise (dias) | Mês atual |
 
@@ -615,13 +615,13 @@ Antes de aprovar, o analista deve confirmar:
 
 #### Fluxo Pós-Aprovação
 
-Após aprovação, a tela exibe um **card de instruções** para criar a oferta na Divify:
+Após aprovação, a tela exibe um **card de instruções** para criar a oferta na plataforma:
 
-**Pré-requisito:** verificar se a SPE/SCP da incorporadora já está cadastrada como emissora na Divify
-- Se não estiver: orientar incorporadora a fazer o cadastro PJ na Divify (KYC até 2 dias úteis)
+**Pré-requisito:** verificar se a SPE/SCP da incorporadora já está cadastrada como emissora na plataforma
+- Se não estiver: orientar incorporadora a fazer o cadastro PJ na plataforma (KYC até 2 dias úteis)
 
-**Passos na Divify (manual):**
-1. Acessar o painel admin da Divify
+**Passos na plataforma (manual):**
+1. Acessar o painel da plataforma
 2. Nova oferta → responder questionário CVM 88
 3. Preencher CNPJ da SPE/SCP emissora
 4. Definir tipo: **pública** (CVM 88) ou **privada** (club deal — conforme indicado pelo projeto)
@@ -634,10 +634,10 @@ Após aprovação, a tela exibe um **card de instruções** para criar a oferta 
 11. Construir página da oferta: título, texto, FAQ
 12. Para oferta pública: pagar taxa de lançamento → aguardar validação jurídica (até 3 dias úteis)
 13. Após aprovação: definir data e hora de abertura
-14. Copiar o ID da oferta e o link público gerados pela Divify
+14. Copiar o ID da oferta e o link público gerados pela plataforma
 
 **Registro no Atlas Hub:**
-1. Preencher campo "ID da oferta Divify"
+1. Preencher campo "ID da oferta"
 2. Preencher campo "Link da oferta"
 3. Clicar em "Confirmar publicação"
 
@@ -665,7 +665,7 @@ Lista todos os projetos com status `APROVADO`, `OFERTA_CRIADA` ou `REPROVADO`.
 | Nota geral | |
 | Decisão | Aprovado / Reprovado |
 | Data da decisão | |
-| ID da oferta Divify | Quando aplicável |
+| ID da oferta | Quando aplicável |
 | Link da oferta | Quando aplicável |
 | Ações | Ver análise completa |
 
@@ -701,17 +701,17 @@ Lista todas as incorporadoras cadastradas.
 
 ---
 
-## 8. Integração com a Divify
+## 8. Integração white-label (plataforma de investimento)
 
 ### 8.1 Modelo de Integração
 
-O Atlas Hub é um **tenant white-label** da Divify. Toda autenticação com a API usa o header `x-tenant-id` (UUID da plataforma Atlas Hub).
+O Atlas Hub é um **tenant white-label** da plataforma. Toda autenticação com a API usa o header `x-tenant-id` (UUID da plataforma Atlas Hub).
 
-A API disponível (`docs-third`) cobre operações do investidor. A gestão de ofertas e a criação de emissores são feitas pelo painel admin da Divify.
+A API disponível (`docs-third`) cobre operações do investidor. A gestão de ofertas e a criação de emissores são feitas pelo painel da plataforma.
 
-### 8.2 Endpoints Disponíveis na API Divify
+### 8.2 Endpoints Disponíveis na API da plataforma de investimento
 
-No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o investidor usa a interface nativa da Divify. Documentados aqui para referência futura.
+No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o investidor usa a interface nativa da plataforma. Documentados aqui para referência futura.
 
 #### Autenticação
 
@@ -821,11 +821,11 @@ No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o inve
 | Listagem de investimentos por usuário | Sem armazenar `purchaseId` localmente, portfolio não é acessível |
 | Dados do perfil autenticado (`GET /user/me`) | Não é possível recuperar dados do investidor após login |
 | Recuperação de senha | Fluxo de "esqueci minha senha" não existe na API |
-| Criação/gestão de ofertas | Somente via painel admin Divify |
+| Criação/gestão de ofertas | Somente via painel da plataforma |
 | Histórico de rendimentos | Não disponível na API |
-| Webhooks de eventos | Status desconhecido — a confirmar com a Divify |
+| Webhooks de eventos | Status desconhecido — a confirmar com o fornecedor da stack |
 
-### 8.4 Modelos de Contrato na Divify
+### 8.4 Modelos de contrato na plataforma
 
 | Tipo | Uso recomendado |
 |---|---|
@@ -837,16 +837,16 @@ No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o inve
 
 Para o MVP (Modelo 1 — Venda): recomendados **SCP** ou **Nota Comercial**.
 
-### 8.5 Tipos de Oferta na Divify
+### 8.5 Tipos de oferta na plataforma
 
 | Tipo | Regras | Quando usar |
 |---|---|---|
 | **Pública** | CVM 88 completo: validação jurídica (3 dias úteis), ilimitado de investidores, triggers automáticos, fórum obrigatório | Projetos com captação ampla |
 | **Privada (club deal)** | Sem publicação CVM 88, até 15 investidores, lista controlada, contratos próprios permitidos, resgate parcial permitido antes do encerramento | Projetos para grupos fechados de investidores |
 
-### 8.6 Checklist de Setup da Plataforma Divify (pré go-live)
+### 8.6 Checklist de setup da plataforma de investimento (pré go-live)
 
-Antes de o sistema Atlas Hub entrar em produção, o seguinte deve estar configurado no painel Divify:
+Antes de o sistema Atlas Hub entrar em produção, o seguinte deve estar configurado no painel da plataforma:
 
 - [ ] Logo da plataforma Atlas Hub
 - [ ] Cores primárias e secundárias
@@ -865,20 +865,20 @@ Antes de o sistema Atlas Hub entrar em produção, o seguinte deve estar configu
 | Regra | Valor | Quem controla |
 |---|---|---|
 | Receita bruta máxima do emissor | R$40M/ano (até R$80M em casos específicos) | Curadoria Atlas Hub |
-| Captação máxima por oferta pública | R$15M por SPE por ano | Configurado na criação da oferta (Divify) |
-| Prazo máximo de captação pública | 180 dias | Divify |
-| Desistência do investidor | 5 dias após a compra | Divify (botão some no 6º dia) |
-| Trigger de sucesso | Mínimo 2/3 do valor alvo | Divify (automático) |
-| Insucesso | Não atingiu 2/3 no prazo | Divify (devolução automática) |
-| Fórum obrigatório | Por oferta | Divify |
-| Prestação de informações semestral | 6 meses após encerramento | Divify (agenda automática) + Atlas Hub (envia o conteúdo) |
+| Captação máxima por oferta pública | R$15M por SPE por ano | Configurado na criação da oferta (plataforma) |
+| Prazo máximo de captação pública | 180 dias | plataforma |
+| Desistência do investidor | 5 dias após a compra | plataforma (botão some no 6º dia) |
+| Trigger de sucesso | Mínimo 2/3 do valor alvo | plataforma (automático) |
+| Insucesso | Não atingiu 2/3 no prazo | plataforma (devolução automática) |
+| Fórum obrigatório | Por oferta | plataforma |
+| Prestação de informações semestral | 6 meses após encerramento | plataforma (agenda automática) + Atlas Hub (envia o conteúdo) |
 
 ### 9.2 Regras Financeiras
 
 - Taxa da plataforma: **10% sobre o valor captado**, cobrada progressivamente durante a captação
-- Configurada no spread da oferta no painel Divify
+- Configurada no spread da oferta no painel da plataforma
 - O emissor recebe líquido após dedução da taxa
-- Recursos durante a captação ficam em conta ECO (escrow Divify) — Atlas Hub não tem acesso
+- Recursos durante a captação ficam em conta ECO (escrow plataforma) — Atlas Hub não tem acesso
 - Após sucesso: recursos liberados para a wallet do emissor → emissor faz cash-out via PIX para conta bancária da SPE
 - **Proibido durante a captação:** aplicar os recursos em CDB ou qualquer investimento — CVM 88 proíbe gestão discricionária dos recursos dos investidores durante a captação
 
@@ -924,7 +924,7 @@ Todas as ações abaixo são registradas com: usuário, data, hora e descrição
 - Solicitação de ajuste
 - Reprovação
 - Aprovação
-- Registro do ID e link da oferta Divify
+- Registro do ID e link da oferta
 - Confirmação de publicação
 
 ---
@@ -935,8 +935,8 @@ Itens que não bloqueiam o desenvolvimento mas devem estar resolvidos antes do g
 
 | Impedimento | Impacto |
 |---|---|
-| Contrato com a Divify não assinado | Sem `x-tenant-id`, a plataforma white-label não é configurada e aprovações não resultam em ofertas publicadas |
-| Pessoa jurídica Atlas Hub não constituída | Necessária para assinar com a Divify e operar como licenciado CVM 88 |
+| Contrato white-label não assinado | Sem `x-tenant-id`, a stack de investimento não é configurada e aprovações não resultam em ofertas publicadas |
+| Pessoa jurídica Atlas Hub não constituída | Necessária para assinar a stack white-label e operar como licenciado CVM 88 |
 | Storage de arquivos não provisionado | Sem S3 (ou equivalente), uploads de documentos não funcionam |
 | Serviço de e-mail transacional não configurado | Notificações e confirmação de cadastro não são enviadas |
 
@@ -948,8 +948,8 @@ Itens que não bloqueiam o desenvolvimento mas devem estar resolvidos antes do g
 |---|---|
 | Modelos 2 e 3 (Renda e Misto) | Construção para aluguel e modelo misto com distribuição de aluguéis |
 | Múltiplos usuários por incorporadora | Equipe da incorporadora com diferentes permissões no portal |
-| Automação da criação de oferta na Divify | Via API quando Divify disponibilizar o endpoint |
-| Webhooks Divify → Atlas Hub | Sincronização automática: captação encerrada, distribuição paga, etc. |
+| Automação da criação de oferta na plataforma | Via API quando plataforma disponibilizar o endpoint |
+| Webhooks da plataforma → Atlas Hub | Sincronização automática: captação encerrada, distribuição paga, etc. |
 | Curadoria com dados de APIs externas | Urbit, Zoneval ou CASAFARI para enriquecer a análise do analista |
 | Governance / Votação | Mecanismo para investidores votarem em decisões relevantes (ex: mudança de modelo) |
 | Acompanhamento de obra | Painel com progresso físico da obra (integração com Arquis ou similar) |

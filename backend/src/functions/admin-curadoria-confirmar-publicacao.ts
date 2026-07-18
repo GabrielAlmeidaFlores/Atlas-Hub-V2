@@ -34,7 +34,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       acao: 'OFERTA_CRIADA',
       userId: analistaId,
       userName: analistaEmail,
-      descricao: `Oferta criada na Divify. ID: ${body.ofertaId}`,
+      descricao: `Oferta publicada na plataforma. ID: ${body.ofertaId}`,
       statusAnterior: 'APROVADO',
       statusNovo: 'OFERTA_CRIADA',
     };

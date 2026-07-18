@@ -31,7 +31,7 @@ const COLUMNS = [
   { label: "Analista" },
   { label: "Decisão" },
   { label: "Data" },
-  { label: "Oferta Divify" },
+  { label: "Oferta" },
   { label: "", align: "right" as const },
 ];
 

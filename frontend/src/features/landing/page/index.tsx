@@ -78,7 +78,7 @@ function Hero(): ReactNode {
           Capte com investidores.
         </h1>
         <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/55 md:text-xl" style={{ animation: "lp-fade-in-up 0.7s 0.2s ease-out both" }}>
-          Atlas Hub origina e curadoria projetos imobiliários. Após aprovação, a oferta vai ao ar na Divify — infraestrutura regulatória completa.
+          Atlas Hub origina e faz a curadoria de projetos imobiliários. Após aprovação, a oferta vai ao ar para investidores — com infraestrutura regulatória completa.
         </p>
         <div className="flex flex-col justify-center gap-3 sm:flex-row" style={{ animation: "lp-fade-in-up 0.7s 0.32s ease-out both" }}>
           <Link to="/cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
@@ -113,7 +113,7 @@ function ComoFunciona(): ReactNode {
     { icon: Building2, title: "Cadastre-se", desc: "Crie a conta da incorporadora e complete o perfil da empresa." },
     { icon: FileCheck, title: "Submeta o projeto", desc: "Wizard em 5 etapas: dados, financeiro, documentos, equipe e revisão." },
     { icon: BarChart3, title: "Curadoria Atlas", desc: "Analistas pontuam scorecard e decidem: ajuste, reprovação ou aprovação." },
-    { icon: TrendingUp, title: "Oferta no ar", desc: "Após aprovação, a oferta é publicada na Divify para investidores." },
+    { icon: TrendingUp, title: "Oferta no ar", desc: "Após aprovação, a oferta é publicada na plataforma para investidores." },
   ];
 
   return (
@@ -175,8 +175,8 @@ function Incorporadoras(): ReactNode {
 
 function Investidores(): ReactNode {
   const items = [
-    { icon: Users, title: "Ofertas curadas", desc: "Só projetos aprovados pela equipe Atlas entram na vitrine Divify." },
-    { icon: ShieldCheck, title: "Escrow e KYC", desc: "Infraestrutura regulatória, tokenização e compliance ficam com a Divify." },
+    { icon: Users, title: "Ofertas curadas", desc: "Só projetos aprovados pela equipe Atlas entram na vitrine de investimento." },
+    { icon: ShieldCheck, title: "Escrow e KYC", desc: "Infraestrutura regulatória, tokenização e compliance embutidos na plataforma." },
     { icon: Star, title: "Retorno imobiliário", desc: "Participação no lucro da venda ou dívida pré-fixada (Modelo 1 — MVP)." },
   ];
 
@@ -186,7 +186,7 @@ function Investidores(): ReactNode {
         <AnimateIn className="mb-14 text-center">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Investidores</p>
           <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Investimento com curadoria</h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">A interface do investidor é white-label Divify — o Atlas garante a qualidade da origem.</p>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">A experiência do investidor é 100% Atlas Hub — o Atlas garante a qualidade da origem e da operação.</p>
         </AnimateIn>
         <div className="grid gap-4 md:grid-cols-3">
           {items.map(({ icon: Icon, title, desc }, i) => (
@@ -228,8 +228,8 @@ function FAQ(): ReactNode {
   const [open, setOpen] = useState<number | null>(0);
   const items = [
     { q: "Quem pode captar via Atlas Hub?", a: "Incorporadoras com receita bruta anual de até R$40 milhões (CVM 88), sujeitas à curadoria interna." },
-    { q: "O que a Divify faz?", a: "KYC, escrow, tokenização, vitrine de ofertas e toda a operação do investidor. O Atlas origina e curadoria." },
-    { q: "Qual a taxa da plataforma?", a: "10% sobre o valor captado, cobrado progressivamente — configurado no spread da oferta na Divify." },
+    { q: "Como funciona a parte do investidor?", a: "KYC, escrow, tokenização, vitrine de ofertas e a operação do investidor ficam na plataforma Atlas Hub. O portal de originador e a curadoria são onde as incorporadoras e a equipe Atlas trabalham." },
+    { q: "Qual a taxa da plataforma?", a: "10% sobre o valor captado, cobrado progressivamente — configurado no spread da oferta." },
     { q: "Posso resubmeter um projeto reprovado?", a: "Sim. Não há limite de tentativas. O histórico e scorecards anteriores ficam visíveis ao analista." },
   ];
 

@@ -1,6 +1,6 @@
 # Atlas Hub V2
 
-Plataforma de **crowdfunding imobiliário** regulada pela **CVM Resolução 88**. O Atlas Hub origina e faz a curadoria de projetos de incorporadoras; a infraestrutura do investidor (KYC, escrow, tokenização, ofertas) fica a cargo da **Divify** (white-label).
+Plataforma de **crowdfunding imobiliário** regulada pela **CVM Resolução 88**. O Atlas Hub origina e faz a curadoria de projetos de incorporadoras e publica ofertas sob a marca Atlas Hub (KYC, escrow, tokenização e vitrine do investidor incluídos na experiência Atlas).
 
 Este repositório cobre o **MVP de originador + curadoria**:
 
@@ -9,14 +9,14 @@ Este repositório cobre o **MVP de originador + curadoria**:
 
 > Spec de produto: [`product.md`](product.md) · Escopo MVP: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
 
-### Fronteira Atlas × Divify
+### Fronteira de escopo MVP
 
-| Atlas Hub (MVP) | Divify (imediato) | Fase 2 (bloqueada) |
+| Este repo (MVP) | Experiência Atlas (já disponível) | Fase 2 (bloqueada) |
 |---|---|---|
-| Portal Incorporadora + Admin Curadoria | Vitrine, KYC, escrow, cotas, oferta | Portal investidor Atlas + APIs/webhooks |
-| Oferta registrada manualmente após aprovação | Painel cria/publica a oferta | Sync de captação / carteira |
+| Portal Incorporadora + Admin Curadoria | Vitrine, KYC, escrow, cotas, oferta (marca Atlas) | Sync avançado via APIs/webhooks |
+| Registro manual de ID/link após aprovação | Painel cria/publica a oferta | Captação e carteira sincronizadas |
 
-Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos pré-Divify **não** são backlog deste repo.
+Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos Plano A **não** são backlog deste repo.
 
 ---
 
@@ -115,7 +115,7 @@ RASCUNHO → SUBMETIDO → EM_ANALISE → APROVADO → OFERTA_CRIADA
                          └── REPROVADO → (resubmete) → SUBMETIDO
 ```
 
-Após `APROVADO`, a criação da oferta na Divify é **manual** no MVP: o analista cria a oferta no painel Divify e registra ID + link no Atlas Hub (`OFERTA_CRIADA`).
+Após `APROVADO`, a criação da oferta na plataforma é **manual** no MVP: o analista cria a oferta no painel da plataforma e registra ID + link no Atlas Hub (`OFERTA_CRIADA`).
 
 ---
 
@@ -178,7 +178,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Banner de ajuste | Texto do analista + editar + resubmeter (`AJUSTE_SOLICITADO`) |
 | Banner de reprovação | Justificativa + resubmeter com correções (`REPROVADO`) |
 | Banner de aprovação | Aviso de criação da oferta (`APROVADO`) |
-| Banner de oferta publicada | Link direto da oferta na Divify (`OFERTA_CRIADA`) |
+| Banner de oferta publicada | Link direto da oferta na plataforma (`OFERTA_CRIADA`) |
 
 #### 2.5 Notificações (incorporadora)
 
@@ -210,7 +210,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 
 | Funcionalidade | Descrição |
 |---|---|
-| Métricas | Submetidos, em análise, aguardando ajuste, aprovados, reprovados, aguardando Divify, ofertas publicadas (mês / acumulado) |
+| Métricas | Submetidos, em análise, aguardando ajuste, aprovados, reprovados, aguardando publicação, ofertas publicadas (mês / acumulado) |
 | Tempo médio de análise | Em dias (mês atual) |
 | Funil visual | Submetidos → Em análise → Aprovados → Oferta criada (com desvios para ajuste/reprovação) |
 
@@ -237,7 +237,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Solicitar ajuste | → `AJUSTE_SOLICITADO` + notificação |
 | Reprovar | Scorecard completo + parecer → `REPROVADO` |
 | Aprovar | Scorecard + checklist + parecer → `APROVADO` |
-| Confirmar publicação Divify | Registra ID + link da oferta → `OFERTA_CRIADA` |
+| Confirmar publicação da oferta | Registra ID + link da oferta → `OFERTA_CRIADA` |
 | Histórico de resubmissões | Exibe “Revisão N” e scorecards anteriores |
 
 #### 3.5 Histórico de decisões
@@ -245,7 +245,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Funcionalidade | Descrição |
 |---|---|
 | Lista de decididos | `APROVADO`, `OFERTA_CRIADA`, `REPROVADO` |
-| Colunas | Projeto, incorporadora, modelo, oferta, valor, analista, nota, decisão, data, ID/link Divify |
+| Colunas | Projeto, incorporadora, modelo, oferta, valor, analista, nota, decisão, data, ID/link da oferta |
 | Filtros | Decisão, analista, datas, tipo de oferta |
 | Ver análise completa | Abre o detalhe com scorecard e notas |
 
@@ -298,7 +298,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | `POST` | `/admin/curadoria/{id}/ajuste` | Solicitar ajuste |
 | `POST` | `/admin/curadoria/{id}/reprovar` | Reprovar |
 | `POST` | `/admin/curadoria/{id}/aprovar` | Aprovar |
-| `POST` | `/admin/curadoria/{id}/confirmar-publicacao` | Confirmar oferta Divify |
+| `POST` | `/admin/curadoria/{id}/confirmar-publicacao` | Confirmar oferta |
 | `POST` | `/admin/curadoria/{id}/notas` | Nota interna |
 | `POST` | `/admin/curadoria/{id}/reatribuir` | Reatribuir (master) |
 | `GET` | `/admin/historico` | Histórico de decisões |
@@ -325,16 +325,16 @@ Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no D
 
 ---
 
-### 6. Integração Divify (MVP)
+### 6. Integração white-label (MVP)
 
 No MVP a integração é **operacional/manual**, não via API:
 
 1. Analista aprova no Atlas Hub  
-2. Cria a oferta no painel admin Divify (pública ou privada, SCP/Nota Comercial, spread 10%)  
+2. Cria a oferta no painel da plataforma (pública ou privada, SCP/Nota Comercial, spread 10%)  
 3. Registra ID + link no Atlas Hub → `OFERTA_CRIADA`  
 4. Incorporadora recebe o link para compartilhar com investidores  
 
-O que a Divify entrega (fora deste repo): vitrine, KYC, investimento PIX, escrow, tokenização, mercado secundário, triggers CVM.
+Fora deste repo (já na experiência Atlas Hub): vitrine, KYC, investimento PIX, escrow, tokenização, mercado secundário, triggers CVM.
 
 ---
 
@@ -344,7 +344,7 @@ O que a Divify entrega (fora deste repo): vitrine, KYC, investimento PIX, escrow
 |---|---|
 | Modelos 2 e 3 | Construção para renda e modelo misto |
 | Multi-usuário por incorporadora | Equipe com permissões no portal |
-| Automação Divify | Criação de oferta via API + webhooks |
+| Automação da oferta | Criação de oferta via API + webhooks |
 | APIs externas na curadoria | Urbit, Zoneval, CASAFARI |
 | Acompanhamento de obra | Progresso físico (ex.: Arquis) |
 | Score automático | Avaliação assistida por algoritmo |
@@ -532,9 +532,9 @@ aws cognito-idp list-groups \
 
 ---
 
-## Atlas Hub vs Divify
+## Atlas Hub — o que este repo entrega
 
-| Atlas Hub (este repo) | Divify (não construímos) |
+| Este repositório (MVP) | Experiência investidor Atlas Hub |
 |---|---|
 | Portal da Incorporadora | Vitrine e fluxo de investimento |
 | Painel de Curadoria | KYC, escrow, tokenização |
@@ -550,7 +550,7 @@ Modelo de negócio (Atlas): **10% do valor captado**, cobrado progressivamente. 
 |---|---|
 | [`product.md`](product.md) | Spec completa de produto (~958 linhas) |
 | [`deploy.md`](deploy.md) | Guia detalhado de produção AWS |
-| [`pending.md`](pending.md) | Decisões abertas (Divify, SES, produto) |
+| [`pending.md`](pending.md) | Decisões abertas (plataforma, SES, produto) |
 
 ---
 

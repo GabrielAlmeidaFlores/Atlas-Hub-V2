@@ -126,7 +126,7 @@ export const reprovarSchema = z.object({
 export const aprovarSchema = reprovarSchema.omit({ justificativa: true });
 
 export const confirmarPublicacaoSchema = z.object({
-  ofertaId: z.string().min(1, 'ID da oferta Divify é obrigatório').max(200),
+  ofertaId: z.string().min(1, 'ID da oferta é obrigatório').max(200),
   ofertaLink: z.string().url('Link da oferta inválido'),
 });
 

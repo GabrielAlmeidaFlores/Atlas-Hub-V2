@@ -176,14 +176,14 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 <ThumbsUp className="h-5 w-5 text-status-success" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-status-success">Projeto aprovado — Criar oferta na Divify</p>
+                <p className="font-semibold text-status-success">Projeto aprovado — Criar oferta na plataforma</p>
                 <ol className="mt-2 list-decimal list-inside space-y-0.5 text-sm text-status-success">
-                  <li>Acesse o painel admin da Divify</li>
+                  <li>Acesse o painel da plataforma de investimento</li>
                   <li>Crie a oferta com os dados do projeto</li>
                   <li>Registre o ID e o link da oferta abaixo</li>
                 </ol>
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <input value={ofertaId} onChange={(e) => setOfertaId(e.target.value)} className="input-base text-sm" placeholder="ID da Oferta Divify" />
+                  <input value={ofertaId} onChange={(e) => setOfertaId(e.target.value)} className="input-base text-sm" placeholder="ID da oferta" />
                   <input type="url" value={ofertaLink} onChange={(e) => setOfertaLink(e.target.value)} className="input-base text-sm" placeholder="https://..." />
                 </div>
                 <button type="button"
