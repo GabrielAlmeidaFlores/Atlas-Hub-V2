@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 import type { Notificacao } from "@/types";
 
 const TIPO_COLORS: Record<Notificacao["tipo"], string> = {
-  PROJETO_SUBMETIDO: "bg-blue-100 text-blue-600",
-  ANALISE_INICIADA: "bg-amber-100 text-amber-600",
-  AJUSTE_SOLICITADO: "bg-orange-100 text-orange-600",
-  REPROVADO: "bg-red-100 text-red-600",
-  APROVADO: "bg-green-100 text-green-600",
-  OFERTA_CRIADA: "bg-emerald-100 text-emerald-600",
+  PROJETO_SUBMETIDO: "bg-status-info-subtle text-status-info",
+  ANALISE_INICIADA: "bg-status-warning-subtle text-status-warning",
+  AJUSTE_SOLICITADO: "bg-status-warning-subtle text-status-warning",
+  REPROVADO: "bg-status-danger-subtle text-status-danger",
+  APROVADO: "bg-status-success-subtle text-status-success",
+  OFERTA_CRIADA: "bg-status-success-subtle text-status-success",
 };
 
 export default function IncorporadoraNotificacoesPage(): ReactNode {
@@ -44,10 +44,10 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
 
       <div className="page-content">
         {isLoading ? (
-          <div className="card divide-y divide-[#F3F4F6]">
+          <div className="card divide-y divide-border">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex gap-4 p-4">
-                <Skeleton className="h-9 w-9 rounded-full" />
+                <Skeleton className="h-9 w-9  " />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-3 w-72" />
@@ -63,35 +63,35 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
             description="Você será notificado sobre o andamento dos seus projetos aqui"
           />
         ) : (
-          <div className="card overflow-hidden divide-y divide-[#F3F4F6]">
+          <div className="card overflow-hidden divide-y divide-border">
             {items.map((notif) => (
               <div
                 key={notif.criadoEm}
                 className={cn(
                   "flex items-start gap-4 px-4 py-4 transition-colors",
-                  !notif.lida && "bg-navy-50/40",
+                  !notif.lida && "bg-navy-50",
                 )}
               >
                 <div className={cn(
-                  "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                  TIPO_COLORS[notif.tipo] ?? "bg-gray-100 text-gray-600",
+                  "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center  ",
+                  TIPO_COLORS[notif.tipo] ?? "bg-muted text-muted-foreground",
                 )}>
                   <Bell className="h-4 w-4" />
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className={cn("text-sm", !notif.lida ? "font-semibold text-[#111827]" : "font-medium text-[#374151]")}>
+                  <p className={cn("text-sm", !notif.lida ? "font-semibold text-foreground" : "font-medium text-foreground")}>
                     {notif.titulo}
                   </p>
-                  <p className="mt-0.5 text-sm text-[#6B7280]">{notif.mensagem}</p>
-                  <p className="mt-1 text-xs text-[#9CA3AF]">{timeAgo(notif.criadoEm)}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{notif.mensagem}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{timeAgo(notif.criadoEm)}</p>
                 </div>
 
                 {!notif.lida && (
                   <button
                     type="button"
                     onClick={() => void marcarLida(notif.criadoEm)}
-                    className="shrink-0 rounded-lg p-1.5 text-[#9CA3AF] hover:bg-[#E5E7EB] hover:text-navy"
+                    className="shrink-0   p-1.5 text-muted-foreground hover:bg-muted hover:text-navy"
                     title="Marcar como lida"
                   >
                     <Check className="h-4 w-4" />

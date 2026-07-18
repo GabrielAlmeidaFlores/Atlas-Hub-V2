@@ -108,7 +108,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       <div className="page-content">
         {/* Progress */}
         <div className="mb-6 card p-4">
-          <div className="mb-3 flex items-center justify-between text-xs text-[#6B7280]">
+          <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-medium">{ETAPAS[etapa - 1]?.label ?? ""}</span>
             <span>{String(etapa)} de 5</span>
           </div>
@@ -120,9 +120,9 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <button key={num} type="button"
                 onClick={() => { if (num < etapa) setEtapa(num); }}
                 className={cn("flex items-center gap-1.5 text-xs font-medium transition-colors",
-                  num === etapa ? "text-navy" : num < etapa ? "cursor-pointer text-green-600 hover:text-green-700" : "text-[#9CA3AF]")}>
-                <div className={cn("flex h-6 w-6 items-center justify-center rounded-full",
-                  num === etapa ? "bg-navy text-white" : num < etapa ? "bg-green-100 text-green-600" : "bg-[#E5E7EB] text-[#9CA3AF]")}>
+                  num === etapa ? "text-navy" : num < etapa ? "cursor-pointer text-status-success hover:text-status-success" : "text-muted-foreground")}>
+                <div className={cn("flex h-6 w-6 items-center justify-center  ",
+                  num === etapa ? "bg-navy text-white" : num < etapa ? "bg-status-success-subtle text-status-success" : "bg-muted text-muted-foreground")}>
                   {num < etapa ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
                 </div>
                 {label}
@@ -134,7 +134,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         <div className="card p-5 sm:p-6">
           {etapa === 1 && (
             <div className="space-y-4 animate-in">
-              <h2 className="font-semibold text-[#111827]">Dados do Projeto</h2>
+              <h2 className="font-semibold text-foreground">Dados do Projeto</h2>
               <Field label="Nome do Projeto"><input className="input-base" placeholder="Ex: Residencial Park View" value={gerais.nome} onChange={g("nome")} required /></Field>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Modelo de Investimento">
@@ -168,7 +168,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
           {etapa === 2 && (
             <div className="space-y-4 animate-in">
-              <h2 className="font-semibold text-[#111827]">Dados Financeiros</h2>
+              <h2 className="font-semibold text-foreground">Dados Financeiros</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Valor Total do Projeto (R$)"><input type="number" className="input-base" placeholder="0" min={0} value={financeiros.valorTotal} onChange={fin("valorTotal")} required /></Field>
                 <Field label="Valor a Captar (R$)" hint="Máx. R$15M (CVM 88)"><input type="number" className="input-base" placeholder="0" min={0} max={15000000} value={financeiros.valorCaptar} onChange={fin("valorCaptar")} required /></Field>
@@ -196,8 +196,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
           {etapa === 3 && (
             <div className="space-y-4 animate-in">
-              <h2 className="font-semibold text-[#111827]">Documentos do Projeto</h2>
-              <p className="text-sm text-[#6B7280]">Faça o upload dos documentos necessários para a análise de curadoria.</p>
+              <h2 className="font-semibold text-foreground">Documentos do Projeto</h2>
+              <p className="text-sm text-muted-foreground">Faça o upload dos documentos necessários para a análise de curadoria.</p>
               <div className="space-y-2">
                 {[
                   { label: "Matrícula do Terreno", required: true, hint: "Certidão atualizada (máx 90 dias)" },
@@ -209,10 +209,10 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   { label: "Projeto 3D / Renderizações", required: false, hint: "Facilita a venda da oferta" },
                   { label: "Contrato Social da SPE", required: false, hint: "Se já constituída" },
                 ].map(({ label, required, hint }) => (
-                  <div key={label} className="flex items-center justify-between rounded-xl border border-[#E5E7EB] px-4 py-3">
+                  <div key={label} className="flex items-center justify-between   border border-border px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-[#374151]">{label}</p>
-                      <p className="text-xs text-[#9CA3AF]">{required ? "Obrigatório" : "Opcional"}{hint !== "" ? ` · ${hint}` : ""}</p>
+                      <p className="text-sm font-medium text-foreground">{label}</p>
+                      <p className="text-xs text-muted-foreground">{required ? "Obrigatório" : "Opcional"}{hint !== "" ? ` · ${hint}` : ""}</p>
                     </div>
                     <label className="btn btn-secondary btn-sm cursor-pointer">
                       <input type="file" className="sr-only" accept=".pdf,.jpg,.png" />
@@ -221,7 +221,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   </div>
                 ))}
               </div>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+              <div className="alert alert-warn text-xs text-status-warning">
                 Upload real disponível após configuração do S3. Por ora, prossiga para revisar os dados.
               </div>
             </div>
@@ -229,48 +229,48 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
           {etapa === 4 && (
             <div className="space-y-4 animate-in">
-              <h2 className="font-semibold text-[#111827]">Equipe do Projeto</h2>
-              <p className="text-sm text-[#6B7280]">Adicione os responsáveis pelo empreendimento. Mínimo 1 membro.</p>
-              <div className="rounded-xl border border-dashed border-[#D1D5DB] bg-[#F9FAFB] p-8 text-center">
-                <Users className="mx-auto mb-2 h-8 w-8 text-[#9CA3AF]" />
-                <p className="text-sm font-medium text-[#374151]">Gerenciamento de equipe</p>
-                <p className="mt-1 text-xs text-[#9CA3AF]">Disponível após salvar o projeto como rascunho</p>
+              <h2 className="font-semibold text-foreground">Equipe do Projeto</h2>
+              <p className="text-sm text-muted-foreground">Adicione os responsáveis pelo empreendimento. Mínimo 1 membro.</p>
+              <div className="  border border-dashed border-input bg-muted p-8 text-center">
+                <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">Gerenciamento de equipe</p>
+                <p className="mt-1 text-xs text-muted-foreground">Disponível após salvar o projeto como rascunho</p>
               </div>
             </div>
           )}
 
           {etapa === 5 && (
             <div className="space-y-4 animate-in">
-              <h2 className="font-semibold text-[#111827]">Revisão e Envio</h2>
-              <p className="text-sm text-[#6B7280]">Verifique os dados antes de submeter para análise.</p>
+              <h2 className="font-semibold text-foreground">Revisão e Envio</h2>
+              <p className="text-sm text-muted-foreground">Verifique os dados antes de submeter para análise.</p>
               <div className="space-y-3">
-                <div className="rounded-xl bg-[#F9FAFB] p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#9CA3AF]">Dados Gerais</p>
+                <div className="  bg-muted p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dados Gerais</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
-                    <div><dt className="text-[#9CA3AF]">Projeto</dt><dd className="font-medium">{gerais.nome || "—"}</dd></div>
-                    <div><dt className="text-[#9CA3AF]">Modelo</dt><dd className="font-medium">{gerais.modelo}</dd></div>
-                    <div><dt className="text-[#9CA3AF]">Localização</dt><dd className="font-medium">{gerais.cidade || "—"}, {gerais.estado || "—"}</dd></div>
-                    <div><dt className="text-[#9CA3AF]">Tipo</dt><dd className="font-medium">{gerais.tipoImovel}</dd></div>
+                    <div><dt className="text-muted-foreground">Projeto</dt><dd className="font-medium">{gerais.nome || "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{gerais.modelo}</dd></div>
+                    <div><dt className="text-muted-foreground">Localização</dt><dd className="font-medium">{gerais.cidade || "—"}, {gerais.estado || "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">Tipo</dt><dd className="font-medium">{gerais.tipoImovel}</dd></div>
                   </dl>
                 </div>
-                <div className="rounded-xl bg-[#F9FAFB] p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#9CA3AF]">Dados Financeiros</p>
+                <div className="  bg-muted p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dados Financeiros</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
-                    <div><dt className="text-[#9CA3AF]">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" ? `R$ ${financeiros.valorCaptar}` : "—"}</dd></div>
-                    <div><dt className="text-[#9CA3AF]">Rentabilidade</dt><dd className="font-medium text-green-700">{financeiros.rentabilidadeEstimada !== "" ? `${financeiros.rentabilidadeEstimada}% a.a.` : "—"}</dd></div>
-                    <div><dt className="text-[#9CA3AF]">Modelo</dt><dd className="font-medium">{financeiros.modeloRetorno}</dd></div>
-                    <div><dt className="text-[#9CA3AF]">Oferta</dt><dd className="font-medium">{financeiros.tipoOferta}</dd></div>
+                    <div><dt className="text-muted-foreground">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" ? `R$ ${financeiros.valorCaptar}` : "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">Rentabilidade</dt><dd className="font-medium text-status-success">{financeiros.rentabilidadeEstimada !== "" ? `${financeiros.rentabilidadeEstimada}% a.a.` : "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{financeiros.modeloRetorno}</dd></div>
+                    <div><dt className="text-muted-foreground">Oferta</dt><dd className="font-medium">{financeiros.tipoOferta}</dd></div>
                   </dl>
                 </div>
               </div>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              <div className="alert alert-warn text-sm text-status-warning">
                 Após submissão, os campos ficarão bloqueados para edição até a conclusão da análise.
               </div>
             </div>
           )}
 
           {/* Navigation */}
-          <div className="mt-6 flex justify-between border-t border-[#E5E7EB] pt-5">
+          <div className="mt-6 flex justify-between border-t border-border pt-5">
             <button type="button" onClick={() => setEtapa((p) => (p - 1) as Etapa)} disabled={etapa === 1}
               className="btn btn-secondary disabled:opacity-0">
               <ChevronLeft className="h-4 w-4" /> Anterior
@@ -279,12 +279,12 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             {etapa < 5 ? (
               <button type="button" onClick={() => void avancar()} disabled={isLoading}
                 className="btn btn-primary">
-                {isLoading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Salvando...</> : <>Próxima etapa <ChevronRight className="h-4 w-4" /></>}
+                {isLoading ? <><span className="h-4 w-4 animate-spin   border-2 border-white/30 border-t-white" />Salvando...</> : <>Próxima etapa <ChevronRight className="h-4 w-4" /></>}
               </button>
             ) : (
               <button type="button" onClick={() => void submeter()} disabled={isLoading || projetoId === null}
-                className="btn bg-green-600 text-white hover:bg-green-700">
-                {isLoading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Submetendo...</> : <><Check className="h-4 w-4" />Submeter Projeto</>}
+                className="btn bg-status-success text-white hover:opacity-90">
+                {isLoading ? <><span className="h-4 w-4 animate-spin   border-2 border-white/30 border-t-white" />Submetendo...</> : <><Check className="h-4 w-4" />Submeter Projeto</>}
               </button>
             )}
           </div>

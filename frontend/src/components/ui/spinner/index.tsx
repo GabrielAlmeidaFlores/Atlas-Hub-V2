@@ -11,7 +11,7 @@ export function Spinner({ size = "md", className }: SpinnerProps): ReactNode {
   return (
     <div
       className={cn(
-        "animate-spin rounded-full border-navy/20 border-t-navy",
+        "animate-spin rounded-full border-navy-200 border-t-navy",
         sizes[size],
         className,
       )}
