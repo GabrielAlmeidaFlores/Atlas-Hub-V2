@@ -448,7 +448,10 @@ VITE_COGNITO_USER_POOL_ID=sa-east-1_XXXXXXXXX
 VITE_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 VITE_AWS_REGION=sa-east-1
 VITE_MODE=development
+VITE_WHATSAPP_NUMBER=
 ```
+
+`VITE_WHATSAPP_NUMBER` — só dígitos com DDI (ex. `5511999999999`). Vazio = esconde botões/FAB de WhatsApp na LP.
 
 Para apontar o frontend local à API de DEV:
 
@@ -502,6 +505,7 @@ Fluxo em cada push:
 | `AMPLIFY_APP_ID` | `d3vqf6k21x668r` (prod) |
 | `AMPLIFY_APP_ID_DEV` | `dng6v0yvgarue` (dev) |
 | `ADMIN_MASTER_EMAIL` | `gabrielalmeidaflores@hotmail.com` |
+| `VITE_WHATSAPP_NUMBER` | Dígitos com DDI (ex. `5511999999999`); vazio = esconde WhatsApp na LP |
 
 ---
 

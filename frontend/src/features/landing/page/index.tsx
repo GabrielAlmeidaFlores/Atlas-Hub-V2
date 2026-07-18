@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { AnimateIn } from "@/components/animate-in";
+import { WhatsappFab, WhatsappLink } from "@/components/shared/whatsapp-cta";
+import { hasWhatsappSupport } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 function Navbar(): ReactNode {
@@ -19,8 +21,8 @@ function Navbar(): ReactNode {
         <nav className="hidden items-center gap-8 md:flex">
           {[
             ["Para Incorporadoras", "#incorporadoras"],
-            ["Para Investidores", "#investidores"],
             ["Como Funciona", "#como-funciona"],
+            ["Investidores", "#investidores"],
           ].map(([label, href]) => (
             <a key={label} href={href} className="text-[11px] font-bold uppercase tracking-wider text-white/65 transition-colors hover:text-white">
               {label}
@@ -40,8 +42,8 @@ function Navbar(): ReactNode {
           <div className="flex flex-col gap-1">
             {[
               ["Para Incorporadoras", "#incorporadoras"],
-              ["Para Investidores", "#investidores"],
               ["Como Funciona", "#como-funciona"],
+              ["Investidores", "#investidores"],
             ].map(([label, href]) => (
               <a key={label} href={href} onClick={() => setOpen(false)} className="px-2 py-2.5 text-[11px] font-bold uppercase tracking-wider text-white/70 hover:text-white">
                 {label}
@@ -51,6 +53,9 @@ function Navbar(): ReactNode {
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
             <Link to="/login" onClick={() => setOpen(false)} className="btn btn-outline w-full justify-center border-white/20 text-white">Entrar</Link>
             <Link to="/cadastro" onClick={() => setOpen(false)} className="btn btn-gold w-full justify-center">Cadastrar incorporadora</Link>
+            {hasWhatsappSupport() && (
+              <WhatsappLink variant="hero" className="w-full justify-center" />
+            )}
           </div>
         </div>
       )}
@@ -65,7 +70,7 @@ function Hero(): ReactNode {
         className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: "radial-gradient(circle at 1px 1px, #C49020 1px, transparent 0)", backgroundSize: "28px 28px" }}
       />
-      <div className="lp-float pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px]  " style={{ background: "radial-gradient(circle, rgb(196 144 32 / 0.18) 0%, transparent 70%)" }} />
+      <div className="lp-float pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px]" style={{ background: "radial-gradient(circle, rgb(196 144 32 / 0.18) 0%, transparent 70%)" }} />
 
       <div className="relative mx-auto max-w-6xl px-6 text-center">
         <div className="mb-6 inline-flex items-center gap-2 border border-gold/30 bg-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gold" style={{ animation: "lp-fade-in 0.5s ease-out both" }}>
@@ -78,23 +83,26 @@ function Hero(): ReactNode {
           Capte com investidores.
         </h1>
         <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/55 md:text-xl" style={{ animation: "lp-fade-in-up 0.7s 0.2s ease-out both" }}>
-          Atlas Hub origina e faz a curadoria de projetos imobiliários. Após aprovação, a oferta vai ao ar para investidores — com infraestrutura regulatória completa.
+          Cadastre sua incorporadora, submeta o projeto e receba a curadoria Atlas. Após aprovação, a oferta vai ao ar para investidores — com compliance CVM embutido.
         </p>
-        <div className="flex flex-col justify-center gap-3 sm:flex-row" style={{ animation: "lp-fade-in-up 0.7s 0.32s ease-out both" }}>
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ animation: "lp-fade-in-up 0.7s 0.32s ease-out both" }}>
           <Link to="/cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
             Cadastrar incorporadora <ArrowRight className="h-4 w-4" />
           </Link>
-          <a href="#como-funciona" className="btn btn-lp inline-flex items-center justify-center gap-2 border-2 border-white/25 bg-transparent text-sm font-bold text-white hover:bg-white/5">
-            Como funciona
-          </a>
+          <WhatsappLink variant="hero">Falar com suporte</WhatsappLink>
         </div>
+        <p className="mt-5 text-[11px] font-bold uppercase tracking-widest text-white/40" style={{ animation: "lp-fade-in-up 0.7s 0.4s ease-out both" }}>
+          <a href="#como-funciona" className="underline-offset-4 hover:text-white/70 hover:underline">Ver como funciona</a>
+          {" · "}
+          Comece pelo rascunho — sem compromisso
+        </p>
 
         <div className="mt-16 flex flex-wrap justify-center gap-10 border-t border-white/10 pt-10 text-sm text-white/45" style={{ animation: "lp-fade-in-up 0.7s 0.5s ease-out both" }}>
           {(
             [
-              ["10%", "Taxa sobre o captado"],
-              ["R$15M", "Limite CVM por oferta"],
-              ["100%", "Curadoria humana"],
+              ["CVM 88", "Regulação"],
+              ["Sem banco", "Capital via oferta"],
+              ["Humana", "Curadoria Atlas"],
             ] as [string, string][]
           ).map(([num, label]) => (
             <div key={label} className="text-center">
@@ -134,6 +142,16 @@ function ComoFunciona(): ReactNode {
             </AnimateIn>
           ))}
         </div>
+        <AnimateIn delay={320} className="mt-12 flex flex-col items-center justify-center gap-3 border border-border bg-card px-6 py-8 text-center sm:flex-row">
+          <div className="sm:mr-4 sm:text-left">
+            <p className="text-sm font-bold uppercase tracking-wider text-foreground">Entendeu o fluxo?</p>
+            <p className="mt-1 text-xs text-muted-foreground">Crie a conta e inicie o rascunho do projeto agora.</p>
+          </div>
+          <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center gap-2">
+            Cadastrar incorporadora <ArrowRight className="h-4 w-4" />
+          </Link>
+          <WhatsappLink variant="outline">Dúvidas? WhatsApp</WhatsappLink>
+        </AnimateIn>
       </div>
     </section>
   );
@@ -163,10 +181,12 @@ function Incorporadoras(): ReactNode {
             </AnimateIn>
           ))}
         </div>
-        <AnimateIn delay={280} className="mt-10">
+        <AnimateIn delay={280} className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center gap-2">
-            Começar agora <ArrowRight className="h-4 w-4" />
+            Começar pelo rascunho <ArrowRight className="h-4 w-4" />
           </Link>
+          <WhatsappLink variant="outline">Falar com suporte</WhatsappLink>
+          <p className="text-xs text-muted-foreground sm:ml-2">Sem compromisso de submissão — salve e retome quando quiser.</p>
         </AnimateIn>
       </div>
     </section>
@@ -175,25 +195,25 @@ function Incorporadoras(): ReactNode {
 
 function Investidores(): ReactNode {
   const items = [
-    { icon: Users, title: "Ofertas curadas", desc: "Só projetos aprovados pela equipe Atlas entram na vitrine de investimento." },
-    { icon: ShieldCheck, title: "Escrow e KYC", desc: "Infraestrutura regulatória, tokenização e compliance embutidos na plataforma." },
-    { icon: Star, title: "Retorno imobiliário", desc: "Participação no lucro da venda ou dívida pré-fixada (Modelo 1 — MVP)." },
+    { icon: Users, title: "Ofertas curadas", desc: "Só projetos aprovados pela equipe Atlas entram na vitrine." },
+    { icon: ShieldCheck, title: "Escrow e KYC", desc: "Infraestrutura regulatória e compliance embutidos." },
+    { icon: Star, title: "Retorno imobiliário", desc: "Participação no lucro ou dívida pré-fixada (Modelo 1)." },
   ];
 
   return (
-    <section id="investidores" className="lp-section-alt py-24">
+    <section id="investidores" className="lp-section-alt py-16">
       <div className="mx-auto max-w-6xl px-6">
-        <AnimateIn className="mb-14 text-center">
+        <AnimateIn className="mb-8 text-center">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Investidores</p>
-          <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Investimento com curadoria</h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">A experiência do investidor é 100% Atlas Hub — o Atlas garante a qualidade da origem e da operação.</p>
+          <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Investimento com curadoria</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">A experiência do investidor é Atlas Hub — a originadora e a curadoria garantem a qualidade da oferta.</p>
         </AnimateIn>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {items.map(({ icon: Icon, title, desc }, i) => (
-            <AnimateIn key={title} delay={i * 100} className="lp-feature-card-gold">
-              <Icon className="mb-4 h-5 w-5 text-gold" />
-              <h3 className="text-sm font-bold uppercase tracking-wider">{title}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+            <AnimateIn key={title} delay={i * 80} className="lp-feature-card-gold p-5">
+              <Icon className="mb-3 h-4 w-4 text-gold" />
+              <h3 className="text-xs font-bold uppercase tracking-wider">{title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>
             </AnimateIn>
           ))}
         </div>
@@ -204,14 +224,14 @@ function Investidores(): ReactNode {
 
 function Numeros(): ReactNode {
   return (
-    <section className="border-y border-border bg-navy py-16 text-white">
+    <section className="border-y border-border bg-navy py-14 text-white">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 md:grid-cols-4">
         {(
           [
             ["CVM 88", "Regulação"],
             ["5 etapas", "Wizard de projeto"],
             ["5 critérios", "Scorecard"],
-            ["3 perfis", "Acesso controlado"],
+            ["R$15M", "Limite por oferta"],
           ] as [string, string][]
         ).map(([v, l], i) => (
           <AnimateIn key={l} delay={i * 80} className="text-center">
@@ -228,8 +248,11 @@ function FAQ(): ReactNode {
   const [open, setOpen] = useState<number | null>(0);
   const items = [
     { q: "Quem pode captar via Atlas Hub?", a: "Incorporadoras com receita bruta anual de até R$40 milhões (CVM 88), sujeitas à curadoria interna." },
-    { q: "Como funciona a parte do investidor?", a: "KYC, escrow, tokenização, vitrine de ofertas e a operação do investidor ficam na plataforma Atlas Hub. O portal de originador e a curadoria são onde as incorporadoras e a equipe Atlas trabalham." },
+    { q: "Preciso submeter o projeto na hora?", a: "Não. Você cria a conta, salva o rascunho no wizard e só submete quando a documentação estiver pronta." },
     { q: "Qual a taxa da plataforma?", a: "10% sobre o valor captado, cobrado progressivamente — configurado no spread da oferta." },
+    { q: "Como falo com o time?", a: hasWhatsappSupport()
+      ? "Use o WhatsApp de suporte na página (botão flutuante ou nos CTAs) ou envie e-mail para contato@atlashub.com.br."
+      : "Envie e-mail para contato@atlashub.com.br. Em breve também teremos WhatsApp de suporte." },
     { q: "Posso resubmeter um projeto reprovado?", a: "Sim. Não há limite de tentativas. O histórico e scorecards anteriores ficam visíveis ao analista." },
   ];
 
@@ -266,11 +289,14 @@ function CtaFinal(): ReactNode {
       <AnimateIn className="mx-auto max-w-6xl border border-border bg-card px-6 py-14 text-center sm:px-12">
         <CheckCircle className="mx-auto mb-4 h-8 w-8 text-navy" />
         <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Pronto para submeter seu projeto?</h2>
-        <p className="mx-auto mt-3 max-w-lg text-muted-foreground">Cadastre a incorporadora e inicie o wizard de submissão em minutos.</p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <p className="mx-auto mt-3 max-w-lg text-muted-foreground">Cadastre a incorporadora e inicie o wizard em minutos — ou fale com o suporte se quiser tirar dúvidas antes.</p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">Criar conta <ArrowRight className="h-4 w-4" /></Link>
-          <Link to="/login" className="btn btn-outline btn-lp inline-flex items-center justify-center">Já tenho conta</Link>
+          <WhatsappLink variant="outline">Falar no WhatsApp</WhatsappLink>
         </div>
+        <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <Link to="/login" className="hover:text-foreground hover:underline">Já tenho conta — entrar</Link>
+        </p>
       </AnimateIn>
     </section>
   );
@@ -278,7 +304,7 @@ function CtaFinal(): ReactNode {
 
 function Footer(): ReactNode {
   return (
-    <footer className="border-t border-border bg-navy-dark py-12 text-white/50">
+    <footer id="contato" className="border-t border-border bg-navy-dark py-12 text-white/50">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-start md:justify-between">
         <div>
           <Logo size="sm" scheme="dark" />
@@ -289,11 +315,13 @@ function Footer(): ReactNode {
             <p className="text-white/80">Produto</p>
             <a href="#como-funciona" className="block hover:text-white">Como funciona</a>
             <a href="#incorporadoras" className="block hover:text-white">Incorporadoras</a>
+            <Link to="/cadastro" className="block hover:text-white">Cadastrar</Link>
             <Link to="/login" className="block hover:text-white">Entrar</Link>
           </div>
           <div className="space-y-2">
             <p className="text-white/80">Contato</p>
-            <p>contato@atlashub.com.br</p>
+            <a href="mailto:contato@atlashub.com.br" className="block hover:text-white">contato@atlashub.com.br</a>
+            <WhatsappLink variant="text" className="text-white/50">WhatsApp suporte</WhatsappLink>
           </div>
         </div>
       </div>
@@ -301,6 +329,27 @@ function Footer(): ReactNode {
         © 2026 Atlas Hub
       </div>
     </footer>
+  );
+}
+
+function MobileCtaBar(): ReactNode {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur md:hidden">
+      <div className={cn("mx-auto flex max-w-6xl gap-2", hasWhatsappSupport() ? "pb-0" : "")}>
+        <Link to="/cadastro" className="btn btn-gold flex-1 justify-center text-[11px] uppercase tracking-wider">
+          Cadastrar
+        </Link>
+        {hasWhatsappSupport() ? (
+          <WhatsappLink variant="navy" className="flex-1 justify-center text-[11px] uppercase tracking-wider !py-2.5">
+            WhatsApp
+          </WhatsappLink>
+        ) : (
+          <Link to="/login" className="btn btn-outline flex-1 justify-center text-[11px] uppercase tracking-wider">
+            Entrar
+          </Link>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -316,6 +365,9 @@ export default function LandingPage(): ReactNode {
       <FAQ />
       <CtaFinal />
       <Footer />
+      <div className="h-16 md:hidden" />
+      <MobileCtaBar />
+      <WhatsappFab />
     </div>
   );
 }
