@@ -98,6 +98,13 @@
     border-color: var(--navy);
     box-shadow: 0 0 0 2px rgb(27 43 94 / 0.15);
   }
+  .field:-webkit-autofill,
+  .field:-webkit-autofill:hover,
+  .field:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground);
+    caret-color: var(--foreground);
+    transition: background-color 99999s ease-in-out 0s;
+  }
   .field:disabled { @apply cursor-not-allowed bg-muted text-muted-foreground; }
   textarea.field { height: auto; min-height: 6rem; @apply py-3; }
 
@@ -138,6 +145,12 @@
     border-color: var(--border);
   }
   .btn-outline:hover { @apply bg-muted; }
+
+  .btn-on-dark {
+    @apply border bg-transparent px-5 py-2.5 font-bold text-white;
+    border-color: rgb(255 255 255 / 0.3);
+  }
+  .btn-on-dark:hover { background: rgb(255 255 255 / 0.1); }
 
   .btn-ghost {
     @apply px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground;

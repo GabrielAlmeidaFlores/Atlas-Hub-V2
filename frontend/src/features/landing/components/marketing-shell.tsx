@@ -55,7 +55,13 @@ function MarketingNavbar(): ReactNode {
             ))}
           </div>
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
-            <Link to="/login" onClick={() => setOpen(false)} className="btn btn-outline w-full justify-center border-white/20 text-white">Entrar</Link>
+            <Link
+              to="/login"
+              onClick={() => setOpen(false)}
+              className="btn btn-on-dark w-full justify-center"
+            >
+              Entrar
+            </Link>
             <Link to="/cadastro" onClick={() => setOpen(false)} className="btn btn-gold w-full justify-center">Cadastrar incorporadora</Link>
             {hasWhatsappSupport() && (
               <WhatsappLink variant="hero" className="w-full justify-center" />
