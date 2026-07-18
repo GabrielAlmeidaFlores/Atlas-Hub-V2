@@ -79,7 +79,7 @@ const mockProjetos: Projeto[] = [
     cidade: "Campinas",
     estado: "SP",
     endereco: "Rua Barão de Jaguara, 456",
-    descricao: "Conjunto habitacional com 30 casas em Campinas. Projeto aprovado e oferta publicada na Divify.",
+    descricao: "Conjunto habitacional com 30 casas em Campinas. Projeto aprovado e oferta publicada na plataforma.",
     valorTotal: 5_000_000,
     valorCaptar: 2_000_000,
     prazoObra: 12,
@@ -88,7 +88,7 @@ const mockProjetos: Projeto[] = [
     modeloRetorno: "SCP",
     tipoOferta: "PUBLICA",
     ofertaId: "offer_abc123",
-    ofertaLink: "https://divify.com.br/oferta/casa-verde-campinas",
+    ofertaLink: "https://investir.atlashub.example/oferta/casa-verde-campinas",
     ofertaConfirmadaEm: "2026-05-20T10:00:00.000Z",
     criadoEm: "2026-04-10T10:00:00.000Z",
     atualizadoEm: "2026-05-20T10:00:00.000Z",
@@ -119,6 +119,8 @@ export const handlers = [
   http.get(`${BASE}/incorporadora/perfil`, () => HttpResponse.json(mockIncorporadora)),
   http.put(`${BASE}/incorporadora/perfil`, () => HttpResponse.json({ updated: true })),
   http.post(`${BASE}/incorporadora/documentos/pre-sign`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/upload?presigned=1", location: "https://example.s3.amazonaws.com/doc.pdf" })),
+  http.put("https://example.s3.amazonaws.com/upload", () => new HttpResponse(null, { status: 200 })),
+  http.put("https://example.s3.amazonaws.com/upload*", () => new HttpResponse(null, { status: 200 })),
 
   http.get(`${BASE}/projetos`, () => HttpResponse.json({ items: mockProjetos, cursor: null, hasMore: false })),
   http.post(`${BASE}/projetos`, () => HttpResponse.json({ id: `proj-${Date.now()}` }, { status: 201 })),
@@ -131,6 +133,7 @@ export const handlers = [
   http.post(`${BASE}/projetos/:id/submeter`, () => HttpResponse.json({ status: "SUBMETIDO" })),
   http.post(`${BASE}/projetos/:id/resubmeter`, () => HttpResponse.json({ status: "SUBMETIDO", revisao: 2 })),
   http.post(`${BASE}/projetos/:id/documentos/pre-sign`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/upload?presigned=1", location: "https://example.s3.amazonaws.com/doc.pdf" })),
+  http.post(`${BASE}/documentos/download-url`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/doc.pdf?download=1" })),
 
   http.get(`${BASE}/notificacoes`, () => HttpResponse.json({ items: mockNotificacoes, naoLidas: mockNotificacoes.filter((n) => !n.lida).length })),
   http.put(`${BASE}/notificacoes/:id/lida`, () => HttpResponse.json({ updated: true })),
@@ -146,7 +149,7 @@ export const handlers = [
   http.post(`${BASE}/admin/curadoria/:id/ajuste`, () => HttpResponse.json({ status: "AJUSTE_SOLICITADO" })),
   http.post(`${BASE}/admin/curadoria/:id/reprovar`, () => HttpResponse.json({ status: "REPROVADO", notaGeral: 4.5 })),
   http.post(`${BASE}/admin/curadoria/:id/aprovar`, () => HttpResponse.json({ status: "APROVADO", notaGeral: 8.2 })),
-  http.post(`${BASE}/admin/curadoria/:id/confirmar-publicacao`, () => HttpResponse.json({ status: "OFERTA_CRIADA", ofertaId: "offer_mock123", ofertaLink: "https://divify.com.br/oferta/mock" })),
+  http.post(`${BASE}/admin/curadoria/:id/confirmar-publicacao`, () => HttpResponse.json({ status: "OFERTA_CRIADA", ofertaId: "offer_mock123", ofertaLink: "https://investir.atlashub.example/oferta/mock" })),
   http.post(`${BASE}/admin/curadoria/:id/notas`, () => HttpResponse.json({ projetoId: "proj-1", criadoEm: new Date().toISOString(), analistaId: "admin-1", analistaNome: "Felipe Analista", texto: "Nota salva" })),
   http.post(`${BASE}/admin/curadoria/:id/reatribuir`, () => HttpResponse.json({ updated: true })),
 

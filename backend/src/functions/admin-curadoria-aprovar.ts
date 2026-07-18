@@ -73,7 +73,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     await putAuditoria(auditoria);
     await putNotificacao(notificacao);
 
-    try { await emailAprovado('', projeto.nome); } catch { /* email non-blocking */ }
+    try { await emailAprovado('', projeto.nome); } catch { void 0; }
 
     log.info('Project approved', { projetoId: id, analistaId, notaGeral });
     return ok(event, { status: 'APROVADO', notaGeral });

@@ -11,6 +11,9 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
+import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
+import { DocumentLink } from "@/components/shared/document-link";
 
 type Tab = "visao-geral" | "documentos" | "equipe" | "historico";
 
@@ -73,9 +76,12 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
         {projeto.status === "REPROVADO" && projeto.justificativaReprovacao !== undefined && (
           <div className="alert alert-error animate-in">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-status-danger" />
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="font-semibold text-status-danger">Projeto reprovado</p>
               <p className="mt-1 text-sm text-status-danger">{projeto.justificativaReprovacao}</p>
+              <Link to={`/projetos/${projeto.id}/editar`} className="btn btn-sm btn-primary mt-3 inline-flex">
+                Corrigir e resubmeter
+              </Link>
             </div>
           </div>
         )}
@@ -95,10 +101,10 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
             <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-status-success" />
             <div>
               <p className="font-semibold text-status-success">Oferta publicada!</p>
-              <p className="mt-1 text-sm text-status-success">Sua oferta está disponível para investidores na plataforma Divify.</p>
+              <p className="mt-1 text-sm text-status-success">Sua oferta está disponível para investidores na plataforma Atlas Hub.</p>
               <a href={projeto.ofertaLink} target="_blank" rel="noopener noreferrer"
                 className="btn btn-sm btn-primary mt-3 inline-flex items-center gap-1.5">
-                <ExternalLink className="h-3.5 w-3.5" /> Ver oferta na Divify
+                <ExternalLink className="h-3.5 w-3.5" /> Ver oferta
               </a>
             </div>
           </div>
@@ -144,26 +150,23 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                         <p className="text-sm leading-relaxed text-foreground">{projeto.planoSaida}</p>
                       </div>
                     )}
+                    {projeto.viabilidade !== undefined && (
+                      <div className="border border-border p-4">
+                        <p className="mb-2 text-xs font-medium text-muted-foreground">Viabilidade calculada</p>
+                        <ViabilidadeReadOnly data={projeto.viabilidade} />
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {tab === "documentos" && (
                   <div className="animate-in space-y-2">
                     {projeto.documentos !== undefined
-                      ? Object.entries(projeto.documentos).map(([key, url]) => {
-                          if (url === undefined || url === null) return null;
+                      ? Object.entries(projeto.documentos).flatMap(([key, url]) => {
+                          if (url === undefined || url === null) return [];
                           const urls = Array.isArray(url) ? url : [url as string];
                           return urls.map((u: string, i: number) => (
-                            <a key={`${key}-${String(i)}`} href={u} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center justify-between   border border-border px-4 py-3 text-sm hover:bg-muted">
-                              <div className="flex items-center gap-2.5">
-                                <div className="flex h-8 w-8 items-center justify-center   bg-navy-50">
-                                  <FileText className="h-4 w-4 text-navy" />
-                                </div>
-                                <span className="font-medium text-foreground">{key}</span>
-                              </div>
-                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </a>
+                            <DocumentLink key={`${key}-${String(i)}`} href={u} label={key} />
                           ));
                         })
                       : <p className="py-4 text-center text-sm text-muted-foreground">Nenhum documento enviado</p>
@@ -215,6 +218,7 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
 
           {/* Sidebar */}
           <div className="space-y-4">
+            <ProjetoProgressBar items={getProjetoProgressItems(projeto)} />
             <div className="card p-5">
               <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Status Atual</p>
               <StatusBadge status={projeto.status} size="md" />

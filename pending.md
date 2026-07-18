@@ -2,7 +2,7 @@
 
 ## 0. Escopo travado (não reabrir sem desbloquear §2)
 
-O MVP deste repositório é **somente** Portal Incorporadora + Painel de Curadoria. A oferta na Divify é **manual** após `APROVADO`.
+O MVP deste repositório é **somente** Portal Incorporadora + Painel de Curadoria. A oferta na plataforma é **manual** após `APROVADO`.
 
 **Não implementar no Atlas até §2 estar respondido (Fase 2):**
 
@@ -17,16 +17,16 @@ Referência: [`docs/SCOPE.md`](docs/SCOPE.md).
 
 ## 1. Contratuais / Operacionais
 
-- [ ] **Contrato com a Divify** — sem isso o `x-tenant-id` não existe e aprovações não resultam em ofertas publicadas
-- [ ] **Constituição da PJ** — necessária para assinar com a Divify e operar como licenciado CVM 88
+- [ ] **Contrato white-label** — sem isso o `x-tenant-id` não existe e aprovações não resultam em ofertas publicadas
+- [ ] **Constituição da PJ** — necessária para assinar a stack white-label e operar como licenciado CVM 88
 - [ ] **Domínio da plataforma** — afeta configuração do SES (precisa validar domínio para enviar e-mail)
-- [ ] **Custos Divify confirmados:** setup R$4.800 único + R$870/mês SaaS + 3% success fee (ou 1,5% fixo no cadastro) + ofertas privadas 0,3% a 0,5%
+- [ ] **Custos da infraestrutura white-label confirmados:** setup R$4.800 único + R$870/mês SaaS + 3% success fee (ou 1,5% fixo no cadastro) + ofertas privadas 0,3% a 0,5%
 
 ---
 
-## 2. Aguardando resposta do Danillo (Divify) — gate da Fase 2
+## 2. Aguardando resposta do Danillo (stack white-label) — gate da Fase 2
 
-Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não houver resposta, o investidor permanece 100% na Divify.
+Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não houver resposta, o investidor permanece 100% na plataforma.
 
 - [ ] **Webhooks** — a plataforma tem suporte? Quais eventos são disparados? (investimento confirmado, KYC aprovado, rendimento distribuído, oferta encerrada)
 - [ ] **Endpoint de listagem de investimentos por usuário** — existe `GET /balance/purchases` ou similar?
@@ -36,34 +36,33 @@ Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não hou
 - [ ] **Benchmarks via API** — conseguem disponibilizar dados de Selic e IBOV para o dashboard comparativo?
 - [ ] **Endpoint para criação de ofertas** — existe endpoint de API ou é sempre manual pelo painel?
 
-> Impacto: sem essas respostas não é possível planejar a fase 2 (portal do investidor customizado). Se não puderem disponibilizar, a parceria segue com investidor só na Divify e oferta manual no MVP.
+> Impacto: sem essas respostas não é possível planejar a fase 2 (portal do investidor customizado). Se não puderem disponibilizar, a parceria segue com investidor só na plataforma e oferta manual no MVP.
 
 ---
 
 ## 3. Decisões de Produto (a confirmar com os sócios)
 
-- [ ] **Atualizações de obra no MVP?** — Gabriel confirmou que entra, Felipe pediu explicitamente. Precisa ser confirmado formalmente para entrar no escopo de desenvolvimento *(se for só para incorporadora/admin no Atlas; visão investidor = Divify)*
-- [ ] **Visibilidade da incorporadora sobre a captação no MVP** — sem webhooks da Divify, a incorporadora não consegue ver quanto foi investido. Opções:
+- [ ] **Atualizações de obra no MVP?** — Gabriel confirmou que entra, Felipe pediu explicitamente. Precisa ser confirmado formalmente para entrar no escopo de desenvolvimento *(se for só para incorporadora/admin no Atlas; visão investidor = plataforma)*
+- [ ] **Visibilidade da incorporadora sobre a captação no MVP** — sem webhooks da plataforma, a incorporadora não consegue ver quanto foi investido. Opções:
   - Só mostramos que a oferta está no ar com o link (mais simples) — **padrão recomendado no MVP**
   - Analista atualiza manualmente algum campo de progresso
   - Aguardamos resposta do Danillo antes de decidir
-- [ ] **Monorepo ou repositórios separados?** — Syntonia usa monorepo (`backend/` + `frontend/` na mesma raiz). Manter o mesmo padrão?
-- [ ] **Limite mínimo de captação para iniciar a obra** — Felipe mencionou que precisamos definir um threshold. Valor ainda não definido *(regra de negócio / Divify; não exige feature de investidor no Atlas)*
+- [ ] **Limite mínimo de captação para iniciar a obra** — Felipe mencionou que precisamos definir um threshold. Valor ainda não definido *(regra de negócio; não exige feature de investidor no Atlas)*
 
 ---
 
 ## 4. Infraestrutura AWS (a provisionar antes do deploy)
 
-- [ ] **Bucket S3** — para uploads de documentos, fotos de projeto e atualizações de obra
+- [x] **Bucket S3** — `atlas-hub-documents-dev` / `atlas-hub-documents-prod` (sa-east-1); PUT (upload) + GET (download via `POST /documentos/download-url`); frontend em wizard, perfil, editar
 - [ ] **SES configurado** — domínio validado + templates de e-mail criados
 - [ ] **SSM Parameter Store** — secrets sensíveis (ex: chaves de integração futura)
 - [ ] **Conta AWS** — confirmar qual conta será usada (a mesma do Syntonia ou uma nova?)
+- [ ] **Deploy alinhado ao código** — garantir DEV/PRD com viabilidade, download-url, checklist no aprovar, equipe
 
 ---
 
 ## 5. Decisões Técnicas
 
-- [ ] **Cognito: dois pools separados ou um pool com grupos?**
-  - Opção A: dois pools (incorporadoras e admins) — mais isolado, mais seguro
-  - Opção B: um pool com grupos (`INCORPORADORA`, `ANALISTA`, `ADMIN_MASTER`) — mais simples *(já adotado no V2)*
-- [ ] **Stack confirmada:** AWS Amplify + Lambda + DynamoDB + S3 + SES + Cognito + Serverless Framework (mesma do Syntonia)
+- [x] **Cognito: um pool com grupos** — `INCORPORADORA`, `ANALISTA`, `ADMIN_MASTER` (adotado no V2)
+- [x] **Stack:** AWS Amplify + Lambda + DynamoDB + S3 + SES + Cognito + Serverless Framework (mesma linha Syntonia)
+- [x] **Monorepo** — `frontend/` + `backend/` na raiz (padrão Syntonia)

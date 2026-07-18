@@ -80,6 +80,30 @@ export const atualizarProjetoSchema = z.object({
     cndUrl: z.string().url().optional(),
     outrosUrls: z.array(z.string().url()).max(10).optional(),
   }).optional(),
+  viabilidade: z.object({
+    inputs: z.object({
+      unidades: z.number().positive(),
+      custoObra: z.number().nonnegative(),
+      precoMedioUnidade: z.number().positive(),
+      prazoMeses: z.number().int().min(1).max(120),
+      taxaDescontoInvestidor: z.number().min(0).max(100).optional(),
+      valorTerreno: z.number().nonnegative().optional(),
+      unidadesPermuta: z.number().nonnegative().optional(),
+    }),
+    outputs: z.object({
+      vgv: z.number(),
+      custoPorUnidade: z.number(),
+      custoTerrenoEstimado: z.number(),
+      investimentoTotal: z.number(),
+      retornoLiquido: z.number(),
+      roiPercent: z.number(),
+      fluxoMensal: z.array(z.object({
+        mes: z.number().int().min(1),
+        valor: z.number(),
+      })).max(120),
+    }),
+    atualizadoEm: z.string().min(1),
+  }).optional(),
 });
 
 export const presignSchema = z.object({
@@ -123,10 +147,21 @@ export const reprovarSchema = z.object({
   justificativa: z.string().min(20, 'Justificativa deve ter ao menos 20 caracteres').max(2000),
 });
 
-export const aprovarSchema = reprovarSchema.omit({ justificativa: true });
+export const aprovarSchema = reprovarSchema.omit({ justificativa: true }).extend({
+  checklist: z.object({
+    patrimonioAfetacao: z.literal(true),
+    seguroObra: z.literal(true),
+    speScp: z.literal(true),
+    elegibilidadeCvm: z.literal(true),
+  }),
+});
+
+export const downloadPresignSchema = z.object({
+  location: z.string().url(),
+});
 
 export const confirmarPublicacaoSchema = z.object({
-  ofertaId: z.string().min(1, 'ID da oferta Divify é obrigatório').max(200),
+  ofertaId: z.string().min(1, 'ID da oferta é obrigatório').max(200),
   ofertaLink: z.string().url('Link da oferta inválido'),
 });
 

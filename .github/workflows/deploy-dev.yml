@@ -214,6 +214,7 @@ jobs:
           VITE_COGNITO_CLIENT_ID:    ${{ needs.deploy-backend.outputs.client_id }}
           VITE_AWS_REGION:           ${{ vars.AWS_REGION }}
           VITE_MODE:                 production
+          VITE_WHATSAPP_NUMBER:      ${{ vars.VITE_WHATSAPP_NUMBER }}
         run: yarn build
 
       - name: Upload dist artifact

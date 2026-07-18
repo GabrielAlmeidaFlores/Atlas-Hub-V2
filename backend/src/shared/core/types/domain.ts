@@ -1,4 +1,3 @@
-/** Machine-readable error codes returned by all API endpoints. */
 export type ApiErrorCode =
   | 'UNAUTHENTICATED'
   | 'FORBIDDEN'
@@ -8,10 +7,8 @@ export type ApiErrorCode =
   | 'INVALID_STATUS_TRANSITION'
   | 'INTERNAL_ERROR';
 
-/** Cognito group — determines which portal the user accesses. */
 export type Perfil = 'INCORPORADORA' | 'ANALISTA' | 'ADMIN_MASTER';
 
-/** All possible statuses of a project. */
 export type StatusProjeto =
   | 'RASCUNHO'
   | 'SUBMETIDO'
@@ -26,7 +23,6 @@ export type TipoOferta = 'PUBLICA' | 'PRIVADA';
 export type ModeloRetorno = 'SCP' | 'NOTA_COMERCIAL';
 export type TipoImovel = 'RESIDENCIAL' | 'COMERCIAL' | 'MISTO';
 
-/** Incorporadora record stored in AtlasIncorporadoras DynamoDB table. */
 export interface Incorporadora {
   readonly id: string;
   readonly cnpj: string;
@@ -47,7 +43,6 @@ export interface Incorporadora {
   readonly comprovanteCnpjUrl?: string;
 }
 
-/** Admin record stored in AtlasAdmins DynamoDB table. */
 export interface Admin {
   readonly id: string;
   readonly nome: string;
@@ -58,7 +53,6 @@ export interface Admin {
   readonly criadoEm: string;
 }
 
-/** Membro da equipe de um projeto. */
 export interface MembroEquipe {
   readonly nome: string;
   readonly cargo: string;
@@ -67,7 +61,6 @@ export interface MembroEquipe {
   readonly linkedin?: string;
 }
 
-/** Documentos enviados no projeto. */
 export interface DocumentosProjeto {
   readonly matriculaUrl?: string;
   readonly alvaraUrl?: string;
@@ -81,7 +74,32 @@ export interface DocumentosProjeto {
   readonly outrosUrls?: string[];
 }
 
-/** Project record stored in AtlasProjetos DynamoDB table. */
+export interface ViabilidadeInputs {
+  readonly unidades: number;
+  readonly custoObra: number;
+  readonly precoMedioUnidade: number;
+  readonly prazoMeses: number;
+  readonly taxaDescontoInvestidor?: number;
+  readonly valorTerreno?: number;
+  readonly unidadesPermuta?: number;
+}
+
+export interface ViabilidadeOutputs {
+  readonly vgv: number;
+  readonly custoPorUnidade: number;
+  readonly custoTerrenoEstimado: number;
+  readonly investimentoTotal: number;
+  readonly retornoLiquido: number;
+  readonly roiPercent: number;
+  readonly fluxoMensal: readonly { readonly mes: number; readonly valor: number }[];
+}
+
+export interface ViabilidadeProjeto {
+  readonly inputs: ViabilidadeInputs;
+  readonly outputs: ViabilidadeOutputs;
+  readonly atualizadoEm: string;
+}
+
 export interface Projeto {
   readonly id: string;
   readonly incorporadoraId: string;
@@ -108,6 +126,7 @@ export interface Projeto {
   readonly numParcelas?: number;
   readonly percentualEntrada?: number;
   readonly documentos?: DocumentosProjeto;
+  readonly viabilidade?: ViabilidadeProjeto;
   readonly equipe?: MembroEquipe[];
   readonly analistaId?: string;
   readonly analistaNome?: string;
@@ -123,7 +142,6 @@ export interface Projeto {
   readonly reprovadoEm?: string;
 }
 
-/** Scorecard entry stored in AtlasScorecard DynamoDB table. */
 export interface Scorecard {
   readonly projetoId: string;
   readonly revisao: number;
@@ -146,7 +164,6 @@ export interface Scorecard {
   readonly atualizadoEm: string;
 }
 
-/** Notification stored in AtlasNotificacoes DynamoDB table. */
 export interface Notificacao {
   readonly userId: string;
   readonly criadoEm: string;
@@ -160,7 +177,6 @@ export interface Notificacao {
   readonly ttl?: number;
 }
 
-/** Audit log entry stored in AtlasAuditoria DynamoDB table. */
 export interface AuditoriaEntry {
   readonly projetoId: string;
   readonly criadoEm: string;
@@ -172,7 +188,6 @@ export interface AuditoriaEntry {
   readonly statusNovo?: StatusProjeto;
 }
 
-/** Internal note stored in AtlasNotas DynamoDB table. */
 export interface NotaInterna {
   readonly projetoId: string;
   readonly criadoEm: string;

@@ -6,11 +6,11 @@ O ambiente de produção usa a mesma stack da Syntonia:
 
 | Serviço | Uso |
 |---|---|
-| **AWS Lambda** | 31 funções (backend) |
+| **AWS Lambda** | ~32 funções (backend) |
 | **API Gateway** | Endpoints REST |
 | **DynamoDB** | 7 tabelas (PAY_PER_REQUEST) |
 | **Cognito** | Autenticação (1 pool, 3 grupos) |
-| **S3** | Documentos de projetos |
+| **S3** | Documentos — PUT (upload) e GetObject (download) via presign |
 | **SES** | E-mails transacionais |
 | **AWS Amplify** | Frontend (SPA) |
 | **Serverless Framework** | IaC + deploy do backend |

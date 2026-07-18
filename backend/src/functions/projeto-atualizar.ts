@@ -17,8 +17,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const projeto = await getProjeto(id);
     if (projeto === null) return notFound(event, 'Projeto não encontrado');
     if (projeto.incorporadoraId !== userId) return forbidden(event);
-    if (projeto.status !== 'RASCUNHO' && projeto.status !== 'AJUSTE_SOLICITADO') {
-      return badRequest(event, 'Projeto só pode ser editado quando está em Rascunho ou Ajuste Solicitado', 'INVALID_STATUS_TRANSITION');
+    if (projeto.status !== 'RASCUNHO' && projeto.status !== 'AJUSTE_SOLICITADO' && projeto.status !== 'REPROVADO') {
+      return badRequest(event, 'Projeto só pode ser editado quando está em Rascunho, Ajuste Solicitado ou Reprovado', 'INVALID_STATUS_TRANSITION');
     }
 
     const body = validate(atualizarProjetoSchema, JSON.parse(event.body ?? '{}'));

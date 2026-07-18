@@ -1,10 +1,20 @@
-import { useState, type ReactNode, type FormEvent, type ChangeEvent } from "react";
+import { useState, type ReactNode, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
+import { uploadProjetoDocumento } from "@/lib/upload";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
+import type { DocumentosProjeto, MembroEquipe } from "@/types";
+import {
+  ViabilidadeCalculator,
+  formToViabilidade,
+  VIABILIDADE_FORM_EMPTY,
+  type ViabilidadeFormState,
+} from "@/components/shared/viabilidade-calculator";
+import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
+import { EquipeEditor } from "@/components/shared/equipe-editor";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -14,6 +24,17 @@ const ETAPAS = [
   { num: 3 as Etapa, label: "Documentos", icon: FileText },
   { num: 4 as Etapa, label: "Equipe", icon: Users },
   { num: 5 as Etapa, label: "Revisão", icon: Eye },
+];
+
+const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; required: boolean; hint: string }[] = [
+  { key: "matriculaUrl", label: "Matrícula do Terreno", required: true, hint: "Certidão atualizada (máx 90 dias)" },
+  { key: "alvaraUrl", label: "Alvará de Construção", required: true, hint: "Ou protocolo de aprovação" },
+  { key: "memorialUrl", label: "Memorial Descritivo", required: true, hint: "" },
+  { key: "plantaUrl", label: "Planta do Empreendimento", required: true, hint: "" },
+  { key: "viabilidadeUrl", label: "Estudo de Viabilidade Financeira", required: true, hint: "Assinado por responsável técnico" },
+  { key: "orcamentoUrl", label: "Planilha de Orçamento de Obra", required: false, hint: "Recomendado — assinada por engenheiro" },
+  { key: "projeto3dUrl", label: "Projeto 3D / Renderizações", required: false, hint: "Facilita a venda da oferta" },
+  { key: "contratoSpeUrl", label: "Contrato Social da SPE", required: false, hint: "Se já constituída" },
 ];
 
 interface DadosGerais {
@@ -41,10 +62,24 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
+function fileLabel(url: string | undefined): string {
+  if (url === undefined || url === "") return "";
+  try {
+    const parts = url.split("/");
+    return decodeURIComponent(parts[parts.length - 1] ?? "arquivo");
+  } catch {
+    return "arquivo enviado";
+  }
+}
+
 export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [etapa, setEtapa] = useState<Etapa>(1);
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
+  const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
+  const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [projetoId, setProjetoId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
@@ -71,6 +106,27 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     return r.id;
   }
 
+  async function persistDocumentos(id: string, docs: DocumentosProjeto): Promise<void> {
+    await api.put(`/projetos/${id}`, { documentos: docs });
+  }
+
+  async function handleDocUpload(key: keyof DocumentosProjeto, file: File | undefined): Promise<void> {
+    if (file === undefined) return;
+    setUploadingKey(key);
+    try {
+      const id = await salvarRascunho();
+      const location = await uploadProjetoDocumento(id, file);
+      const next = { ...documentos, [key]: location };
+      setDocumentos(next);
+      await persistDocumentos(id, next);
+      addToast({ type: "success", title: "Documento enviado" });
+    } catch (err) {
+      addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) !== "Erro interno. Tente novamente." ? getApiErrorMessage(err) : (err instanceof Error ? err.message : "Tente novamente.") });
+    } finally {
+      setUploadingKey(null);
+    }
+  }
+
   async function avancar(): Promise<void> {
     if (etapa === 1) {
       setIsLoading(true);
@@ -81,6 +137,18 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
   async function submeter(): Promise<void> {
     if (projetoId === null) return;
+    const missing = DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === ""));
+    if (missing.length > 0) {
+      addToast({ type: "error", title: "Documentos obrigatórios", description: `Envie: ${missing.map((m) => m.label).join(", ")}` });
+      setEtapa(3);
+      return;
+    }
+    if (equipe.length === 0) {
+      addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
+      setEtapa(4);
+      return;
+    }
+    const viabilidade = formToViabilidade(viabilidadeForm);
     setIsLoading(true);
     try {
       await api.put(`/projetos/${projetoId}`, {
@@ -88,6 +156,9 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         prazoObra: parseInt(financeiros.prazoObra, 10), prazoRetorno: parseInt(financeiros.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
+        documentos,
+        equipe,
+        ...(viabilidade !== null && { viabilidade }),
       });
       await api.post(`/projetos/${projetoId}/submeter`, {});
       addToast({ type: "success", title: "Projeto submetido!", description: "Aguarde a análise da nossa equipe." });
@@ -100,6 +171,23 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   }
 
   const progress = Math.round(((etapa - 1) / 4) * 100);
+
+  const progressItems: ProgressItem[] = [
+    { id: "dados", label: "Dados gerais", done: gerais.nome.length >= 3 && gerais.descricao.length >= 200 },
+    {
+      id: "financeiro",
+      label: "Dados financeiros",
+      done: financeiros.valorTotal !== "" && financeiros.valorCaptar !== "" && financeiros.prazoObra !== ""
+        && financeiros.prazoRetorno !== "" && financeiros.rentabilidadeEstimada !== "" && financeiros.planoSaida !== "",
+    },
+    { id: "viabilidade", label: "Calculadora de viabilidade", done: formToViabilidade(viabilidadeForm) !== null },
+    ...DOC_FIELDS.filter((d) => d.required).map((d) => ({
+      id: d.key,
+      label: d.label,
+      done: typeof documentos[d.key] === "string" && documentos[d.key] !== "",
+    })),
+    { id: "equipe", label: "Equipe (mín. 1)", done: equipe.length >= 1 },
+  ];
 
   return (
     <div className="animate-in">
@@ -131,7 +219,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
           </div>
         </div>
 
-        <div className="card p-5 sm:p-6">
+        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2 card p-5 sm:p-6">
           {etapa === 1 && (
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Dados do Projeto</h2>
@@ -191,38 +280,54 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <Field label="Plano de Saída dos Investidores" hint="Como e quando os investidores receberão o retorno">
                 <textarea className="input-base resize-none" rows={3} placeholder="Ex: Após a venda das unidades, lucro distribuído proporcionalmente às cotas..." value={financeiros.planoSaida} onChange={fin("planoSaida")} required />
               </Field>
+              <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
             </div>
           )}
 
           {etapa === 3 && (
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Documentos do Projeto</h2>
-              <p className="text-sm text-muted-foreground">Faça o upload dos documentos necessários para a análise de curadoria.</p>
+              <p className="text-sm text-muted-foreground">
+                PDF, JPG ou PNG · máx. 50 MB. Os arquivos são enviados com segurança para o armazenamento Atlas.
+              </p>
               <div className="space-y-2">
-                {[
-                  { label: "Matrícula do Terreno", required: true, hint: "Certidão atualizada (máx 90 dias)" },
-                  { label: "Alvará de Construção", required: true, hint: "Ou protocolo de aprovação" },
-                  { label: "Memorial Descritivo", required: true, hint: "" },
-                  { label: "Planta do Empreendimento", required: true, hint: "" },
-                  { label: "Estudo de Viabilidade Financeira", required: true, hint: "Assinado por responsável técnico" },
-                  { label: "Planilha de Orçamento de Obra", required: false, hint: "Recomendado — assinada por engenheiro" },
-                  { label: "Projeto 3D / Renderizações", required: false, hint: "Facilita a venda da oferta" },
-                  { label: "Contrato Social da SPE", required: false, hint: "Se já constituída" },
-                ].map(({ label, required, hint }) => (
-                  <div key={label} className="flex items-center justify-between   border border-border px-4 py-3">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{label}</p>
-                      <p className="text-xs text-muted-foreground">{required ? "Obrigatório" : "Opcional"}{hint !== "" ? ` · ${hint}` : ""}</p>
+                {DOC_FIELDS.map(({ key, label, required, hint }) => {
+                  const url = documentos[key];
+                  const done = typeof url === "string" && url !== "";
+                  const busy = uploadingKey === key;
+                  return (
+                    <div key={key} className="flex items-center justify-between border border-border px-4 py-3">
+                      <div className="min-w-0 pr-3">
+                        <p className="text-sm font-medium text-foreground">
+                          {label}{required && <span className="text-status-danger"> *</span>}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{required ? "Obrigatório" : "Opcional"}{hint !== "" ? ` · ${hint}` : ""}</p>
+                        {done && (
+                          <a href={url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-navy hover:underline">
+                            {fileLabel(url)}
+                          </a>
+                        )}
+                      </div>
+                      <label className={cn(
+                        "btn btn-secondary btn-sm cursor-pointer shrink-0",
+                        busy && "pointer-events-none opacity-50",
+                        done && "border-status-success text-status-success",
+                      )}>
+                        {busy ? "Enviando…" : done ? "Trocar" : "Selecionar"}
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                          disabled={busy || isLoading}
+                          onChange={(e) => {
+                            void handleDocUpload(key, e.target.files?.[0]);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
                     </div>
-                    <label className="btn btn-secondary btn-sm cursor-pointer">
-                      <input type="file" className="sr-only" accept=".pdf,.jpg,.png" />
-                      Selecionar
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <div className="alert alert-warn text-xs text-status-warning">
-                Upload real disponível após configuração do S3. Por ora, prossiga para revisar os dados.
+                  );
+                })}
               </div>
             </div>
           )}
@@ -231,11 +336,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Equipe do Projeto</h2>
               <p className="text-sm text-muted-foreground">Adicione os responsáveis pelo empreendimento. Mínimo 1 membro.</p>
-              <div className="  border border-dashed border-input bg-muted p-8 text-center">
-                <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-foreground">Gerenciamento de equipe</p>
-                <p className="mt-1 text-xs text-muted-foreground">Disponível após salvar o projeto como rascunho</p>
-              </div>
+              <EquipeEditor value={equipe} onChange={setEquipe} />
             </div>
           )}
 
@@ -261,6 +362,18 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                     <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{financeiros.modeloRetorno}</dd></div>
                     <div><dt className="text-muted-foreground">Oferta</dt><dd className="font-medium">{financeiros.tipoOferta}</dd></div>
                   </dl>
+                </div>
+                <div className="bg-muted p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Documentos</p>
+                  <p className="text-sm text-foreground">
+                    {DOC_FIELDS.filter((d) => typeof documentos[d.key] === "string" && documentos[d.key] !== "").length}
+                    {" / "}
+                    {DOC_FIELDS.length} enviados
+                    {" · "}
+                    {DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === "")).length === 0
+                      ? "obrigatórios ok"
+                      : "faltam obrigatórios"}
+                  </p>
                 </div>
               </div>
               <div className="alert alert-warn text-sm text-status-warning">
@@ -288,6 +401,10 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               </button>
             )}
           </div>
+        </div>
+        <div className="space-y-4">
+          <ProjetoProgressBar items={progressItems} />
+        </div>
         </div>
       </div>
     </div>

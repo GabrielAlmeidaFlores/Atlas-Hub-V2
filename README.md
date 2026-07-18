@@ -1,22 +1,39 @@
 # Atlas Hub V2
 
-Plataforma de **crowdfunding imobiliário** regulada pela **CVM Resolução 88**. O Atlas Hub origina e faz a curadoria de projetos de incorporadoras; a infraestrutura do investidor (KYC, escrow, tokenização, ofertas) fica a cargo da **Divify** (white-label).
+Plataforma de **crowdfunding imobiliário** regulada pela **CVM Resolução 88**. O Atlas Hub origina e faz a curadoria de projetos de incorporadoras e publica ofertas sob a marca Atlas Hub (KYC, escrow, tokenização e vitrine do investidor incluídos na experiência Atlas).
 
 Este repositório cobre o **MVP de originador + curadoria**:
 
 - **Portal da Incorporadora** — cadastro, perfil, submissão de projetos, acompanhamento
 - **Painel de Curadoria (Admin)** — fila de análise, scorecard, aprovação/reprovação, CRM
 
-> Spec de produto: [`product.md`](product.md) · Escopo MVP: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
+> Spec: [`product.md`](product.md) · Escopo: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Escalada (ref.): [`docs/escalada-referencias.md`](docs/escalada-referencias.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md) · Agentes: [`AGENTS.md`](AGENTS.md)
 
-### Fronteira Atlas × Divify
+### Fronteira de escopo MVP
 
-| Atlas Hub (MVP) | Divify (imediato) | Fase 2 (bloqueada) |
+| Este repo (MVP) | Experiência Atlas (já disponível) | Fase 2 (bloqueada) |
 |---|---|---|
-| Portal Incorporadora + Admin Curadoria | Vitrine, KYC, escrow, cotas, oferta | Portal investidor Atlas + APIs/webhooks |
-| Oferta registrada manualmente após aprovação | Painel cria/publica a oferta | Sync de captação / carteira |
+| Portal Incorporadora + Admin Curadoria | Vitrine, KYC, escrow, cotas, oferta (marca Atlas) | Sync avançado via APIs/webhooks |
+| Registro manual de ID/link após aprovação | Painel cria/publica a oferta | Captação e carteira sincronizadas |
 
-Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos pré-Divify **não** são backlog deste repo.
+Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos Plano A **não** são backlog deste repo.
+
+### Estado da implementação (código)
+
+| Área | Status |
+|---|---|
+| Auth Cognito (grupos) + guards | Implementado |
+| Wizard 5 etapas + rascunho + editar (`/projetos/:id/editar`) | Implementado |
+| Upload S3 (presign PUT) + download (presign GET) | Implementado |
+| Equipe no wizard/editar (mín. 1 membro) | Implementado |
+| Calculadora de viabilidade (`projeto.viabilidade`) + barra de progresso | Implementado |
+| Curadoria: fila, scorecard, notas, ajuste/reprovar/aprovar | Implementado |
+| Checklist pré-aprovação (UI + validação no `POST .../aprovar`) | Implementado |
+| Admin usuários (`/admin/usuarios`) + senha temporária na resposta | Implementado |
+| CRM incorporadoras + métricas + histórico | Implementado |
+| SES / domínio / white-label contrato | Pendente — ver [`pending.md`](pending.md) |
+
+Deploy DEV/PRD pode ficar atrás do código local; valide ambiente após merge.
 
 ---
 
@@ -115,7 +132,7 @@ RASCUNHO → SUBMETIDO → EM_ANALISE → APROVADO → OFERTA_CRIADA
                          └── REPROVADO → (resubmete) → SUBMETIDO
 ```
 
-Após `APROVADO`, a criação da oferta na Divify é **manual** no MVP: o analista cria a oferta no painel Divify e registra ID + link no Atlas Hub (`OFERTA_CRIADA`).
+Após `APROVADO`, a criação da oferta na plataforma é **manual** no MVP: o analista cria a oferta no painel da plataforma e registra ID + link no Atlas Hub (`OFERTA_CRIADA`).
 
 ---
 
@@ -154,17 +171,17 @@ Após `APROVADO`, a criação da oferta na Divify é **manual** no MVP: o analis
 
 #### 2.3 Wizard de submissão (5 etapas)
 
-Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode fechar e retomar.
+Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode fechar e retomar. Edição pós-ajuste/reprovação: `/projetos/:id/editar`. Barra de progresso derivada de campos/docs (sem API de toggle).
 
 | Etapa | O que cobre |
 |---|---|
-| **1 — Dados gerais** | Nome, modelo (MVP: só Venda), tipo de imóvel, cidade/UF, endereço do terreno, descrição (≥200 chars), fotos (até 10×10 MB), vídeo YouTube |
-| **2 — Dados financeiros** | Valor total, valor a captar (≤ R$15M CVM), prazos de obra/retorno, rentabilidade estimada, modelo de retorno (lucros SPE/SCP ou dívida), plano de saída, tipo de oferta (pública/privada), opção de investimento parcelado |
-| **3 — Documentos** | Matrícula, alvará/protocolo, memorial, planta, planilha de viabilidade (obrigatórios); orçamento, 3D, SPE/SCP, CNDs, outros (opcionais). PDF/JPG/PNG até 50 MB |
-| **4 — Equipe** | Múltiplos membros: nome, cargo, bio; foto e LinkedIn opcionais. Mínimo 1 responsável técnico |
-| **5 — Revisão e envio** | Resumo completo, checklist de obrigatórios, confirmação modal → status `SUBMETIDO` |
+| **1 — Dados gerais** | Nome, modelo (MVP: só Venda), tipo de imóvel, cidade/UF, endereço do terreno, descrição (≥200 chars), fotos (até 10×10 MB via S3), vídeo YouTube |
+| **2 — Dados financeiros** | Valor total, valor a captar (≤ R$15M CVM), prazos, rentabilidade, modelo de retorno, plano de saída, tipo de oferta, parcelado opcional; **calculadora de viabilidade** (inputs/outputs em `projeto.viabilidade`) |
+| **3 — Documentos** | Obrigatórios + opcionais (product.md). Upload: `pre-sign` → PUT S3 → persistir `location`. Abertura/download: `POST /documentos/download-url` |
+| **4 — Equipe** | CRUD de membros (nome, cargo, bio; foto/LinkedIn opcionais). Mínimo 1 membro na submissão |
+| **5 — Revisão e envio** | Resumo, checklist de obrigatórios, confirmação → `SUBMETIDO` |
 
-**Regras do wizard:** após submissão os campos bloqueiam; em ajuste voltam editáveis; reprovado pode ser corrigido e resubmetido sem limite; histórico de análises fica visível.
+**Regras do wizard:** após submissão os campos bloqueiam; em `AJUSTE_SOLICITADO` / `REPROVADO` voltam editáveis e podem resubmeter; histórico de análises fica visível.
 
 #### 2.4 Detalhe e acompanhamento do projeto
 
@@ -178,7 +195,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Banner de ajuste | Texto do analista + editar + resubmeter (`AJUSTE_SOLICITADO`) |
 | Banner de reprovação | Justificativa + resubmeter com correções (`REPROVADO`) |
 | Banner de aprovação | Aviso de criação da oferta (`APROVADO`) |
-| Banner de oferta publicada | Link direto da oferta na Divify (`OFERTA_CRIADA`) |
+| Banner de oferta publicada | Link direto da oferta na plataforma (`OFERTA_CRIADA`) |
 
 #### 2.5 Notificações (incorporadora)
 
@@ -202,7 +219,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Funcionalidade | Descrição | API |
 |---|---|---|
 | Listar usuários admin | Analistas e masters | `GET /admin/usuarios` |
-| Criar analista | Nome, e-mail, senha temporária; redefine no 1º acesso | `POST /admin/usuarios` |
+| Criar analista | Nome, e-mail; API devolve `temporaryPassword` (UI: toast + copiar); redefine no 1º acesso | `POST /admin/usuarios` |
 | Desativar usuário | Remove acesso | `PUT /admin/usuarios/{id}/desativar` |
 | Reatribuir projeto | Troca analista responsável (com motivo); scorecard parcial é herdado | `POST /admin/curadoria/{id}/reatribuir` |
 
@@ -210,7 +227,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 
 | Funcionalidade | Descrição |
 |---|---|
-| Métricas | Submetidos, em análise, aguardando ajuste, aprovados, reprovados, aguardando Divify, ofertas publicadas (mês / acumulado) |
+| Métricas | Submetidos, em análise, aguardando ajuste, aprovados, reprovados, aguardando publicação, ofertas publicadas (mês / acumulado) |
 | Tempo médio de análise | Em dias (mês atual) |
 | Funil visual | Submetidos → Em análise → Aprovados → Oferta criada (com desvios para ajuste/reprovação) |
 
@@ -228,16 +245,16 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 
 | Funcionalidade | Descrição |
 |---|---|
-| Abas somente leitura | Dados gerais, financeiros, documentos, equipe, incorporadora, histórico |
+| Abas somente leitura | Dados gerais, financeiros (incl. viabilidade), documentos, equipe, incorporadora, histórico |
 | Notas internas | Texto livre, autor + data/hora; imutáveis; **não** visíveis à incorporadora |
 | Scorecard (5 critérios) | Localização 25%, Viabilidade 25%, Documentação 20%, Equipe 15%, Risco 15% — nota 1–10 + comentário; média ponderada automática |
 | Parecer final | Obrigatório antes de decidir |
-| Checklist pré-aprovação | Patrimônio de afetação, seguro de obra, SPE/SCP, elegibilidade CVM (≤ R$40M) |
+| Checklist pré-aprovação | Quatro itens (afetação, seguro, SPE/SCP, elegibilidade CVM ≤ R$40M) — UI + **obrigatório no body** de `POST .../aprovar` |
 | Salvar rascunho do scorecard | Sem mudar status |
 | Solicitar ajuste | → `AJUSTE_SOLICITADO` + notificação |
 | Reprovar | Scorecard completo + parecer → `REPROVADO` |
 | Aprovar | Scorecard + checklist + parecer → `APROVADO` |
-| Confirmar publicação Divify | Registra ID + link da oferta → `OFERTA_CRIADA` |
+| Confirmar publicação da oferta | Registra ID + link da oferta → `OFERTA_CRIADA` |
 | Histórico de resubmissões | Exibe “Revisão N” e scorecards anteriores |
 
 #### 3.5 Histórico de decisões
@@ -245,7 +262,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Funcionalidade | Descrição |
 |---|---|
 | Lista de decididos | `APROVADO`, `OFERTA_CRIADA`, `REPROVADO` |
-| Colunas | Projeto, incorporadora, modelo, oferta, valor, analista, nota, decisão, data, ID/link Divify |
+| Colunas | Projeto, incorporadora, modelo, oferta, valor, analista, nota, decisão, data, ID/link da oferta |
 | Filtros | Decisão, analista, datas, tipo de oferta |
 | Ver análise completa | Abre o detalhe com scorecard e notas |
 
@@ -267,7 +284,8 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 |---|---|---|
 | `GET` | `/health` | Health check |
 | `GET` / `PUT` | `/incorporadora/perfil` | Ler / atualizar perfil |
-| `POST` | `/incorporadora/documentos/pre-sign` | URL pré-assinada S3 (docs da empresa) |
+| `POST` | `/incorporadora/documentos/pre-sign` | URL pré-assinada S3 PUT (docs da empresa) |
+| `POST` | `/documentos/download-url` | URL pré-assinada S3 GET (abrir/baixar docs) |
 
 #### Projetos
 
@@ -275,10 +293,10 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 |---|---|---|
 | `POST` | `/projetos` | Criar rascunho |
 | `GET` | `/projetos` | Listar projetos da incorporadora |
-| `GET` / `PUT` | `/projetos/{id}` | Detalhe / atualizar rascunho |
+| `GET` / `PUT` | `/projetos/{id}` | Detalhe / atualizar (`RASCUNHO`, `AJUSTE_SOLICITADO`, `REPROVADO`) |
 | `POST` | `/projetos/{id}/submeter` | Submeter |
 | `POST` | `/projetos/{id}/resubmeter` | Resubmeter após ajuste/reprovação |
-| `POST` | `/projetos/{id}/documentos/pre-sign` | Upload de docs/fotos do projeto |
+| `POST` | `/projetos/{id}/documentos/pre-sign` | Upload de docs/fotos do projeto (PUT S3) |
 
 #### Notificações
 
@@ -297,8 +315,8 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | `PUT` | `/admin/curadoria/{id}/scorecard` | Salvar scorecard |
 | `POST` | `/admin/curadoria/{id}/ajuste` | Solicitar ajuste |
 | `POST` | `/admin/curadoria/{id}/reprovar` | Reprovar |
-| `POST` | `/admin/curadoria/{id}/aprovar` | Aprovar |
-| `POST` | `/admin/curadoria/{id}/confirmar-publicacao` | Confirmar oferta Divify |
+| `POST` | `/admin/curadoria/{id}/aprovar` | Aprovar (body exige `checklist` com 4 literais) |
+| `POST` | `/admin/curadoria/{id}/confirmar-publicacao` | Confirmar oferta |
 | `POST` | `/admin/curadoria/{id}/notas` | Nota interna |
 | `POST` | `/admin/curadoria/{id}/reatribuir` | Reatribuir (master) |
 | `GET` | `/admin/historico` | Histórico de decisões |
@@ -317,7 +335,7 @@ Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no D
 | Funcionalidade | Descrição |
 |---|---|
 | Auth Cognito | Pool único com 3 grupos; JWT nas rotas autenticadas |
-| Upload S3 | Pré-assinatura para documentos da empresa e do projeto |
+| Upload S3 | Presign PUT (upload) + presign GET via `/documentos/download-url` |
 | E-mail SES | Confirmação de conta e notificações de curadoria |
 | Auditoria | Log de ações (cadastro, login, submissão, análise, decisão, publicação, etc.) com usuário, data e descrição |
 | Validação Zod | Schemas de entrada nas Lambdas |
@@ -325,16 +343,16 @@ Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no D
 
 ---
 
-### 6. Integração Divify (MVP)
+### 6. Integração white-label (MVP)
 
 No MVP a integração é **operacional/manual**, não via API:
 
 1. Analista aprova no Atlas Hub  
-2. Cria a oferta no painel admin Divify (pública ou privada, SCP/Nota Comercial, spread 10%)  
+2. Cria a oferta no painel da plataforma (pública ou privada, SCP/Nota Comercial, spread 10%)  
 3. Registra ID + link no Atlas Hub → `OFERTA_CRIADA`  
 4. Incorporadora recebe o link para compartilhar com investidores  
 
-O que a Divify entrega (fora deste repo): vitrine, KYC, investimento PIX, escrow, tokenização, mercado secundário, triggers CVM.
+Fora deste repo (já na experiência Atlas Hub): vitrine, KYC, investimento PIX, escrow, tokenização, mercado secundário, triggers CVM.
 
 ---
 
@@ -344,7 +362,7 @@ O que a Divify entrega (fora deste repo): vitrine, KYC, investimento PIX, escrow
 |---|---|
 | Modelos 2 e 3 | Construção para renda e modelo misto |
 | Multi-usuário por incorporadora | Equipe com permissões no portal |
-| Automação Divify | Criação de oferta via API + webhooks |
+| Automação da oferta | Criação de oferta via API + webhooks |
 | APIs externas na curadoria | Urbit, Zoneval, CASAFARI |
 | Acompanhamento de obra | Progresso físico (ex.: Arquis) |
 | Score automático | Avaliação assistida por algoritmo |
@@ -430,7 +448,10 @@ VITE_COGNITO_USER_POOL_ID=sa-east-1_XXXXXXXXX
 VITE_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 VITE_AWS_REGION=sa-east-1
 VITE_MODE=development
+VITE_WHATSAPP_NUMBER=
 ```
+
+`VITE_WHATSAPP_NUMBER` — só dígitos com DDI (ex. `5511999999999`). Vazio = esconde botões/FAB de WhatsApp na LP.
 
 Para apontar o frontend local à API de DEV:
 
@@ -484,6 +505,7 @@ Fluxo em cada push:
 | `AMPLIFY_APP_ID` | `d3vqf6k21x668r` (prod) |
 | `AMPLIFY_APP_ID_DEV` | `dng6v0yvgarue` (dev) |
 | `ADMIN_MASTER_EMAIL` | `gabrielalmeidaflores@hotmail.com` |
+| `VITE_WHATSAPP_NUMBER` | Dígitos com DDI (ex. `5511999999999`); vazio = esconde WhatsApp na LP |
 
 ---
 
@@ -532,9 +554,9 @@ aws cognito-idp list-groups \
 
 ---
 
-## Atlas Hub vs Divify
+## Atlas Hub — o que este repo entrega
 
-| Atlas Hub (este repo) | Divify (não construímos) |
+| Este repositório (MVP) | Experiência investidor Atlas Hub |
 |---|---|
 | Portal da Incorporadora | Vitrine e fluxo de investimento |
 | Painel de Curadoria | KYC, escrow, tokenização |
@@ -550,7 +572,7 @@ Modelo de negócio (Atlas): **10% do valor captado**, cobrado progressivamente. 
 |---|---|
 | [`product.md`](product.md) | Spec completa de produto (~958 linhas) |
 | [`deploy.md`](deploy.md) | Guia detalhado de produção AWS |
-| [`pending.md`](pending.md) | Decisões abertas (Divify, SES, produto) |
+| [`pending.md`](pending.md) | Decisões abertas (plataforma, SES, produto) |
 
 ---
 

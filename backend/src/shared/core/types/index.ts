@@ -9,6 +9,7 @@ export type {
   Incorporadora,
   Admin,
   Projeto,
+  ViabilidadeProjeto,
   Scorecard,
   Notificacao,
   AuditoriaEntry,

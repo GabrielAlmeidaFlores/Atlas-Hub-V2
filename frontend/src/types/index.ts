@@ -11,6 +11,7 @@ export type {
   Admin,
   MembroEquipe,
   DocumentosProjeto,
+  ViabilidadeProjeto,
   Projeto,
   Scorecard,
   Notificacao,
