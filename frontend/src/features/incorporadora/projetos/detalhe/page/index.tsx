@@ -13,6 +13,7 @@ import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
+import { DocumentLink } from "@/components/shared/document-link";
 
 type Tab = "visao-geral" | "documentos" | "equipe" | "historico";
 
@@ -161,20 +162,11 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                 {tab === "documentos" && (
                   <div className="animate-in space-y-2">
                     {projeto.documentos !== undefined
-                      ? Object.entries(projeto.documentos).map(([key, url]) => {
-                          if (url === undefined || url === null) return null;
+                      ? Object.entries(projeto.documentos).flatMap(([key, url]) => {
+                          if (url === undefined || url === null) return [];
                           const urls = Array.isArray(url) ? url : [url as string];
                           return urls.map((u: string, i: number) => (
-                            <a key={`${key}-${String(i)}`} href={u} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center justify-between   border border-border px-4 py-3 text-sm hover:bg-muted">
-                              <div className="flex items-center gap-2.5">
-                                <div className="flex h-8 w-8 items-center justify-center   bg-navy-50">
-                                  <FileText className="h-4 w-4 text-navy" />
-                                </div>
-                                <span className="font-medium text-foreground">{key}</span>
-                              </div>
-                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </a>
+                            <DocumentLink key={`${key}-${String(i)}`} href={u} label={key} />
                           ));
                         })
                       : <p className="py-4 text-center text-sm text-muted-foreground">Nenhum documento enviado</p>

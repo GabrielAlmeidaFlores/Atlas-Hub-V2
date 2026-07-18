@@ -210,6 +210,20 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ApiGatewayAuthorizer
 
+  documentoDownloadPresign:
+    handler: src/functions/documento-download-presign.handler
+    role: !GetAtt DocumentoDownloadPresignLambdaRole.Arn
+    timeout: 10
+    description: "Generates a pre-signed S3 GET URL for document download"
+    events:
+      - http:
+          path: documentos/download-url
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
   # ── Notificações ───────────────────────────────────────────────────
 
   notificacoesListar:
@@ -768,6 +782,31 @@ resources:
                   Action: [s3:PutObject]
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/projetos/*'
+
+    DocumentoDownloadPresignLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-docDownloadPresign-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [s3:GetObject]
+                  Resource:
+                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
 
     NotificacoesListarLambdaRole:
       Type: AWS::IAM::Role

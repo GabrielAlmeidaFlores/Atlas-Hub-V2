@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
+import { DocumentLink } from "@/components/shared/document-link";
 
 interface CuradoriaDetalhe {
   projeto: Projeto;
@@ -271,18 +272,11 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 {tab === "docs" && (
                   <div className="animate-in space-y-2">
                     {projeto.documentos !== undefined
-                      ? Object.entries(projeto.documentos).map(([key, url]) => {
-                          if (!url) return null;
+                      ? Object.entries(projeto.documentos).flatMap(([key, url]) => {
+                          if (!url) return [];
                           const urls = Array.isArray(url) ? url : [url as string];
                           return urls.map((u: string, i: number) => (
-                            <a key={`${key}-${String(i)}`} href={u} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center justify-between   border border-border px-4 py-3 hover:bg-muted">
-                              <div className="flex items-center gap-2.5">
-                                <div className="flex h-8 w-8 items-center justify-center   bg-navy-50"><FileText className="h-4 w-4 text-navy" /></div>
-                                <span className="text-sm font-medium text-foreground">{key}</span>
-                              </div>
-                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </a>
+                            <DocumentLink key={`${key}-${String(i)}`} href={u} label={key} />
                           ));
                         })
                       : <p className="py-6 text-center text-sm text-muted-foreground">Nenhum documento</p>
@@ -464,7 +458,10 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                         addToast({ type: "error", title: "Checklist incompleto", description: "Marque todos os itens pré-aprovação antes de aprovar." });
                         return;
                       }
-                      void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, { scorecard: buildScorecardBody() }), "Projeto aprovado!");
+                      void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, {
+                        scorecard: buildScorecardBody(),
+                        checklist,
+                      }), "Projeto aprovado!");
                     }}
                     disabled={actionLoading || parecer.length < 20 || !checklistOk}
                     className="btn w-full bg-status-success text-white hover:opacity-90 disabled:opacity-50">

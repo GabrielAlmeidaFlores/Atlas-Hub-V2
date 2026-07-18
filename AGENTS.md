@@ -33,5 +33,8 @@ Leia o `AGENTS.md` da pasta em que estiver trabalhando antes de editar.
 
 - `yarn build` (frontend) e `tsc --noEmit` (backend) passam.
 - Sem alerts de stub S3 / “em breve” que mintam integração pronta.
-- Upload de documentos: presign real → PUT S3 → persistir `location` via API.
+- Upload: presign PUT → S3 → persistir `location`. Download: `POST /documentos/download-url` → GET S3.
+- Equipe editável no wizard/editar; mínimo 1 membro na submissão.
+- Aprovar exige checklist completo no body da API.
 - UI segue `frontend/DESIGN.md` (radius 0, Poppins, tokens `status-*`, navy/gold).
+- Docs (`README`, `docs/SCOPE`, `pending`) atualizados se a fronteira de produto mudar.

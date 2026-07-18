@@ -17,7 +17,7 @@ Critérios do scorecard (código + `product.md` §7.5). Itens abaixo vêm das at
 
 ## Checklist pré-aprovação (já em `product.md`)
 
-Antes de `APROVADO`:
+Antes de `APROVADO` — UI no detalhe de curadoria **e** validação no backend (`POST /admin/curadoria/{id}/aprovar` exige os 4 literais no body):
 
 - [ ] Patrimônio de afetação (cláusula no contrato)
 - [ ] Seguro de obra (apólice antes da oferta ir ao ar)

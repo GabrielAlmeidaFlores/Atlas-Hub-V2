@@ -353,6 +353,7 @@ O progresso é salvo automaticamente como rascunho ao avançar cada etapa. A inc
 | Plano de saída | Sim | Como e quando os investidores receberão o retorno |
 | Tipo de oferta desejada | Sim | Pública (CVM 88, ilimitado de investidores) / Privada (club deal, até 15 investidores) |
 | Investimento parcelado | Não | Se sim: número de parcelas e % de entrada — configurado pelo analista na plataforma |
+| Calculadora de viabilidade | Não | Inputs/outputs simplificados persistidos em `projeto.viabilidade`; exibidos na curadoria |
 
 #### Etapa 3 — Documentos
 
@@ -373,6 +374,8 @@ O progresso é salvo automaticamente como rascunho ao avançar cada etapa. A inc
 - Formatos aceitos: PDF, JPG, PNG
 - Tamanho máximo por arquivo: 50 MB
 - Múltiplos arquivos podem ser enviados por campo
+- Fluxo: `POST .../documentos/pre-sign` → PUT S3 → persistir `location`
+- Abertura/download: `POST /documentos/download-url` (presign GET; bucket não é público)
 
 #### Etapa 4 — Equipe
 
@@ -386,8 +389,8 @@ Para cada membro da equipe do projeto:
 | Foto | Não |
 | LinkedIn | Não |
 
-- Permite adicionar múltiplos membros
-- Mínimo 1 responsável técnico cadastrado
+- Permite adicionar múltiplos membros (CRUD no wizard e em `/projetos/:id/editar`)
+- Mínimo 1 membro cadastrado para submeter
 
 #### Etapa 5 — Revisão e Envio
 
@@ -598,7 +601,7 @@ Lista todos os projetos com status `SUBMETIDO`, `EM_ANALISE` e `AJUSTE_SOLICITAD
 
 #### Checklist Pré-Aprovação
 
-Antes de aprovar, o analista deve confirmar:
+Antes de aprovar, o analista deve confirmar (UI + **API**: `POST /admin/curadoria/{id}/aprovar` rejeita sem os 4 itens no body):
 - [ ] Patrimônio de afetação: cláusula será exigida no contrato com a incorporadora
 - [ ] Seguro de obra: apólice será exigida antes da oferta ir ao ar
 - [ ] SPE/SCP: estrutura jurídica está constituída ou em processo
@@ -898,7 +901,7 @@ Lei da Incorporação — prazo de 180 dias após o registro da incorporação p
 - Não existe nota mínima para aprovação — decisão sempre humana
 - Projeto reprovado pode ser resubmetido sem limite de tentativas
 - A cada nova análise, o analista vê o scorecard e notas internas das análises anteriores
-- O checklist pré-aprovação deve estar totalmente marcado para habilitar o botão "Aprovar"
+- O checklist pré-aprovação deve estar totalmente marcado para habilitar o botão "Aprovar"; o backend também exige os quatro itens no body de aprovação
 
 ### 9.5 Regras de Upload de Documentos
 
@@ -937,7 +940,7 @@ Itens que não bloqueiam o desenvolvimento mas devem estar resolvidos antes do g
 |---|---|
 | Contrato white-label não assinado | Sem `x-tenant-id`, a stack de investimento não é configurada e aprovações não resultam em ofertas publicadas |
 | Pessoa jurídica Atlas Hub não constituída | Necessária para assinar a stack white-label e operar como licenciado CVM 88 |
-| Storage de arquivos não provisionado | Sem S3 (ou equivalente), uploads de documentos não funcionam |
+| Storage de arquivos | Buckets S3 DEV/PRD provisionados; upload (PUT) e download (GET) via URLs pré-assinadas no código — confirme deploy alinhado ao ambiente |
 | Serviço de e-mail transacional não configurado | Notificações e confirmação de cadastro não são enviadas |
 
 ---

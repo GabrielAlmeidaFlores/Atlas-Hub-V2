@@ -47,23 +47,22 @@ Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não hou
   - Só mostramos que a oferta está no ar com o link (mais simples) — **padrão recomendado no MVP**
   - Analista atualiza manualmente algum campo de progresso
   - Aguardamos resposta do Danillo antes de decidir
-- [ ] **Monorepo ou repositórios separados?** — Syntonia usa monorepo (`backend/` + `frontend/` na mesma raiz). Manter o mesmo padrão?
 - [ ] **Limite mínimo de captação para iniciar a obra** — Felipe mencionou que precisamos definir um threshold. Valor ainda não definido *(regra de negócio; não exige feature de investidor no Atlas)*
 
 ---
 
 ## 4. Infraestrutura AWS (a provisionar antes do deploy)
 
-- [x] **Bucket S3** — `atlas-hub-documents-dev` / `atlas-hub-documents-prod` (sa-east-1); backend pré-assinatura + upload no frontend (wizard, perfil, editar)
+- [x] **Bucket S3** — `atlas-hub-documents-dev` / `atlas-hub-documents-prod` (sa-east-1); PUT (upload) + GET (download via `POST /documentos/download-url`); frontend em wizard, perfil, editar
 - [ ] **SES configurado** — domínio validado + templates de e-mail criados
 - [ ] **SSM Parameter Store** — secrets sensíveis (ex: chaves de integração futura)
 - [ ] **Conta AWS** — confirmar qual conta será usada (a mesma do Syntonia ou uma nova?)
+- [ ] **Deploy alinhado ao código** — garantir DEV/PRD com viabilidade, download-url, checklist no aprovar, equipe
 
 ---
 
 ## 5. Decisões Técnicas
 
-- [ ] **Cognito: dois pools separados ou um pool com grupos?**
-  - Opção A: dois pools (incorporadoras e admins) — mais isolado, mais seguro
-  - Opção B: um pool com grupos (`INCORPORADORA`, `ANALISTA`, `ADMIN_MASTER`) — mais simples *(já adotado no V2)*
-- [ ] **Stack confirmada:** AWS Amplify + Lambda + DynamoDB + S3 + SES + Cognito + Serverless Framework (mesma do Syntonia)
+- [x] **Cognito: um pool com grupos** — `INCORPORADORA`, `ANALISTA`, `ADMIN_MASTER` (adotado no V2)
+- [x] **Stack:** AWS Amplify + Lambda + DynamoDB + S3 + SES + Cognito + Serverless Framework (mesma linha Syntonia)
+- [x] **Monorepo** — `frontend/` + `backend/` na raiz (padrão Syntonia)

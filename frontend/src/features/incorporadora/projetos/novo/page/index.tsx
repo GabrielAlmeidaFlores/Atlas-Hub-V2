@@ -6,7 +6,7 @@ import { uploadProjetoDocumento } from "@/lib/upload";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
-import type { DocumentosProjeto } from "@/types";
+import type { DocumentosProjeto, MembroEquipe } from "@/types";
 import {
   ViabilidadeCalculator,
   formToViabilidade,
@@ -14,6 +14,7 @@ import {
   type ViabilidadeFormState,
 } from "@/components/shared/viabilidade-calculator";
 import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
+import { EquipeEditor } from "@/components/shared/equipe-editor";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -76,6 +77,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [projetoId, setProjetoId] = useState<string | null>(null);
@@ -141,6 +143,11 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       setEtapa(3);
       return;
     }
+    if (equipe.length === 0) {
+      addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
+      setEtapa(4);
+      return;
+    }
     const viabilidade = formToViabilidade(viabilidadeForm);
     setIsLoading(true);
     try {
@@ -150,6 +157,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
         documentos,
+        equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
       await api.post(`/projetos/${projetoId}/submeter`, {});
@@ -178,6 +186,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       label: d.label,
       done: typeof documentos[d.key] === "string" && documentos[d.key] !== "",
     })),
+    { id: "equipe", label: "Equipe (mín. 1)", done: equipe.length >= 1 },
   ];
 
   return (
@@ -327,11 +336,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Equipe do Projeto</h2>
               <p className="text-sm text-muted-foreground">Adicione os responsáveis pelo empreendimento. Mínimo 1 membro.</p>
-              <div className="  border border-dashed border-input bg-muted p-8 text-center">
-                <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-foreground">Gerenciamento de equipe</p>
-                <p className="mt-1 text-xs text-muted-foreground">Disponível após salvar o projeto como rascunho</p>
-              </div>
+              <EquipeEditor value={equipe} onChange={setEquipe} />
             </div>
           )}
 

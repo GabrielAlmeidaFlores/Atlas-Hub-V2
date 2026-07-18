@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { uploadProjetoDocumento } from "@/lib/upload";
 import { useToastStore } from "@/stores/toast";
-import type { DocumentosProjeto, Projeto, StatusProjeto } from "@/types";
+import type { DocumentosProjeto, MembroEquipe, Projeto, StatusProjeto } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSpinner } from "@/components/ui/spinner";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -17,6 +17,7 @@ import {
   type ViabilidadeFormState,
 } from "@/components/shared/viabilidade-calculator";
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
+import { EquipeEditor } from "@/components/shared/equipe-editor";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
@@ -49,6 +50,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [form, setForm] = useState({
     nome: "",
@@ -72,6 +74,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       .then((p) => {
         setProjeto(p);
         setDocumentos(p.documentos ?? {});
+        setEquipe([...(p.equipe ?? [])]);
         setViabilidadeForm(viabilidadeToForm(p.viabilidade));
         setForm({
           nome: p.nome,
@@ -125,6 +128,10 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       addToast({ type: "error", title: "Documentos obrigatórios", description: `Envie: ${missing.map((m) => m.label).join(", ")}` });
       return;
     }
+    if (equipe.length === 0) {
+      addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
+      return;
+    }
     setIsSaving(true);
     try {
       const viabilidade = formToViabilidade(viabilidadeForm);
@@ -143,6 +150,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         planoSaida: form.planoSaida,
         tipoOferta: form.tipoOferta,
         documentos,
+        equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
       if (projeto.status === "RASCUNHO") {
@@ -273,6 +281,11 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         </div>
 
         <div className="card p-5 sm:p-6 space-y-3">
+          <h2 className="font-semibold text-foreground">Equipe</h2>
+          <EquipeEditor value={equipe} onChange={setEquipe} />
+        </div>
+
+        <div className="card p-5 sm:p-6 space-y-3">
           <h2 className="font-semibold text-foreground">Documentos</h2>
           <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB</p>
           {DOC_FIELDS.map(({ key, label, required }) => {
@@ -329,6 +342,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             planoSaida: form.planoSaida,
             tipoOferta: form.tipoOferta as Projeto["tipoOferta"],
             documentos,
+            equipe,
             viabilidade: formToViabilidade(viabilidadeForm) ?? undefined,
           })} />
         </div>

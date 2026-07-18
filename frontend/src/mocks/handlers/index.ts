@@ -133,6 +133,7 @@ export const handlers = [
   http.post(`${BASE}/projetos/:id/submeter`, () => HttpResponse.json({ status: "SUBMETIDO" })),
   http.post(`${BASE}/projetos/:id/resubmeter`, () => HttpResponse.json({ status: "SUBMETIDO", revisao: 2 })),
   http.post(`${BASE}/projetos/:id/documentos/pre-sign`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/upload?presigned=1", location: "https://example.s3.amazonaws.com/doc.pdf" })),
+  http.post(`${BASE}/documentos/download-url`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/doc.pdf?download=1" })),
 
   http.get(`${BASE}/notificacoes`, () => HttpResponse.json({ items: mockNotificacoes, naoLidas: mockNotificacoes.filter((n) => !n.lida).length })),
   http.put(`${BASE}/notificacoes/:id/lida`, () => HttpResponse.json({ updated: true })),

@@ -16,11 +16,15 @@ Atlas Hub **cura e origina** oferta CVM 88. São complementares — não portar 
 | Altera conteúdo do projeto (dados, docs, `viabilidade` persistida) | Sim — mesma máquina de status (`RASCUNHO` / ajuste / reprovado → submeter) |
 | Só UX/plataforma (docs, barra derivada, tela admin leitura) | Não |
 
-## O que entrou no Atlas (Fase 1)
+## O que entrou no Atlas (Fase 1) — implementado
 
-1. **Calculadora de viabilidade simplificada** no wizard/editar — inputs + outputs salvos em `projeto.viabilidade`
-2. **Exibição** desses números na curadoria (aba Financeiro)
-3. **Checklist/barra de progresso** do incorporador, **derivada** de documentos e campos (sem API nova de toggle)
+| Item | Onde |
+|---|---|
+| Calculadora de viabilidade simplificada | Wizard financeiro + editar; persiste `projeto.viabilidade` |
+| Leitura na curadoria / detalhe | Aba Financeiro (somente leitura) |
+| Barra / checklist de progresso | Derivada de campos e documentos — sem API de toggle |
+
+Código: `frontend/src/lib/viabilidade.ts`, `components/shared/viabilidade-calculator.tsx`, `projeto-progress.tsx`; validators BE em `projeto.viabilidade`.
 
 ## Fora do escopo (não portar)
 

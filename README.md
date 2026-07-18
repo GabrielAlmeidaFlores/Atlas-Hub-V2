@@ -7,7 +7,7 @@ Este repositório cobre o **MVP de originador + curadoria**:
 - **Portal da Incorporadora** — cadastro, perfil, submissão de projetos, acompanhamento
 - **Painel de Curadoria (Admin)** — fila de análise, scorecard, aprovação/reprovação, CRM
 
-> Spec de produto: [`product.md`](product.md) · Escopo MVP: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md)
+> Spec: [`product.md`](product.md) · Escopo: [`docs/SCOPE.md`](docs/SCOPE.md) · Curadoria: [`docs/curadoria-checklist.md`](docs/curadoria-checklist.md) · Escalada (ref.): [`docs/escalada-referencias.md`](docs/escalada-referencias.md) · Deploy: [`deploy.md`](deploy.md) · Pendências: [`pending.md`](pending.md) · Agentes: [`AGENTS.md`](AGENTS.md)
 
 ### Fronteira de escopo MVP
 
@@ -17,6 +17,23 @@ Este repositório cobre o **MVP de originador + curadoria**:
 | Registro manual de ID/link após aprovação | Painel cria/publica a oferta | Captação e carteira sincronizadas |
 
 Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos Plano A **não** são backlog deste repo.
+
+### Estado da implementação (código)
+
+| Área | Status |
+|---|---|
+| Auth Cognito (grupos) + guards | Implementado |
+| Wizard 5 etapas + rascunho + editar (`/projetos/:id/editar`) | Implementado |
+| Upload S3 (presign PUT) + download (presign GET) | Implementado |
+| Equipe no wizard/editar (mín. 1 membro) | Implementado |
+| Calculadora de viabilidade (`projeto.viabilidade`) + barra de progresso | Implementado |
+| Curadoria: fila, scorecard, notas, ajuste/reprovar/aprovar | Implementado |
+| Checklist pré-aprovação (UI + validação no `POST .../aprovar`) | Implementado |
+| Admin usuários (`/admin/usuarios`) + senha temporária na resposta | Implementado |
+| CRM incorporadoras + métricas + histórico | Implementado |
+| SES / domínio / white-label contrato | Pendente — ver [`pending.md`](pending.md) |
+
+Deploy DEV/PRD pode ficar atrás do código local; valide ambiente após merge.
 
 ---
 
@@ -154,17 +171,17 @@ Após `APROVADO`, a criação da oferta na plataforma é **manual** no MVP: o an
 
 #### 2.3 Wizard de submissão (5 etapas)
 
-Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode fechar e retomar.
+Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode fechar e retomar. Edição pós-ajuste/reprovação: `/projetos/:id/editar`. Barra de progresso derivada de campos/docs (sem API de toggle).
 
 | Etapa | O que cobre |
 |---|---|
-| **1 — Dados gerais** | Nome, modelo (MVP: só Venda), tipo de imóvel, cidade/UF, endereço do terreno, descrição (≥200 chars), fotos (até 10×10 MB), vídeo YouTube |
-| **2 — Dados financeiros** | Valor total, valor a captar (≤ R$15M CVM), prazos de obra/retorno, rentabilidade estimada, modelo de retorno (lucros SPE/SCP ou dívida), plano de saída, tipo de oferta (pública/privada), opção de investimento parcelado |
-| **3 — Documentos** | Matrícula, alvará/protocolo, memorial, planta, planilha de viabilidade (obrigatórios); orçamento, 3D, SPE/SCP, CNDs, outros (opcionais). PDF/JPG/PNG até 50 MB |
-| **4 — Equipe** | Múltiplos membros: nome, cargo, bio; foto e LinkedIn opcionais. Mínimo 1 responsável técnico |
-| **5 — Revisão e envio** | Resumo completo, checklist de obrigatórios, confirmação modal → status `SUBMETIDO` |
+| **1 — Dados gerais** | Nome, modelo (MVP: só Venda), tipo de imóvel, cidade/UF, endereço do terreno, descrição (≥200 chars), fotos (até 10×10 MB via S3), vídeo YouTube |
+| **2 — Dados financeiros** | Valor total, valor a captar (≤ R$15M CVM), prazos, rentabilidade, modelo de retorno, plano de saída, tipo de oferta, parcelado opcional; **calculadora de viabilidade** (inputs/outputs em `projeto.viabilidade`) |
+| **3 — Documentos** | Obrigatórios + opcionais (product.md). Upload: `pre-sign` → PUT S3 → persistir `location`. Abertura/download: `POST /documentos/download-url` |
+| **4 — Equipe** | CRUD de membros (nome, cargo, bio; foto/LinkedIn opcionais). Mínimo 1 membro na submissão |
+| **5 — Revisão e envio** | Resumo, checklist de obrigatórios, confirmação → `SUBMETIDO` |
 
-**Regras do wizard:** após submissão os campos bloqueiam; em ajuste voltam editáveis; reprovado pode ser corrigido e resubmetido sem limite; histórico de análises fica visível.
+**Regras do wizard:** após submissão os campos bloqueiam; em `AJUSTE_SOLICITADO` / `REPROVADO` voltam editáveis e podem resubmeter; histórico de análises fica visível.
 
 #### 2.4 Detalhe e acompanhamento do projeto
 
@@ -202,7 +219,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Funcionalidade | Descrição | API |
 |---|---|---|
 | Listar usuários admin | Analistas e masters | `GET /admin/usuarios` |
-| Criar analista | Nome, e-mail, senha temporária; redefine no 1º acesso | `POST /admin/usuarios` |
+| Criar analista | Nome, e-mail; API devolve `temporaryPassword` (UI: toast + copiar); redefine no 1º acesso | `POST /admin/usuarios` |
 | Desativar usuário | Remove acesso | `PUT /admin/usuarios/{id}/desativar` |
 | Reatribuir projeto | Troca analista responsável (com motivo); scorecard parcial é herdado | `POST /admin/curadoria/{id}/reatribuir` |
 
@@ -228,11 +245,11 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 
 | Funcionalidade | Descrição |
 |---|---|
-| Abas somente leitura | Dados gerais, financeiros, documentos, equipe, incorporadora, histórico |
+| Abas somente leitura | Dados gerais, financeiros (incl. viabilidade), documentos, equipe, incorporadora, histórico |
 | Notas internas | Texto livre, autor + data/hora; imutáveis; **não** visíveis à incorporadora |
 | Scorecard (5 critérios) | Localização 25%, Viabilidade 25%, Documentação 20%, Equipe 15%, Risco 15% — nota 1–10 + comentário; média ponderada automática |
 | Parecer final | Obrigatório antes de decidir |
-| Checklist pré-aprovação | Patrimônio de afetação, seguro de obra, SPE/SCP, elegibilidade CVM (≤ R$40M) |
+| Checklist pré-aprovação | Quatro itens (afetação, seguro, SPE/SCP, elegibilidade CVM ≤ R$40M) — UI + **obrigatório no body** de `POST .../aprovar` |
 | Salvar rascunho do scorecard | Sem mudar status |
 | Solicitar ajuste | → `AJUSTE_SOLICITADO` + notificação |
 | Reprovar | Scorecard completo + parecer → `REPROVADO` |
@@ -267,7 +284,8 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 |---|---|---|
 | `GET` | `/health` | Health check |
 | `GET` / `PUT` | `/incorporadora/perfil` | Ler / atualizar perfil |
-| `POST` | `/incorporadora/documentos/pre-sign` | URL pré-assinada S3 (docs da empresa) |
+| `POST` | `/incorporadora/documentos/pre-sign` | URL pré-assinada S3 PUT (docs da empresa) |
+| `POST` | `/documentos/download-url` | URL pré-assinada S3 GET (abrir/baixar docs) |
 
 #### Projetos
 
@@ -275,10 +293,10 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 |---|---|---|
 | `POST` | `/projetos` | Criar rascunho |
 | `GET` | `/projetos` | Listar projetos da incorporadora |
-| `GET` / `PUT` | `/projetos/{id}` | Detalhe / atualizar rascunho |
+| `GET` / `PUT` | `/projetos/{id}` | Detalhe / atualizar (`RASCUNHO`, `AJUSTE_SOLICITADO`, `REPROVADO`) |
 | `POST` | `/projetos/{id}/submeter` | Submeter |
 | `POST` | `/projetos/{id}/resubmeter` | Resubmeter após ajuste/reprovação |
-| `POST` | `/projetos/{id}/documentos/pre-sign` | Upload de docs/fotos do projeto |
+| `POST` | `/projetos/{id}/documentos/pre-sign` | Upload de docs/fotos do projeto (PUT S3) |
 
 #### Notificações
 
@@ -297,7 +315,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | `PUT` | `/admin/curadoria/{id}/scorecard` | Salvar scorecard |
 | `POST` | `/admin/curadoria/{id}/ajuste` | Solicitar ajuste |
 | `POST` | `/admin/curadoria/{id}/reprovar` | Reprovar |
-| `POST` | `/admin/curadoria/{id}/aprovar` | Aprovar |
+| `POST` | `/admin/curadoria/{id}/aprovar` | Aprovar (body exige `checklist` com 4 literais) |
 | `POST` | `/admin/curadoria/{id}/confirmar-publicacao` | Confirmar oferta |
 | `POST` | `/admin/curadoria/{id}/notas` | Nota interna |
 | `POST` | `/admin/curadoria/{id}/reatribuir` | Reatribuir (master) |
@@ -317,7 +335,7 @@ Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no D
 | Funcionalidade | Descrição |
 |---|---|
 | Auth Cognito | Pool único com 3 grupos; JWT nas rotas autenticadas |
-| Upload S3 | Pré-assinatura para documentos da empresa e do projeto |
+| Upload S3 | Presign PUT (upload) + presign GET via `/documentos/download-url` |
 | E-mail SES | Confirmação de conta e notificações de curadoria |
 | Auditoria | Log de ações (cadastro, login, submissão, análise, decisão, publicação, etc.) com usuário, data e descrição |
 | Validação Zod | Schemas de entrada nas Lambdas |

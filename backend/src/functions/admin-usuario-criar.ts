@@ -20,13 +20,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const body = validate(criarUsuarioAdminSchema, JSON.parse(event.body ?? '{}'));
 
+    const temporaryPassword = `Atlas@${uuidv4().slice(0, 8)}`;
     let cognitoUserId: string;
     try {
       const result = await cognito.send(new AdminCreateUserCommand({
         UserPoolId: USER_POOL_ID,
         Username: body.email,
         UserAttributes: [{ Name: 'email', Value: body.email }, { Name: 'email_verified', Value: 'true' }],
-        TemporaryPassword: `Atlas@${uuidv4().slice(0, 8)}`,
+        TemporaryPassword: temporaryPassword,
         MessageAction: 'SUPPRESS',
       }));
       cognitoUserId = result.User?.Username ?? uuidv4();
@@ -56,7 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     await putAdmin(admin);
     log.info('Admin user created', { newUserId: cognitoUserId, perfil: body.perfil, adminMasterId });
-    return created(event, { id: cognitoUserId });
+    return created(event, { id: cognitoUserId, temporaryPassword });
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);

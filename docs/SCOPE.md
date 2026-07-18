@@ -6,10 +6,12 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 
 | Superfície | Inclui |
 |---|---|
-| **Portal da Incorporadora** | Cadastro, perfil, wizard de projeto, acompanhamento de status, notificações, link da oferta quando `OFERTA_CRIADA` |
-| **Painel de Curadoria (Admin)** | Fila, scorecard (5 critérios), notas internas, ajuste / reprovar / aprovar, CRM incorporadoras, usuários (master), registro manual de ID/link da oferta |
+| **Portal da Incorporadora** | Cadastro, perfil, wizard 5 etapas + editar, equipe, viabilidade simplificada, barra de progresso, upload/download S3, acompanhamento de status, notificações, link da oferta quando `OFERTA_CRIADA` |
+| **Painel de Curadoria (Admin)** | Fila, scorecard (5 critérios), checklist pré-aprovação (validado na API), notas internas, ajuste / reprovar / aprovar, CRM incorporadoras, usuários (master + senha temporária), registro manual de ID/link da oferta |
 
 **Oferta no MVP:** criação **manual** no painel da plataforma após `APROVADO`. Sem API de criação de oferta obrigatória no Atlas.
+
+**Storage:** buckets `atlas-hub-documents-dev` / `atlas-hub-documents-prod` — PUT (upload) e GET (download) via URLs pré-assinadas.
 
 ## Fora do MVP Atlas (experiência investidor Atlas — fora deste repo)
 

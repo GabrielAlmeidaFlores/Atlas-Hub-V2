@@ -46,12 +46,15 @@ export default function AdminUsuariosPage(): ReactNode {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await api.post("/admin/usuarios", form);
+      const created = await api.post<{ id: string; temporaryPassword: string }>("/admin/usuarios", form);
       addToast({
         type: "success",
         title: "Usuário criado",
-        description: "Senha temporária gerada no Cognito. Informe o acesso ao novo analista.",
+        description: `Senha temporária: ${created.temporaryPassword} — copie e envie ao usuário (válida só no 1º acesso).`,
       });
+      if (typeof navigator !== "undefined" && navigator.clipboard !== undefined) {
+        void navigator.clipboard.writeText(created.temporaryPassword);
+      }
       setForm({ nome: "", email: "", perfil: "ANALISTA" });
       setShowForm(false);
       await load();

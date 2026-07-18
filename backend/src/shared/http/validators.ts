@@ -147,7 +147,18 @@ export const reprovarSchema = z.object({
   justificativa: z.string().min(20, 'Justificativa deve ter ao menos 20 caracteres').max(2000),
 });
 
-export const aprovarSchema = reprovarSchema.omit({ justificativa: true });
+export const aprovarSchema = reprovarSchema.omit({ justificativa: true }).extend({
+  checklist: z.object({
+    patrimonioAfetacao: z.literal(true),
+    seguroObra: z.literal(true),
+    speScp: z.literal(true),
+    elegibilidadeCvm: z.literal(true),
+  }),
+});
+
+export const downloadPresignSchema = z.object({
+  location: z.string().url(),
+});
 
 export const confirmarPublicacaoSchema = z.object({
   ofertaId: z.string().min(1, 'ID da oferta é obrigatório').max(200),
