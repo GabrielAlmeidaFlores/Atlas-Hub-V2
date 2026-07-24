@@ -13,9 +13,12 @@ export const handler = async (event: CustomMessageTriggerEvent): Promise<CustomM
 
   const assetsBase = (process.env['EMAIL_ASSETS_BASE_URL'] ?? '').replace(/\/$/, '');
   const logoUrl = assetsBase !== '' ? `${assetsBase}/atlas-icon.png` : '';
+  const useHtml = (process.env['EMAIL_HTML_ENABLED'] ?? '') === 'true';
 
   event.response.emailSubject = 'Confirme seu e-mail — Atlas Hub';
-  event.response.emailMessage = templateConfirmacaoEmail(logoUrl);
+  event.response.emailMessage = useHtml
+    ? templateConfirmacaoEmail(logoUrl)
+    : 'Seu código de verificação Atlas Hub: {####}';
 
   return event;
 };
