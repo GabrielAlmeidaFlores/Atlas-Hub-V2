@@ -19,7 +19,7 @@ function ToastItem({ toast }: { readonly toast: Toast }): ReactNode {
     <div className={cn("animate-in pointer-events-auto", c.cls)}>
       <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", c.iconColor)} />
       <div className="min-w-0 flex-1">
-        <p className={cn("text-[11px] font-bold uppercase tracking-wider", c.text)}>{toast.title}</p>
+        <p className={cn("text-[12px] font-semibold tracking-normal", c.text)}>{toast.title}</p>
         {toast.description !== undefined && (
           <p className={cn("mt-0.5 text-xs opacity-90", c.text)}>{toast.description}</p>
         )}

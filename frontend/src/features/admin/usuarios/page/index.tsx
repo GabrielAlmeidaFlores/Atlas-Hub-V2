@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
+import { Modal } from "@/components/ui/modal";
 import { formatDate } from "@/lib/utils";
 import { Users, UserPlus } from "lucide-react";
 import { Navigate } from "react-router-dom";
@@ -84,42 +85,14 @@ export default function AdminUsuariosPage(): ReactNode {
         title="Usuários admin"
         description={`${String(items.length)} usuário${items.length !== 1 ? "s" : ""}`}
         action={
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => setShowForm((v) => !v)}>
+          <button type="button" className="btn btn-primary btn-sm rounded-[8px]" onClick={() => setShowForm(true)}>
             <UserPlus className="h-4 w-4" />
-            {showForm ? "Fechar" : "Novo usuário"}
+            Novo usuário
           </button>
         }
       />
 
-      <div className="page-content space-y-4">
-        {showForm && (
-          <form onSubmit={(e) => void handleCreate(e)} className="card p-5 sm:p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Criar analista / admin master</h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="form-group">
-                <label className="form-label">Nome</label>
-                <input className="input-base" value={form.nome} onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} required minLength={2} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">E-mail</label>
-                <input type="email" className="input-base" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Perfil</label>
-                <select className="input-base" value={form.perfil} onChange={(e) => setForm((p) => ({ ...p, perfil: e.target.value as "ANALISTA" | "ADMIN_MASTER" }))}>
-                  <option value="ANALISTA">Analista</option>
-                  <option value="ADMIN_MASTER">Admin master</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button type="submit" disabled={isSaving} className="btn btn-primary">
-                {isSaving ? "Criando…" : "Criar usuário"}
-              </button>
-            </div>
-          </form>
-        )}
-
+      <div className="page-content space-y-5">
         {items.length === 0 ? (
           <EmptyState icon={Users} title="Nenhum usuário" description="Crie o primeiro analista ou admin master" />
         ) : (
@@ -147,6 +120,42 @@ export default function AdminUsuariosPage(): ReactNode {
           </DataTable>
         )}
       </div>
+
+      <Modal
+        open={showForm}
+        onOpenChange={setShowForm}
+        title="Criar analista / admin master"
+        description="O usuário receberá uma senha temporária no primeiro acesso."
+        className="max-w-xl"
+      >
+        <form onSubmit={(e) => void handleCreate(e)} className="space-y-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="form-group sm:col-span-2">
+              <label className="form-label">Nome</label>
+              <input className="input-base" value={form.nome} onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} required minLength={2} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">E-mail</label>
+              <input type="email" className="input-base" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} required />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Perfil</label>
+              <select className="input-base" value={form.perfil} onChange={(e) => setForm((p) => ({ ...p, perfil: e.target.value as "ANALISTA" | "ADMIN_MASTER" }))}>
+                <option value="ANALISTA">Analista</option>
+                <option value="ADMIN_MASTER">Admin master</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowForm(false)}>
+              Cancelar
+            </button>
+            <button type="submit" disabled={isSaving} className="btn btn-primary rounded-[8px]">
+              {isSaving ? "Criando…" : "Criar usuário"}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

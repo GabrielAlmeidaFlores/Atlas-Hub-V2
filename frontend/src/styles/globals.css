@@ -89,7 +89,7 @@
     @apply w-full border bg-card px-3.5 text-sm text-foreground;
     height: 2.75rem;
     border-color: var(--input-border);
-    border-radius: 0;
+    border-radius: var(--radius);
     outline: none;
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
   }
@@ -107,6 +107,14 @@
   }
   .field:disabled { @apply cursor-not-allowed bg-muted text-muted-foreground; }
   textarea.field { height: auto; min-height: 6rem; @apply py-3; }
+  select.field {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.75rem;
+    padding-right: 2.25rem;
+  }
 
   .field-error { border-color: var(--destructive); }
   .field-error:focus { box-shadow: 0 0 0 2px rgb(220 38 38 / 0.15); }
@@ -170,10 +178,13 @@
     @apply border bg-card;
     border-color: var(--border);
     border-radius: var(--radius);
-    box-shadow: none;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
   }
-  .card-lift { transition: border-color 0.15s ease; }
-  .card-lift:hover { border-color: var(--navy); }
+  .card-lift { transition: border-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease; }
+  .card-lift:hover {
+    border-color: rgb(27 43 94 / 0.22);
+    box-shadow: 0 2px 4px rgb(15 23 42 / 0.05), 0 10px 24px rgb(15 23 42 / 0.08);
+  }
   .card-navy { background: var(--navy); @apply border-0 text-white; }
   .card-glass {
     background: rgb(255 255 255 / 0.06);
@@ -181,10 +192,10 @@
   }
 
   .badge {
-    @apply inline-flex items-center gap-1.5 border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider;
-    border-radius: 0;
+    @apply inline-flex items-center gap-1.5 border px-2.5 py-0.5 text-[11px] font-medium tracking-normal;
+    border-radius: 6px;
   }
-  .badge-dot { @apply h-1.5 w-1.5; border-radius: 0; }
+  .badge-dot { @apply h-1.5 w-1.5 rounded-[9999px]; }
 
   .badge-rascunho  { background: var(--muted); color: var(--muted-foreground); border-color: var(--border); }
   .badge-submetido { background: var(--status-info-subtle); color: var(--status-info); border-color: var(--status-info-border); }
@@ -195,59 +206,78 @@
   .badge-publicada { background: var(--status-success-subtle); color: var(--status-success); border-color: var(--status-success-border); }
 
   .nav-item {
-    @apply flex items-center gap-3 border-l-[3px] border-transparent px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground;
+    @apply flex items-center gap-3 border-l-[3px] border-transparent px-3.5 py-2.5 text-[13px] font-medium tracking-normal text-muted-foreground;
     @apply transition-colors duration-150 hover:bg-sidebar-accent hover:text-navy;
-    border-radius: 0;
+    border-radius: 0 8px 8px 0;
   }
   .nav-item-active {
     background: rgb(27 43 94 / 0.08);
-    @apply border-navy text-navy;
+    @apply border-navy font-semibold text-navy;
   }
 
-  .table-wrap { @apply overflow-x-auto border border-border bg-card; border-radius: 0; }
+  .table-wrap {
+    @apply overflow-hidden border border-border bg-card;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
+  }
   .table { @apply w-full text-sm; min-width: 560px; }
-  .table thead { @apply border-b border-border bg-muted; }
+  .table thead { @apply border-b border-border bg-muted/70; }
   .table thead th {
-    @apply px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground;
+    @apply px-5 py-3.5 text-left text-[11px] font-semibold tracking-normal text-muted-foreground;
   }
   .table tbody tr { @apply border-b border-border transition-colors last:border-0; }
-  .table tbody tr:hover { @apply bg-muted; }
-  .table tbody td { @apply px-4 py-3; }
+  .table tbody tr:hover { @apply bg-muted/60; }
+  .table tbody td { @apply px-5 py-3.5; }
 
-  .skeleton { @apply animate-pulse bg-muted; border-radius: 0; }
+  .skeleton { @apply animate-pulse bg-muted; border-radius: var(--radius); }
+
+  .page-rail {
+    @apply mx-auto w-full max-w-6xl px-4 lg:px-6;
+  }
 
   .page-header {
-    @apply sticky top-0 z-10 flex min-h-12 items-center justify-between gap-4;
-    @apply border-b border-border bg-card px-6;
+    @apply sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-sm;
   }
 
   .page-title {
-    @apply text-sm font-bold uppercase tracking-widest text-foreground;
+    @apply text-lg font-semibold tracking-tight text-foreground;
   }
   .page-subtitle {
-    @apply text-xs text-muted-foreground;
+    @apply text-sm text-muted-foreground;
   }
 
   .section-pad { @apply px-6 py-24; }
   .container-max { @apply mx-auto w-full max-w-7xl; }
 
-  .stat-card { @apply border border-border bg-card p-5; border-radius: var(--radius); }
-  .kpi-strip { @apply grid gap-0 border border-border; }
-  .kpi-cell { @apply border-r border-b border-border bg-card p-5 last:border-r-0; }
-  .kpi-label { @apply text-[10px] font-bold uppercase tracking-widest text-muted-foreground; }
+  .stat-card {
+    @apply border border-border bg-card p-5;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
+  }
+  .kpi-strip { @apply grid gap-5; }
+  .kpi-cell {
+    @apply border border-border bg-card p-5;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
+  }
+  .kpi-label { @apply text-[11px] font-medium tracking-normal text-muted-foreground; }
   .kpi-value { @apply mt-1 text-3xl font-black tracking-tight text-foreground; }
 
-  .form-group { @apply flex flex-col gap-1.5; }
-  .form-label { @apply text-[10px] font-bold uppercase tracking-widest text-muted-foreground; }
+  .form-group { @apply flex flex-col gap-2.5; }
+  .form-label { @apply text-[12px] font-medium tracking-normal text-muted-foreground; }
   .form-hint { @apply text-xs text-muted-foreground; }
   .form-error { @apply text-xs font-medium text-destructive; }
 
   .empty-state {
-    @apply flex flex-col items-center justify-center border border-dashed border-border bg-card py-12 text-center;
-    border-radius: 0;
+    @apply flex flex-col items-center justify-center border border-border bg-card px-8 py-24 text-center;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.06);
   }
 
-  .alert { @apply flex gap-3 border p-4; border-radius: 0; }
+  .alert {
+    @apply flex gap-3 border p-4;
+    border-radius: var(--radius);
+  }
   .alert-info    { background: var(--status-info-subtle); border-color: var(--status-info-border); }
   .alert-warn    { background: var(--status-warning-subtle); border-color: var(--status-warning-border); }
   .alert-error   { background: var(--status-danger-subtle); border-color: var(--status-danger-border); }
@@ -257,40 +287,43 @@
   .divider { @apply my-5 border-t border-border; }
 
   .tag {
-    @apply inline-flex items-center border bg-navy-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-navy;
+    @apply inline-flex items-center border bg-navy-50 px-2 py-0.5 text-[11px] font-medium tracking-normal text-navy;
     border-color: var(--navy-200);
-    border-radius: 0;
+    border-radius: 6px;
   }
 
   .tab-bar { @apply flex overflow-x-auto border-b border-border; }
   .tab-bar::-webkit-scrollbar { display: none; }
   .tab-item {
-    @apply shrink-0 border-b-2 border-transparent px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap transition-colors;
+    @apply shrink-0 border-b-2 border-transparent px-4 py-3 text-[13px] font-medium tracking-normal text-muted-foreground whitespace-nowrap transition-colors;
   }
   .tab-item:hover { @apply text-foreground; }
   .tab-active { border-color: var(--navy); color: var(--navy); }
 
   .step {
     @apply flex h-8 w-8 items-center justify-center text-sm font-bold transition-all;
-    border-radius: 0;
+    border-radius: var(--radius);
   }
   .step-active  { background: var(--navy); @apply text-white; }
   .step-done    { background: var(--status-success); @apply text-white; }
   .step-pending { @apply bg-muted text-muted-foreground; }
 
-  .progress-track { @apply h-1.5 w-full overflow-hidden bg-muted; border-radius: 0; }
-  .progress-fill { @apply h-full transition-all duration-700; background: var(--navy); border-radius: 0; }
+  .progress-track { @apply h-1.5 w-full overflow-hidden bg-muted; border-radius: 9999px; }
+  .progress-fill { @apply h-full transition-all duration-700; background: var(--navy); border-radius: 9999px; }
 
-  .toast { @apply pointer-events-auto flex w-full max-w-sm items-start gap-3 border p-4; border-radius: 0; }
+  .toast {
+    @apply pointer-events-auto flex w-full max-w-sm items-start gap-3 border p-4;
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgb(15 23 42 / 0.12);
+  }
   .toast-success { background: var(--status-success-subtle); border-color: var(--status-success-border); }
   .toast-error   { background: var(--status-danger-subtle); border-color: var(--status-danger-border); }
   .toast-warn    { background: var(--status-warning-subtle); border-color: var(--status-warning-border); }
   .toast-info    { background: var(--status-info-subtle); border-color: var(--status-info-border); }
 
-  .page-content { @apply mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 lg:px-8; }
-  .page-content-wide { @apply mx-auto w-full px-4 py-5 sm:px-6 lg:px-8; }
+  .page-content { @apply page-rail py-8; }
+  .page-content-wide { @apply mx-auto w-full px-4 py-8 lg:px-6; }
 
-  /* aliases */
   .input-base { @apply field; }
   .btn-primary { @apply btn btn-navy; }
   .btn-secondary { @apply btn btn-outline; }
@@ -300,16 +333,17 @@
   .sidebar-link-active { @apply nav-item-active; }
   .table-container { @apply table-wrap; }
   .table-base { @apply table; }
-  .table-head tr { @apply border-b border-border bg-muted; }
-  .table-head th { @apply px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground; }
+  .table-head tr { @apply border-b border-border bg-muted/70; }
+  .table-head th { @apply px-5 py-3.5 text-left text-[11px] font-semibold tracking-normal text-muted-foreground; }
   .table-row { @apply border-b border-border transition-colors last:border-0; }
-  .table-row:hover { @apply bg-muted; }
-  .table-row td { @apply px-4 py-3; }
+  .table-row:hover { @apply bg-muted/60; }
+  .table-row td { @apply px-5 py-3.5; }
   .tab-item-active { border-color: var(--navy); color: var(--navy); }
   .status-badge { @apply badge; }
-  .filter-bar { @apply border border-border bg-card; border-radius: 0; }
-  .filter-bar-header {
-    @apply flex items-center border-b border-border bg-muted px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground;
+  .filter-bar {
+    @apply border border-border bg-card;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
   }
 }
 

@@ -157,10 +157,10 @@ function MarketingFooter(): ReactNode {
             <p className="font-semibold text-white/85">Contato</p>
             <a
               href="mailto:contato@atlashub.com.br"
-              className="inline-flex items-center gap-2 text-gold transition-opacity duration-300 hover:opacity-80"
+              className="inline-flex max-w-full items-start gap-2 text-gold transition-opacity duration-300 hover:opacity-80"
             >
-              <Mail className="h-4 w-4 shrink-0" />
-              contato@atlashub.com.br
+              <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+              <span className="min-w-0 break-all">contato@atlashub.com.br</span>
             </a>
             <WhatsappLink variant="text" className="text-white/45">
               WhatsApp suporte

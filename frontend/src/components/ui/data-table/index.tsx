@@ -33,16 +33,22 @@ export function DataTable({
   className,
 }: DataTableProps): ReactNode {
   return (
-    <div className={cn("border border-border bg-card", className)}>
+    <div
+      className={cn(
+        "overflow-hidden border border-border bg-card",
+        "rounded-[8px] shadow-[0_1px_2px_rgb(15_23_42/0.04),0_6px_16px_rgb(15_23_42/0.05)]",
+        className,
+      )}
+    >
       <div className="overflow-x-auto">
-        <table className="w-full text-sm [&_tbody_tr]:border-b [&_tbody_tr]:border-border [&_tbody_tr]:transition-colors [&_tbody_tr]:last:border-0 [&_tbody_tr:hover]:bg-muted" style={{ minWidth }}>
+        <table className="w-full text-sm [&_tbody_tr]:border-b [&_tbody_tr]:border-border [&_tbody_tr]:transition-colors [&_tbody_tr]:last:border-0 [&_tbody_tr:hover]:bg-muted/60" style={{ minWidth }}>
           <thead>
-            <tr className="border-b border-border bg-muted">
+            <tr className="border-b border-border bg-muted/70">
               {columns.map((col, i) => (
                 <th
                   key={`${col.label}-${String(i)}`}
                   className={cn(
-                    "px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground",
+                    "px-5 py-3.5 text-[11px] font-semibold tracking-normal text-muted-foreground",
                     alignClass(col.align),
                     col.className,
                   )}
@@ -55,7 +61,7 @@ export function DataTable({
           <tbody>
             {total === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={columns.length} className="px-5 py-10 text-center text-xs text-muted-foreground">
                   {emptyMessage}
                 </td>
               </tr>
@@ -69,7 +75,7 @@ export function DataTable({
         pagination
       ) : (
         total !== undefined && (
-          <div className="border-t border-border px-4 py-2">
+          <div className="border-t border-border px-5 py-2.5">
             <span className="text-[10px] text-muted-foreground">
               {total} {total === 1 ? "registro" : "registros"}
             </span>

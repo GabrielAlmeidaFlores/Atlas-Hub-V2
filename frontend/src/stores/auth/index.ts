@@ -38,21 +38,30 @@ export const useAuthStore = create<AuthState>((set) => ({
   pendingChallenge: null,
 
   login: async (email, password) => {
-    const { signIn, fetchAuthSession } = await import("@aws-amplify/auth");
-    const result = await signIn({ username: email, password });
+    const { signIn, signOut, fetchAuthSession } = await import("@aws-amplify/auth");
+    try {
+      await signOut({ global: false });
+    } catch {}
+
+    const result = await signIn({ username: email.trim().toLowerCase(), password });
 
     if (result.nextStep.signInStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
       set({ pendingChallenge: { type: "NEW_PASSWORD_REQUIRED" } });
       return;
     }
 
+    if (result.nextStep.signInStep !== "DONE" && result.isSignedIn !== true) {
+      throw new Error(`Login incompleto: ${result.nextStep.signInStep}`);
+    }
+
     const session = await fetchAuthSession();
     const idToken = session.tokens?.idToken?.toString() ?? "";
     const groups = extractGroupsFromToken(idToken);
     const perfil = extractPerfil(groups);
+    const normalizedEmail = email.trim().toLowerCase();
 
     set({
-      user: { id: session.tokens?.idToken?.payload["sub"] as string ?? "", email, perfil },
+      user: { id: session.tokens?.idToken?.payload["sub"] as string ?? "", email: normalizedEmail, perfil },
       isAuthenticated: true,
       isLoading: false,
       pendingChallenge: null,

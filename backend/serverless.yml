@@ -22,10 +22,6 @@ custom:
     httpPort: 3000
     lambdaPort: 3002
 
-  frontendUrl:
-    dev: https://dev.dng6v0yvgarue.amplifyapp.com
-    prod: https://master.d3vqf6k21x668r.amplifyapp.com
-
 provider:
   name: aws
   runtime: nodejs20.x
@@ -44,7 +40,6 @@ provider:
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
     SES_FROM_EMAIL: noreply@atlashub.com.br
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
-    EMAIL_ASSETS_BASE_URL: ${self:custom.frontendUrl.${self:provider.stage}, self:custom.frontendUrl.dev}
 
   logRetentionInDays: 14
 
@@ -70,12 +65,6 @@ functions:
     role: !GetAtt OnIncorporadoraSignupLambdaRole.Arn
     timeout: 10
     description: "Creates incorporadora record in DynamoDB after email confirmation"
-
-  cognitoCustomMessage:
-    handler: src/functions/cognito-custom-message.handler
-    role: !GetAtt CognitoCustomMessageLambdaRole.Arn
-    timeout: 5
-    description: "Custom HTML email templates for Cognito verification codes"
 
   # ── Incorporadora — Perfil ─────────────────────────────────────────
 
@@ -556,23 +545,6 @@ resources:
                 - Effect: Allow
                   Action: [cognito-idp:AdminAddUserToGroup]
                   Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
-
-    CognitoCustomMessageLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-cognitoCustomMessage-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
 
     IncorporadoraGetPerfilLambdaRole:
       Type: AWS::IAM::Role
@@ -1328,7 +1300,6 @@ resources:
             RequireSymbols: false
         LambdaConfig:
           PostConfirmation: !GetAtt OnIncorporadoraSignupLambdaFunction.Arn
-          CustomMessage: !GetAtt CognitoCustomMessageLambdaFunction.Arn
         Schema:
           - Name: email
             Required: true
@@ -1339,14 +1310,6 @@ resources:
       Properties:
         Action: lambda:InvokeFunction
         FunctionName: !GetAtt OnIncorporadoraSignupLambdaFunction.Arn
-        Principal: cognito-idp.amazonaws.com
-        SourceArn: !GetAtt CognitoUserPool.Arn
-
-    CognitoCustomMessageLambdaPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-        Action: lambda:InvokeFunction
-        FunctionName: !GetAtt CognitoCustomMessageLambdaFunction.Arn
         Principal: cognito-idp.amazonaws.com
         SourceArn: !GetAtt CognitoUserPool.Arn
 

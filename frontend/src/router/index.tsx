@@ -9,6 +9,7 @@ const LoginPage            = React.lazy(() => import("@/features/auth/login/page
 const CadastroPage         = React.lazy(() => import("@/features/auth/cadastro/page"));
 const ConfirmarEmailPage   = React.lazy(() => import("@/features/auth/confirmar-email/page"));
 const EsqueciSenhaPage     = React.lazy(() => import("@/features/auth/esqueci-senha/page"));
+const VerificarCodigoSenhaPage = React.lazy(() => import("@/features/auth/verificar-codigo-senha/page"));
 const RedefinirSenhaPage   = React.lazy(() => import("@/features/auth/redefinir-senha/page"));
 
 const IncorporadoraLayout          = React.lazy(() => import("@/app/layouts/incorporadora-layout"));
@@ -65,6 +66,7 @@ const router = createBrowserRouter([
   { path: "/cadastro",          element: withSuspense(<CadastroPage />) },
   { path: "/confirmar-email",   element: withSuspense(<ConfirmarEmailPage />) },
   { path: "/esqueci-senha",     element: withSuspense(<EsqueciSenhaPage />) },
+  { path: "/verificar-codigo-senha", element: withSuspense(<VerificarCodigoSenhaPage />) },
   { path: "/redefinir-senha",   element: withSuspense(<RedefinirSenhaPage />) },
 
   /* ── Portal Incorporadora ────────────────────────────── */

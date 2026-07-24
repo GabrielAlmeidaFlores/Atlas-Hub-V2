@@ -1,5 +1,5 @@
 export const BADGE_BASE =
-  "inline-flex items-center gap-1.5 border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider";
+  "inline-flex items-center gap-1.5 border px-2.5 py-0.5 text-[11px] font-medium tracking-normal";
 
 export const BADGE_DEFAULT = "bg-muted text-muted-foreground border-border";
 export const BADGE_SUCCESS = "badge-aprovado";

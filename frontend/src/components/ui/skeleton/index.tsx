@@ -32,8 +32,8 @@ export function SkeletonRow(): ReactNode {
 export function SkeletonPage(): ReactNode {
   return (
     <div className="animate-in">
-      <div className="sticky top-0 z-10 border-b border-border bg-card px-4 py-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+      <div className="page-header">
+        <div className="page-rail flex items-center justify-between gap-4 py-5">
           <div>
             <Skeleton className="mb-2 h-4 w-36 sm:w-48" />
             <Skeleton className="hidden h-3 w-48 sm:block sm:w-64" />
@@ -41,7 +41,7 @@ export function SkeletonPage(): ReactNode {
           <Skeleton className="h-9 w-28 sm:w-32" />
         </div>
       </div>
-      <div className="mx-auto w-full max-w-6xl space-y-4 px-4 py-5 sm:px-6 lg:px-8">
+      <div className="page-content space-y-5">
         <div className="kpi-strip grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
         </div>

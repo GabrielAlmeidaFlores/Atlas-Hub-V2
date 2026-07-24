@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { Logo } from "@/components/shared/logo";
+import { AppBreadcrumb } from "@/components/shared/app-breadcrumb";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
@@ -27,27 +29,18 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
-        <Logo size="sm" />
+      <div className="flex h-[4.25rem] items-center justify-between border-b border-sidebar-border px-5">
+        <Logo size="lg" />
         {onClose !== undefined && (
-          <button type="button" onClick={onClose} className="border border-border p-1.5 text-muted-foreground hover:bg-muted lg:hidden">
+          <button type="button" onClick={onClose} className="rounded-[8px] border border-border p-1.5 text-muted-foreground hover:bg-muted lg:hidden">
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      <div className="border-b border-sidebar-border px-3 py-3">
-        <div className="flex items-center gap-2 border border-navy-200 bg-navy-50 px-3 py-2">
-          <ShieldCheck className="h-3.5 w-3.5 text-navy" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-navy">
-            {user?.perfil === "ADMIN_MASTER" ? "Administrador" : "Analista"}
-          </span>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto px-2 py-3">
-        <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Navegação</p>
-        <ul className="space-y-0.5">
+      <nav className="flex-1 overflow-y-auto px-3 py-5">
+        <p className="mb-3 px-3 text-[11px] font-medium text-muted-foreground">MENU</p>
+        <ul className="space-y-1">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <li key={to}>
               <NavLink
@@ -64,14 +57,18 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
         </ul>
       </nav>
 
-      <div className="border-t border-sidebar-border p-3">
-        <div className="mb-2 flex items-center gap-3 border border-border bg-muted px-3 py-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center border border-navy-200 bg-navy-50 text-[11px] font-bold text-navy">
+      <div className="border-t border-sidebar-border p-4">
+        <div className="mb-3 flex items-center gap-3 px-1 py-1">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9999px] border border-navy-200 bg-navy-50 text-[11px] font-bold text-navy">
             {user?.email.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-foreground">{user?.email}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <Tooltip content={user?.email ?? ""} side="top">
+              <span className="block cursor-default truncate text-xs font-semibold text-foreground">
+                {user?.email}
+              </span>
+            </Tooltip>
+            <p className="text-[10px] font-medium text-muted-foreground">
               {user?.perfil === "ADMIN_MASTER" ? "Admin Master" : "Analista"}
             </p>
           </div>
@@ -87,47 +84,37 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
 
 export default function AdminLayout(): ReactNode {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const user = useAuthStore((s) => s.user);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <aside className="hidden w-60 shrink-0 border-r border-sidebar-border min-[1000px]:block">
+      <aside className="hidden w-64 shrink-0 border-r border-sidebar-border min-[1000px]:block">
         <Sidebar />
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 min-[1000px]:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-60 border-r border-sidebar-border bg-sidebar">
+          <aside className="absolute inset-y-0 left-0 w-64 border-r border-sidebar-border bg-sidebar shadow-xl">
             <Sidebar onClose={() => setMobileOpen(false)} />
           </aside>
         </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-card px-4">
-          <div className="flex items-center gap-3">
+        <header className="shrink-0 border-b border-border bg-card/95 backdrop-blur-sm">
+          <div className="page-rail flex h-14 items-center gap-3">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="border border-border p-1.5 text-muted-foreground hover:bg-muted min-[1000px]:hidden"
+              className="rounded-[8px] border border-border p-1.5 text-muted-foreground hover:bg-muted min-[1000px]:hidden"
               aria-label="Abrir menu"
             >
               <Menu className="h-4 w-4" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 bg-status-success" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Online</span>
-            </div>
-          </div>
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="hidden max-w-[180px] truncate text-xs text-muted-foreground sm:block">{user?.email}</span>
-            <div className="flex h-7 w-7 items-center justify-center border border-navy-200 bg-navy-50 text-[11px] font-bold text-navy">
-              {user?.email.charAt(0).toUpperCase() ?? "A"}
-            </div>
+            <AppBreadcrumb />
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

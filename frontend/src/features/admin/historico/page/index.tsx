@@ -31,7 +31,7 @@ const COLUMNS = [
   { label: "Analista" },
   { label: "Decisão" },
   { label: "Data" },
-  { label: "Oferta" },
+  { label: "Oferta", className: "w-[9rem]" },
   { label: "", align: "right" as const },
 ];
 
@@ -78,7 +78,7 @@ export default function AdminHistoricoPage(): ReactNode {
         description={`${String(filtered.length)} projeto${filtered.length !== 1 ? "s" : ""} decididos`}
       />
 
-      <div className="page-content space-y-4">
+      <div className="page-content space-y-5">
         {projetos.length === 0 ? (
           <EmptyState icon={History} title="Nenhuma decisão ainda" description="Projetos aprovados e reprovados aparecerão aqui" />
         ) : (
@@ -90,22 +90,22 @@ export default function AdminHistoricoPage(): ReactNode {
               onClear={() => setFilters({})}
             />
 
-            <div className="space-y-3 sm:hidden">
+            <div className="space-y-3.5 sm:hidden">
               {filtered.map((p) => (
-                <div key={p.id} className="card p-4">
+                <div key={p.id} className="card p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-foreground">{p.nome}</p>
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{p.cidade}, {p.estado}</p>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{p.cidade}, {p.estado}</p>
                     </div>
                     <StatusBadge status={p.status} />
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="mt-3.5 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{p.analistaNome ?? "—"}</span>
                     <span>{p.aprovadoEm !== undefined ? formatDate(p.aprovadoEm) : p.reprovadoEm !== undefined ? formatDate(p.reprovadoEm) : "—"}</span>
                   </div>
                   {p.ofertaLink !== undefined && (
-                    <a href={p.ofertaLink} target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center gap-1 text-xs font-medium text-navy hover:underline">
+                    <a href={p.ofertaLink} target="_blank" rel="noopener noreferrer" className="mt-2.5 flex items-center gap-1 text-xs font-medium text-navy hover:underline">
                       <ExternalLink className="h-3 w-3" /> Ver oferta
                     </a>
                   )}
@@ -131,11 +131,13 @@ export default function AdminHistoricoPage(): ReactNode {
                         : p.reprovadoEm !== undefined ? formatDate(p.reprovadoEm)
                         : "—"}
                     </td>
-                    <td>
+                    <td className="max-w-[9rem]">
                       {p.ofertaLink !== undefined && p.ofertaId !== undefined ? (
                         <a href={p.ofertaLink} target="_blank" rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-navy hover:underline">
-                          {p.ofertaId} <ExternalLink className="h-3 w-3" />
+                          className="inline-flex max-w-full items-center gap-1 text-xs font-medium text-navy hover:underline"
+                          title={p.ofertaId}>
+                          <span className="min-w-0 truncate">{p.ofertaId}</span>
+                          <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : <span className="text-muted-foreground">—</span>}
                     </td>

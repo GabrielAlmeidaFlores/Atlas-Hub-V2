@@ -194,7 +194,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       <PageHeader title="Novo Projeto" description="Preencha as informações para submeter à curadoria" />
 
       <div className="page-content">
-        {/* Progress */}
         <div className="mb-6 card p-4">
           <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-medium">{ETAPAS[etapa - 1]?.label ?? ""}</span>
@@ -207,12 +206,9 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             {ETAPAS.map(({ num, label, icon: Icon }) => (
               <button key={num} type="button"
                 onClick={() => { if (num < etapa) setEtapa(num); }}
-                className={cn("flex items-center gap-1.5 text-xs font-medium transition-colors",
+                className={cn("flex items-center gap-3 text-xs font-medium transition-colors",
                   num === etapa ? "text-navy" : num < etapa ? "cursor-pointer text-status-success hover:text-status-success" : "text-muted-foreground")}>
-                <div className={cn("flex h-6 w-6 items-center justify-center  ",
-                  num === etapa ? "bg-navy text-white" : num < etapa ? "bg-status-success-subtle text-status-success" : "bg-muted text-muted-foreground")}>
-                  {num < etapa ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
-                </div>
+                {num < etapa ? <Check className="h-5 w-5 shrink-0" strokeWidth={2.25} /> : <Icon className="h-5 w-5 shrink-0" strokeWidth={num === etapa ? 2.25 : 2} />}
                 {label}
               </button>
             ))}
@@ -346,7 +342,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <p className="text-sm text-muted-foreground">Verifique os dados antes de submeter para análise.</p>
               <div className="space-y-3">
                 <div className="  bg-muted p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dados Gerais</p>
+                  <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Dados Gerais</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-muted-foreground">Projeto</dt><dd className="font-medium">{gerais.nome || "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{gerais.modelo}</dd></div>
@@ -355,7 +351,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   </dl>
                 </div>
                 <div className="  bg-muted p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dados Financeiros</p>
+                  <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Dados Financeiros</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-muted-foreground">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" ? `R$ ${financeiros.valorCaptar}` : "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Rentabilidade</dt><dd className="font-medium text-status-success">{financeiros.rentabilidadeEstimada !== "" ? `${financeiros.rentabilidadeEstimada}% a.a.` : "—"}</dd></div>
@@ -364,7 +360,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   </dl>
                 </div>
                 <div className="bg-muted p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Documentos</p>
+                  <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Documentos</p>
                   <p className="text-sm text-foreground">
                     {DOC_FIELDS.filter((d) => typeof documentos[d.key] === "string" && documentos[d.key] !== "").length}
                     {" / "}
@@ -397,7 +393,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             ) : (
               <button type="button" onClick={() => void submeter()} disabled={isLoading || projetoId === null}
                 className="btn bg-status-success text-white hover:opacity-90">
-                {isLoading ? <><span className="h-4 w-4 animate-spin   border-2 border-white/30 border-t-white" />Submetendo...</> : <><Check className="h-4 w-4" />Submeter Projeto</>}
+                {isLoading ? <><span className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white" />Submetendo...</> : "Submeter Projeto"}
               </button>
             )}
           </div>

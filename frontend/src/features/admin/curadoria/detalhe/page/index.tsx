@@ -155,14 +155,13 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
         }
         action={
           <div className="flex items-center gap-2">
-            <span className="  bg-muted px-2.5 py-1 text-xs text-muted-foreground">Rev. {String(projeto.revisao)}</span>
+            <span className="rounded-[8px] bg-muted px-2.5 py-1 text-xs text-muted-foreground">Rev. {String(projeto.revisao)}</span>
             <StatusBadge status={projeto.status} size="md" />
           </div>
         }
       />
 
       <div className="page-content space-y-5">
-        {/* Iniciar análise */}
         {projeto.status === "SUBMETIDO" && (
           <div className="alert alert-info animate-in">
             <Clock className="mt-0.5 h-5 w-5 shrink-0 text-status-info" />
@@ -171,18 +170,17 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
               <p className="mt-0.5 text-sm text-status-info">Clique para iniciar e atribuir este projeto a você.</p>
               <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/iniciar`, {}), "Análise iniciada!")} disabled={actionLoading}
                 className="btn btn-primary btn-sm mt-3">
-                {actionLoading ? <span className="h-3.5 w-3.5 animate-spin   border-2 border-white/30 border-t-white" /> : null}
+                {actionLoading ? <span className="h-3.5 w-3.5 animate-spin border-2 border-white/30 border-t-white" /> : null}
                 Iniciar análise
               </button>
             </div>
           </div>
         )}
 
-        {/* Confirmar publicação */}
         {projeto.status === "APROVADO" && (
-          <div className="card p-5 border-status-success-border animate-in">
+          <div className="card border-status-success-border p-5 animate-in">
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center   bg-status-success-subtle">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-status-success-subtle">
                 <ThumbsUp className="h-5 w-5 text-status-success" />
               </div>
               <div className="flex-1">
@@ -208,10 +206,65 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
           </div>
         )}
 
-        <div className="grid gap-5 xl:grid-cols-3">
-          {/* Main */}
-          <div className="lg:col-span-2">
-            <div className="card overflow-hidden">
+        {projeto.status !== "EM_ANALISE" && projeto.status !== "SUBMETIDO" && data.scorecards[0] !== undefined && (
+          <div className="card flex flex-wrap items-start justify-between gap-4 p-5 sm:p-6">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-foreground">Scorecard Final</h3>
+              {data.scorecards[0].parecer !== undefined && (
+                <p className="mt-2 text-sm leading-relaxed text-foreground">{data.scorecards[0].parecer}</p>
+              )}
+            </div>
+            {data.scorecards[0].notaGeral !== undefined && (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] bg-navy text-base font-bold text-white">
+                {String(data.scorecards[0].notaGeral)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {projeto.status === "EM_ANALISE" && (
+          <div className="card p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-semibold text-foreground">Scorecard</h3>
+              {notaGeral !== null && (
+                <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-navy text-sm font-bold text-white">
+                  {String(notaGeral)}
+                </div>
+              )}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+              {CRITERIOS.map(({ key, label, peso }) => (
+                <div key={key}>
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <p className="text-xs font-medium text-foreground">{label}</p>
+                    <span className="text-[10px] text-muted-foreground">{peso}</span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <input type="number" min={1} max={10}
+                      value={scorecard[key]?.nota ?? ""}
+                      onChange={(e) => setScorecard((p) => ({ ...p, [key]: { ...p[key]!, nota: e.target.value } }))}
+                      className="input-base w-full text-center text-sm" placeholder="—" />
+                    <input type="text"
+                      value={scorecard[key]?.comentario ?? ""}
+                      onChange={(e) => setScorecard((p) => ({ ...p, [key]: { ...p[key]!, comentario: e.target.value } }))}
+                      className="input-base w-full text-xs" placeholder="Comentário..." />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4">
+              <p className="mb-1.5 text-xs font-medium text-foreground">Parecer Final</p>
+              <textarea value={parecer} onChange={(e) => setParecer(e.target.value)} rows={3}
+                className="input-base resize-none text-xs" placeholder="Resumo da análise e justificativa..." />
+            </div>
+            <button type="button" onClick={() => void action(() => api.put(`/admin/curadoria/${id ?? ""}/scorecard`, buildScorecardBody()), "Rascunho salvo")} disabled={actionLoading}
+              className="btn btn-secondary mt-3 text-xs">
+              <Save className="h-3.5 w-3.5" /> Salvar rascunho
+            </button>
+          </div>
+        )}
+
+        <div className="card overflow-hidden">
               <div className="tab-bar overflow-x-auto">
                 {TABS.map(({ key, label, icon: Icon }) => (
                   <button key={key} type="button" onClick={() => setTab(key)}
@@ -358,137 +411,68 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 )}
               </div>
             </div>
+
+        {projeto.status === "EM_ANALISE" && (
+          <div className="card space-y-3 p-5 sm:p-6">
+            <h3 className="font-semibold text-foreground">Decisão</h3>
+            <div>
+              <textarea value={textoAjuste} onChange={(e) => setTextoAjuste(e.target.value)} rows={2}
+                className="input-base resize-none text-xs" placeholder="Descreva o ajuste necessário..." />
+              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/ajuste`, { scorecard: buildScorecardBody(), textoAjuste }), "Ajuste solicitado!", "/admin/curadoria")}
+                disabled={actionLoading || textoAjuste.length < 20}
+                className="btn btn-sm w-full mt-2 border border-status-warning bg-status-warning-subtle text-status-warning hover:opacity-90">
+                <AlertCircle className="h-3.5 w-3.5" /> Solicitar Ajuste
+              </button>
+            </div>
+            <div>
+              <textarea value={justificativa} onChange={(e) => setJustificativa(e.target.value)} rows={2}
+                className="input-base resize-none text-xs" placeholder="Justificativa de reprovação..." />
+              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/reprovar`, { scorecard: buildScorecardBody(), justificativa }), "Projeto reprovado", "/admin/curadoria")}
+                disabled={actionLoading || justificativa.length < 20}
+                className="btn btn-danger mt-2 h-10 w-full">
+                <ThumbsDown className="h-4 w-4" /> Reprovar
+              </button>
+            </div>
+            <div className="space-y-2 rounded-[8px] border border-border bg-muted/40 p-3">
+              <p className="text-xs font-semibold text-foreground">Checklist pré-aprovação</p>
+              <p className="text-xs text-muted-foreground">Confirme antes de aprovar (obrigatório).</p>
+              {([
+                { key: "patrimonioAfetacao" as const, label: "Patrimônio de afetação (cláusula no contrato)" },
+                { key: "seguroObra" as const, label: "Seguro de obra (apólice antes da oferta)" },
+                { key: "speScp" as const, label: "SPE/SCP constituída ou em processo" },
+                { key: "elegibilidadeCvm" as const, label: "Elegibilidade CVM 88 (receita ≤ R$40M / até R$80M)" },
+              ]).map(({ key, label }) => (
+                <label key={key} className="flex cursor-pointer items-start gap-2 text-xs text-foreground">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={checklist[key]}
+                    onChange={(e) => setChecklist((p) => ({ ...p, [key]: e.target.checked }))}
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (!checklistOk) {
+                  addToast({ type: "error", title: "Checklist incompleto", description: "Marque todos os itens pré-aprovação antes de aprovar." });
+                  return;
+                }
+                void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, {
+                  scorecard: buildScorecardBody(),
+                  checklist,
+                }), "Projeto aprovado!");
+              }}
+              disabled={actionLoading || parecer.length < 20 || !checklistOk}
+              className="btn h-10 w-full bg-status-success px-5 text-white hover:opacity-90 disabled:opacity-50">
+              <ThumbsUp className="h-4 w-4" />
+              {actionLoading ? "Aprovando..." : "Aprovar Projeto"}
+            </button>
           </div>
+        )}
 
-          {/* Scorecard sidebar */}
-          <div className="space-y-4">
-            {projeto.status === "EM_ANALISE" && (
-              <>
-                <div className="card p-5">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-semibold text-foreground">Scorecard</h3>
-                    {notaGeral !== null && (
-                      <div className="flex h-9 w-9 items-center justify-center   bg-navy text-sm font-bold text-white">
-                        {String(notaGeral)}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    {CRITERIOS.map(({ key, label, peso }) => (
-                      <div key={key}>
-                        <div className="mb-1 flex items-center justify-between">
-                          <p className="text-xs font-medium text-foreground">{label}</p>
-                          <span className="text-[10px] text-muted-foreground">{peso}</span>
-                        </div>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <input type="number" min={1} max={10}
-                            value={scorecard[key]?.nota ?? ""}
-                            onChange={(e) => setScorecard((p) => ({ ...p, [key]: { ...p[key]!, nota: e.target.value } }))}
-                            className="input-base w-14 text-center text-sm" placeholder="—" />
-                          <input type="text"
-                            value={scorecard[key]?.comentario ?? ""}
-                            onChange={(e) => setScorecard((p) => ({ ...p, [key]: { ...p[key]!, comentario: e.target.value } }))}
-                            className="input-base flex-1 text-xs" placeholder="Comentário..." />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-3">
-                    <p className="mb-1.5 text-xs font-medium text-foreground">Parecer Final</p>
-                    <textarea value={parecer} onChange={(e) => setParecer(e.target.value)} rows={3}
-                      className="input-base resize-none text-xs" placeholder="Resumo da análise e justificativa..." />
-                  </div>
-
-                  <button type="button" onClick={() => void action(() => api.put(`/admin/curadoria/${id ?? ""}/scorecard`, buildScorecardBody()), "Rascunho salvo")} disabled={actionLoading}
-                    className="btn btn-secondary w-full mt-3 text-xs">
-                    <Save className="h-3.5 w-3.5" /> Salvar rascunho
-                  </button>
-                </div>
-
-                <div className="card p-5 space-y-3">
-                  <h3 className="font-semibold text-foreground">Decisão</h3>
-
-                  <div>
-                    <textarea value={textoAjuste} onChange={(e) => setTextoAjuste(e.target.value)} rows={2}
-                      className="input-base resize-none text-xs" placeholder="Descreva o ajuste necessário..." />
-                    <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/ajuste`, { scorecard: buildScorecardBody(), textoAjuste }), "Ajuste solicitado!", "/admin/curadoria")}
-                      disabled={actionLoading || textoAjuste.length < 20}
-                      className="btn btn-sm w-full mt-2 border border-status-warning bg-status-warning-subtle text-status-warning hover:opacity-90">
-                      <AlertCircle className="h-3.5 w-3.5" /> Solicitar Ajuste
-                    </button>
-                  </div>
-
-                  <div>
-                    <textarea value={justificativa} onChange={(e) => setJustificativa(e.target.value)} rows={2}
-                      className="input-base resize-none text-xs" placeholder="Justificativa de reprovação..." />
-                    <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/reprovar`, { scorecard: buildScorecardBody(), justificativa }), "Projeto reprovado", "/admin/curadoria")}
-                      disabled={actionLoading || justificativa.length < 20}
-                      className="btn btn-danger w-full mt-2 btn-sm">
-                      <ThumbsDown className="h-3.5 w-3.5" /> Reprovar
-                    </button>
-                  </div>
-
-                  <div className="border border-border bg-muted/40 p-3 space-y-2">
-                    <p className="text-xs font-semibold text-foreground">Checklist pré-aprovação</p>
-                    <p className="text-xs text-muted-foreground">Confirme antes de aprovar (obrigatório).</p>
-                    {([
-                      { key: "patrimonioAfetacao" as const, label: "Patrimônio de afetação (cláusula no contrato)" },
-                      { key: "seguroObra" as const, label: "Seguro de obra (apólice antes da oferta)" },
-                      { key: "speScp" as const, label: "SPE/SCP constituída ou em processo" },
-                      { key: "elegibilidadeCvm" as const, label: "Elegibilidade CVM 88 (receita ≤ R$40M / até R$80M)" },
-                    ]).map(({ key, label }) => (
-                      <label key={key} className="flex items-start gap-2 text-xs text-foreground cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="mt-0.5"
-                          checked={checklist[key]}
-                          onChange={(e) => setChecklist((p) => ({ ...p, [key]: e.target.checked }))}
-                        />
-                        <span>{label}</span>
-                      </label>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!checklistOk) {
-                        addToast({ type: "error", title: "Checklist incompleto", description: "Marque todos os itens pré-aprovação antes de aprovar." });
-                        return;
-                      }
-                      void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, {
-                        scorecard: buildScorecardBody(),
-                        checklist,
-                      }), "Projeto aprovado!");
-                    }}
-                    disabled={actionLoading || parecer.length < 20 || !checklistOk}
-                    className="btn w-full bg-status-success text-white hover:opacity-90 disabled:opacity-50">
-                    <ThumbsUp className="h-4 w-4" />
-                    {actionLoading ? "Aprovando..." : "Aprovar Projeto"}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {projeto.status !== "EM_ANALISE" && projeto.status !== "SUBMETIDO" && data.scorecards[0] !== undefined && (
-              <div className="card p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground">Scorecard Final</h3>
-                  {data.scorecards[0].notaGeral !== undefined && (
-                    <div className="flex h-9 w-9 items-center justify-center   bg-navy text-sm font-bold text-white">
-                      {String(data.scorecards[0].notaGeral)}
-                    </div>
-                  )}
-                </div>
-                {data.scorecards[0].parecer !== undefined && (
-                  <p className="text-sm text-foreground">{data.scorecards[0].parecer}</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
