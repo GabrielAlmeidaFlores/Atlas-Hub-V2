@@ -62,8 +62,8 @@ const PORTAL = [
 export default function ParaIncorporadorasPage(): ReactNode {
   return (
     <MarketingShell>
-      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-14">
-        <div className="relative mx-auto max-w-6xl px-6">
+      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28">
+        <div className="relative lp-container">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para incorporadoras</p>
           <h1 className="lp-hero-title max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl">
             Capte recursos com investidores — sem depender só do banco
@@ -84,7 +84,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
       </section>
 
       <section className="border-b border-border py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn>
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Ecossistema</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Duas frentes, uma marca</h2>
@@ -95,7 +95,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
             </p>
           </AnimateIn>
           <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <AnimateIn className="border border-border bg-card p-6">
+            <AnimateIn className="rounded-[8px] border border-border bg-card p-6">
               <p className="text-[10px] font-bold uppercase tracking-widest text-gold">Você (incorporadora)</p>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Cadastro e perfil no portal Atlas</li>
@@ -104,7 +104,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
                 <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Link da oferta quando publicada</li>
               </ul>
             </AnimateIn>
-            <AnimateIn delay={100} className="border border-border bg-card p-6">
+            <AnimateIn delay={100} className="rounded-[8px] border border-border bg-card p-6">
               <p className="text-[10px] font-bold uppercase tracking-widest text-navy">Investidor (marca Atlas)</p>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Vitrine e página da oferta</li>
@@ -118,12 +118,12 @@ export default function ParaIncorporadorasPage(): ReactNode {
       </section>
 
       <section className="lp-section-alt py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn className="mb-10">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Passo a passo</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Como funciona na prática</h2>
           </AnimateIn>
-          <ol className="space-y-0 border border-border">
+          <ol className="space-y-0 overflow-hidden rounded-[8px] border border-border">
             {STEPS.map((step, i) => (
               <AnimateIn key={step.title} delay={i * 70} className="flex gap-4 border-b border-border bg-card p-5 last:border-b-0 sm:gap-6">
                 <div className="lp-step-number shrink-0">{i + 1}</div>
@@ -138,7 +138,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
       </section>
 
       <section className="py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn className="mb-10">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Benefícios</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Por que usar o Atlas Hub</h2>
@@ -156,14 +156,14 @@ export default function ParaIncorporadorasPage(): ReactNode {
       </section>
 
       <section className="lp-section-alt py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn className="mb-10">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Portal</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">O que você encontra no sistema</h2>
           </AnimateIn>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PORTAL.map(({ icon: Icon, title, desc }, i) => (
-              <AnimateIn key={title} delay={i * 60} className="border border-border bg-card p-5">
+              <AnimateIn key={title} delay={i * 60} className="rounded-[8px] border border-border bg-card p-5">
                 <Icon className="mb-3 h-4 w-4 text-navy" />
                 <h3 className="text-xs font-bold uppercase tracking-wider">{title}</h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>
@@ -185,7 +185,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
               <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Documentação do terreno e viabilidade no wizard</li>
             </ul>
           </AnimateIn>
-          <AnimateIn delay={120} className="mt-10 flex flex-col gap-3 border border-border bg-card p-8 text-center sm:flex-row sm:items-center sm:justify-center">
+          <AnimateIn delay={120} className="mt-10 flex flex-col gap-3 rounded-[8px] border border-border bg-card p-8 text-center sm:flex-row sm:items-center sm:justify-center">
             <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">
               Criar conta <ArrowRight className="h-4 w-4" />
             </Link>

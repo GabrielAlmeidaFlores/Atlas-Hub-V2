@@ -101,12 +101,7 @@ export default function LoginPage(): ReactNode {
         </div>
 
         <div className="form-group">
-          <div className="flex items-center justify-between">
-            <label className="form-label">Senha</label>
-            <Link to="/esqueci-senha" className="text-[10px] font-bold uppercase tracking-wider text-navy hover:underline">
-              Esqueci minha senha
-            </Link>
-          </div>
+          <label className="form-label">Senha</label>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -124,21 +119,24 @@ export default function LoginPage(): ReactNode {
           </div>
         </div>
 
+        <div className="flex justify-end">
+          <Link to="/esqueci-senha" className="text-xs font-medium text-navy hover:underline">
+            Esqueci minha senha
+          </Link>
+        </div>
+
         <button type="submit" disabled={loading} className="btn btn-navy w-full">
           {loading ? (
             <span className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white" />
           ) : (
-            <>
-              <ArrowRight className="h-4 w-4" />
-              Entrar na plataforma
-            </>
+            "Entrar na plataforma"
           )}
         </button>
       </form>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
         Incorporadora sem conta?{" "}
-        <Link to="/cadastro" className="font-bold uppercase tracking-wider text-navy hover:underline">
+        <Link to="/cadastro" className="font-semibold text-navy hover:underline">
           Criar conta
         </Link>
       </p>

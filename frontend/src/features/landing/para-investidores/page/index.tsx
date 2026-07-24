@@ -62,8 +62,8 @@ const FEATURES = [
 export default function ParaInvestidoresPage(): ReactNode {
   return (
     <MarketingShell>
-      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-14">
-        <div className="relative mx-auto max-w-6xl px-6">
+      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28">
+        <div className="relative lp-container">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para investidores</p>
           <h1 className="lp-hero-title max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl">
             Invista em imóveis com curadoria Atlas e regras CVM
@@ -85,7 +85,7 @@ export default function ParaInvestidoresPage(): ReactNode {
       </section>
 
       <section className="border-b border-border py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn>
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Como se encaixa</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Incorporadora originadora · você investe</h2>
@@ -103,7 +103,7 @@ export default function ParaInvestidoresPage(): ReactNode {
                 ["3. Investimento", "Você aporta na oferta publicada"],
               ] as [string, string][]
             ).map(([t, d], i) => (
-              <AnimateIn key={t} delay={i * 80} className="border border-border bg-card p-5">
+              <AnimateIn key={t} delay={i * 80} className="rounded-[8px] border border-border bg-card p-5">
                 <p className="text-sm font-bold uppercase tracking-wider text-foreground">{t}</p>
                 <p className="mt-2 text-xs text-muted-foreground">{d}</p>
               </AnimateIn>
@@ -113,12 +113,12 @@ export default function ParaInvestidoresPage(): ReactNode {
       </section>
 
       <section className="lp-section-alt py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn className="mb-10">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Jornada</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Do interesse ao retorno</h2>
           </AnimateIn>
-          <ol className="space-y-0 border border-border">
+          <ol className="space-y-0 overflow-hidden rounded-[8px] border border-border">
             {JOURNEY.map((step, i) => (
               <AnimateIn key={step.title} delay={i * 70} className="flex gap-4 border-b border-border bg-card p-5 last:border-b-0 sm:gap-6">
                 <div className="lp-step-number shrink-0">{i + 1}</div>
@@ -133,7 +133,7 @@ export default function ParaInvestidoresPage(): ReactNode {
       </section>
 
       <section className="py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn className="mb-10">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Proteção</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">O que reduz o risco operacional</h2>
@@ -154,14 +154,14 @@ export default function ParaInvestidoresPage(): ReactNode {
       </section>
 
       <section className="lp-section-alt py-16">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="lp-container">
           <AnimateIn className="mb-10">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Plataforma</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">O que a experiência Atlas oferece</h2>
           </AnimateIn>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, title, desc }, i) => (
-              <AnimateIn key={title} delay={i * 60} className="border border-border bg-card p-5">
+              <AnimateIn key={title} delay={i * 60} className="rounded-[8px] border border-border bg-card p-5">
                 <Icon className="mb-3 h-4 w-4 text-gold" />
                 <h3 className="text-xs font-bold uppercase tracking-wider">{title}</h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>

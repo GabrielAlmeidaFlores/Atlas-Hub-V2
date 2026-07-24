@@ -1,6 +1,6 @@
 import { useState, type ReactNode, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Mail, ArrowLeft, SendHorizonal } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useToastStore } from "@/stores/toast";
 import { AuthShell } from "@/features/auth/auth-shell";
 
@@ -32,8 +32,8 @@ export default function EsqueciSenhaPage(): ReactNode {
           <div className="w-full">
             <p className="text-sm font-bold uppercase tracking-wider text-status-success">Instruções enviadas</p>
             <p className="mt-1 text-xs text-status-success">Se o e-mail estiver cadastrado, você receberá o link em breve.</p>
-            <Link to="/login" className="mt-4 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-navy hover:underline">
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
+            <Link to="/login" className="mt-4 inline-flex text-sm font-medium text-navy hover:underline">
+              Voltar para o login
             </Link>
           </div>
         </div>
@@ -47,10 +47,17 @@ export default function EsqueciSenhaPage(): ReactNode {
             </div>
           </div>
           <button type="submit" disabled={isLoading} className="btn btn-navy w-full">
-            {isLoading ? <><span className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white" />Enviando...</> : <><SendHorizonal className="h-4 w-4" />Enviar instruções</>}
+            {isLoading ? (
+              <>
+                <span className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white" />
+                Enviando...
+              </>
+            ) : (
+              "Enviar instruções"
+            )}
           </button>
-          <Link to="/login" className="inline-flex w-full items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-navy">
-            <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
+          <Link to="/login" className="inline-flex w-full items-center justify-center text-sm font-medium text-muted-foreground hover:text-navy">
+            Voltar para o login
           </Link>
         </form>
       )}

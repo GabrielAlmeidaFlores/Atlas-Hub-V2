@@ -42,7 +42,10 @@ export async function getIncorporadora(id: string): Promise<Incorporadora | null
 }
 
 export async function putIncorporadora(item: Incorporadora): Promise<void> {
-  await db.send(new PutCommand({ TableName: Tables.INCORPORADORAS, Item: item }));
+  const cleaned = Object.fromEntries(
+    Object.entries(item).filter(([, value]) => value !== ""),
+  );
+  await db.send(new PutCommand({ TableName: Tables.INCORPORADORAS, Item: cleaned }));
 }
 
 export async function updateIncorporadora(

@@ -1,7 +1,7 @@
 import { useState, type ReactNode, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useToastStore } from "@/stores/toast";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
 
 export default function RedefinirSenhaPage(): ReactNode {
@@ -53,8 +53,8 @@ export default function RedefinirSenhaPage(): ReactNode {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <Link to="/login" className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-navy">
-          <ArrowLeft className="h-3.5 w-3.5" /> Voltar para o login
+        <Link to="/login" className="inline-flex text-sm font-medium text-muted-foreground hover:text-navy">
+          Voltar para o login
         </Link>
       </div>
     </AuthShell>

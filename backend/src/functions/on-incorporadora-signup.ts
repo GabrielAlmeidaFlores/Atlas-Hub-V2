@@ -7,25 +7,33 @@ import type { Incorporadora } from '../shared/core/types/index.js';
 
 const cognito = new CognitoIdentityProviderClient({ region: AWS_REGION });
 
+function meta(event: PostConfirmationTriggerEvent, key: string): string {
+  return event.request.clientMetadata?.[key]?.trim() ?? '';
+}
+
 export const handler = async (event: PostConfirmationTriggerEvent): Promise<PostConfirmationTriggerEvent> => {
   const log = createLogger('onIncorporadoraSignup');
 
-  const userId    = event.userName;
-  const email     = event.request.userAttributes['email'] ?? '';
-  const poolId    = event.userPoolId;
-  const now       = new Date().toISOString();
+  const userId = event.userName;
+  const email = event.request.userAttributes['email'] ?? '';
+  const poolId = event.userPoolId;
+  const now = new Date().toISOString();
 
   log.info('Incorporadora signup confirmed', { userId, email });
 
+  const cnpj = meta(event, 'cnpj').replace(/\D/g, '');
+  const cpfResponsavel = meta(event, 'cpfResponsavel').replace(/\D/g, '');
+  const telefone = meta(event, 'telefone').replace(/\D/g, '');
+
   const incorporadora: Incorporadora = {
     id: userId,
-    cnpj: '',
-    razaoSocial: '',
-    nomeResponsavel: '',
-    cpfResponsavel: '',
-    cargoResponsavel: '',
+    cnpj,
+    razaoSocial: meta(event, 'razaoSocial'),
+    nomeResponsavel: meta(event, 'nomeResponsavel'),
+    cpfResponsavel,
+    cargoResponsavel: meta(event, 'cargoResponsavel'),
     email,
-    telefone: '',
+    telefone,
     emailConfirmado: true,
     criadoEm: now,
     atualizadoEm: now,

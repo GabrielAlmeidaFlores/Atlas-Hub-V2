@@ -34,7 +34,7 @@ function ToastItem({ toast }: { readonly toast: Toast }): ReactNode {
 export function ToastProvider(): ReactNode {
   const toasts = useToastStore((s) => s.toasts);
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2 sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed right-4 top-4 z-50 flex flex-col gap-2 sm:right-6 sm:top-6">
       {toasts.map((t) => <ToastItem key={t.id} toast={t} />)}
     </div>
   );

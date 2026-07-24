@@ -13,9 +13,9 @@ interface AnimateInProps {
 }
 
 const ANIMATION_STYLES: Record<AnimationType, string> = {
-  "fade-in-up": "lp-fade-in-up 0.65s ease-out both",
-  "fade-in": "lp-fade-in 0.5s ease-out both",
-  "scale-in": "lp-scale-in 0.55s ease-out both",
+  "fade-in-up": "lp-fade-in-up 0.38s ease-out both",
+  "fade-in": "lp-fade-in 0.32s ease-out both",
+  "scale-in": "lp-scale-in 0.36s ease-out both",
 };
 
 export function AnimateIn({
