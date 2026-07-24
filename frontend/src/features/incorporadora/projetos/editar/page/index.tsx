@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode, type ChangeEvent, type FormEvent }
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
-import { uploadProjetoDocumento } from "@/lib/upload";
+import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
 import { useToastStore } from "@/stores/toast";
 import type { DocumentosProjeto, MembroEquipe, Projeto, StatusProjeto } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
@@ -18,6 +18,7 @@ import {
 } from "@/components/shared/viabilidade-calculator";
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
+import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
@@ -50,6 +51,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [form, setForm] = useState({
@@ -74,6 +76,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       .then((p) => {
         setProjeto(p);
         setDocumentos(p.documentos ?? {});
+        setFotosUrls([...(p.fotosUrls ?? [])]);
         setEquipe([...(p.equipe ?? [])]);
         setViabilidadeForm(viabilidadeToForm(p.viabilidade));
         setForm({
@@ -120,6 +123,21 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     }
   }
 
+  async function handleFotoUpload(file: File): Promise<string> {
+    if (id === undefined) throw new Error("Projeto inválido");
+    return uploadProjetoFoto(id, file);
+  }
+
+  async function handleFotosChange(urls: string[]): Promise<void> {
+    if (id === undefined) return;
+    setFotosUrls(urls);
+    try {
+      await api.put(`/projetos/${id}`, { fotosUrls: urls });
+    } catch (err) {
+      addToast({ type: "error", title: "Falha ao salvar fotos", description: getApiErrorMessage(err) });
+    }
+  }
+
   async function handleSubmit(e: FormEvent): Promise<void> {
     e.preventDefault();
     if (id === undefined || projeto === null) return;
@@ -150,6 +168,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         planoSaida: form.planoSaida,
         tipoOferta: form.tipoOferta,
         documentos,
+        fotosUrls,
         equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
@@ -235,6 +254,27 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             <label className="form-label">Descrição</label>
             <textarea className="input-base min-h-[100px] resize-y" rows={4} value={form.descricao} onChange={setField("descricao")} required />
           </div>
+          <ProjetoFotosField
+            value={fotosUrls}
+            disabled={isSaving}
+            onUpload={async (file) => {
+              try {
+                const location = await handleFotoUpload(file);
+                addToast({ type: "success", title: "Foto enviada" });
+                return location;
+              } catch (err) {
+                addToast({
+                  type: "error",
+                  title: "Falha no upload",
+                  description: err instanceof Error ? err.message : getApiErrorMessage(err),
+                });
+                throw err;
+              }
+            }}
+            onChange={(urls) => {
+              void handleFotosChange(urls);
+            }}
+          />
         </div>
 
         <div className="card space-y-5 p-6 sm:p-7">

@@ -18,12 +18,12 @@ export async function generatePresignedUrl(
   return { url, location };
 }
 
-export async function generatePresignedGetUrl(key: string): Promise<string> {
+export async function generatePresignedGetUrl(key: string, expiresIn = 900): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: DOCUMENTS_BUCKET,
     Key: key,
   });
-  return getSignedUrl(s3, command, { expiresIn: 900 });
+  return getSignedUrl(s3, command, { expiresIn });
 }
 
 export function extractKeyFromLocation(location: string): string | null {

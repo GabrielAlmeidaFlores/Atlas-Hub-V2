@@ -20,6 +20,7 @@ import { AnimateIn } from "@/components/animate-in";
 import { CountUp } from "@/components/count-up";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
+import { ProjetosAtlas } from "@/features/landing/components/projetos-atlas";
 import { hasWhatsappSupport } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -626,6 +627,7 @@ export default function LandingPage(): ReactNode {
       <TrustBar />
       <Ecossistema />
       <ComoFunciona />
+      <ProjetosAtlas />
       <Incorporadoras />
       <Investidores />
       <Numeros />

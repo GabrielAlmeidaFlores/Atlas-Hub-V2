@@ -1,7 +1,9 @@
 import { api } from "@/services/api";
 
 const ALLOWED_MIME = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const IMAGE_MIME = new Set(["image/jpeg", "image/png"]);
 const MAX_BYTES = 50 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export interface PresignResult {
   readonly url: string;
@@ -23,6 +25,15 @@ function assertFile(file: File, mimeType: string): void {
   }
   if (file.size > MAX_BYTES) {
     throw new Error("Arquivo muito grande. Máximo 50 MB.");
+  }
+}
+
+function assertImageFile(file: File, mimeType: string): void {
+  if (!IMAGE_MIME.has(mimeType)) {
+    throw new Error("Formato inválido. Use JPG ou PNG.");
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error("Arquivo muito grande. Máximo 10 MB por foto.");
   }
 }
 
@@ -52,6 +63,30 @@ export async function uploadProjetoDocumento(
   file: File,
 ): Promise<string> {
   return uploadToS3(`/projetos/${projetoId}/documentos/pre-sign`, file);
+}
+
+export async function uploadProjetoFoto(
+  projetoId: string,
+  file: File,
+): Promise<string> {
+  const mimeType = resolveMimeType(file);
+  assertImageFile(file, mimeType);
+  const { url, location } = await api.post<PresignResult>(
+    `/projetos/${projetoId}/documentos/pre-sign`,
+    {
+      mimeType,
+      fileName: file.name,
+    },
+  );
+  const put = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": mimeType },
+    body: file,
+  });
+  if (!put.ok) {
+    throw new Error("Falha ao enviar a foto para o armazenamento.");
+  }
+  return location;
 }
 
 export async function uploadIncorporadoraDocumento(file: File): Promise<string> {

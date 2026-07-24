@@ -2,7 +2,7 @@ import { useState, type ReactNode, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
-import { uploadProjetoDocumento } from "@/lib/upload";
+import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import {
 } from "@/components/shared/viabilidade-calculator";
 import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
+import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -77,6 +78,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
@@ -108,6 +110,37 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
   async function persistDocumentos(id: string, docs: DocumentosProjeto): Promise<void> {
     await api.put(`/projetos/${id}`, { documentos: docs });
+  }
+
+  async function persistFotos(id: string, urls: string[]): Promise<void> {
+    await api.put(`/projetos/${id}`, { fotosUrls: urls });
+  }
+
+  async function handleFotoUpload(file: File): Promise<string> {
+    if (
+      projetoId === null
+      && (
+        gerais.nome.length < 3
+        || gerais.cidade.length < 2
+        || gerais.estado.length !== 2
+        || gerais.endereco.length < 5
+        || gerais.descricao.length < 200
+      )
+    ) {
+      throw new Error("Preencha nome, localização e descrição (mín. 200 caracteres) antes de enviar fotos.");
+    }
+    const id = await salvarRascunho();
+    return uploadProjetoFoto(id, file);
+  }
+
+  async function handleFotosChange(urls: string[]): Promise<void> {
+    setFotosUrls(urls);
+    try {
+      const id = await salvarRascunho();
+      await persistFotos(id, urls);
+    } catch (err) {
+      addToast({ type: "error", title: "Falha ao salvar fotos", description: getApiErrorMessage(err) });
+    }
   }
 
   async function handleDocUpload(key: keyof DocumentosProjeto, file: File | undefined): Promise<void> {
@@ -157,6 +190,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
         documentos,
+        fotosUrls,
         equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
@@ -248,6 +282,33 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <Field label="Vídeo de Apresentação (opcional)" hint="Link do YouTube">
                 <input className="input-base" placeholder="https://youtube.com/watch?v=..." value={gerais.videoUrl} onChange={g("videoUrl")} />
               </Field>
+              <ProjetoFotosField
+                value={fotosUrls}
+                disabled={isLoading}
+                onUpload={async (file) => {
+                  try {
+                    const location = await handleFotoUpload(file);
+                    addToast({ type: "success", title: "Foto enviada" });
+                    return location;
+                  } catch (err) {
+                    const message = err instanceof Error ? err.message : getApiErrorMessage(err);
+                    addToast({
+                      type: "error",
+                      title: "Falha no upload",
+                      description: message,
+                    });
+                    throw err;
+                  }
+                }}
+                onChange={(urls) => {
+                  void handleFotosChange(urls);
+                }}
+              />
+              {projetoId === null && gerais.descricao.length < 200 && (
+                <p className="text-xs text-muted-foreground">
+                  Complete a descrição (mín. 200 caracteres) para liberar o envio das fotos.
+                </p>
+              )}
             </div>
           )}
 

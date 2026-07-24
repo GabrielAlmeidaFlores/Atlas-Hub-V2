@@ -1,12 +1,19 @@
 import { type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowRight, Banknote, Building2, CheckCircle, Clock, FileCheck,
-  Lock, ShieldCheck, BarChart3, TrendingUp, Bell, Users,
+  ArrowRight, Banknote, CheckCircle, Clock,
+  ShieldCheck, Users,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
+import { TypedHeroTitle } from "@/components/typed-hero-title";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
+
+const HERO_TITLE = [
+  { text: "Capte recursos com investidores — ", tone: "base" as const },
+  { text: "sem depender só", tone: "gold" as const },
+  { text: " do banco", tone: "base" as const },
+] as const;
 
 const STEPS = [
   {
@@ -51,12 +58,36 @@ const BENEFITS = [
 ] as const;
 
 const PORTAL = [
-  { icon: Building2, title: "Perfil da empresa", desc: "Dados cadastrais e documentos da incorporadora." },
-  { icon: FileCheck, title: "Wizard de projeto", desc: "Rascunho, upload de docs/fotos e equipe do empreendimento." },
-  { icon: BarChart3, title: "Status e histórico", desc: "Acompanhe análise, pedidos de ajuste e decisões." },
-  { icon: Bell, title: "Notificações", desc: "Avisos in-app (e e-mail quando o SES estiver ativo) a cada mudança." },
-  { icon: TrendingUp, title: "Link da oferta", desc: "Quando publicada, o link da oferta fica disponível no detalhe do projeto." },
-  { icon: Lock, title: "Resubmissão", desc: "Se houver ajuste ou reprova, corrija e envie de novo sem limite artificial." },
+  {
+    image: "/lp/portal-perfil.jpg",
+    title: "Perfil da empresa",
+    desc: "Dados cadastrais e documentos da incorporadora.",
+  },
+  {
+    image: "/lp/portal-wizard.jpg",
+    title: "Wizard de projeto",
+    desc: "Rascunho, upload de docs/fotos e equipe do empreendimento.",
+  },
+  {
+    image: "/lp/portal-status.jpg",
+    title: "Status e histórico",
+    desc: "Acompanhe análise, pedidos de ajuste e decisões.",
+  },
+  {
+    image: "/lp/portal-notificacoes.jpg",
+    title: "Notificações",
+    desc: "Avisos in-app (e e-mail quando o SES estiver ativo) a cada mudança.",
+  },
+  {
+    image: "/lp/portal-oferta.jpg",
+    title: "Link da oferta",
+    desc: "Quando publicada, o link da oferta fica disponível no detalhe do projeto.",
+  },
+  {
+    image: "/lp/portal-resubmissao.jpg",
+    title: "Resubmissão",
+    desc: "Se houver ajuste ou reprova, corrija e envie de novo sem limite artificial.",
+  },
 ] as const;
 
 export default function ParaIncorporadorasPage(): ReactNode {
@@ -65,9 +96,10 @@ export default function ParaIncorporadorasPage(): ReactNode {
       <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28">
         <div className="relative lp-container">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para incorporadoras</p>
-          <h1 className="lp-hero-title max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl">
-            Capte recursos com investidores — sem depender só do banco
-          </h1>
+          <TypedHeroTitle
+            segments={HERO_TITLE}
+            className="lp-hero-title max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl"
+          />
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">
             O Atlas Hub é o originador: você submete o empreendimento, nossa curadoria valida, e a oferta sobe na plataforma de investimento Atlas Hub para o público investir com KYC, escrow e regras CVM.
           </p>
@@ -86,7 +118,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
       <section className="border-b border-border py-16">
         <div className="lp-container">
           <AnimateIn>
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Ecossistema</p>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Ecossistema</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Duas frentes, uma marca</h2>
             <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
               No dia a dia você usa o <strong className="text-foreground">Portal da Incorporadora</strong> (este sistema).
@@ -120,7 +152,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
       <section className="lp-section-alt py-16">
         <div className="lp-container">
           <AnimateIn className="mb-10">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Passo a passo</p>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Passo a passo</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Como funciona na prática</h2>
           </AnimateIn>
           <ol className="space-y-0 overflow-hidden rounded-[8px] border border-border">
@@ -158,15 +190,19 @@ export default function ParaIncorporadorasPage(): ReactNode {
       <section className="lp-section-alt py-16">
         <div className="lp-container">
           <AnimateIn className="mb-10">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Portal</p>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Portal</p>
             <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">O que você encontra no sistema</h2>
           </AnimateIn>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {PORTAL.map(({ icon: Icon, title, desc }, i) => (
-              <AnimateIn key={title} delay={i * 60} className="rounded-[8px] border border-border bg-card p-5">
-                <Icon className="mb-3 h-4 w-4 text-navy" />
-                <h3 className="text-xs font-bold uppercase tracking-wider">{title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+          <div className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PORTAL.map(({ image, title, desc }, i) => (
+              <AnimateIn key={title} delay={i * 60} className="lp-feature-card-gold overflow-hidden p-0">
+                <div className="h-28 overflow-hidden sm:h-32">
+                  <img src={image} alt="" className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]" />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-navy">{title}</h3>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{desc}</p>
+                </div>
               </AnimateIn>
             ))}
           </div>
@@ -175,8 +211,8 @@ export default function ParaIncorporadorasPage(): ReactNode {
 
       <section className="py-16">
         <div className="mx-auto max-w-3xl px-6">
-          <AnimateIn>
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-navy">Requisitos</p>
+          <AnimateIn className="rounded-[8px] border border-border bg-card p-8 sm:p-10">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Requisitos</p>
             <h2 className="text-2xl font-extrabold tracking-tight">Antes da oferta ir ao ar</h2>
             <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
               <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Receita bruta anual até R$40M (elegibilidade CVM 88)</li>
@@ -184,12 +220,12 @@ export default function ParaIncorporadorasPage(): ReactNode {
               <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Patrimônio de afetação, seguro de obra e SPE/SCP (validados na curadoria)</li>
               <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Documentação do terreno e viabilidade no wizard</li>
             </ul>
-          </AnimateIn>
-          <AnimateIn delay={120} className="mt-10 flex flex-col gap-3 rounded-[8px] border border-border bg-card p-8 text-center sm:flex-row sm:items-center sm:justify-center">
-            <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">
-              Criar conta <ArrowRight className="h-4 w-4" />
-            </Link>
-            <WhatsappLink variant="outline">Tirar dúvidas no WhatsApp</WhatsappLink>
+            <div className="mt-10 flex flex-col gap-3 text-center sm:flex-row sm:items-center sm:justify-center">
+              <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">
+                Criar conta <ArrowRight className="h-4 w-4" />
+              </Link>
+              <WhatsappLink variant="outline">Tirar dúvidas no WhatsApp</WhatsappLink>
+            </div>
           </AnimateIn>
         </div>
       </section>

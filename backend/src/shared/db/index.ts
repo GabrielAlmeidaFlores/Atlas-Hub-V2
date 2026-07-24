@@ -182,6 +182,24 @@ export async function listProjetosByStatus(
   return { items: allItems.slice(0, limit), cursor: null };
 }
 
+export async function listProjetosPublicados(limit = 5): Promise<Projeto[]> {
+  const result = await db.send(new QueryCommand({
+    TableName: Tables.PROJETOS,
+    IndexName: 'status-criadoEm-index',
+    KeyConditionExpression: '#s = :s',
+    ExpressionAttributeNames: { '#s': 'status' },
+    ExpressionAttributeValues: { ':s': 'OFERTA_CRIADA' },
+    ScanIndexForward: false,
+    Limit: Math.max(limit * 3, 15),
+  }));
+  const items = (result.Items ?? []) as Projeto[];
+  const publishedAt = (p: Projeto): string =>
+    p.ofertaConfirmadaEm ?? p.aprovadoEm ?? p.atualizadoEm ?? p.criadoEm;
+  return [...items]
+    .sort((a, b) => publishedAt(b).localeCompare(publishedAt(a)))
+    .slice(0, limit);
+}
+
 // ── Scorecard ───────────────────────────────────────────────────────
 
 export async function putScorecard(item: Scorecard): Promise<void> {

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { label: "Como funciona", href: "/#como-funciona" },
+  { label: "Projetos", href: "/#projetos-atlas" },
   { label: "Incorporadoras", href: "/para-incorporadoras" },
   { label: "Investidores", href: "/para-investidores" },
   { label: "FAQ", href: "/#faq" },

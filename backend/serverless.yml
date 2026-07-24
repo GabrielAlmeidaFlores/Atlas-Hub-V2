@@ -58,6 +58,17 @@ functions:
           method: get
           cors: true
 
+  publicoProjetosListar:
+    handler: src/functions/publico-projetos-listar.handler
+    role: !GetAtt PublicoProjetosListarLambdaRole.Arn
+    timeout: 15
+    description: "Lists recent published projects for the marketing landing"
+    events:
+      - http:
+          path: publico/projetos
+          method: get
+          cors: true
+
   # ── Cognito Triggers ───────────────────────────────────────────────
 
   onIncorporadoraSignup:
@@ -521,6 +532,31 @@ resources:
                 - Effect: Allow
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
+
+    PublicoProjetosListarLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-publicoProjetos-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:Query]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/status-criadoEm-index'
+                - Effect: Allow
+                  Action: [s3:GetObject]
+                  Resource:
+                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
 
     OnIncorporadoraSignupLambdaRole:
       Type: AWS::IAM::Role
