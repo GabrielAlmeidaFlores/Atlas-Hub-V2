@@ -8,7 +8,6 @@ Módulo nativo de analytics (LP + portal + admin). Sem Mixpanel/PostHog.
 - Ingestão: `POST /analytics/collect` (batch, público na LP; autenticado no app)
 - Identidade: cookie/localStorage `atlas_aid` → merge com `userId` após login
 - Session: `atlas_sid`
-- Replay opt-in: `localStorage atlas_replay_optin=1` (grava rrweb quando opt-in; player no admin)
 - Segmentação admin: query `utm|device|os|browser|geo|userId` no dashboard/funnel
 - Alertas: cron horário avalia regras e envia SES aos admins ativos
 - Geo: SDK (timezone/idioma) + header `CloudFront-Viewer-Country` no collect
@@ -18,7 +17,7 @@ Módulo nativo de analytics (LP + portal + admin). Sem Mixpanel/PostHog.
 
 | Rota UI | API |
 |---|---|
-| `/admin/analytics` | dashboard, funnel, heatmap, alerts, export, replay |
+| `/admin/analytics` | dashboard, funnel, heatmap, alerts, export |
 | `/admin/analytics/users/:userId` | perfil + timeline |
 
 ## Catálogo de eventos v1
@@ -46,7 +45,6 @@ Módulo nativo de analytics (LP + portal + admin). Sem Mixpanel/PostHog.
 | `curation_started` / `curation_adjustment` / `curation_rejected` / `curation_approved` | Admin curadoria | `projectId` |
 | `offer_published` | Admin curadoria | `projectId` |
 | `api_error` | `api.ts` | `code`, `route`, `status` |
-| `replay_chunk` | SDK (opt-in) | `optIn`, `sampled` |
 
 ## Funil padrão Atlas
 
@@ -68,8 +66,7 @@ Módulo nativo de analytics (LP + portal + admin). Sem Mixpanel/PostHog.
 - IP hasheado no collect
 - Sem PII desnecessária em props
 - Geo aproximado (timezone/idioma + CloudFront) quando disponível no contexto
-- Replay só com opt-in + amostragem + retenção curta (eventos rrweb no Dynamo, limiar de tamanho)
 
 ## Persistência
 
-Tabelas Dynamo (stage): Events, Sessions, DailyAgg, Heatmaps, Alerts, Replays.
+Tabelas Dynamo (stage): Events, Sessions, DailyAgg, Heatmaps, Alerts.

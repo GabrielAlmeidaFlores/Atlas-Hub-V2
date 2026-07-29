@@ -75,24 +75,36 @@ function parseUtm(): Pick<AnalyticsContext, "utmSource" | "utmMedium" | "utmCamp
 function detectDevice(): Pick<AnalyticsContext, "browser" | "os" | "device"> {
   if (typeof navigator === "undefined") return {};
   const ua = navigator.userAgent;
-  const device = /Mobi|Android/i.test(ua) ? "mobile" : /iPad|Tablet/i.test(ua) ? "tablet" : "desktop";
+  const iPadOs = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  const tabletUa = /iPad|Tablet|Android(?!.*Mobile)/i.test(ua) || iPadOs;
+  const mobileUa = /Mobi|Android.*Mobile|iPhone|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const coarsePointer =
+    typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(pointer: coarse)").matches;
+  const narrowScreen = typeof window !== "undefined" && window.innerWidth > 0 && window.innerWidth < 900;
+  const device = tabletUa
+    ? "tablet"
+    : mobileUa || (coarsePointer && narrowScreen)
+      ? "mobile"
+      : "desktop";
   const os = /Windows/i.test(ua)
     ? "Windows"
-    : /Mac OS/i.test(ua)
-      ? "macOS"
-      : /Android/i.test(ua)
-        ? "Android"
-        : /iPhone|iPad/i.test(ua)
-          ? "iOS"
+    : /Android/i.test(ua)
+      ? "Android"
+      : /iPhone|iPad|iPod/i.test(ua) || iPadOs
+        ? "iOS"
+        : /Mac OS|Macintosh/i.test(ua)
+          ? "macOS"
           : "Other";
   const browser = /Edg/i.test(ua)
     ? "Edge"
-    : /Chrome/i.test(ua)
+    : /Chrome|CriOS/i.test(ua)
       ? "Chrome"
-      : /Safari/i.test(ua)
-        ? "Safari"
-        : /Firefox/i.test(ua)
-          ? "Firefox"
+      : /Firefox|FxiOS/i.test(ua)
+        ? "Firefox"
+        : /Safari/i.test(ua)
+          ? "Safari"
           : "Other";
   return { device, os, browser };
 }
@@ -246,59 +258,4 @@ if (typeof window !== "undefined") {
       void flush();
     }
   });
-
-  try {
-    const optIn = localStorage.getItem("atlas_replay_optin") === "1";
-    if (optIn) {
-      void (async () => {
-        const { record } = await import("rrweb");
-        const { VITE_API_URL } = await import("@/lib/env");
-        const events: unknown[] = [];
-        const startedAt = new Date().toISOString();
-        const stop = record({
-          emit(event) {
-            events.push(event);
-          },
-          maskAllInputs: true,
-          blockClass: "atlas-replay-block",
-        });
-
-        async function upload(): Promise<void> {
-          if (events.length === 0) return;
-          const snapshot = events.splice(0, events.length);
-          try {
-            await fetch(`${VITE_API_URL}/analytics/replay`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                sessionId: getOrCreate(SID_KEY),
-                anonymousId: getOrCreate(AID_KEY),
-                ...(userId !== undefined ? { userId } : {}),
-                chunkCount: snapshot.length,
-                startedAt,
-                endedAt: new Date().toISOString(),
-                events: snapshot.slice(0, 4000),
-              }),
-              keepalive: true,
-            });
-            analytics.track("replay_chunk", { optIn: true, events: snapshot.length });
-          } catch {
-            events.unshift(...snapshot);
-          }
-        }
-
-        window.setInterval(() => {
-          void upload();
-        }, 15_000);
-        window.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden") {
-            stop?.();
-            void upload();
-          }
-        });
-      })();
-    }
-  } catch {
-    /* ignore */
-  }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   Activity, AlertTriangle, BarChart3, Download, Eye, Filter, Flame, Map, Users,
@@ -8,6 +8,7 @@ import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/ui/stat-card";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn, formatDateTime } from "@/lib/utils";
 import type {
   AnalyticsAlert,
@@ -15,11 +16,10 @@ import type {
   AnalyticsFilters,
   AnalyticsFunnel,
   AnalyticsHeatmap,
-  AnalyticsReplayMeta,
 } from "../types";
 import { eventLabel, alertRuleLabel } from "../labels";
 
-type Tab = "overview" | "funnel" | "heatmap" | "alerts" | "export" | "replay";
+type Tab = "overview" | "funnel" | "heatmap" | "alerts" | "export";
 
 const TABS: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
   { key: "overview", label: "Dashboard", icon: BarChart3 },
@@ -27,7 +27,6 @@ const TABS: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
   { key: "heatmap", label: "Heatmaps", icon: Flame },
   { key: "alerts", label: "Alertas", icon: AlertTriangle },
   { key: "export", label: "Exportar", icon: Download },
-  { key: "replay", label: "Replay", icon: Eye },
 ];
 
 const EMPTY_FILTERS: AnalyticsFilters = {
@@ -86,10 +85,6 @@ export default function AdminAnalyticsPage(): ReactNode {
   const [funnel, setFunnel] = useState<AnalyticsFunnel | null>(null);
   const [heatmap, setHeatmap] = useState<AnalyticsHeatmap | null>(null);
   const [alerts, setAlerts] = useState<AnalyticsAlert[]>([]);
-  const [replays, setReplays] = useState<AnalyticsReplayMeta[]>([]);
-  const [playingId, setPlayingId] = useState<string | null>(null);
-  const playerHostRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<{ $destroy: () => void } | null>(null);
   const [heatPath, setHeatPath] = useState("/");
   const [heatDay, setHeatDay] = useState(new Date().toISOString().slice(0, 10));
   const [exportDay, setExportDay] = useState(new Date().toISOString().slice(0, 10));
@@ -119,43 +114,6 @@ export default function AdminAnalyticsPage(): ReactNode {
     setAlerts(data.items);
   }
 
-  async function loadReplays(): Promise<void> {
-    const data = await api.get<{ items: AnalyticsReplayMeta[] }>("/admin/analytics/replay");
-    setReplays(data.items);
-  }
-
-  async function playReplay(id: string): Promise<void> {
-    setBusy(true);
-    try {
-      playerRef.current?.$destroy();
-      playerRef.current = null;
-      const data = await api.get<AnalyticsReplayMeta & { events: unknown[] }>(`/admin/analytics/replay/${id}`);
-      setPlayingId(id);
-      if (playerHostRef.current === null) return;
-      playerHostRef.current.innerHTML = "";
-      if (!Array.isArray(data.events) || data.events.length === 0) {
-        addToast({ type: "error", title: "Replay sem eventos rrweb" });
-        return;
-      }
-      await import("rrweb-player/dist/style.css");
-      const { default: rrwebPlayer } = await import("rrweb-player");
-      playerRef.current = new rrwebPlayer({
-        target: playerHostRef.current,
-        props: {
-          events: data.events as never[],
-          width: Math.min(960, playerHostRef.current.clientWidth || 800),
-          height: 480,
-          autoPlay: true,
-          showController: true,
-        },
-      }) as { $destroy: () => void };
-    } catch (err) {
-      addToast({ type: "error", title: "Erro ao abrir replay", description: getApiErrorMessage(err) });
-    } finally {
-      setBusy(false);
-    }
-  }
-
   useEffect(() => {
     setIsLoading(true);
     void Promise.all([loadOverview(appliedFilters), loadFunnel(appliedFilters)])
@@ -168,16 +126,25 @@ export default function AdminAnalyticsPage(): ReactNode {
   useEffect(() => {
     if (tab === "heatmap") void loadHeatmap().catch(() => undefined);
     if (tab === "alerts") void loadAlerts().catch(() => undefined);
-    if (tab === "replay") void loadReplays().catch(() => undefined);
   }, [tab, heatPath, heatDay]);
-
-  useEffect(() => () => {
-    playerRef.current?.$destroy();
-  }, []);
 
   function applyFilters(): void {
     setAppliedFilters({ ...filters });
   }
+
+  function clearSegmentFilters(): void {
+    const next = { ...EMPTY_FILTERS, days: filters.days };
+    setFilters(next);
+    setAppliedFilters(next);
+  }
+
+  const hasActiveSegments =
+    appliedFilters.utm !== ""
+    || appliedFilters.device !== ""
+    || appliedFilters.os !== ""
+    || appliedFilters.browser !== ""
+    || appliedFilters.geo !== ""
+    || appliedFilters.userId !== "";
 
   async function createAlert(e: FormEvent): Promise<void> {
     e.preventDefault();
@@ -283,6 +250,16 @@ export default function AdminAnalyticsPage(): ReactNode {
           </label>
           <div className="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-4">
             <button type="button" className="btn btn-primary btn-sm" onClick={applyFilters}>Aplicar filtros</button>
+            {hasActiveSegments && (
+              <button type="button" className="btn btn-outline btn-sm" onClick={clearSegmentFilters}>
+                Limpar segmentação
+              </button>
+            )}
+            {hasActiveSegments && (
+              <span className="text-xs text-muted-foreground">
+                Segmentação ativa — breakdowns só com eventos que batem no filtro.
+              </span>
+            )}
             {filters.userId !== "" && (
               <Link to={`/admin/analytics/users/${filters.userId}`} className="btn btn-outline btn-sm inline-flex items-center gap-2">
                 <Users className="h-3.5 w-3.5" /> Abrir jornada do usuário
@@ -376,35 +353,39 @@ export default function AdminAnalyticsPage(): ReactNode {
 
         {tab === "funnel" && funnel !== null && (
           <div className="card space-y-4 p-5">
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                {funnel.days === 1 ? "Funil Atlas · Dia atual" : `Funil Atlas · ${String(funnel.days)} dias`}
-              </h3>
-              <dl className="grid gap-2 border border-border bg-muted/40 p-3 text-xs text-muted-foreground sm:grid-cols-2">
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-foreground">N</dt>
-                  <dd>Pessoas únicas que chegaram nesse passo</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-foreground">%</dt>
-                  <dd>Conversão vs o passo anterior</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-foreground">drop</dt>
-                  <dd>Quem caiu entre o passo anterior e este</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-foreground">Δ</dt>
-                  <dd>Tempo médio entre o passo anterior e este</dd>
-                </div>
-              </dl>
+            <h3 className="text-sm font-semibold text-foreground">
+              {funnel.days === 1 ? "Funil Atlas · Dia atual" : `Funil Atlas · ${String(funnel.days)} dias`}
+            </h3>
+            <div className="hidden gap-3 border-b border-border pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground sm:grid sm:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5rem_4.5rem]">
+              <span>Passo</span>
+              <Tooltip content="Pessoas únicas que chegaram nesse passo" side="top">
+                <button type="button" className="cursor-help text-right hover:text-foreground">N</button>
+              </Tooltip>
+              <Tooltip content="Conversão vs o passo anterior" side="top">
+                <button type="button" className="cursor-help text-right hover:text-foreground">%</button>
+              </Tooltip>
+              <Tooltip content="Quem caiu entre o passo anterior e este" side="top">
+                <button type="button" className="cursor-help text-right hover:text-foreground">drop</button>
+              </Tooltip>
+              <Tooltip content="Tempo médio entre o passo anterior e este" side="top">
+                <button type="button" className="cursor-help text-right hover:text-foreground">Δ</button>
+              </Tooltip>
             </div>
             {funnel.steps.map((step, idx) => (
-              <div key={step.eventName}>
-                <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2 text-sm">
+              <div key={step.eventName} className="space-y-1.5">
+                <div className="grid gap-1 text-sm sm:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5rem_4.5rem] sm:items-center sm:gap-3">
                   <span className="font-medium text-foreground">{`${String(idx + 1)}. ${step.label}`}</span>
-                  <span className="text-muted-foreground">
-                    {`${String(step.count)} · ${String(step.conversionFromPrev)}% · drop ${String(step.dropOff)}% · Δ ${formatMs(step.avgMsBetween)}`}
+                  <span className="text-muted-foreground sm:text-right">
+                    <span className="sm:hidden">N </span>{step.count}
+                  </span>
+                  <span className="text-muted-foreground sm:text-right">
+                    <span className="sm:hidden">% </span>{`${String(step.conversionFromPrev)}%`}
+                  </span>
+                  <span className="text-muted-foreground sm:text-right">
+                    <span className="sm:hidden">drop </span>{`${String(step.dropOff)}%`}
+                  </span>
+                  <span className="text-muted-foreground sm:text-right">
+                    <span className="sm:hidden">Δ </span>{formatMs(step.avgMsBetween)}
                   </span>
                 </div>
                 <div className="h-2 w-full bg-muted">
@@ -519,43 +500,6 @@ export default function AdminAnalyticsPage(): ReactNode {
             <button type="button" disabled={busy} className="btn btn-primary" onClick={() => void exportCsv()}>
               <Download className="h-4 w-4" /> Baixar CSV
             </button>
-          </div>
-        )}
-
-        {tab === "replay" && (
-          <div className="space-y-4">
-            <div className="card p-5">
-              <h3 className="mb-3 text-sm font-semibold text-foreground">Session replays</h3>
-              <div className="mb-4 space-y-2 text-sm text-muted-foreground">
-                <p>Gravação só com opt-in no navegador do visitante (LGPD). No console da LP:</p>
-                <pre className="overflow-x-auto border border-border bg-muted/40 p-3 text-xs text-foreground">{`localStorage.setItem("atlas_replay_optin", "1")`}</pre>
-                <p>Depois recarregue a LP, navegue ~15s (ou mude de aba) e volte aqui em Atualizar / troque de aba e reabra Replay.</p>
-              </div>
-              <ul className="space-y-2">
-                {replays.map((r) => (
-                  <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 border border-border p-3 text-sm">
-                    <span className="font-medium text-foreground">{r.sessionId}</span>
-                    <span className="text-muted-foreground">{formatDateTime(r.startedAt)}</span>
-                    <span className="text-muted-foreground">{`${String(r.chunkCount)} eventos`}</span>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      className="btn btn-outline btn-sm"
-                      onClick={() => void playReplay(r.id)}
-                    >
-                      {playingId === r.id ? "Recarregar" : "Assistir"}
-                    </button>
-                  </li>
-                ))}
-                {replays.length === 0 && <p className="text-sm text-muted-foreground">Nenhum replay registrado ainda.</p>}
-              </ul>
-              <button type="button" className="btn btn-outline btn-sm mt-4" onClick={() => void loadReplays()}>
-                Atualizar lista
-              </button>
-            </div>
-            <div className="card overflow-hidden p-3">
-              <div ref={playerHostRef} className="min-h-[20rem] w-full bg-navy/5" />
-            </div>
           </div>
         )}
       </div>

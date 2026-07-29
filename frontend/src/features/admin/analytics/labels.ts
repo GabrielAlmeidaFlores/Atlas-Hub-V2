@@ -35,7 +35,6 @@ const EVENT_LABELS: Record<string, string> = {
   curation_approved: "Projeto aprovado",
   offer_published: "Oferta publicada",
   api_error: "Erro de API",
-  replay_chunk: "Replay gravado",
 };
 
 const ALERT_RULE_LABELS: Record<string, string> = {
