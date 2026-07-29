@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
+import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import type { DocumentosProjeto, MembroEquipe, Projeto, StatusProjeto } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
@@ -111,6 +112,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       const next = { ...documentos, [key]: location };
       setDocumentos(next);
       await api.put(`/projetos/${id}`, { documentos: next });
+      analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
       addToast({
@@ -133,6 +135,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     setFotosUrls(urls);
     try {
       await api.put(`/projetos/${id}`, { fotosUrls: urls });
+      if (urls.length > 0) analytics.track("project_photo_uploaded", { projectId: id, count: urls.length });
     } catch (err) {
       addToast({ type: "error", title: "Falha ao salvar fotos", description: getApiErrorMessage(err) });
     }
@@ -172,10 +175,13 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
+      analytics.track("project_updated", { projectId: id });
       if (projeto.status === "RASCUNHO") {
         await api.post(`/projetos/${id}/submeter`, {});
+        analytics.track("project_submitted", { projectId: id });
       } else {
         await api.post(`/projetos/${id}/resubmeter`, {});
+        analytics.track("project_resubmitted", { projectId: id });
       }
       addToast({ type: "success", title: "Projeto enviado para análise" });
       navigate(`/projetos/${id}`);

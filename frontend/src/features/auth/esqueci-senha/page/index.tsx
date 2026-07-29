@@ -21,6 +21,8 @@ export default function EsqueciSenhaPage(): ReactNode {
     try {
       const { resetPassword } = await import("@aws-amplify/auth");
       await resetPassword({ username });
+      const { analytics } = await import("@/lib/analytics");
+      analytics.track("password_recovery");
     } catch {
       void 0;
     } finally {

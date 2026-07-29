@@ -190,12 +190,26 @@ export async function listProjetosPublicados(limit = 5): Promise<Projeto[]> {
     ExpressionAttributeNames: { '#s': 'status' },
     ExpressionAttributeValues: { ':s': 'OFERTA_CRIADA' },
     ScanIndexForward: false,
-    Limit: Math.max(limit * 3, 15),
+    Limit: Math.max(limit * 5, 30),
   }));
   const items = (result.Items ?? []) as Projeto[];
   const publishedAt = (p: Projeto): string =>
     p.ofertaConfirmadaEm ?? p.aprovadoEm ?? p.atualizadoEm ?? p.criadoEm;
+  const isPublicavel = (p: Projeto): boolean => {
+    if (p.nome.trim().length < 3) return false;
+    if (p.cidade.trim().length < 2) return false;
+    if (p.estado.trim().length !== 2) return false;
+    if (p.ofertaLink === undefined || p.ofertaLink.trim() === '') return false;
+    try {
+      const url = new URL(p.ofertaLink);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+    } catch {
+      return false;
+    }
+    return true;
+  };
   return [...items]
+    .filter(isPublicavel)
     .sort((a, b) => publishedAt(b).localeCompare(publishedAt(a)))
     .slice(0, limit);
 }

@@ -85,6 +85,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
+    void import("@/lib/analytics").then(({ analytics }) => {
+      analytics.track("logout");
+      void analytics.flush();
+    });
     void import("@aws-amplify/auth").then(({ signOut }) => { void signOut(); });
     set({ user: null, isAuthenticated: false, isLoading: false, pendingChallenge: null });
   },
@@ -103,6 +107,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       const groups = extractGroupsFromToken(idToken);
       const perfil = extractPerfil(groups);
       set({ user: { id: sub, email, perfil }, isAuthenticated: true, isLoading: false });
+      if (sub !== "") {
+        void import("@/lib/analytics").then(({ analytics }) => { analytics.identify(sub); });
+      }
     } catch {
       set({ isLoading: false });
     }

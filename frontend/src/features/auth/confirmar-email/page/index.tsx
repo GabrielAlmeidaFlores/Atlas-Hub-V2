@@ -76,6 +76,8 @@ export default function ConfirmarEmailPage(): ReactNode {
         confirmationCode: code.trim(),
         options: clientMetadata ? { clientMetadata } : undefined,
       });
+      const { analytics } = await import("@/lib/analytics");
+      analytics.track("email_confirmed");
       sessionStorage.removeItem("atlas.pendingConfirmEmail");
       sessionStorage.removeItem("atlas.pendingCadastro");
       setDone(true);

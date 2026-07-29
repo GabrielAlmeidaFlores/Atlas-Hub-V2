@@ -267,7 +267,7 @@ export function ProjetosAtlas(): ReactNode {
   const empty = items !== null && items.length === 0;
 
   return (
-    <section id="projetos-atlas" className="lp-projects-section relative overflow-x-hidden py-10 lg:py-14">
+    <section id="projetos-atlas" className="lp-projects-section relative overflow-x-hidden py-10 lg:py-14" data-analytics-section="projetos">
       <img
         src="/atlas-icon-bg.png"
         alt=""
@@ -288,11 +288,11 @@ export function ProjetosAtlas(): ReactNode {
             <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-[16px] border border-gold/25 bg-gold/10">
               <ShieldCheck className="h-6 w-6 text-gold" />
             </div>
-            <h3 className="text-lg font-bold tracking-tight text-foreground">Novos empreendimentos em análise</h3>
+            <h3 className="text-lg font-bold tracking-tight text-foreground">Nenhuma oferta publicada ainda</h3>
             <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
               {failed
-                ? "Não foi possível carregar a vitrine no momento. Em breve, novos projetos aprovados pela curadoria Atlas Hub estarão disponíveis aqui."
-                : "Nossa curadoria está analisando novos projetos. Em breve, ofertas publicadas e reguladas pela CVM aparecerão nesta vitrine com total transparência."}
+                ? "Não foi possível carregar a vitrine no momento. Tente novamente em instantes."
+                : "Só entram aqui projetos com oferta confirmada pela curadoria (status Oferta Publicada). Assim que houver publicações no Atlas, elas aparecem nesta lista."}
             </p>
           </AnimateIn>
         )}

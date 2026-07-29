@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
+import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
@@ -104,6 +105,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       descricao: gerais.descricao,
       ...(gerais.videoUrl !== "" && { videoUrl: gerais.videoUrl }),
     });
+    analytics.track("project_created", { projectId: r.id });
     setProjetoId(r.id);
     return r.id;
   }
@@ -138,6 +140,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     try {
       const id = await salvarRascunho();
       await persistFotos(id, urls);
+      if (urls.length > 0) analytics.track("project_photo_uploaded", { projectId: id, count: urls.length });
     } catch (err) {
       addToast({ type: "error", title: "Falha ao salvar fotos", description: getApiErrorMessage(err) });
     }
@@ -152,6 +155,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       const next = { ...documentos, [key]: location };
       setDocumentos(next);
       await persistDocumentos(id, next);
+      analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
       addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) !== "Erro interno. Tente novamente." ? getApiErrorMessage(err) : (err instanceof Error ? err.message : "Tente novamente.") });
@@ -195,6 +199,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         ...(viabilidade !== null && { viabilidade }),
       });
       await api.post(`/projetos/${projetoId}/submeter`, {});
+      analytics.track("project_submitted", { projectId: projetoId });
       addToast({ type: "success", title: "Projeto submetido!", description: "Aguarde a análise da nossa equipe." });
       navigate("/dashboard");
     } catch (err) {

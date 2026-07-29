@@ -1,23 +1,23 @@
 import { useState, type ReactNode, useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Bell, Briefcase, LogOut, Plus, Menu, X } from "lucide-react";
+import { LayoutDashboard, Briefcase, LogOut, Plus, Menu, X } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificacoesStore } from "@/stores/notificacoes";
 import { Logo } from "@/components/shared/logo";
 import { AppBreadcrumb } from "@/components/shared/app-breadcrumb";
+import { NotificacoesBell } from "@/components/shared/notificacoes-bell";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/perfil", label: "Empresa", icon: Briefcase },
-  { to: "/notificacoes", label: "Notificações", icon: Bell },
 ] as const;
 
 function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
-  const { naoLidas, fetchNotificacoes } = useNotificacoesStore();
+  const fetchNotificacoes = useNotificacoesStore((s) => s.fetchNotificacoes);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,11 +63,6 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 {label}
-                {label === "Notificações" && naoLidas > 0 && (
-                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-[9999px] bg-destructive px-1.5 text-[10px] font-bold text-white">
-                    {naoLidas > 9 ? "9+" : String(naoLidas)}
-                  </span>
-                )}
               </NavLink>
             </li>
           ))}
@@ -116,7 +111,7 @@ export default function IncorporadoraLayout(): ReactNode {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="shrink-0 border-b border-border bg-card/95 backdrop-blur-sm">
+        <header className="relative z-30 shrink-0 border-b border-border bg-card/95 backdrop-blur-sm">
           <div className="page-rail flex h-14 items-center gap-3">
             <button
               type="button"
@@ -126,7 +121,10 @@ export default function IncorporadoraLayout(): ReactNode {
             >
               <Menu className="h-4 w-4" />
             </button>
-            <AppBreadcrumb />
+            <div className="min-w-0 flex-1">
+              <AppBreadcrumb />
+            </div>
+            <NotificacoesBell />
           </div>
         </header>
         <main className="flex-1 overflow-y-auto">

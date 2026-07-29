@@ -18,14 +18,14 @@ const TIPO_COLORS: Record<Notificacao["tipo"], string> = {
 };
 
 export default function IncorporadoraNotificacoesPage(): ReactNode {
-  const { items, isLoading, fetchNotificacoes, marcarLida } = useNotificacoesStore();
+  const { items, isLoading, fetchNotificacoes, marcarLida, marcarTodas } = useNotificacoesStore();
 
   useEffect(() => { void fetchNotificacoes(); }, [fetchNotificacoes]);
 
   const naoLidas = items.filter((n) => !n.lida).length;
 
   function handleMarcarTodas(): void {
-    items.filter((n) => !n.lida).forEach((n) => { void marcarLida(n.criadoEm); });
+    void marcarTodas();
   }
 
   return (

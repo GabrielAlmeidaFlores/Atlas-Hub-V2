@@ -1,5 +1,5 @@
 import React, { type ReactNode } from "react";
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 
 const LandingPage          = React.lazy(() => import("@/features/landing/page"));
@@ -28,6 +28,8 @@ const AdminHistoricoPage           = React.lazy(() => import("@/features/admin/h
 const AdminIncorporadorasListaPage = React.lazy(() => import("@/features/admin/incorporadoras/lista/page"));
 const AdminIncorporadoraDetalhePage = React.lazy(() => import("@/features/admin/incorporadoras/detalhe/page"));
 const AdminUsuariosPage            = React.lazy(() => import("@/features/admin/usuarios/page"));
+const AdminAnalyticsPage           = React.lazy(() => import("@/features/admin/analytics/page"));
+const AdminAnalyticsUserPage       = React.lazy(() => import("@/features/admin/analytics/users/page"));
 
 function Spinner(): ReactNode {
   return (
@@ -35,6 +37,29 @@ function Spinner(): ReactNode {
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-navy/20 border-t-navy" />
     </div>
   );
+}
+
+function RouteError(): ReactNode {
+  return (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 p-8 text-center">
+      <p className="text-sm font-semibold text-foreground">Não foi possível abrir esta tela.</p>
+      <Link to="/admin" className="btn btn-outline btn-sm">Voltar ao admin</Link>
+    </div>
+  );
+}
+
+function CatchAllRedirect(): ReactNode {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return <Navigate to="/admin" replace />;
+  if (
+    pathname.startsWith("/dashboard")
+    || pathname.startsWith("/projetos")
+    || pathname.startsWith("/perfil")
+    || pathname.startsWith("/notificacoes")
+  ) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <Navigate to="/" replace />;
 }
 
 function withSuspense(component: ReactNode): ReactNode {
@@ -101,11 +126,13 @@ const router = createBrowserRouter([
       { path: "historico",           element: withSuspense(<AdminHistoricoPage />) },
       { path: "incorporadoras",      element: withSuspense(<AdminIncorporadorasListaPage />) },
       { path: "incorporadoras/:id",  element: withSuspense(<AdminIncorporadoraDetalhePage />) },
+      { path: "analytics",           element: withSuspense(<AdminAnalyticsPage />), errorElement: <RouteError /> },
+      { path: "analytics/users/:userId", element: withSuspense(<AdminAnalyticsUserPage />), errorElement: <RouteError /> },
       { path: "usuarios",            element: withSuspense(<AdminUsuariosPage />) },
     ],
   },
 
-  { path: "*", element: <Navigate to="/" replace /> },
+  { path: "*", element: <CatchAllRedirect /> },
 ]);
 
 export function AppRouter(): ReactNode {

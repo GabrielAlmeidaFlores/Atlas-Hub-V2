@@ -6,6 +6,7 @@ import {
   StickyNote, Building2, MapPin,
 } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
+import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import type { Projeto, Scorecard, Incorporadora, AuditoriaEntry, NotaInterna } from "@/types";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -125,10 +126,16 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
         }, 0) * 10) / 10
     : null;
 
-  async function action(fn: () => Promise<unknown>, successMsg: string, redirect?: string): Promise<void> {
+  async function action(
+    fn: () => Promise<unknown>,
+    successMsg: string,
+    redirect?: string,
+    eventName?: "curation_started" | "curation_adjustment" | "curation_rejected" | "curation_approved" | "offer_published",
+  ): Promise<void> {
     setActionLoading(true);
     try {
       await fn();
+      if (eventName !== undefined) analytics.track(eventName, { projectId: id });
       addToast({ type: "success", title: successMsg });
       if (redirect !== undefined) { navigate(redirect); } else { await reload(); }
     } catch (err) {
@@ -168,7 +175,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
             <div>
               <p className="font-semibold text-status-info">Projeto aguardando análise</p>
               <p className="mt-0.5 text-sm text-status-info">Clique para iniciar e atribuir este projeto a você.</p>
-              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/iniciar`, {}), "Análise iniciada!")} disabled={actionLoading}
+              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/iniciar`, {}), "Análise iniciada!", undefined, "curation_started")} disabled={actionLoading}
                 className="btn btn-primary btn-sm mt-3">
                 {actionLoading ? <span className="h-3.5 w-3.5 animate-spin border-2 border-white/30 border-t-white" /> : null}
                 Iniciar análise
@@ -195,7 +202,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                   <input type="url" value={ofertaLink} onChange={(e) => setOfertaLink(e.target.value)} className="input-base text-sm" placeholder="https://..." />
                 </div>
                 <button type="button"
-                  onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/confirmar-publicacao`, { ofertaId, ofertaLink }), "Publicação confirmada!", "/admin/historico")}
+                  onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/confirmar-publicacao`, { ofertaId, ofertaLink }), "Publicação confirmada!", "/admin/historico", "offer_published")}
                   disabled={actionLoading || ofertaId === "" || ofertaLink === ""}
                   className="btn mt-3 bg-status-success text-white hover:opacity-90 disabled:opacity-50">
                   <ExternalLink className="h-4 w-4" />
@@ -418,7 +425,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
             <div>
               <textarea value={textoAjuste} onChange={(e) => setTextoAjuste(e.target.value)} rows={2}
                 className="input-base resize-none text-xs" placeholder="Descreva o ajuste necessário..." />
-              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/ajuste`, { scorecard: buildScorecardBody(), textoAjuste }), "Ajuste solicitado!", "/admin/curadoria")}
+              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/ajuste`, { scorecard: buildScorecardBody(), textoAjuste }), "Ajuste solicitado!", "/admin/curadoria", "curation_adjustment")}
                 disabled={actionLoading || textoAjuste.length < 20}
                 className="btn btn-sm w-full mt-2 border border-status-warning bg-status-warning-subtle text-status-warning hover:opacity-90">
                 <AlertCircle className="h-3.5 w-3.5" /> Solicitar Ajuste
@@ -427,7 +434,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
             <div>
               <textarea value={justificativa} onChange={(e) => setJustificativa(e.target.value)} rows={2}
                 className="input-base resize-none text-xs" placeholder="Justificativa de reprovação..." />
-              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/reprovar`, { scorecard: buildScorecardBody(), justificativa }), "Projeto reprovado", "/admin/curadoria")}
+              <button type="button" onClick={() => void action(() => api.post(`/admin/curadoria/${id ?? ""}/reprovar`, { scorecard: buildScorecardBody(), justificativa }), "Projeto reprovado", "/admin/curadoria", "curation_rejected")}
                 disabled={actionLoading || justificativa.length < 20}
                 className="btn btn-danger mt-2 h-10 w-full">
                 <ThumbsDown className="h-4 w-4" /> Reprovar
@@ -463,7 +470,7 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 void action(() => api.post(`/admin/curadoria/${id ?? ""}/aprovar`, {
                   scorecard: buildScorecardBody(),
                   checklist,
-                }), "Projeto aprovado!");
+                }), "Projeto aprovado!", undefined, "curation_approved");
               }}
               disabled={actionLoading || parecer.length < 20 || !checklistOk}
               className="btn h-10 w-full bg-status-success px-5 text-white hover:opacity-90 disabled:opacity-50">

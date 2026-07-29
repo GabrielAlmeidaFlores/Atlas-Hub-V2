@@ -94,6 +94,11 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
   if (!response.ok) {
     const raw = await parseResponseBody(response);
+    if (!path.startsWith("/analytics")) {
+      void import("@/lib/analytics").then(({ analytics }) => {
+        analytics.track("api_error", { code: extractCode(raw), route: path, status: response.status });
+      });
+    }
     throwApiError(extractCode(raw), extractMessage(raw, response.statusText));
   }
 

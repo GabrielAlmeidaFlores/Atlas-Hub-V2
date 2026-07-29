@@ -1,9 +1,10 @@
-import { useState, type ReactNode, type FormEvent, type ChangeEvent } from "react";
+import { useState, useEffect, type ReactNode, type FormEvent, type ChangeEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useToastStore } from "@/stores/toast";
 import { Mail, Phone, Eye, EyeOff } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { cn, formatCnpj, formatCpf, formatCelular } from "@/lib/utils";
+import { analytics } from "@/lib/analytics";
 
 interface FormData {
   razaoSocial: string;
@@ -28,6 +29,10 @@ export default function CadastroPage(): ReactNode {
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    analytics.track("form_view", { form: "cadastro" });
+  }, []);
   const addToast = useToastStore((s) => s.addToast);
   const navigate = useNavigate();
 
@@ -67,9 +72,12 @@ export default function CadastroPage(): ReactNode {
     }
     setIsLoading(true);
     try {
+      analytics.track("form_start", { form: "cadastro" });
       const { signUp } = await import("@aws-amplify/auth");
       const email = form.email.trim().toLowerCase();
       await signUp({ username: email, password: form.senha, options: { userAttributes: { email } } });
+      analytics.track("form_submit", { form: "cadastro" });
+      analytics.track("signup");
       sessionStorage.setItem("atlas.pendingConfirmEmail", email);
       sessionStorage.setItem(
         "atlas.pendingCadastro",

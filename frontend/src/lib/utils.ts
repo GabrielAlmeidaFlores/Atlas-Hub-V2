@@ -39,15 +39,26 @@ export function formatCep(value: string): string {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function parseDate(isoString: string | null | undefined): Date | null {
+  if (isoString === null || isoString === undefined || isoString === "") return null;
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
 export function formatDate(isoString: string): string {
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(isoString));
+  const date = parseDate(isoString);
+  if (date === null) return "—";
+  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
 }
 
 export function formatDateTime(isoString: string): string {
+  const date = parseDate(isoString);
+  if (date === null) return "—";
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit", month: "2-digit", year: "numeric",
     hour: "2-digit", minute: "2-digit",
-  }).format(new Date(isoString));
+  }).format(date);
 }
 
 export function formatPercent(value: number): string {
@@ -55,7 +66,10 @@ export function formatPercent(value: number): string {
 }
 
 export function timeAgo(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
+  const date = parseDate(isoString);
+  if (date === null) return "—";
+  const diff = Date.now() - date.getTime();
+  if (!Number.isFinite(diff)) return "—";
   const minutes = Math.floor(diff / 60_000);
   if (minutes < 1) return "agora";
   if (minutes < 60) return `${String(minutes)}min atrás`;

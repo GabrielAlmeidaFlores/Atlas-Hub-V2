@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, BarChart3 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { Logo } from "@/components/shared/logo";
 import { AppBreadcrumb } from "@/components/shared/app-breadcrumb";
@@ -22,6 +22,7 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
     { to: "/admin/curadoria", label: "Fila de Curadoria", icon: ClipboardList, end: false },
     { to: "/admin/historico", label: "Histórico", icon: History, end: false },
     { to: "/admin/incorporadoras", label: "Incorporadoras", icon: Building2, end: false },
+    { to: "/admin/analytics", label: "Analytics", icon: BarChart3, end: false },
     ...(user?.perfil === "ADMIN_MASTER"
       ? [{ to: "/admin/usuarios", label: "Usuários", icon: Users, end: false }]
       : []),

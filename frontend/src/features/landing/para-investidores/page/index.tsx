@@ -8,6 +8,7 @@ import { AnimateIn } from "@/components/animate-in";
 import { TypedHeroTitle } from "@/components/typed-hero-title";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
+import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
 const HERO_TITLE = [
   { text: "Invista em imóveis com ", tone: "base" as const },
@@ -187,9 +188,10 @@ function ProtectionsCarousel(): ReactNode {
 }
 
 export default function ParaInvestidoresPage(): ReactNode {
+  useLandingAnalytics(true);
   return (
     <MarketingShell>
-      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28">
+      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28" data-analytics-section="hero">
         <div className="relative lp-container">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para investidores</p>
           <TypedHeroTitle

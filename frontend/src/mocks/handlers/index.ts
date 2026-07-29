@@ -221,26 +221,6 @@ const mockMetricas: DashboardMetricas = {
 export const handlers = [
   http.get(`${BASE}/health`, () => HttpResponse.json({ status: "ok", timestamp: new Date().toISOString(), service: "atlas-hub-backend" })),
 
-  http.get("*/publico/projetos", () => {
-    const publicados = mockProjetos
-      .filter((p) => p.status === "OFERTA_CRIADA")
-      .slice(0, 5)
-      .map((p) => ({
-        id: p.id,
-        nome: p.nome,
-        cidade: p.cidade,
-        estado: p.estado,
-        valorCaptar: p.valorCaptar ?? null,
-        rentabilidadeEstimada: p.rentabilidadeEstimada ?? null,
-        status: p.status,
-        statusLabel: "Oferta Publicada",
-        ofertaLink: p.ofertaLink ?? null,
-        imagemUrl: p.fotosUrls?.[0] ?? null,
-        publicadoEm: p.ofertaConfirmadaEm ?? p.aprovadoEm ?? p.atualizadoEm,
-      }));
-    return HttpResponse.json({ items: publicados });
-  }),
-
   http.get(`${BASE}/incorporadora/perfil`, () => HttpResponse.json(mockIncorporadora)),
   http.put(`${BASE}/incorporadora/perfil`, () => HttpResponse.json({ updated: true })),
   http.post(`${BASE}/incorporadora/documentos/pre-sign`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/upload?presigned=1", location: "https://example.s3.amazonaws.com/doc.pdf" })),

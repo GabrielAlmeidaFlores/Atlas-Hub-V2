@@ -7,6 +7,7 @@ interface NotificacoesState {
   readonly isLoading: boolean;
   readonly fetchNotificacoes: () => Promise<void>;
   readonly marcarLida: (criadoEm: string) => Promise<void>;
+  readonly marcarTodas: () => Promise<void>;
 }
 
 export const useNotificacoesStore = create<NotificacoesState>((set, get) => ({
@@ -19,7 +20,10 @@ export const useNotificacoesStore = create<NotificacoesState>((set, get) => ({
     try {
       const { api } = await import("@/services/api");
       const data = await api.get<{ items: Notificacao[]; naoLidas: number }>("/notificacoes");
-      set({ items: data.items, naoLidas: data.naoLidas, isLoading: false });
+      const items = (data.items ?? []).filter(
+        (n) => typeof n.criadoEm === "string" && n.criadoEm.length > 0 && !Number.isNaN(Date.parse(n.criadoEm)),
+      );
+      set({ items, naoLidas: data.naoLidas ?? items.filter((n) => !n.lida).length, isLoading: false });
     } catch {
       set({ isLoading: false });
     }
@@ -38,5 +42,10 @@ export const useNotificacoesStore = create<NotificacoesState>((set, get) => ({
     } catch {
       /* silently fail */
     }
+  },
+
+  marcarTodas: async () => {
+    const unread = get().items.filter((n) => !n.lida);
+    await Promise.all(unread.map((n) => get().marcarLida(n.criadoEm)));
   },
 }));

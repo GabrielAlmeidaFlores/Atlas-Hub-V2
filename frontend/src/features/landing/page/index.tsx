@@ -23,6 +23,7 @@ import { MarketingShell } from "@/features/landing/components/marketing-shell";
 import { ProjetosAtlas } from "@/features/landing/components/projetos-atlas";
 import { hasWhatsappSupport } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
 function ScrollToHash(): ReactNode {
   const { hash } = useLocation();
@@ -100,7 +101,7 @@ function HeroVisual(): ReactNode {
 
 function Hero(): ReactNode {
   return (
-    <section className="relative overflow-hidden lp-hero-photo">
+    <section className="relative overflow-hidden lp-hero-photo" data-analytics-section="hero">
       <video
         className="lp-hero-video"
         autoPlay
@@ -143,7 +144,7 @@ function Hero(): ReactNode {
             className="flex flex-col gap-3 sm:flex-row sm:items-center"
             style={{ animation: "lp-fade-in-up 0.38s 0.18s ease-out both" }}
           >
-            <Link to="/cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
+            <Link to="/cadastro" data-analytics-cta="hero_cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
               Cadastrar incorporadora <ArrowRight className="h-4 w-4" />
             </Link>
             <a href="#como-funciona" className="btn btn-on-dark btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
@@ -265,7 +266,7 @@ function ComoFunciona(): ReactNode {
   ];
 
   return (
-    <section id="como-funciona" className="lp-steps-section py-16 lg:py-20">
+    <section id="como-funciona" className="lp-steps-section py-16 lg:py-20" data-analytics-section="como-funciona">
       <div className="lp-container">
         <AnimateIn className="mx-auto mb-10 max-w-2xl text-center">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Fluxo</p>
@@ -317,7 +318,7 @@ function Incorporadoras(): ReactNode {
   ];
 
   return (
-    <section id="incorporadoras" className="py-16 lg:py-20">
+    <section id="incorporadoras" className="py-16 lg:py-20" data-analytics-section="incorporadoras">
       <div className="lp-container">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <AnimateIn className="lg:col-span-5">
@@ -378,7 +379,7 @@ function Investidores(): ReactNode {
   ];
 
   return (
-    <section id="investidores" className="lp-section-alt py-16 lg:py-20">
+    <section id="investidores" className="lp-section-alt py-16 lg:py-20" data-analytics-section="investidores">
       <div className="lp-container">
         <AnimateIn className="mx-auto mb-10 max-w-2xl text-center">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Investidores</p>
@@ -575,7 +576,7 @@ function FAQ(): ReactNode {
 
 function CtaFinal(): ReactNode {
   return (
-    <section className="relative overflow-hidden lp-hero-bg py-16 lg:py-20">
+    <section className="relative overflow-hidden lp-hero-bg py-16 lg:py-20" data-analytics-section="cta-final">
       <div className="lp-hero-grid pointer-events-none absolute inset-0" />
       <div
         className="lp-float pointer-events-none absolute -right-24 top-10 h-[420px] w-[420px] opacity-70"
@@ -593,7 +594,7 @@ function CtaFinal(): ReactNode {
             <div className="mt-10 flex flex-col items-center gap-6 lg:items-start">
               <div className="flex flex-col items-center gap-6">
                 <div className="flex flex-col items-center gap-3 sm:flex-row">
-                  <Link to="/cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2">
+                  <Link to="/cadastro" data-analytics-cta="final_cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2">
                     Criar conta incorporadora <ArrowRight className="h-4 w-4" />
                   </Link>
                   <WhatsappLink variant="hero">Falar no WhatsApp</WhatsappLink>
@@ -620,6 +621,7 @@ function CtaFinal(): ReactNode {
 }
 
 export default function LandingPage(): ReactNode {
+  useLandingAnalytics(true);
   return (
     <MarketingShell>
       <ScrollToHash />

@@ -19,6 +19,8 @@ const LABELS: Record<string, string> = {
   historico: "Histórico",
   incorporadoras: "Incorporadoras",
   usuarios: "Usuários",
+  analytics: "Analytics",
+  users: "Usuários",
 };
 
 function buildCrumbs(pathname: string): Crumb[] {

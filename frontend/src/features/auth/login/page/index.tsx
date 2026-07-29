@@ -5,6 +5,7 @@ import { useToastStore } from "@/stores/toast";
 import { getApiErrorMessage } from "@/services/api";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { analytics } from "@/lib/analytics";
 
 export default function LoginPage(): ReactNode {
   const [email, setEmail] = useState("");
@@ -24,6 +25,8 @@ export default function LoginPage(): ReactNode {
     try {
       await login(email, password);
       const user = useAuthStore.getState().user;
+      if (user?.id !== undefined) analytics.identify(user.id);
+      analytics.track("login");
       navigate(user?.perfil === "INCORPORADORA" ? "/dashboard" : "/admin");
     } catch (err) {
       addToast({ type: "error", title: "Credenciais inválidas", description: getApiErrorMessage(err) });
@@ -38,6 +41,8 @@ export default function LoginPage(): ReactNode {
     try {
       await handleNewPasswordRequired(newPwd);
       const user = useAuthStore.getState().user;
+      if (user?.id !== undefined) analytics.identify(user.id);
+      analytics.track("login");
       navigate(user?.perfil === "INCORPORADORA" ? "/dashboard" : "/admin");
     } catch (err) {
       addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });

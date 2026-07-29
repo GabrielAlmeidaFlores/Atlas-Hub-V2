@@ -8,6 +8,7 @@ import { AnimateIn } from "@/components/animate-in";
 import { TypedHeroTitle } from "@/components/typed-hero-title";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
+import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
 const HERO_TITLE = [
   { text: "Capte recursos com investidores — ", tone: "base" as const },
@@ -91,9 +92,10 @@ const PORTAL = [
 ] as const;
 
 export default function ParaIncorporadorasPage(): ReactNode {
+  useLandingAnalytics(true);
   return (
     <MarketingShell>
-      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28">
+      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28" data-analytics-section="hero">
         <div className="relative lp-container">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para incorporadoras</p>
           <TypedHeroTitle
@@ -221,7 +223,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
               <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Documentação do terreno e viabilidade no wizard</li>
             </ul>
             <div className="mt-10 flex flex-col gap-3 text-center sm:flex-row sm:items-center sm:justify-center">
-              <Link to="/cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">
+              <Link to="/cadastro" data-analytics-cta="inc_cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">
                 Criar conta <ArrowRight className="h-4 w-4" />
               </Link>
               <WhatsappLink variant="outline">Tirar dúvidas no WhatsApp</WhatsappLink>

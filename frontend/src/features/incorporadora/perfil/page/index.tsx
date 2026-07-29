@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode, type FormEvent, type ChangeEvent } from "react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { uploadIncorporadoraDocumento } from "@/lib/upload";
+import { analytics } from "@/lib/analytics";
 import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
 import type { Incorporadora } from "@/types";
@@ -128,6 +129,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
         ...(docs.contratoSocialUrl !== undefined && { contratoSocialUrl: docs.contratoSocialUrl }),
         ...(docs.comprovanteCnpjUrl !== undefined && { comprovanteCnpjUrl: docs.comprovanteCnpjUrl }),
       });
+      analytics.track("profile_updated");
       addToast({ type: "success", title: "Perfil atualizado com sucesso!" });
     } catch (err) {
       addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) });
@@ -144,6 +146,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
       const next = { ...docs, [key]: location };
       setDocs(next);
       await api.put("/incorporadora/perfil", { [key]: location });
+      analytics.track("company_doc_uploaded", { doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
       addToast({

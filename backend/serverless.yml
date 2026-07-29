@@ -37,6 +37,12 @@ provider:
     NOTIFICACOES_TABLE: AtlasNotificacoes-${self:provider.stage}
     AUDITORIA_TABLE: AtlasAuditoria-${self:provider.stage}
     NOTAS_TABLE: AtlasNotas-${self:provider.stage}
+    ANALYTICS_EVENTS_TABLE: AtlasAnalyticsEvents-${self:provider.stage}
+    ANALYTICS_SESSIONS_TABLE: AtlasAnalyticsSessions-${self:provider.stage}
+    ANALYTICS_DAILY_TABLE: AtlasAnalyticsDaily-${self:provider.stage}
+    ANALYTICS_HEATMAPS_TABLE: AtlasAnalyticsHeatmaps-${self:provider.stage}
+    ANALYTICS_ALERTS_TABLE: AtlasAnalyticsAlerts-${self:provider.stage}
+    ANALYTICS_REPLAYS_TABLE: AtlasAnalyticsReplays-${self:provider.stage}
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
     SES_FROM_EMAIL: noreply@atlashub.com.br
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
@@ -68,6 +74,141 @@ functions:
           path: publico/projetos
           method: get
           cors: true
+
+  analyticsCollect:
+    handler: src/functions/analytics-collect.handler
+    role: !GetAtt AnalyticsCollectLambdaRole.Arn
+    timeout: 15
+    description: "Ingests analytics event batches from LP and app"
+    events:
+      - http:
+          path: analytics/collect
+          method: post
+          cors: true
+
+  analyticsDashboard:
+    handler: src/functions/analytics-dashboard.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 20
+    description: "Admin analytics dashboard aggregates"
+    events:
+      - http:
+          path: admin/analytics/dashboard
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsFunnel:
+    handler: src/functions/analytics-funnel.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 20
+    description: "Admin conversion funnel"
+    events:
+      - http:
+          path: admin/analytics/funnel
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsUser:
+    handler: src/functions/analytics-user.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 15
+    description: "Admin user analytics profile and timeline"
+    events:
+      - http:
+          path: admin/analytics/users/{userId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsHeatmap:
+    handler: src/functions/analytics-heatmap.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 10
+    description: "Admin LP heatmap cells"
+    events:
+      - http:
+          path: admin/analytics/heatmap
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsAlerts:
+    handler: src/functions/analytics-alerts.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 10
+    description: "Admin analytics alerts CRUD"
+    events:
+      - http:
+          path: admin/analytics/alerts
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/analytics/alerts
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsExport:
+    handler: src/functions/analytics-export.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 20
+    description: "Exports analytics CSV"
+    events:
+      - http:
+          path: admin/analytics/export
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsReplay:
+    handler: src/functions/analytics-replay.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 15
+    description: "Session replay ingest, list and playback payload"
+    events:
+      - http:
+          path: analytics/replay
+          method: post
+          cors: true
+      - http:
+          path: admin/analytics/replay
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/analytics/replay/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  analyticsAlertsEvaluate:
+    handler: src/functions/analytics-alerts-evaluate.handler
+    role: !GetAtt AnalyticsAdminLambdaRole.Arn
+    timeout: 30
+    description: "Evaluates analytics alert rules and emails admins via SES"
+    events:
+      - schedule: rate(1 hour)
 
   # ── Cognito Triggers ───────────────────────────────────────────────
 
@@ -557,6 +698,65 @@ resources:
                   Action: [s3:GetObject]
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
+
+    AnalyticsCollectLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-analyticsCollect-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:GetItem, dynamodb:BatchWriteItem, dynamodb:Query, dynamodb:Scan]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsEvents-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsEvents-${self:provider.stage}/index/*'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsSessions-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsSessions-${self:provider.stage}/index/*'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsDaily-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsHeatmaps-${self:provider.stage}'
+
+    AnalyticsAdminLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-analyticsAdmin-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:Query, dynamodb:Scan]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsEvents-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsEvents-${self:provider.stage}/index/*'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsSessions-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsSessions-${self:provider.stage}/index/*'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsDaily-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsHeatmaps-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsAlerts-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsReplays-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [ses:SendEmail]
+                  Resource: '*'
 
     OnIncorporadoraSignupLambdaRole:
       Type: AWS::IAM::Role
@@ -1562,6 +1762,132 @@ resources:
             KeyType: HASH
           - AttributeName: criadoEm
             KeyType: RANGE
+
+    AtlasAnalyticsEventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsEvents-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: dayKey
+            AttributeType: S
+          - AttributeName: ts
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: eventName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: dayKey-ts-index
+            KeySchema:
+              - AttributeName: dayKey
+                KeyType: HASH
+              - AttributeName: ts
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: userId-ts-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: ts
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: eventName-ts-index
+            KeySchema:
+              - AttributeName: eventName
+                KeyType: HASH
+              - AttributeName: ts
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasAnalyticsSessionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsSessions-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: sessionId
+            AttributeType: S
+          - AttributeName: anonymousId
+            AttributeType: S
+          - AttributeName: startedAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sessionId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: anonymousId-startedAt-index
+            KeySchema:
+              - AttributeName: anonymousId
+                KeyType: HASH
+              - AttributeName: startedAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasAnalyticsDailyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsDaily-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: dayKey
+            AttributeType: S
+          - AttributeName: metricKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: dayKey
+            KeyType: HASH
+          - AttributeName: metricKey
+            KeyType: RANGE
+
+    AtlasAnalyticsHeatmapsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsHeatmaps-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: pageKey
+            AttributeType: S
+          - AttributeName: cellKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pageKey
+            KeyType: HASH
+          - AttributeName: cellKey
+            KeyType: RANGE
+
+    AtlasAnalyticsAlertsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsAlerts-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+
+    AtlasAnalyticsReplaysTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsReplays-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
 
     # ── S3 Bucket ──────────────────────────────────────────────────────
 
