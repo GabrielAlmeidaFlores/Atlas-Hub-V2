@@ -321,16 +321,33 @@ export default function AdminAnalyticsPage(): ReactNode {
 
             <div className="card p-5">
               <h3 className="mb-4 text-sm font-semibold text-foreground">Visitantes e conversões por dia</h3>
-              <div className="flex h-40 items-end gap-2">
-                {dashboard.visitorsByDay.map((d) => (
-                  <div key={d.day} className="flex flex-1 flex-col items-center gap-1">
-                    <div className="flex w-full flex-1 items-end gap-0.5">
-                      <div className="w-full bg-navy/80" style={{ height: `${String(Math.round((d.visitors / maxVisitors) * 100))}%` }} title={`${String(d.visitors)} visitantes`} />
-                      <div className="w-full bg-gold" style={{ height: `${String(Math.round((d.conversions / maxVisitors) * 100))}%` }} title={`${String(d.conversions)} conversões`} />
+              <div className="mb-3 flex gap-4 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 bg-navy/80" /> Visitantes</span>
+                <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 bg-gold" /> Conversões</span>
+              </div>
+              <div className="flex h-44 items-end gap-2">
+                {dashboard.visitorsByDay.map((d) => {
+                  const barMax = 148;
+                  const visitorH = d.visitors > 0 ? Math.max(6, Math.round((d.visitors / maxVisitors) * barMax)) : 0;
+                  const conversionH = d.conversions > 0 ? Math.max(6, Math.round((d.conversions / maxVisitors) * barMax)) : 0;
+                  return (
+                    <div key={d.day} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
+                      <div className="flex w-full items-end justify-center gap-0.5" style={{ height: barMax }}>
+                        <div
+                          className="w-full max-w-[1.25rem] bg-navy/80"
+                          style={{ height: visitorH }}
+                          title={`${String(d.visitors)} visitantes`}
+                        />
+                        <div
+                          className="w-full max-w-[1.25rem] bg-gold"
+                          style={{ height: conversionH }}
+                          title={`${String(d.conversions)} conversões`}
+                        />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">{d.day.slice(5)}</span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground">{d.day.slice(5)}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
