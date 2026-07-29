@@ -17,6 +17,7 @@ import type {
   AnalyticsHeatmap,
   AnalyticsReplayMeta,
 } from "../types";
+import { eventLabel, alertRuleLabel } from "../labels";
 
 type Tab = "overview" | "funnel" | "heatmap" | "alerts" | "export" | "replay";
 
@@ -224,6 +225,7 @@ export default function AdminAnalyticsPage(): ReactNode {
   const maxVisitors = Math.max(1, ...(dashboard?.visitorsByDay?.map((d) => d.visitors) ?? [1]));
   const maxFunnel = Math.max(1, ...(funnel?.steps?.map((s) => s.count) ?? [1]));
   const maxClick = Math.max(1, ...(heatmap?.clicks?.map((c) => c.count) ?? [1]));
+  const periodLabel = appliedFilters.days === 1 ? "hoje" : `${String(appliedFilters.days)} dias`;
 
   return (
     <div className="animate-in">
@@ -309,12 +311,12 @@ export default function AdminAnalyticsPage(): ReactNode {
         {tab === "overview" && dashboard !== null && (
           <div className="space-y-6">
             <div className="kpi-strip grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              <StatCard label="Visitantes hoje" value={String(dashboard.cards.visitorsToday)} icon={Eye} accent="info" />
-              <StatCard label="Usuários ativos" value={String(dashboard.cards.activeUsers)} icon={Users} accent="info" />
-              <StatCard label="Novos cadastros" value={String(dashboard.cards.newSignups)} icon={Activity} accent="success" />
+              <StatCard label={`Visitantes (${periodLabel})`} value={String(dashboard.cards.visitorsToday)} icon={Eye} accent="info" />
+              <StatCard label={`Logins (${periodLabel})`} value={String(dashboard.cards.activeUsers)} icon={Users} accent="info" />
+              <StatCard label={`Cadastros (${periodLabel})`} value={String(dashboard.cards.newSignups)} icon={Activity} accent="success" />
               <StatCard label="Conversão" value={`${String(dashboard.cards.conversion)}%`} icon={BarChart3} accent="success" />
               <StatCard label="Bounce" value={`${String(dashboard.cards.bounceRate)}%`} icon={AlertTriangle} accent="warning" />
-              <StatCard label="Sessões" value={String(dashboard.cards.sessions)} icon={Map} accent="info" />
+              <StatCard label={`Sessões (${periodLabel})`} value={String(dashboard.cards.sessions)} icon={Map} accent="info" />
               <StatCard label="Retenção D1" value={`${String(dashboard.cards.retentionD1)}%`} icon={Activity} accent="warning" />
               <StatCard label="Duração média" value={formatMs(dashboard.cards.avgSessionMs)} icon={Activity} accent="info" />
             </div>
@@ -361,9 +363,9 @@ export default function AdminAnalyticsPage(): ReactNode {
                 <h3 className="mb-4 text-sm font-semibold text-foreground">Top eventos</h3>
                 <ul className="space-y-2">
                   {dashboard.topEvents.map((e) => (
-                    <li key={e.eventName} className="flex justify-between text-sm">
-                      <span className="text-foreground">{e.eventName}</span>
-                      <span className="font-semibold text-navy">{e.count}</span>
+                    <li key={e.eventName} className="flex justify-between gap-3 text-sm">
+                      <span className="text-foreground">{eventLabel(e.eventName)}</span>
+                      <span className="shrink-0 font-semibold text-navy">{e.count}</span>
                     </li>
                   ))}
                 </ul>
@@ -374,9 +376,29 @@ export default function AdminAnalyticsPage(): ReactNode {
 
         {tab === "funnel" && funnel !== null && (
           <div className="card space-y-4 p-5">
-            <h3 className="text-sm font-semibold text-foreground">
-              {funnel.days === 1 ? "Funil Atlas · Dia atual" : `Funil Atlas · ${String(funnel.days)} dias`}
-            </h3>
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">
+                {funnel.days === 1 ? "Funil Atlas · Dia atual" : `Funil Atlas · ${String(funnel.days)} dias`}
+              </h3>
+              <dl className="grid gap-2 border border-border bg-muted/40 p-3 text-xs text-muted-foreground sm:grid-cols-2">
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold text-foreground">N</dt>
+                  <dd>Pessoas únicas que chegaram nesse passo</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold text-foreground">%</dt>
+                  <dd>Conversão vs o passo anterior</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold text-foreground">drop</dt>
+                  <dd>Quem caiu entre o passo anterior e este</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold text-foreground">Δ</dt>
+                  <dd>Tempo médio entre o passo anterior e este</dd>
+                </div>
+              </dl>
+            </div>
             {funnel.steps.map((step, idx) => (
               <div key={step.eventName}>
                 <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2 text-sm">
@@ -474,7 +496,7 @@ export default function AdminAnalyticsPage(): ReactNode {
                 {alerts.map((a) => (
                   <li key={a.id} className="border border-border p-3 text-sm">
                     <p className="font-medium text-foreground">{a.name}</p>
-                    <p className="text-muted-foreground">{`${a.rule} · limiar ${String(a.threshold)} · ${a.active ? "ativo" : "inativo"}`}</p>
+                    <p className="text-muted-foreground">{`${alertRuleLabel(a.rule)} · limiar ${String(a.threshold)} · ${a.active ? "ativo" : "inativo"}`}</p>
                     {a.lastTriggeredAt !== undefined && (
                       <p className="text-xs text-muted-foreground">{`Último disparo: ${formatDateTime(a.lastTriggeredAt)}`}</p>
                     )}
@@ -504,9 +526,11 @@ export default function AdminAnalyticsPage(): ReactNode {
           <div className="space-y-4">
             <div className="card p-5">
               <h3 className="mb-3 text-sm font-semibold text-foreground">Session replays</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Opt-in com localStorage atlas_replay_optin=1, amostragem ~5%, captura rrweb e player abaixo.
-              </p>
+              <div className="mb-4 space-y-2 text-sm text-muted-foreground">
+                <p>Gravação só com opt-in no navegador do visitante (LGPD). No console da LP:</p>
+                <pre className="overflow-x-auto border border-border bg-muted/40 p-3 text-xs text-foreground">{`localStorage.setItem("atlas_replay_optin", "1")`}</pre>
+                <p>Depois recarregue a LP, navegue ~15s (ou mude de aba) e volte aqui em Atualizar / troque de aba e reabra Replay.</p>
+              </div>
               <ul className="space-y-2">
                 {replays.map((r) => (
                   <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 border border-border p-3 text-sm">
@@ -523,8 +547,11 @@ export default function AdminAnalyticsPage(): ReactNode {
                     </button>
                   </li>
                 ))}
-                {replays.length === 0 && <p className="text-sm text-muted-foreground">Nenhum replay registrado.</p>}
+                {replays.length === 0 && <p className="text-sm text-muted-foreground">Nenhum replay registrado ainda.</p>}
               </ul>
+              <button type="button" className="btn btn-outline btn-sm mt-4" onClick={() => void loadReplays()}>
+                Atualizar lista
+              </button>
             </div>
             <div className="card overflow-hidden p-3">
               <div ref={playerHostRef} className="min-h-[20rem] w-full bg-navy/5" />

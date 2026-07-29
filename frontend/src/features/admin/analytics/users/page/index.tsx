@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/lib/utils";
 import type { AnalyticsUserProfile } from "../../types";
+import { eventLabel } from "../../labels";
 
 export default function AdminAnalyticsUserPage(): ReactNode {
   const { userId } = useParams<{ userId: string }>();
@@ -93,7 +94,7 @@ export default function AdminAnalyticsUserPage(): ReactNode {
             {timeline.map((item) => (
               <li key={item.id} className="grid gap-1 border border-border p-3 text-sm sm:grid-cols-[10rem_12rem_1fr]">
                 <span className="text-muted-foreground">{formatDateTime(item.ts)}</span>
-                <span className="font-medium text-navy">{item.eventName}</span>
+                <span className="font-medium text-navy">{eventLabel(item.eventName)}</span>
                 <span className="truncate text-muted-foreground">{item.path ?? "—"}</span>
               </li>
             ))}

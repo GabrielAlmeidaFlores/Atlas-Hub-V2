@@ -18,6 +18,7 @@ export interface AnalyticsDashboard {
   regions: { key: string; count: number }[];
   cities: { key: string; count: number }[];
   topEvents: { eventName: string; count: number; recent: number }[];
+  rangeDays?: number;
   recentSessions: {
     sessionId: string;
     anonymousId: string;

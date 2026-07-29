@@ -4,7 +4,6 @@ import { getUserId, requireAdmin, AuthError, ForbiddenError } from '../shared/ht
 import {
   listDailyAggs,
   listEventsByDay,
-  listEventsByName,
   listSessions,
 } from '../shared/analytics/db.js';
 import {
@@ -13,8 +12,12 @@ import {
   parseSegmentFilters,
   sessionMatchesFilters,
 } from '../shared/analytics/filters.js';
-import type { AnalyticsEventRecord } from '../shared/analytics/types.js';
+import type { AnalyticsDailyAggRecord, AnalyticsEventRecord } from '../shared/analytics/types.js';
 import { createLogger } from '../shared/core/logger.js';
+
+const TOP_EVENT_NAMES = [
+  'cta_click', 'whatsapp_click', 'form_submit', 'login', 'signup', 'project_created', 'project_submitted',
+] as const;
 
 function daysBack(n: number): string[] {
   const out: string[] = [];
@@ -31,14 +34,26 @@ function identityOf(e: AnalyticsEventRecord): string {
   return e.userId ?? e.anonymousId;
 }
 
-function countMetric(items: { metricKey: string; count: number }[], key: string): number {
+function countMetric(items: AnalyticsDailyAggRecord[], key: string): number {
   return items.find((a) => a.metricKey === key)?.count ?? 0;
 }
 
-function breakdownFromAggs(items: { metricKey: string; count: number }[], kind: string) {
-  return items
-    .filter((a) => a.metricKey.startsWith(`${kind}:`))
-    .map((a) => ({ key: a.metricKey.slice(kind.length + 1), count: a.count }))
+function sumMetric(aggsByDay: { items: AnalyticsDailyAggRecord[] }[], key: string): number {
+  return aggsByDay.reduce((sum, day) => sum + countMetric(day.items, key), 0);
+}
+
+function mergeBreakdown(aggsByDay: { items: AnalyticsDailyAggRecord[] }[], kind: string) {
+  const map = new Map<string, number>();
+  const prefix = `${kind}:`;
+  for (const { items } of aggsByDay) {
+    for (const a of items) {
+      if (!a.metricKey.startsWith(prefix)) continue;
+      const key = a.metricKey.slice(prefix.length);
+      map.set(key, (map.get(key) ?? 0) + a.count);
+    }
+  }
+  return [...map.entries()]
+    .map(([key, count]) => ({ key, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 }
@@ -95,7 +110,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const eventsByDay = await Promise.all(
       days.map(async (day) => {
-        const items = await listEventsByDay(day, segmented ? 500 : 200);
+        const items = await listEventsByDay(day, segmented || range > 1 ? 500 : 200);
         return {
           day,
           items: segmented ? items.filter((e) => eventMatchesFilters(e, filters)) : items,
@@ -103,15 +118,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }),
     );
 
+    const periodEvents = eventsByDay.flatMap((d) => d.items);
     const todayEvents = eventsByDay.find((d) => d.day === today)?.items ?? [];
     const yesterdayEvents = yesterday !== undefined
       ? (eventsByDay.find((d) => d.day === yesterday)?.items ?? [])
       : [];
 
-    let visitorsToday: number;
-    let sessionsToday: number;
-    let signupsToday: number;
-    let loginsToday: number;
+    let visitors: number;
+    let sessionsCount: number;
+    let signups: number;
+    let logins: number;
     let formViews: number;
     let formStarts: number;
     let visitorsByDay: { day: string; visitors: number; conversions: number }[];
@@ -125,13 +141,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     let topEvents: { eventName: string; count: number; recent: number }[];
 
     if (segmented) {
-      const pageViews = todayEvents.filter((e) => e.eventName === 'page_view');
-      visitorsToday = new Set(pageViews.map(identityOf)).size;
-      sessionsToday = new Set(todayEvents.map((e) => e.sessionId)).size;
-      signupsToday = todayEvents.filter((e) => e.eventName === 'signup' || e.eventName === 'form_submit').length;
-      loginsToday = todayEvents.filter((e) => e.eventName === 'login').length;
-      formViews = todayEvents.filter((e) => e.eventName === 'form_view').length;
-      formStarts = todayEvents.filter((e) => e.eventName === 'form_start').length;
+      const pageViews = periodEvents.filter((e) => e.eventName === 'page_view');
+      visitors = new Set(pageViews.map(identityOf)).size;
+      sessionsCount = new Set(periodEvents.map((e) => e.sessionId)).size;
+      signups = periodEvents.filter((e) => e.eventName === 'signup' || e.eventName === 'form_submit').length;
+      logins = periodEvents.filter((e) => e.eventName === 'login').length;
+      formViews = periodEvents.filter((e) => e.eventName === 'form_view').length;
+      formStarts = periodEvents.filter((e) => e.eventName === 'form_start').length;
 
       visitorsByDay = eventsByDay.map(({ day, items }) => ({
         day,
@@ -139,32 +155,27 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         conversions: items.filter((e) => e.eventName === 'form_submit' || e.eventName === 'signup').length,
       }));
 
-      trafficSources = breakdownFromEvents(todayEvents, (e) => e.context?.utmSource);
-      devices = breakdownFromEvents(todayEvents, (e) => e.context?.device);
-      browsers = breakdownFromEvents(todayEvents, (e) => e.context?.browser);
-      operatingSystems = breakdownFromEvents(todayEvents, (e) => e.context?.os);
-      countries = breakdownFromEvents(todayEvents, (e) => e.context?.country);
-      regions = breakdownFromEvents(todayEvents, (e) => e.context?.region);
-      cities = breakdownFromEvents(todayEvents, (e) => e.context?.city);
+      trafficSources = breakdownFromEvents(periodEvents, (e) => e.context?.utmSource);
+      devices = breakdownFromEvents(periodEvents, (e) => e.context?.device);
+      browsers = breakdownFromEvents(periodEvents, (e) => e.context?.browser);
+      operatingSystems = breakdownFromEvents(periodEvents, (e) => e.context?.os);
+      countries = breakdownFromEvents(periodEvents, (e) => e.context?.country);
+      regions = breakdownFromEvents(periodEvents, (e) => e.context?.region);
+      cities = breakdownFromEvents(periodEvents, (e) => e.context?.city);
 
-      const topEventNames = [
-        'cta_click', 'whatsapp_click', 'form_submit', 'login', 'signup', 'project_created', 'project_submitted',
-      ] as const;
-      topEvents = topEventNames.map((name) => ({
-        eventName: name,
-        count: todayEvents.filter((e) => e.eventName === name).length,
-        recent: todayEvents.filter((e) => e.eventName === name).slice(0, 5).length,
-      }));
+      topEvents = TOP_EVENT_NAMES.map((name) => {
+        const count = periodEvents.filter((e) => e.eventName === name).length;
+        return { eventName: name, count, recent: Math.min(5, count) };
+      });
     } else {
       const aggsByDay = await Promise.all(days.map(async (day) => ({ day, items: await listDailyAggs(day) })));
-      const todayAggs = aggsByDay.find((d) => d.day === today)?.items ?? [];
 
-      visitorsToday = countMetric(todayAggs, 'event:page_view');
-      sessionsToday = countMetric(todayAggs, 'sessions_touch');
-      signupsToday = countMetric(todayAggs, 'event:signup') + countMetric(todayAggs, 'event:form_submit');
-      loginsToday = countMetric(todayAggs, 'event:login');
-      formViews = countMetric(todayAggs, 'event:form_view');
-      formStarts = countMetric(todayAggs, 'event:form_start');
+      visitors = sumMetric(aggsByDay, 'event:page_view');
+      sessionsCount = sumMetric(aggsByDay, 'sessions_touch');
+      signups = sumMetric(aggsByDay, 'event:signup') + sumMetric(aggsByDay, 'event:form_submit');
+      logins = sumMetric(aggsByDay, 'event:login');
+      formViews = sumMetric(aggsByDay, 'event:form_view');
+      formStarts = sumMetric(aggsByDay, 'event:form_start');
 
       visitorsByDay = aggsByDay.map(({ day, items }) => ({
         day,
@@ -172,26 +183,24 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         conversions: countMetric(items, 'event:form_submit') + countMetric(items, 'event:signup'),
       }));
 
-      trafficSources = breakdownFromAggs(todayAggs, 'utm');
-      devices = breakdownFromAggs(todayAggs, 'device');
-      browsers = breakdownFromAggs(todayAggs, 'browser');
-      operatingSystems = breakdownFromAggs(todayAggs, 'os');
-      countries = breakdownFromAggs(todayAggs, 'country');
-      regions = breakdownFromAggs(todayAggs, 'region');
-      cities = breakdownFromAggs(todayAggs, 'city');
+      trafficSources = mergeBreakdown(aggsByDay, 'utm');
+      devices = mergeBreakdown(aggsByDay, 'device');
+      browsers = mergeBreakdown(aggsByDay, 'browser');
+      operatingSystems = mergeBreakdown(aggsByDay, 'os');
+      countries = mergeBreakdown(aggsByDay, 'country');
+      regions = mergeBreakdown(aggsByDay, 'region');
+      cities = mergeBreakdown(aggsByDay, 'city');
 
-      const topEventNames = [
-        'cta_click', 'whatsapp_click', 'form_submit', 'login', 'signup', 'project_created', 'project_submitted',
-      ] as const;
-      topEvents = await Promise.all(topEventNames.map(async (name) => ({
-        eventName: name,
-        count: countMetric(todayAggs, `event:${name}`),
-        recent: (await listEventsByName(name, 5)).length,
-      })));
+      topEvents = TOP_EVENT_NAMES.map((name) => {
+        const count = sumMetric(aggsByDay, `event:${name}`);
+        return { eventName: name, count, recent: Math.min(5, count) };
+      });
     }
 
-    const bounceRate = formViews > 0 ? Math.round(((formViews - formStarts) / formViews) * 1000) / 10 : 0;
-    const conversion = visitorsToday > 0 ? Math.round((signupsToday / visitorsToday) * 1000) / 10 : 0;
+    const bounceRate = formViews > 0
+      ? Math.max(0, Math.round(((formViews - Math.min(formStarts, formViews)) / formViews) * 1000) / 10)
+      : 0;
+    const conversion = visitors > 0 ? Math.round((signups / visitors) * 1000) / 10 : 0;
 
     const allSessions = await listSessions(100);
     const sessions = allSessions.filter((s) => sessionMatchesFilters(s, filters));
@@ -200,14 +209,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     log.info('Analytics dashboard loaded', { segmented, days: range });
     return ok(event, {
+      rangeDays: range,
       cards: {
-        visitorsToday,
-        activeUsers: loginsToday,
-        newSignups: signupsToday,
+        visitorsToday: visitors,
+        activeUsers: logins,
+        newSignups: signups,
         conversion,
         bounceRate,
         avgSessionMs,
-        sessions: sessionsToday,
+        sessions: sessionsCount,
         retentionD1: retention,
       },
       visitorsByDay,

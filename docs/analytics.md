@@ -8,7 +8,7 @@ Módulo nativo de analytics (LP + portal + admin). Sem Mixpanel/PostHog.
 - Ingestão: `POST /analytics/collect` (batch, público na LP; autenticado no app)
 - Identidade: cookie/localStorage `atlas_aid` → merge com `userId` após login
 - Session: `atlas_sid`
-- Replay opt-in: `localStorage atlas_replay_optin=1` (amostra ~5%; rrweb em `POST /analytics/replay` + player admin)
+- Replay opt-in: `localStorage atlas_replay_optin=1` (grava rrweb quando opt-in; player no admin)
 - Segmentação admin: query `utm|device|os|browser|geo|userId` no dashboard/funnel
 - Alertas: cron horário avalia regras e envia SES aos admins ativos
 - Geo: SDK (timezone/idioma) + header `CloudFront-Viewer-Country` no collect

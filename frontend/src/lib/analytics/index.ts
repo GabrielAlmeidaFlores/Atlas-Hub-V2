@@ -249,8 +249,7 @@ if (typeof window !== "undefined") {
 
   try {
     const optIn = localStorage.getItem("atlas_replay_optin") === "1";
-    const sample = Math.random() < 0.05;
-    if (optIn && sample) {
+    if (optIn) {
       void (async () => {
         const { record } = await import("rrweb");
         const { VITE_API_URL } = await import("@/lib/env");
@@ -282,7 +281,7 @@ if (typeof window !== "undefined") {
               }),
               keepalive: true,
             });
-            analytics.track("replay_chunk", { optIn: true, sampled: true, events: snapshot.length });
+            analytics.track("replay_chunk", { optIn: true, events: snapshot.length });
           } catch {
             events.unshift(...snapshot);
           }
