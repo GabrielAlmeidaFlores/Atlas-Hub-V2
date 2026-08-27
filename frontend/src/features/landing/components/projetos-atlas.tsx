@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, ShieldCheck, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, ShieldCheck } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
 import { api } from "@/services/api";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -20,16 +20,8 @@ export interface ProjetoPublico {
   readonly prazoRestanteDias?: number | null;
 }
 
-function statusTone(label: string): "published" | "raising" | "soon" {
-  const n = label.toLowerCase();
-  if (n.includes("captação") || n.includes("captacao")) return "raising";
-  if (n.includes("breve")) return "soon";
-  return "published";
-}
-
 function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNode {
   const href = projeto.ofertaLink;
-  const tone = statusTone(projeto.statusLabel);
   const percentual = projeto.percentualCaptado ?? null;
   const prazo = projeto.prazoRestanteDias ?? null;
   const hasProgress = percentual !== null || prazo !== null;
@@ -47,41 +39,20 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
       </div>
       <div className="lp-project-accent" aria-hidden />
       <div className="relative flex flex-1 flex-col gap-0 p-4 text-left sm:p-5">
-        <span className={cn("lp-project-badge self-start", `lp-project-badge-${tone}`)}>
-          {projeto.statusLabel}
-        </span>
-
         <h3 className="lp-project-title mt-3 w-full">{projeto.nome}</h3>
-        <p className="mt-1.5 flex w-full items-center gap-1.5 text-[13px] text-muted-foreground/80">
-          <MapPin className="h-3.5 w-3.5 shrink-0 text-navy/40" strokeWidth={1.75} />
+        <p className="mt-1.5 flex w-full items-center gap-1.5 text-sm font-bold text-black">
+          <MapPin className="h-4 w-4 shrink-0 text-[#D2A047]" strokeWidth={1.75} />
           {projeto.cidade}, {projeto.estado}
         </p>
 
         <div className="lp-project-divider w-full" aria-hidden />
 
-        <div className="lp-project-yield w-full">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-gold" strokeWidth={2} />
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-              Rentabilidade
-            </p>
-          </div>
-          <p className="lp-project-yield-value">
-            {projeto.rentabilidadeEstimada !== null
-              ? `${String(projeto.rentabilidadeEstimada).replace(".", ",")}%`
-              : "—"}
-            {projeto.rentabilidadeEstimada !== null && (
-              <span className="lp-project-yield-unit">a.a.</span>
-            )}
-          </p>
-        </div>
-
         <div className="mt-2 grid w-full grid-cols-1 gap-2">
-          <div className="lp-project-meta w-full">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          <div className="w-full">
+            <p className="text-[13px] font-semibold text-black">
               Captação
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-navy">
+            <p className="mt-1 text-xl font-extrabold text-navy">
               {projeto.valorCaptar !== null ? formatCurrency(projeto.valorCaptar) : "—"}
             </p>
           </div>
@@ -267,20 +238,14 @@ export function ProjetosAtlas(): ReactNode {
   const empty = items !== null && items.length === 0;
 
   return (
-    <section id="projetos-atlas" className="lp-projects-section relative overflow-x-hidden py-10 lg:py-14" data-analytics-section="projetos">
-      <img
-        src="/atlas-icon-bg.png"
-        alt=""
-        aria-hidden
-        className="lp-projects-watermark pointer-events-none absolute select-none"
-      />
+    <section id="projetos-atlas" className="lp-projects-section py-10 lg:py-14" data-analytics-section="projetos">
+      <div className="lp-projects-shell relative overflow-hidden py-10 lg:py-14">
       <div className="lp-container relative">
         <AnimateIn className="mx-auto mb-6 max-w-2xl text-center lg:mb-8">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Vitrine</p>
-          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Projetos Atlas</h2>
-          <p className="mx-auto mt-5 text-base leading-relaxed text-muted-foreground">
-            Oportunidades selecionadas pela curadoria — crowdfunding imobiliário regulado pela CVM Resolução 88.
-          </p>
+          <h2 className="text-3xl font-extrabold uppercase tracking-tight md:text-4xl">
+            <span className="text-[#D2A047]">projetos</span>
+            <span className="text-white"> em captação</span>
+          </h2>
         </AnimateIn>
 
         {!loading && empty && (
@@ -365,6 +330,7 @@ export function ProjetosAtlas(): ReactNode {
           </div>
         </div>
       )}
+      </div>
     </section>
   );
 }

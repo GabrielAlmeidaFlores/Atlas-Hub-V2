@@ -66,12 +66,12 @@
 
   *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
 
-  html { scroll-behavior: smooth; font-family: Poppins, ui-sans-serif, system-ui, sans-serif; }
+  html { scroll-behavior: smooth; font-family: Roboto, ui-sans-serif, system-ui, sans-serif; }
 
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Poppins, ui-sans-serif, system-ui, sans-serif;
+    font-family: Roboto, ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.55;
@@ -454,10 +454,25 @@
   }
 
   .lp-projects-section {
-    background:
-      radial-gradient(ellipse 55% 45% at 0% 100%, rgb(196 144 32 / 0.07), transparent 55%),
-      radial-gradient(ellipse 50% 40% at 100% 0%, rgb(27 43 94 / 0.06), transparent 50%),
-      linear-gradient(180deg, #f5f7fb 0%, #eef1f7 100%);
+    background: #ffffff;
+  }
+
+  .lp-projects-shell {
+    background-color: #001F4E;
+    background-image: url("/projetos-bg.svg");
+    background-size: 100% auto;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    border-radius: 1.25rem;
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .lp-projects-shell {
+      margin-left: 2.5rem;
+      margin-right: 2.5rem;
+    }
   }
 
   .lp-projects-watermark {
@@ -516,11 +531,9 @@
   }
 
   .lp-project-slide-active .lp-project-card {
-    border-color: rgb(255 255 255 / 0.75);
-    background:
-      linear-gradient(165deg, rgb(255 255 255 / 0.66) 0%, rgb(255 255 255 / 0.4) 100%);
+    border-color: var(--gold);
+    background: #ffffff;
     box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.75) inset,
       0 14px 28px rgb(27 43 94 / 0.1),
       0 6px 14px rgb(196 144 32 / 0.08);
   }
@@ -528,20 +541,15 @@
   .lp-project-card {
     @apply relative flex h-full flex-col overflow-hidden text-left;
     border-radius: 12px;
-    border: 1px solid rgb(255 255 255 / 0.45);
-    background:
-      linear-gradient(165deg, rgb(255 255 255 / 0.48) 0%, rgb(255 255 255 / 0.28) 100%);
-    backdrop-filter: blur(18px) saturate(1.15);
-    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    border: 2px solid var(--gold);
+    background: #ffffff;
     box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.5) inset,
       0 8px 20px rgb(27 43 94 / 0.06),
       0 2px 6px rgb(15 23 42 / 0.04);
     transition:
       transform 0.3s ease,
       box-shadow 0.3s ease,
-      border-color 0.3s ease,
-      background 0.3s ease;
+      border-color 0.3s ease;
   }
 
   .lp-project-media {
@@ -564,7 +572,7 @@
     transform: translateY(-6px);
   }
   .lp-project-card:hover {
-    border-color: rgb(255 255 255 / 0.7);
+    border-color: var(--gold);
   }
   .lp-project-slide:not(.lp-project-slide-active) .lp-project-card:hover {
     transform: none;
@@ -676,18 +684,15 @@
   .lp-carousel-nav {
     @apply inline-flex h-10 w-10 items-center justify-center text-navy;
     border-radius: 9999px;
-    border: 1px solid rgb(255 255 255 / 0.7);
-    background: rgb(255 255 255 / 0.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 4px 14px rgb(27 43 94 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.8);
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgb(27 43 94 / 0.08);
     transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
   }
   .lp-carousel-nav:hover {
-    @apply text-white;
-    background: var(--navy);
+    background: #ffffff;
     border-color: var(--navy);
-    box-shadow: 0 8px 20px rgb(27 43 94 / 0.2);
+    box-shadow: 0 8px 20px rgb(27 43 94 / 0.18);
     transform: translateY(-1px);
   }
 

@@ -101,74 +101,83 @@ function HeroVisual(): ReactNode {
 
 function Hero(): ReactNode {
   return (
-    <section className="relative overflow-hidden lp-hero-photo" data-analytics-section="hero">
-      <video
-        className="lp-hero-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/hero-bg.jpg"
-        aria-hidden
-      >
-        <source src="/hero-bg.mp4" type="video/mp4" />
-      </video>
-      <div className="lp-hero-overlay" aria-hidden />
-      <div className="lp-container relative pb-24 pt-28 lg:pb-32 lg:pt-36">
-        <div className="max-w-4xl xl:max-w-5xl">
-          <div
-            className="mb-7 inline-flex items-center gap-2 rounded-[8px] border border-gold/30 bg-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gold"
-            style={{ animation: "lp-fade-in 0.35s ease-out both" }}
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Crowdfunding · CVM Resolução 88
+    <>
+      <section className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-0 pt-5 sm:px-6 lg:px-8" data-analytics-section="hero">
+        <div className="relative overflow-hidden rounded-[14px] bg-transparent shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
+          <img
+            src="/banner-home%201.png"
+            alt="Investidores e incorporadoras"
+            className="absolute inset-y-0 right-0 h-full w-full object-cover opacity-95"
+            style={{ objectPosition: "center 20%", filter: "saturate(0.9) contrast(1.05) brightness(1.05)" }}
+          />
+
+          <div className="absolute inset-y-0 right-0 hidden w-[4%] bg-transparent lg:block" aria-hidden="true" />
+
+          <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
+            <div className="relative max-w-[760px] pb-3 pt-1 lg:pb-4">
+              <p className="mb-6 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]" style={{ animation: "lp-fade-in 0.35s ease-out both" }}>
+                <span className="font-semibold">crowdfunding</span>
+                <span className="ml-1 font-light">imobiliário regulado pela CVM</span>
+              </p>
+
+              <h1
+                className="mb-5 max-w-[760px] text-[48px] font-extrabold uppercase leading-[0.95] tracking-[0.04em] text-white"
+                style={{ animation: "lp-fade-in-up 0.38s 0.06s ease-out both" }}
+              >
+                INVISTA EM IMÓVEIS
+                <br />
+                A PARTIR DE R$10,
+                <br />
+                COM CURADORIA PROFISSIONAL
+              </h1>
+
+              <p
+                className="mb-8 max-w-[680px] text-[20px] font-medium leading-[1.12] tracking-[-0.04em] text-[#D2A047]"
+                style={{ animation: "lp-fade-in-up 0.38s 0.12s ease-out both" }}
+              >
+                Ou capte recursos para o seu projeto
+                <br />
+                sem depender de financiamento bancário
+              </p>
+
+              <p
+                className="max-w-[820px] text-[14px] font-light leading-[1.25] tracking-[-0.03em] text-white"
+                style={{ animation: "lp-fade-in-up 0.38s 0.18s ease-out both" }}
+              >
+                A Atlas Hub conecta investidores e incorporadoras em projetos imobiliários
+                <br />
+                selecionados a dedo — com curadoria técnica de localização e viabilidade,
+                <br />
+                e a segurança de uma plataforma regulada pela CVM.
+              </p>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <h1
-            className="lp-hero-title mb-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl xl:text-[3.5rem]"
-            style={{ animation: "lp-fade-in-up 0.38s 0.06s ease-out both" }}
-          >
-            Construa sem banco.
-            <br />
-            Capte com investidores.
-          </h1>
-
-          <p
-            className="mb-9 max-w-3xl text-base leading-relaxed text-white/70 sm:text-lg"
-            style={{ animation: "lp-fade-in-up 0.38s 0.12s ease-out both" }}
-          >
-            Atlas Hub conecta incorporadoras e investidores: você submete o projeto, nossa curadoria valida, e a oferta sobe na plataforma de investimento Atlas Hub — com KYC, escrow e regras CVM.
-          </p>
-
-          <div
-            className="flex flex-col gap-3 sm:flex-row sm:items-center"
-            style={{ animation: "lp-fade-in-up 0.38s 0.18s ease-out both" }}
-          >
-            <Link to="/cadastro" data-analytics-cta="hero_cadastro" className="btn btn-gold btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
-              Cadastrar incorporadora <ArrowRight className="h-4 w-4" />
-            </Link>
-            <a href="#como-funciona" className="btn btn-on-dark btn-lp inline-flex items-center justify-center gap-2 text-sm font-bold">
-              Ver como funciona
-            </a>
-          </div>
-
-          <div
-            className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/15 pt-8 text-sm font-semibold tracking-wide text-white/60"
-            style={{ animation: "lp-fade-in-up 0.38s 0.24s ease-out both" }}
-          >
-            <span className="inline-flex items-center gap-2.5">
-              <BadgeCheck className="h-5 w-5 text-gold" /> Regulação CVM 88
-            </span>
-            <span className="inline-flex items-center gap-2.5">
-              <Lock className="h-5 w-5 text-gold" /> Escrow e KYC
-            </span>
-            <span className="inline-flex items-center gap-2.5">
-              <Layers className="h-5 w-5 text-gold" /> Curadoria humana
-            </span>
+      <div className="relative z-30 -mt-[75px] px-4 pb-5 pt-0 sm:px-6 lg:px-8">
+        <div className="lp-container">
+          <div className="mx-auto flex h-[136px] w-full max-w-[77%] items-center justify-between gap-5 rounded-[14px] bg-[linear-gradient(90deg,#D2A047_0%,#E1C683_100%)] px-5 py-0 text-[#6C4C14] shadow-[0_18px_28px_rgba(10,19,33,0.12),inset_0_1px_0_rgba(255,255,255,0.18)]">
+            <div className="flex-1 px-3 text-center">
+              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">CVM 88</p>
+              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Operação regulada</p>
+            </div>
+            <div className="flex-1 px-3 text-center">
+              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">00</p>
+              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Projetos avaliados</p>
+            </div>
+            <div className="flex-1 px-3 text-center">
+              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">00</p>
+              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Captados</p>
+            </div>
+            <div className="flex-1 px-3 text-center">
+              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">00</p>
+              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Incorporadoras parceiras</p>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }
 
@@ -202,55 +211,51 @@ function TrustBar(): ReactNode {
 }
 
 function Ecossistema(): ReactNode {
+  const profiles = [
+    {
+      title: "INVESTIDOR",
+      image: "/investidor.png",
+      description:
+        "A partir de R$10. Sem taxa de entrada. Acompanhe o projeto até a entrega.",
+      href: "/para-investidores",
+      action: "Começar a investir",
+      color: "#4169A1",
+    },
+    {
+      title: "INCORPORADORA",
+      image: "/incorporadora.png",
+      description:
+        "Análise em até X dias. Captação de recursos sem financiamento bancário.",
+      href: "/para-incorporadoras",
+      action: "Apresentar meu projeto",
+      color: "#1C285B",
+    },
+  ];
+
   return (
-    <section id="sobre" className="lp-section-soft py-16 lg:py-20">
+    <section id="sobre" className="bg-white py-14 lg:py-16">
       <div className="lp-container">
-        <AnimateIn className="mx-auto mb-10 max-w-3xl text-center">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Ecossistema</p>
-          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl lg:text-[2.75rem]">
-            Como o Atlas Hub funciona de ponta a ponta
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Há dois mundos sob a mesma marca: o portal onde a incorporadora originadora trabalha, e a plataforma onde o investidor aplica dinheiro com proteção CVM.
-          </p>
-        </AnimateIn>
-
-        <div className="grid gap-5 lg:grid-cols-12">
-          <AnimateIn className="lp-card p-8 lg:col-span-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gold">01 · Incorporadora</p>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">Portal de originação</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Cadastro, wizard de projeto (dados, financeiro, docs, equipe), rascunhos e acompanhamento de status. É aqui que o empreendimento nasce no Atlas.
-            </p>
-            <Link
-              to="/para-incorporadoras"
-              className="mt-6 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-navy transition-opacity duration-300 hover:opacity-70"
+        <div className="flex flex-col gap-8 lg:flex-row lg:gap-8">
+          {profiles.map(({ title, image, description, href, action, color }, i) => (
+            <div
+              key={title}
+              className="group relative min-w-0 flex-1 basis-0 aspect-[2.12] min-h-[300px] overflow-hidden rounded-[14px]"
             >
-              Detalhes <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </AnimateIn>
-
-          <AnimateIn delay={80} className="lp-card border-t-2 border-t-navy p-8 lg:col-span-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-navy">02 · Curadoria Atlas</p>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">Análise humana</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Scorecard em 5 critérios, pedido de ajuste, reprovação ou aprovação. Checklist CVM (afetação, seguro, SPE/SCP) antes da oferta ir ao ar.
-            </p>
-          </AnimateIn>
-
-          <AnimateIn delay={160} className="lp-card p-8 lg:col-span-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gold">03 · Investidor</p>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">Plataforma de investimento</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Vitrine, KYC, PIX, escrow, cotas tokenizadas, carteira e triggers CVM. O investidor só vê Atlas Hub — não usa o portal da incorporadora.
-            </p>
-            <Link
-              to="/para-investidores"
-              className="mt-6 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-navy transition-opacity duration-300 hover:opacity-70"
-            >
-              Detalhes <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </AnimateIn>
+              <img src={image} alt="" className="absolute inset-0 h-full w-full object-contain object-right" />
+              <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, ${color} 0%, ${color} 50%, ${color}55 55%, transparent 100%)` }} />
+              <div className="relative flex h-full max-w-[58%] flex-col justify-center px-8 py-8 text-white sm:px-12 lg:px-14">
+                <h3 className="text-[32px] font-black uppercase leading-[1.05] tracking-[-0.04em] sm:text-[40px]">
+                  SOU
+                  <br />
+                  {title}
+                </h3>
+                <p className="mt-4 max-w-[350px] text-[13px] font-normal leading-[1.5] text-white sm:text-[12px]">{description}</p>
+                <Link to={href} className="mt-6 inline-flex min-h-[48px] w-fit items-center justify-center rounded-[4px] bg-[#D2A047] px-7 text-[14px] font-bold text-white transition-colors duration-200 hover:bg-[#C49020]">
+                  {action}
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -259,53 +264,48 @@ function Ecossistema(): ReactNode {
 
 function ComoFunciona(): ReactNode {
   const steps = [
-    { icon: Building2, title: "Cadastro", desc: "Incorporadora cria conta, confirma e-mail e completa o perfil da empresa." },
-    { icon: FileCheck, title: "Projeto", desc: "Wizard em 5 etapas com documentos, financeiro, viabilidade e equipe." },
-    { icon: BarChart3, title: "Curadoria", desc: "Analistas pontuam e decidem: ajuste, reprova ou aprova." },
-    { icon: TrendingUp, title: "Oferta no ar", desc: "Oferta publicada na plataforma de investimento; investidores aportam via PIX." },
+    { number: "01", title: "PROJETO\nAPRESENTADO", desc: "a incorporadora apresenta o projeto", color: "#3F629C" },
+    { number: "02", title: "CURADORIA\nTÉCNICA", desc: "analisamos localização, viabilidade e retorno", color: "#294574" },
+    { number: "03", title: "PUBLICAÇÃO", desc: "o projeto entra em captação na plataforma", color: "#1C2E5E" },
+    { number: "04", title: "ACOMPANHAMENTO", desc: "a incorporadora apresenta o projeto", color: "#161F48" },
   ];
 
   return (
-    <section id="como-funciona" className="lp-steps-section py-16 lg:py-20" data-analytics-section="como-funciona">
-      <div className="lp-container">
-        <AnimateIn className="mx-auto mb-10 max-w-2xl text-center">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Fluxo</p>
-          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Do projeto ao capital</h2>
-          <p className="mx-auto mt-5 text-base leading-relaxed text-muted-foreground">
-            Quatro etapas claras — do rascunho no portal até o investidor na plataforma Atlas.
+    <section id="como-funciona" className="bg-white py-14 lg:py-16" data-analytics-section="como-funciona">
+      <div className="lp-container flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-10">
+        <AnimateIn className="lg:w-[24%]">
+          <h2 className="text-[52px] font-bold uppercase leading-[1.05] tracking-[-0.07em] text-navy md:text-[52px] lg:text-[52px]">
+            COMO
+            <br />
+            FUNCIONA A
+            <br />
+            ATLAS HUB
+          </h2>
+          <p className="mt-5 text-[22.1px] font-medium leading-[1.05] tracking-[-0.04em] text-[#D2A047] md:text-[23.8px]">
+            do projeto ao investimento, em quatro passos
           </p>
         </AnimateIn>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-7">
-          {steps.map(({ icon: Icon, title, desc }, i) => (
-            <AnimateIn key={title} delay={i * 70} className="lp-step-card">
-              <span className="lp-step-watermark" aria-hidden>
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div className="relative">
-                <Icon className="mb-5 h-5 w-5 text-navy" strokeWidth={1.75} />
-                <h3 className="text-base font-bold tracking-tight text-navy">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+        <div className="grid flex-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {steps.map(({ number, title, desc, color }) => (
+            <div key={title} className="min-w-0 break-words rounded-[14px] p-5 text-white shadow-[0_10px_20px_rgba(15,23,42,0.04)]" style={{ backgroundColor: color }}>
+              <div className="relative h-[98px]">
+                <span className="absolute -top-2 right-0 text-[79px] font-bold leading-none tracking-[0.03em] text-black/10" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  {number}
+                </span>
               </div>
-            </AnimateIn>
+              <h3 className="mt-2 text-[15px] font-bold uppercase leading-[1.02] tracking-[0.08em] text-white">
+                {title.split("\n").map((line, idx) => (
+                  <span key={`${title}-${idx}`} className="block">
+                    {line}
+                  </span>
+                ))}
+              </h3>
+              <p className="mt-4 text-[14px] font-normal leading-[1.35] tracking-[-0.03em] text-white/90">{desc}</p>
+            </div>
           ))}
         </div>
-
-        <AnimateIn delay={280} className="lp-card mt-12 flex flex-col items-center gap-5 px-8 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
-          <div>
-            <p className="text-base font-bold tracking-tight text-foreground">Quer o detalhe completo?</p>
-            <p className="mt-1.5 text-sm text-muted-foreground">Guias separados para cada público da operação.</p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link to="/para-incorporadoras" className="btn btn-gold btn-lp inline-flex items-center gap-2">
-              Incorporadoras <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/para-investidores" className="btn btn-outline btn-lp inline-flex items-center gap-2">
-              Investidores
-            </Link>
-          </div>
-        </AnimateIn>
-      </div>
+        </div>
     </section>
   );
 }
@@ -626,9 +626,8 @@ export default function LandingPage(): ReactNode {
     <MarketingShell>
       <ScrollToHash />
       <Hero />
-      <TrustBar />
-      <Ecossistema />
       <ComoFunciona />
+      <Ecossistema />
       <ProjetosAtlas />
       <Incorporadoras />
       <Investidores />

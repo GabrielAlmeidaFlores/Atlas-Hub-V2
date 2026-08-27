@@ -7,11 +7,10 @@ import { hasWhatsappSupport } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { label: "Como funciona", href: "/#como-funciona" },
-  { label: "Projetos", href: "/#projetos-atlas" },
-  { label: "Incorporadoras", href: "/para-incorporadoras" },
   { label: "Investidores", href: "/para-investidores" },
-  { label: "FAQ", href: "/#faq" },
+  { label: "Incorporadoras", href: "/para-incorporadoras" },
+  { label: "Projetos", href: "/#projetos-atlas" },
+  { label: "Quem somos", href: "/#sobre" },
 ] as const;
 
 function MarketingNavbar(): ReactNode {
@@ -43,76 +42,75 @@ function MarketingNavbar(): ReactNode {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 ease-out",
-        scrolled
-          ? "border-white/10 bg-navy-dark/90 shadow-[0_10px_40px_rgb(15_26_58/0.35)]"
-          : "border-white/[0.08] bg-white/[0.07] shadow-none",
+        "fixed inset-x-0 top-0 z-50 bg-[#F3F3F3] backdrop-blur-sm transition-all duration-300 ease-out",
+        scrolled && "shadow-[0_8px_24px_rgba(15,23,42,0.08)]",
       )}
     >
-      <div className="lp-container flex h-16 items-center justify-between lg:h-[4.25rem]">
+      <div className="lp-container flex h-[92px] items-center justify-between gap-8 lg:gap-12">
         <Link to="/" aria-label="Atlas Hub — início" className="shrink-0">
-          <Logo size="md" scheme="dark" />
+          <Logo size="lg" scheme="light" showIcon={false} className="scale-[0.85]" />
         </Link>
-        <nav className="hidden items-center gap-9 lg:flex" aria-label="Principal">
-          {NAV.map(({ label, href }) => (
+
+        <nav className="hidden flex-1 items-center justify-end lg:ml-[15%] lg:flex" aria-label="Principal">
+          {NAV.map(({ label, href }, index) => (
             <Link
               key={label}
               to={href}
-              className="text-sm font-medium text-white/65 transition-colors duration-300 hover:text-white"
+              className={cn(
+                "text-[12px] font-normal tracking-[0.01em] text-[#8E8E93] transition-colors duration-200 hover:text-[#1E1E1E]",
+                index > 0 && "ml-5 border-l border-[#8B8B8B]/60 pl-5",
+              )}
             >
               {label}
             </Link>
           ))}
         </nav>
-        <div className="hidden items-center gap-4 lg:flex">
+
+        <div className="hidden items-center gap-3 lg:flex">
           <Link
             to="/login"
-            className="text-sm font-medium text-white/70 transition-colors duration-300 hover:text-white"
+            className="inline-flex h-[32px] w-[120px] items-center justify-center rounded-[4px] bg-[#D2A047] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-90"
           >
             Entrar
           </Link>
-          <Link to="/cadastro" className="btn btn-gold btn-lp text-sm font-semibold">
-            Cadastrar
+          <Link
+            to="/cadastro"
+            className="inline-flex h-[32px] w-[120px] items-center justify-center rounded-[4px] bg-[#076C07] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-95"
+          >
+            Quero Investir
           </Link>
         </div>
+
         <button
           type="button"
           onClick={() => setOpen((p) => !p)}
-          className="rounded-[8px] border border-white/20 p-2 text-white transition-colors duration-300 hover:bg-white/5 lg:hidden"
+          className="ml-auto rounded-[8px] border border-[#D7D7D7] bg-white p-2 text-[#1B2B5E] transition-colors duration-200 hover:bg-white/90 lg:hidden"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
           aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
+
       {open && (
-        <div
-          className={cn(
-            "border-t border-white/10 px-6 py-5 backdrop-blur-xl transition-colors duration-300 lg:hidden",
-            scrolled ? "bg-navy-dark/95" : "bg-navy-dark/90",
-          )}
-        >
+        <div className="border-t border-[#D9D9D9] bg-[#F3F3F3] px-6 py-5 lg:hidden">
           <div className="flex flex-col gap-0.5">
             {NAV.map(({ label, href }) => (
               <Link
                 key={label}
                 to={href}
                 onClick={() => setOpen(false)}
-                className="px-2 py-3 text-sm font-medium text-white/70 transition-colors hover:text-white"
+                className="px-2 py-3 text-base font-medium text-[#1E1E1E]/70 transition-colors hover:text-[#1E1E1E]"
               >
                 {label}
               </Link>
             ))}
           </div>
-          <div className="mt-5 flex flex-col gap-2 border-t border-white/10 pt-5">
-            <Link to="/login" onClick={() => setOpen(false)} className="btn btn-on-dark w-full justify-center">
-              Entrar
-            </Link>
-            <Link to="/cadastro" onClick={() => setOpen(false)} className="btn btn-gold w-full justify-center">
-              Cadastrar incorporadora
-            </Link>
-            {hasWhatsappSupport() && <WhatsappLink variant="hero" className="w-full justify-center" />}
-          </div>
+          {hasWhatsappSupport() && (
+            <div className="mt-5 border-t border-[#D9D9D9] pt-5">
+              <WhatsappLink variant="hero" className="w-full justify-center" />
+            </div>
+          )}
         </div>
       )}
     </header>
@@ -202,7 +200,7 @@ function MobileCtaBar(): ReactNode {
 
 export function MarketingShell({ children }: { readonly children: ReactNode }): ReactNode {
   return (
-    <div className={cn("min-h-screen bg-background text-foreground")}>
+    <div className={cn("min-h-screen bg-background pt-[88px] text-foreground")}>
       <MarketingNavbar />
       {children}
       <MarketingFooter />

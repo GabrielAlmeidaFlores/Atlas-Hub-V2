@@ -70,8 +70,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
-        heading: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Roboto", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["Roboto", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "1rem" }],
