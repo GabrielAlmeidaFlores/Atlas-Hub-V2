@@ -518,7 +518,7 @@
   .lp-project-slide {
     @apply w-[min(100%,19.5rem)] shrink-0 snap-start;
     transform: scale(0.9);
-    opacity: 0.68;
+    opacity: 1;
     transition: transform 0.35s ease, opacity 0.35s ease;
     transform-origin: center center;
     padding-bottom: 0.35rem;
@@ -578,8 +578,8 @@
     transform: none;
   }
   .lp-project-card:hover .lp-project-cta {
-    background: var(--gold-light);
-    box-shadow: 0 4px 14px rgb(196 144 32 / 0.28);
+    background: #dfb35f;
+    box-shadow: 0 4px 14px rgb(210 160 71 / 0.28);
   }
   .lp-project-card-disabled {
     @apply pointer-events-none opacity-90;
@@ -621,7 +621,7 @@
   }
 
   .lp-project-title {
-    @apply text-base font-extrabold leading-snug tracking-tight text-navy sm:text-[1.05rem];
+    @apply text-lg font-extrabold leading-snug tracking-tight text-[#D2A047] sm:text-xl;
   }
 
   .lp-project-divider {
@@ -676,13 +676,13 @@
   .lp-project-cta {
     @apply inline-flex w-full items-center justify-center;
     @apply px-4 py-2 text-sm font-bold tracking-wide text-white;
-    border-radius: 6px;
+    border-radius: 5px;
     background: #D2A047;
     transition: background 0.3s ease, box-shadow 0.3s ease;
   }
 
   .lp-carousel-nav {
-    @apply inline-flex h-10 w-10 items-center justify-center text-navy;
+    @apply inline-flex h-12 w-12 items-center justify-center text-navy;
     border-radius: 9999px;
     border: 1px solid rgb(255 255 255 / 0.8);
     background: #ffffff;

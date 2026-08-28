@@ -120,9 +120,16 @@ function AvaliacaoProjeto(): ReactNode {
         </AnimateIn>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {AVALIACAO_CRITERIOS.map(({ icon: Icon, title, desc }, i) => (
-            <AnimateIn key={title} delay={i * 70} className="flex flex-col items-center rounded-[12px] border border-[#D2A047]/40 bg-[#0F1F38] px-6 py-8 text-center">
+            <AnimateIn key={title} delay={i * 70} className="flex flex-col items-center rounded-[12px] border-4 border-[#D9B366] px-6 py-8 text-center">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#D2A047] bg-transparent">
-                <Icon className="h-6 w-6 text-[#D2A047]" strokeWidth={1.5} />
+                {title === "Localização e potencial" ? (
+                  <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
+                    <path d="M28 28.0623C28.7563 28.0623 29.4036 27.7869 29.9422 27.2362C30.4807 26.6854 30.75 26.0233 30.75 25.2499C30.75 24.4764 30.4807 23.8143 29.9422 23.2636C29.4036 22.7128 28.7563 22.4374 28 22.4374C27.2437 22.4374 26.5964 22.7128 26.0578 23.2636C25.5193 23.8143 25.25 24.4764 25.25 25.2499C25.25 26.0233 25.5193 26.6854 26.0578 27.2362C26.5964 27.7869 27.2437 28.0623 28 28.0623ZM28 42.1246C24.3104 38.9137 21.5547 35.9314 19.7328 33.1775C17.9109 30.4236 17 27.8748 17 25.5311C17 22.0155 18.1057 19.2148 20.3172 17.1289C22.5286 15.043 25.0896 14 28 14C30.9104 14 33.4714 15.043 35.6828 17.1289C37.8943 19.2148 39 22.0155 39 25.5311C39 27.8748 38.0891 30.4236 36.2672 33.1775C34.4453 35.9314 31.6896 38.9137 28 42.1246Z" fill="#001F4E" />
+                  </svg>
+                ) : (
+                  <Icon className="h-6 w-6 text-[#D2A047]" strokeWidth={1.5} />
+                )}
               </div>
               <h3 className="text-sm font-bold uppercase tracking-wide text-white">{title}</h3>
               <p className="mt-3 text-xs leading-relaxed text-white/80">{desc}</p>
