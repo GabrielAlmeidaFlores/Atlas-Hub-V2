@@ -1,8 +1,7 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowRight, Banknote, CheckCircle, Clock,
-  ShieldCheck, Users,
+  ChevronRight, MapPin, BarChart3, Building2, FileCheck,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
@@ -48,201 +47,163 @@ function IncorporadorasHero(): ReactNode {
   );
 }
 
-const STEPS = [
-  {
-    title: "Cadastre a incorporadora",
-    desc: "Crie a conta com CNPJ, responsável e e-mail. Confirme o e-mail e complete o perfil (endereço, histórico, contrato social).",
-  },
-  {
-    title: "Monte o projeto no wizard",
-    desc: "Cinco etapas: dados do empreendimento, financeiro (incluindo viabilidade), documentos obrigatórios, equipe e revisão. O progresso salva como rascunho.",
-  },
-  {
-    title: "Submeta à curadoria Atlas",
-    desc: "Nossa equipe analisa com scorecard (localização, viabilidade, documentação, equipe e risco). Podemos pedir ajuste, reprovar ou aprovar.",
-  },
-  {
-    title: "Oferta publicada para investidores",
-    desc: "Após aprovação, a oferta é criada na plataforma de investimento Atlas Hub (pública CVM 88 ou privada). Você recebe o link para acompanhar e divulgar.",
-  },
+const CAPTAR_PASSOS = [
+  { n: "01", desc: "Envie os dados do seu projeto para avaliação.", bg: "#3F629C" },
+  { n: "02", desc: "Nossa equipe faz a curadoria técnica (localização, viabilidade, documentação).", bg: "#294574" },
+  { n: "03", desc: "Projetos aprovados são publicados para captação de investidores.", bg: "#1C2E5E" },
+  { n: "04", desc: "Acompanhe a captação e o repasse dos recursos pela área da incorporadora.", bg: "#161F48" },
 ] as const;
 
-const BENEFITS = [
-  {
-    icon: Banknote,
-    title: "Sem juros bancários na obra",
-    desc: "Custo previsível: 10% sobre o captado (spread da oferta), sem parcela mensal de financiamento tradicional.",
-  },
-  {
-    icon: Clock,
-    title: "Capital enquanto constrói",
-    desc: "A captação ocorre com o projeto em andamento — útil quando o crédito bancário trava ou atrasa.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Curadoria que protege a marca",
-    desc: "Só projetos aprovados vão ao ar. Compliance CVM (afetação, seguro de obra, SPE/SCP) validado antes da oferta.",
-  },
-  {
-    icon: Users,
-    title: "Base de investidores Atlas",
-    desc: "A vitrine, KYC, PIX e escrow ficam na experiência de investimento Atlas Hub — o investidor vê só a marca Atlas.",
-  },
+function CapitarPassos(): ReactNode {
+  return (
+    <section className="bg-white py-14 lg:py-16" data-analytics-section="como-captar">
+      <div className="lp-container flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-10">
+        <AnimateIn className="shrink-0 lg:w-[22%]">
+          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[44px] lg:text-[48px]">
+            Como captar em
+            <br />
+            <span className="text-[#D2A047]">4 passos</span>
+          </h2>
+        </AnimateIn>
+        <div className="grid flex-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {CAPTAR_PASSOS.map(({ n, desc, bg }, i) => (
+            <AnimateIn key={n} delay={i * 70} className="relative pt-8 pb-6">
+              <div
+                className="relative flex min-h-[9.2rem] flex-col items-center justify-center rounded-[10px] px-4 pb-9 pt-8 text-center sm:min-h-[10rem]"
+                style={{ backgroundColor: bg }}
+              >
+                <div
+                  className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-[#D2A047] bg-[#0F1F38] p-1.5"
+                  aria-hidden
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0F1F38] text-xl font-extrabold text-white shadow-[0_0_0_3px_#D2A047]">
+                    {n}
+                  </div>
+                </div>
+                <p className="text-[13px] font-semibold leading-snug text-white sm:text-sm">{desc}</p>
+                <span
+                  className="absolute -bottom-5 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#1C2E5E] bg-white"
+                  aria-hidden
+                >
+                  <ChevronRight className="h-4 w-4 text-[#1C2E5E]" strokeWidth={2.5} />
+                </span>
+              </div>
+            </AnimateIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const AVALIACAO_CRITERIOS = [
+  { icon: MapPin, title: "Localização e potencial", desc: "Localização e potencial da região do empreendimento." },
+  { icon: BarChart3, title: "Viabilidade técnica", desc: "Viabilidade técnica e financeira do projeto." },
+  { icon: Building2, title: "Histórico e capacidade", desc: "Histórico e capacidade de entrega da incorporadora." },
+  { icon: FileCheck, title: "Documentação", desc: "Documentação societária de regularização e registros." },
 ] as const;
 
-const PORTAL = [
-  {
-    image: "/lp/portal-perfil.jpg",
-    title: "Perfil da empresa",
-    desc: "Dados cadastrais e documentos da incorporadora.",
-  },
-  {
-    image: "/lp/portal-wizard.jpg",
-    title: "Wizard de projeto",
-    desc: "Rascunho, upload de docs/fotos e equipe do empreendimento.",
-  },
-  {
-    image: "/lp/portal-status.jpg",
-    title: "Status e histórico",
-    desc: "Acompanhe análise, pedidos de ajuste e decisões.",
-  },
-  {
-    image: "/lp/portal-notificacoes.jpg",
-    title: "Notificações",
-    desc: "Avisos in-app (e e-mail quando o SES estiver ativo) a cada mudança.",
-  },
-  {
-    image: "/lp/portal-oferta.jpg",
-    title: "Link da oferta",
-    desc: "Quando publicada, o link da oferta fica disponível no detalhe do projeto.",
-  },
-  {
-    image: "/lp/portal-resubmissao.jpg",
-    title: "Resubmissão",
-    desc: "Se houver ajuste ou reprova, corrija e envie de novo sem limite artificial.",
-  },
-] as const;
+function AvaliacaoProjeto(): ReactNode {
+  return (
+    <section className="bg-[#001F4E] py-14 lg:py-16" data-analytics-section="avaliacao">
+      <div className="lp-container">
+        <AnimateIn className="mx-auto max-w-3xl text-center">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
+            O que avaliamos antes de
+          </p>
+          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-white sm:text-[44px] lg:text-[48px]">
+            Aprovar um projeto
+          </h2>
+        </AnimateIn>
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {AVALIACAO_CRITERIOS.map(({ icon: Icon, title, desc }, i) => (
+            <AnimateIn key={title} delay={i * 70} className="flex flex-col items-center rounded-[12px] border border-[#D2A047]/40 bg-[#0F1F38] px-6 py-8 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#D2A047] bg-transparent">
+                <Icon className="h-6 w-6 text-[#D2A047]" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-white">{title}</h3>
+              <p className="mt-3 text-xs leading-relaxed text-white/80">{desc}</p>
+            </AnimateIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SoliciteAvaliacao(): ReactNode {
+  const [formData, setFormData] = useState({ nome: "", email: "", telefone: "", projeto: "" });
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  return (
+    <section className="bg-white py-14 lg:py-16" data-analytics-section="solicite-avaliacao">
+      <div className="lp-container grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
+        <AnimateIn className="lg:col-span-5">
+          <h2 className="text-[40px] font-bold uppercase leading-[1.08] tracking-[-0.06em] text-navy sm:text-[44px] lg:text-[48px]">
+            Solicite a
+            <br />
+            <span className="text-[#D2A047]">Avaliação do seu projeto</span>
+          </h2>
+        </AnimateIn>
+        <AnimateIn delay={80} className="lg:col-span-7">
+          <form className="flex flex-col gap-4">
+            <input
+              type="text"
+              name="nome"
+              placeholder="Nome da empresa"
+              value={formData.nome}
+              onChange={handleChange}
+              className="rounded-[4px] border border-[#1C2E5E] bg-white px-4 py-3 text-sm text-[#3A3A3A] placeholder-[#999999] focus:border-[#D2A047] focus:outline-none focus:ring-1 focus:ring-[#D2A047]"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="E-mail de contato"
+              value={formData.email}
+              onChange={handleChange}
+              className="rounded-[4px] border border-[#1C2E5E] bg-white px-4 py-3 text-sm text-[#3A3A3A] placeholder-[#999999] focus:border-[#D2A047] focus:outline-none focus:ring-1 focus:ring-[#D2A047]"
+            />
+            <input
+              type="tel"
+              name="telefone"
+              placeholder="Telefone para contato"
+              value={formData.telefone}
+              onChange={handleChange}
+              className="rounded-[4px] border border-[#1C2E5E] bg-white px-4 py-3 text-sm text-[#3A3A3A] placeholder-[#999999] focus:border-[#D2A047] focus:outline-none focus:ring-1 focus:ring-[#D2A047]"
+            />
+            <textarea
+              name="projeto"
+              placeholder="Descreva seu empreendimento"
+              value={formData.projeto}
+              onChange={handleChange}
+              rows={3}
+              className="rounded-[4px] border border-[#1C2E5E] bg-white px-4 py-3 text-sm text-[#3A3A3A] placeholder-[#999999] focus:border-[#D2A047] focus:outline-none focus:ring-1 focus:ring-[#D2A047]"
+            />
+            <button
+              type="submit"
+              className="mt-2 inline-flex h-10 w-fit items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+            >
+              Enviar projeto para avaliação
+            </button>
+          </form>
+        </AnimateIn>
+      </div>
+    </section>
+  );
+}
 
 export default function ParaIncorporadorasPage(): ReactNode {
   useLandingAnalytics(true);
   return (
     <MarketingShell>
       <IncorporadorasHero />
-
-      <section className="border-b border-border py-16">
-        <div className="lp-container">
-          <AnimateIn>
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Ecossistema</p>
-            <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Duas frentes, uma marca</h2>
-            <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
-              No dia a dia você usa o <strong className="text-foreground">Portal da Incorporadora</strong> (este sistema).
-              Depois da aprovação, a <strong className="text-foreground">oferta vive na plataforma de investimento Atlas Hub</strong>,
-              onde investidores se cadastram, fazem KYC e aportam via PIX — com conta escrow e regras CVM automáticas.
-            </p>
-          </AnimateIn>
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <AnimateIn className="rounded-[8px] border border-border bg-card p-6">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gold">Você (incorporadora)</p>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Cadastro e perfil no portal Atlas</li>
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Submissão e ajustes do projeto</li>
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Feedback da curadoria</li>
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Link da oferta quando publicada</li>
-              </ul>
-            </AnimateIn>
-            <AnimateIn delay={100} className="rounded-[8px] border border-border bg-card p-6">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-navy">Investidor (marca Atlas)</p>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Vitrine e página da oferta</li>
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> KYC PF/PJ e aporte via PIX</li>
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Escrow, cotas tokenizadas e carteira</li>
-                <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Triggers CVM (sucesso / devolução)</li>
-              </ul>
-            </AnimateIn>
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-section-alt py-16">
-        <div className="lp-container">
-          <AnimateIn className="mb-10">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Passo a passo</p>
-            <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Como funciona na prática</h2>
-          </AnimateIn>
-          <ol className="space-y-0 overflow-hidden rounded-[8px] border border-border">
-            {STEPS.map((step, i) => (
-              <AnimateIn key={step.title} delay={i * 70} className="flex gap-4 border-b border-border bg-card p-5 last:border-b-0 sm:gap-6">
-                <div className="lp-step-number shrink-0">{i + 1}</div>
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
-                </div>
-              </AnimateIn>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="lp-container">
-          <AnimateIn className="mb-10">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Benefícios</p>
-            <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Por que usar o Atlas Hub</h2>
-          </AnimateIn>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {BENEFITS.map(({ icon: Icon, title, desc }, i) => (
-              <AnimateIn key={title} delay={i * 80} className="lp-feature-card">
-                <Icon className="mb-3 h-5 w-5 text-navy" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">{title}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
-              </AnimateIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-section-alt py-16">
-        <div className="lp-container">
-          <AnimateIn className="mb-10">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Portal</p>
-            <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">O que você encontra no sistema</h2>
-          </AnimateIn>
-          <div className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PORTAL.map(({ image, title, desc }, i) => (
-              <AnimateIn key={title} delay={i * 60} className="lp-feature-card-gold overflow-hidden p-0">
-                <div className="h-28 overflow-hidden sm:h-32">
-                  <img src={image} alt="" className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]" />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-navy">{title}</h3>
-                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{desc}</p>
-                </div>
-              </AnimateIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="mx-auto max-w-3xl px-6">
-          <AnimateIn className="rounded-[8px] border border-border bg-card p-8 sm:p-10">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Requisitos</p>
-            <h2 className="text-2xl font-extrabold tracking-tight">Antes da oferta ir ao ar</h2>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-              <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Receita bruta anual até R$40M (elegibilidade CVM 88)</li>
-              <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Captação por oferta até R$15M</li>
-              <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Patrimônio de afetação, seguro de obra e SPE/SCP (validados na curadoria)</li>
-              <li className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-navy" /> Documentação do terreno e viabilidade no wizard</li>
-            </ul>
-            <div className="mt-10 flex flex-col gap-3 text-center sm:flex-row sm:items-center sm:justify-center">
-              <Link to="/cadastro" data-analytics-cta="inc_cadastro" className="btn btn-navy btn-lp inline-flex items-center justify-center gap-2">
-                Criar conta <ArrowRight className="h-4 w-4" />
-              </Link>
-              <WhatsappLink variant="outline">Tirar dúvidas no WhatsApp</WhatsappLink>
-            </div>
-          </AnimateIn>
-        </div>
-      </section>
+      <CapitarPassos />
+      <AvaliacaoProjeto />
+      <SoliciteAvaliacao />
     </MarketingShell>
   );
 }

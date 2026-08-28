@@ -119,58 +119,68 @@ function MarketingNavbar(): ReactNode {
 
 function MarketingFooter(): ReactNode {
   return (
-    <footer id="contato" className="border-t border-white/10 bg-navy-dark text-white/50">
-      <div className="lp-container grid gap-12 py-16 md:grid-cols-12 md:gap-8">
-        <div className="md:col-span-5 lg:col-span-4">
+    <footer id="contato" className="bg-[#1C2E5E] text-white">
+      <div className="lp-container grid gap-16 py-16 md:grid-cols-12">
+        <div className="md:col-span-4">
           <Logo size="lg" scheme="dark" />
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/45">
+          <p className="mt-5 max-w-xs text-[12px] leading-relaxed text-white/70">
             Crowdfunding imobiliário regulado pela CVM Resolução 88. Originação, curadoria e oferta sob a marca Atlas Hub.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-10 text-sm font-medium sm:grid-cols-3 md:col-span-7 md:grid-cols-3 lg:col-span-8 lg:pl-8">
-          <div className="space-y-3">
-            <p className="font-semibold text-white/85">Produto</p>
-            <Link to="/#como-funciona" className="block text-white/45 transition-colors duration-300 hover:text-white">
-              Como funciona
-            </Link>
-            <Link to="/para-incorporadoras" className="block text-white/45 transition-colors duration-300 hover:text-white">
-              Incorporadoras
-            </Link>
-            <Link to="/para-investidores" className="block text-white/45 transition-colors duration-300 hover:text-white">
-              Investidores
-            </Link>
-            <Link to="/#faq" className="block text-white/45 transition-colors duration-300 hover:text-white">
-              FAQ
-            </Link>
-          </div>
-          <div className="space-y-3">
-            <p className="font-semibold text-white/85">Acesso</p>
-            <Link to="/cadastro" className="block text-white/45 transition-colors duration-300 hover:text-white">
-              Cadastrar
-            </Link>
-            <Link to="/login" className="block text-white/45 transition-colors duration-300 hover:text-white">
-              Entrar
-            </Link>
-          </div>
-          <div className="space-y-3">
-            <p className="font-semibold text-white/85">Contato</p>
-            <a
-              href="mailto:contato@atlashub.com.br"
-              className="inline-flex max-w-full items-start gap-2 text-gold transition-opacity duration-300 hover:opacity-80"
-            >
-              <Mail className="mt-0.5 h-4 w-4 shrink-0" />
-              <span className="min-w-0 break-all">contato@atlashub.com.br</span>
-            </a>
-            <WhatsappLink variant="text" className="text-white/45">
-              WhatsApp suporte
-            </WhatsappLink>
+        <div className="md:col-span-8">
+          <div className="grid grid-cols-3 gap-8 text-[13px]">
+            <div className="space-y-3">
+              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Navegação</p>
+              <Link to="/#como-funciona" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Como Funciona
+              </Link>
+              <Link to="/para-investidores" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Para investidores
+              </Link>
+              <Link to="/para-incorporadoras" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Para incorporadoras
+              </Link>
+              <Link to="/#projetos-atlas" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Projetos
+              </Link>
+            </div>
+            <div className="space-y-3">
+              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Incorporadora</p>
+              <Link to="/cadastro" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Criar Empresa
+              </Link>
+              <Link to="/meus-projetos" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Meus Projetos
+              </Link>
+              <a href="mailto:contato@atlashub.com.br" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Contato
+              </a>
+              <Link to="/portais" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Portais
+              </Link>
+            </div>
+            <div className="space-y-3">
+              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Links</p>
+              <Link to="/termos" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Termos de Uso
+              </Link>
+              <Link to="/privacidade" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Privacidade
+              </Link>
+              <a href="#" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                DVM Resoluções 88
+              </a>
+            </div>
           </div>
         </div>
       </div>
-      <div className="border-t border-white/10">
-        <div className="lp-container flex flex-col gap-2 py-6 text-sm text-white/35 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Atlas Hub - Crowdfunding Imobiliário. Todos os direitos reservados.</span>
+      <div className="border-t border-white/10 bg-[#D2A047] py-3 text-center">
+        <div className="lp-container flex items-center justify-center gap-2 text-[11px] font-medium text-[#1C2E5E]">
+          <span>© 2026 Atlas Hub - Crowdfunding Imobiliário</span>
+          <span>•</span>
           <span>CVM Resolução 88</span>
+          <span>•</span>
+          <span>Todos os direitos reservados</span>
         </div>
       </div>
     </footer>

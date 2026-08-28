@@ -39,20 +39,18 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
       </div>
       <div className="lp-project-accent" aria-hidden />
       <div className="relative flex flex-1 flex-col gap-0 p-4 text-left sm:p-5">
-        <h3 className="lp-project-title mt-3 w-full">{projeto.nome}</h3>
+        <h3 className="lp-project-title mt-3 w-full text-[#D2A047]">{projeto.nome}</h3>
         <p className="mt-1.5 flex w-full items-center gap-1.5 text-sm font-bold text-black">
           <MapPin className="h-4 w-4 shrink-0 text-[#D2A047]" strokeWidth={1.75} />
           {projeto.cidade}, {projeto.estado}
         </p>
-
-        <div className="lp-project-divider w-full" aria-hidden />
 
         <div className="mt-2 grid w-full grid-cols-1 gap-2">
           <div className="w-full">
             <p className="text-[13px] font-semibold text-black">
               Captação
             </p>
-            <p className="mt-1 text-xl font-extrabold text-navy">
+            <p className="mt-1 text-[28px] font-extrabold text-navy">
               {projeto.valorCaptar !== null ? formatCurrency(projeto.valorCaptar) : "—"}
             </p>
           </div>
