@@ -47,7 +47,7 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
 
         <div className="mt-2 grid w-full grid-cols-1 gap-2">
           <div className="w-full">
-            <p className="text-[13px] font-semibold text-black">
+            <p className="text-[13px] font-normal text-black">
               Captação
             </p>
             <p className="mt-1 text-[28px] font-extrabold text-navy">

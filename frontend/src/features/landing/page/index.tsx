@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   ArrowRight,
@@ -18,7 +18,6 @@ import {
   MapPin,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
-import { CountUp } from "@/components/count-up";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
 import { ProjetosAtlas } from "@/features/landing/components/projetos-atlas";
@@ -249,30 +248,56 @@ function Curadoria(): ReactNode {
       <div className="lp-container pb-12 lg:pb-16">
         <div className="grid items-start gap-12 lg:grid-cols-12 lg:gap-10">
           <AnimateIn className="lg:col-span-5 lg:pt-6">
-            <h2 className="text-[2.05rem] font-extrabold uppercase leading-[1.12] tracking-tight text-navy sm:text-[2.25rem] lg:text-[2.5rem]">
-              Cada projeto passa
+            <h2 className="text-[2.5rem] font-extrabold uppercase leading-[1.05] tracking-tight text-navy sm:text-[2.75rem] lg:text-[3rem]">
+              Cada projeto
               <br />
-              por uma curadoria
+              passa por uma
+              <br />
+              curadoria
             </h2>
-            <p className="mt-3 text-[1.40625rem] font-medium text-[#D2A047] sm:text-[1.5625rem]">
+            <p className="mt-3 text-base font-medium text-[#D2A047] sm:text-lg">
               antes de chegar até você.
             </p>
-            <p className="mt-5 max-w-sm text-[1.2rem] leading-relaxed text-[#3A3A3A]">
+            <p className="mt-5 max-w-sm text-[14px] leading-relaxed text-[#3A3A3A]">
               Analisamos a localização do empreendimento, o potencial de retorno e a viabilidade técnica e financeira de cada projeto antes de abri-lo para captação. Só entram na plataforma os projetos que passam por esse crivo.
             </p>
           </AnimateIn>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7 lg:gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7 lg:w-[110%] lg:gap-5">
             {cards.map(({ icon: Icon, title, desc, offset, bg }, i) => (
               <AnimateIn key={title} delay={i * 80} className={offset}>
                 <div
                   className="flex flex-col items-center rounded-[12px] px-4 py-4 text-center sm:px-5 sm:py-5"
                   style={{ backgroundColor: bg }}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D2A047]/40 bg-[#D2A047]/10">
-                    <Icon className="h-5 w-5 text-[#D2A047]" strokeWidth={1.75} />
-                  </div>
-                  <h3 className="mt-4 text-sm font-bold uppercase tracking-wide text-[#D2A047]">{title}</h3>
+                  {title === "Localização" ? (
+                    <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
+                      <path d="M28 28.0623C28.7563 28.0623 29.4036 27.7869 29.9422 27.2362C30.4807 26.6854 30.75 26.0233 30.75 25.2499C30.75 24.4764 30.4807 23.8143 29.9422 23.2636C29.4036 22.7128 28.7563 22.4374 28 22.4374C27.2437 22.4374 26.5964 22.7128 26.0578 23.2636C25.5193 23.8143 25.25 24.4764 25.25 25.2499C25.25 26.0233 25.5193 26.6854 26.0578 27.2362C26.5964 27.7869 27.2437 28.0623 28 28.0623ZM28 42.1246C24.3104 38.9137 21.5547 35.9314 19.7328 33.1775C17.9109 30.4236 17 27.8748 17 25.5311C17 22.0155 18.1057 19.2148 20.3172 17.1289C22.5286 15.043 25.0896 14 28 14C30.9104 14 33.4714 15.043 35.6828 17.1289C37.8943 19.2148 39 22.0155 39 25.5311C39 27.8748 38.0891 30.4236 36.2672 33.1775C34.4453 35.9314 31.6896 38.9137 28 42.1246Z" fill="#294574" />
+                    </svg>
+                  ) : title === "Viabilidade" ? (
+                    <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
+                      <path d="M36 38.0935V24.9101M28 38.0935V17M20 38.0935V30.1834" stroke="#1C2E5E" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : title === "Solidez" ? (
+                    <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
+                      <g clipPath="url(#clip0_37_5257)">
+                        <path d="M27.1448 15.2598C27.6428 14.9134 28.3572 14.9134 28.8767 15.2598L40.2423 22.577C40.8484 22.9883 41.1515 23.7027 40.9567 24.3955C40.7618 25.0883 40.0907 25.5645 39.3763 25.5645H37.7527V36.1291L40.3505 38.0558C40.7618 38.3589 41 38.8784 41 39.3764C41 40.2856 40.2856 41 39.3763 41H16.6453C15.7144 41 15 40.2856 15 39.3764C15 38.8784 15.2598 38.3589 15.6494 38.0558L18.2473 36.1291V25.5645H16.6236C15.9092 25.5645 15.2598 25.1099 15.0433 24.3955C14.8268 23.6811 15.1515 22.9667 15.7577 22.577L27.1448 15.2598ZM20.6936 25.5645V36.1291H23.9408V25.5645H20.6936ZM26.3871 36.1291H29.6344V25.5645H26.3871V36.1291ZM32.0591 25.5645V36.1291H35.3064V25.5645H32.0591Z" fill="#161F48" />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_37_5257">
+                          <rect width="26" height="26" fill="white" transform="translate(15 15)" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D2A047]/40 bg-[#D2A047]/10">
+                      <Icon className="h-5 w-5 text-[#D2A047]" strokeWidth={1.75} />
+                    </div>
+                  )}
+                  <h3 className="mt-4 text-[24px] font-bold tracking-wide text-[#D2A047]">{title}</h3>
                   <p className="mt-2 text-xs leading-snug text-white/90 sm:text-sm">{desc}</p>
                 </div>
               </AnimateIn>
@@ -422,69 +447,6 @@ function CtaFinal(): ReactNode {
   );
 }
 
-function Numeros(): ReactNode {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [glow, setGlow] = useState({ x: 50, y: 50, visible: false });
-
-  const items = [
-    { end: 88, prefix: "CVM ", suffix: "", label: "Regulação", duration: 2800 },
-    { end: 10, prefix: "", suffix: "%", label: "Taxa sobre o captado", duration: 2400 },
-    { end: 15, prefix: "R$", suffix: "M", label: "Limite por oferta", duration: 2600 },
-    { end: 5, prefix: "", suffix: " critérios", label: "Scorecard", duration: 2200 },
-  ];
-
-  function handleMove(e: ReactMouseEvent<HTMLElement>): void {
-    const el = sectionRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    setGlow({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-      visible: true,
-    });
-  }
-
-  return (
-    <section
-      ref={sectionRef}
-      onMouseMove={handleMove}
-      onMouseLeave={() => setGlow((prev) => ({ ...prev, visible: false }))}
-      className="relative overflow-hidden bg-navy py-14 text-white lg:py-16"
-    >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-300"
-        style={{
-          opacity: glow.visible ? 1 : 0,
-          background: `radial-gradient(420px circle at ${String(glow.x)}% ${String(glow.y)}%, rgb(75 107 218 / 0.28), transparent 55%)`,
-        }}
-        aria-hidden
-      />
-      <div className="lp-container relative grid grid-cols-2 gap-10 md:grid-cols-4 md:gap-8">
-        {items.map(({ end, prefix, suffix, label, duration }, i) => (
-          <AnimateIn key={label} delay={i * 60} className="text-center md:text-left">
-            <CountUp
-              end={end}
-              prefix={prefix}
-              suffix={suffix}
-              duration={duration}
-              className="block text-3xl font-extrabold tracking-tight text-gold md:text-4xl"
-            />
-            <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-white/45">{label}</div>
-          </AnimateIn>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export default function LandingPage(): ReactNode {
   useLandingAnalytics(true);
   return (
@@ -499,7 +461,6 @@ export default function LandingPage(): ReactNode {
       <Parceiros />
       <CentralDuvidas />
       <CtaFinal />
-      <Numeros />
     </MarketingShell>
   );
 }
