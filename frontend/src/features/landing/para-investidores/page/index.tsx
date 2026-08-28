@@ -68,37 +68,45 @@ function InvestirPassos(): ReactNode {
         </AnimateIn>
         <div className="grid flex-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {INVESTIR_PASSOS.map(({ n, desc, color }, i) => (
-            <AnimateIn key={n} delay={i * 70} className="relative pt-8 pb-6">
+            <AnimateIn key={n} delay={i * 70} className="relative pt-9 pb-6">
               <div
-                className="relative flex min-h-[9.2rem] flex-col items-center justify-center bg-white px-4 pb-9 pt-8 text-center sm:min-h-[10rem]"
+                className="relative flex min-h-[9.2rem] flex-col items-center justify-center bg-white px-4 pb-9 pt-9 text-center sm:min-h-[10rem]"
                 style={{
                   borderRadius: "10px",
                   border: `2px solid ${color}`,
                 }}
               >
                 <div
-                  className="absolute -top-8 left-1/2 flex h-16 w-16 -translate-x-1/2 items-center justify-center text-[28px] font-extrabold text-white"
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 p-1 bg-white"
                   style={{
                     borderRadius: "9999px",
-                    backgroundColor: color,
-                    border: `3px solid ${color}`,
-                    boxShadow: "0 0 0 3px #ffffff",
+                    border: `1.5px solid ${color}`,
                   }}
                   aria-hidden
                 >
-                  {n}
+                  <div
+                    className="flex h-[4.25rem] w-[4.25rem] items-center justify-center text-[31px] font-extrabold text-white"
+                    style={{
+                      borderRadius: "9999px",
+                      backgroundColor: color,
+                    }}
+                  >
+                    {n}
+                  </div>
                 </div>
-                <p className="text-[13px] font-semibold leading-snug text-navy sm:text-sm">{desc}</p>
-                <span
-                  className="absolute -bottom-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center bg-white"
-                  style={{
-                    borderRadius: "9999px",
-                    border: `2px solid ${color}`,
-                  }}
-                  aria-hidden
-                >
-                  <ChevronRight className="h-6 w-6 text-[#1C2E5E]" strokeWidth={2.5} />
-                </span>
+                <p className="text-[13px] font-normal leading-snug text-navy sm:text-sm">{desc}</p>
+                {i < INVESTIR_PASSOS.length - 1 && (
+                  <span
+                    className="absolute -bottom-5 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center bg-white"
+                    style={{
+                      borderRadius: "9999px",
+                      border: `2px solid ${color}`,
+                    }}
+                    aria-hidden
+                  >
+                    <ChevronRight className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
+                  </span>
+                )}
               </div>
             </AnimateIn>
           ))}

@@ -517,25 +517,7 @@
 
   .lp-project-slide {
     @apply w-[min(100%,19.5rem)] shrink-0 snap-start;
-    transform: scale(0.9);
-    opacity: 1;
-    transition: transform 0.35s ease, opacity 0.35s ease;
-    transform-origin: center center;
     padding-bottom: 0.35rem;
-  }
-
-  .lp-project-slide-active {
-    transform: scale(1.04);
-    opacity: 1;
-    z-index: 2;
-  }
-
-  .lp-project-slide-active .lp-project-card {
-    border-color: var(--gold);
-    background: #ffffff;
-    box-shadow:
-      0 14px 28px rgb(27 43 94 / 0.1),
-      0 6px 14px rgb(196 144 32 / 0.08);
   }
 
   .lp-project-card {
@@ -568,14 +550,12 @@
   .lp-project-media-empty {
     @apply flex h-full w-full items-center justify-center;
   }
-  .lp-project-slide-active .lp-project-card:hover {
-    transform: translateY(-6px);
-  }
   .lp-project-card:hover {
+    transform: translateY(-4px);
     border-color: var(--gold);
-  }
-  .lp-project-slide:not(.lp-project-slide-active) .lp-project-card:hover {
-    transform: none;
+    box-shadow:
+      0 12px 24px rgb(27 43 94 / 0.1),
+      0 4px 10px rgb(196 144 32 / 0.08);
   }
   .lp-project-card:hover .lp-project-cta {
     background: #dfb35f;

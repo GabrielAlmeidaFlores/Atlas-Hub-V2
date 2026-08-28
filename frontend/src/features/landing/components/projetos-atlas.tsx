@@ -296,10 +296,7 @@ export function ProjetosAtlas(): ReactNode {
                 key={loopKey}
                 data-loop-key={loopKey}
                 data-project-id={projeto.id}
-                className={cn(
-                  "lp-project-slide",
-                  activeKey === loopKey && "lp-project-slide-active",
-                )}
+                className="lp-project-slide"
               >
                 <AnimateIn delay={Math.min(i, 4) * 40} className="h-full">
                   <ProjetoCard projeto={projeto} />
