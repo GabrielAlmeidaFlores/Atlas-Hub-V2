@@ -72,20 +72,26 @@ function CapitarPassos(): ReactNode {
           {CAPTAR_PASSOS.map(({ n, desc, bg }, i) => (
             <AnimateIn key={n} delay={i * 70} className="relative pt-8 pb-6">
               <div
-                className="relative flex min-h-[9.2rem] flex-col items-center justify-center rounded-[10px] px-4 pb-9 pt-8 text-center sm:min-h-[10rem]"
-                style={{ backgroundColor: bg }}
+                className="relative flex min-h-[9.2rem] flex-col items-center justify-center px-4 pb-9 pt-8 text-center sm:min-h-[10rem]"
+                style={{ backgroundColor: bg, borderRadius: "10px" }}
               >
                 <div
-                  className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-white bg-[#0F1F38] p-1.5"
+                  className="absolute -top-7 left-1/2 flex h-14 w-14 -translate-x-1/2 items-center justify-center text-xl font-extrabold text-white"
+                  style={{
+                    borderRadius: "9999px",
+                    backgroundColor: "#0F1F38",
+                  }}
                   aria-hidden
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0F1F38] text-xl font-extrabold text-white shadow-[0_0_0_3px_white]">
-                    {n}
-                  </div>
+                  {n}
                 </div>
                 <p className="text-[13px] font-semibold leading-snug text-white sm:text-sm">{desc}</p>
                 <span
-                  className="absolute -bottom-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#1C2E5E] bg-white"
+                  className="absolute -bottom-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center bg-white"
+                  style={{
+                    borderRadius: "9999px",
+                    border: "2px solid #1C2E5E",
+                  }}
                   aria-hidden
                 >
                   <ChevronRight className="h-6 w-6 text-[#1C2E5E]" strokeWidth={2.5} />

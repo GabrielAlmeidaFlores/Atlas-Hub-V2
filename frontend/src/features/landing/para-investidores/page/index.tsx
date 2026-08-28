@@ -49,10 +49,10 @@ function InvestidoresHero(): ReactNode {
 }
 
 const INVESTIR_PASSOS = [
-  { n: "01", desc: "Crie sua conta e complete seu cadastro de investidor." },
-  { n: "02", desc: "Escolha um projeto entre os disponíveis na plataforma." },
-  { n: "03", desc: "Aplique o valor desejado, a partir de R$10." },
-  { n: "04", desc: "Acompanhe o andamento do projeto pela sua área logada." },
+  { n: "01", desc: "Crie sua conta e complete seu cadastro de investidor.", color: "#3F629C" },
+  { n: "02", desc: "Escolha um projeto entre os disponíveis na plataforma.", color: "#294574" },
+  { n: "03", desc: "Aplique o valor desejado, a partir de R$10.", color: "#1C2E5E" },
+  { n: "04", desc: "Acompanhe o andamento do projeto pela sua área logada.", color: "#161F48" },
 ] as const;
 
 function InvestirPassos(): ReactNode {
@@ -67,23 +67,37 @@ function InvestirPassos(): ReactNode {
           </h2>
         </AnimateIn>
         <div className="grid flex-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {INVESTIR_PASSOS.map(({ n, desc }, i) => (
+          {INVESTIR_PASSOS.map(({ n, desc, color }, i) => (
             <AnimateIn key={n} delay={i * 70} className="relative pt-8 pb-6">
-              <div className="relative flex min-h-[9.2rem] flex-col items-center justify-center rounded-[14px] border-2 border-[#1C2E5E] bg-white px-4 pb-9 pt-8 text-center sm:min-h-[10rem]">
+              <div
+                className="relative flex min-h-[9.2rem] flex-col items-center justify-center bg-white px-4 pb-9 pt-8 text-center sm:min-h-[10rem]"
+                style={{
+                  borderRadius: "10px",
+                  border: `2px solid ${color}`,
+                }}
+              >
                 <div
-                  className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-[#1C2E5E] bg-white p-1.5"
+                  className="absolute -top-8 left-1/2 flex h-16 w-16 -translate-x-1/2 items-center justify-center text-[28px] font-extrabold text-white"
+                  style={{
+                    borderRadius: "9999px",
+                    backgroundColor: color,
+                    border: `3px solid ${color}`,
+                    boxShadow: "0 0 0 3px #ffffff",
+                  }}
                   aria-hidden
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1C2E5E] text-xl font-extrabold text-white">
-                    {n}
-                  </div>
+                  {n}
                 </div>
-                <p className="text-[13px] font-semibold leading-snug text-[#1C2E5E] sm:text-sm">{desc}</p>
+                <p className="text-[13px] font-semibold leading-snug text-navy sm:text-sm">{desc}</p>
                 <span
-                  className="absolute -bottom-5 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#1C2E5E] bg-white"
+                  className="absolute -bottom-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center bg-white"
+                  style={{
+                    borderRadius: "9999px",
+                    border: `2px solid ${color}`,
+                  }}
                   aria-hidden
                 >
-                  <ChevronRight className="h-4 w-4 text-[#1C2E5E]" strokeWidth={2.5} />
+                  <ChevronRight className="h-6 w-6 text-[#1C2E5E]" strokeWidth={2.5} />
                 </span>
               </div>
             </AnimateIn>
