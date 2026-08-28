@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { AnimateIn } from "@/components/animate-in";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
@@ -11,29 +12,34 @@ function InvestidoresHero(): ReactNode {
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative overflow-hidden rounded-[14px] shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
+      <div className="relative overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
         <img
           src="/bg-investidores.png"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain"
           style={{ objectPosition: "right center" }}
         />
-        <div className="lp-container relative flex min-h-[480px] items-center py-8 sm:min-h-[520px] lg:min-h-[557px] lg:py-4">
+        <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
           <div className="relative max-w-[680px]">
-            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
-              Para investidores
+            <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
+              <span className="font-light">Para </span>
+              <span className="font-semibold">investidores</span>
             </p>
             <h1 className="text-[36px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white sm:text-[42px] lg:text-[48px]">
               Diversifique com imóveis,
               <br />
               a partir de R$10
             </h1>
-            <p className="mt-5 text-[18px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[20px]">
+            <p className="mt-5 text-[20px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[24px]">
               Acesse projetos curados por especialistas.
             </p>
-            <WhatsappLink variant="gold" className="mt-8">
+            <Link
+              to="/cadastro"
+              data-analytics-cta="inv_hero_cadastro"
+              className="mt-8 inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+            >
               Criar minha conta de investidor
-            </WhatsappLink>
+            </Link>
           </div>
         </div>
       </div>

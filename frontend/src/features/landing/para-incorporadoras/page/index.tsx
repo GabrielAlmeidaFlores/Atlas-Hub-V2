@@ -14,29 +14,32 @@ function IncorporadorasHero(): ReactNode {
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative min-h-[480px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[520px] lg:min-h-[557px]">
+      <div className="relative min-h-[557px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] lg:min-h-[600px]">
         <img
           src="/bg-incorporadoras.png"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-left"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="lp-container relative flex min-h-[480px] items-center py-8 sm:min-h-[520px] lg:min-h-[557px] lg:py-4">
+        <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
           <div className="relative z-10 max-w-[720px]">
-            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
-              Para incorporadoras
+            <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
+              <span className="font-light">Para </span>
+              <span className="font-semibold">incorporadoras</span>
             </p>
             <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[38px] lg:text-[44px]">
-              Capture recursos sem
+              capture recursos
               <br />
-              financiamento bancário
+              sem financiamento
+              <br />
+              bancário
             </h1>
-            <p className="mt-5 max-w-[640px] text-[15px] font-normal leading-relaxed text-white/95 sm:text-[16px]">
+            <p className="mt-5 text-[20px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[24px]">
               Apresente seu projeto, passe pela nossa curadoria e conte com a Atlas Hub para atrair investidores.
             </p>
             <Link
               to="/cadastro"
               data-analytics-cta="inc_hero_cadastro"
-              className="mt-8 inline-flex h-10 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+              className="mt-8 inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
               Solicitar avaliação do meu projeto
             </Link>
@@ -73,19 +76,19 @@ function CapitarPassos(): ReactNode {
                 style={{ backgroundColor: bg }}
               >
                 <div
-                  className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-[#D2A047] bg-[#0F1F38] p-1.5"
+                  className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-white bg-[#0F1F38] p-1.5"
                   aria-hidden
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0F1F38] text-xl font-extrabold text-white shadow-[0_0_0_3px_#D2A047]">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0F1F38] text-xl font-extrabold text-white shadow-[0_0_0_3px_white]">
                     {n}
                   </div>
                 </div>
                 <p className="text-[13px] font-semibold leading-snug text-white sm:text-sm">{desc}</p>
                 <span
-                  className="absolute -bottom-5 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#1C2E5E] bg-white"
+                  className="absolute -bottom-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#1C2E5E] bg-white"
                   aria-hidden
                 >
-                  <ChevronRight className="h-4 w-4 text-[#1C2E5E]" strokeWidth={2.5} />
+                  <ChevronRight className="h-6 w-6 text-[#1C2E5E]" strokeWidth={2.5} />
                 </span>
               </div>
             </AnimateIn>
@@ -185,7 +188,7 @@ function SoliciteAvaliacao(): ReactNode {
             />
             <button
               type="submit"
-              className="mt-2 inline-flex h-10 w-fit items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+              className="mt-2 inline-flex h-12 w-fit items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
               Enviar projeto para avaliação
             </button>

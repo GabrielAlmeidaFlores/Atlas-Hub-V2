@@ -122,45 +122,46 @@ function MarketingFooter(): ReactNode {
     <footer id="contato" className="bg-[#1C2E5E] text-white">
       <div className="lp-container grid gap-16 py-16 md:grid-cols-12">
         <div className="md:col-span-4">
-          <Logo size="lg" scheme="dark" />
+          <Logo size="lg" scheme="dark" className="origin-left scale-[1.875]" />
           <p className="mt-5 max-w-xs text-[12px] leading-relaxed text-white/70">
-            Crowdfunding imobiliário regulado pela CVM Resolução 88. Originação, curadoria e oferta sob a marca Atlas Hub.
+            Crowdfunding imobiliário regulado pela CVM Resolução 88.
+            <br />
+            Originação, curadoria e oferta sob a
+            <br />
+            marca Atlas Hub.
           </p>
         </div>
         <div className="md:col-span-8">
-          <div className="grid grid-cols-3 gap-8 text-[13px]">
+          <div className="grid grid-cols-3 gap-0 justify-end text-[12px]">
             <div className="space-y-3">
               <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Navegação</p>
               <Link to="/#como-funciona" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Como Funciona
               </Link>
               <Link to="/para-investidores" className="block text-white/70 transition-colors duration-300 hover:text-white">
-                Para investidores
+                Para Investidores
               </Link>
               <Link to="/para-incorporadoras" className="block text-white/70 transition-colors duration-300 hover:text-white">
-                Para incorporadoras
+                Para Incorporadoras
               </Link>
               <Link to="/#projetos-atlas" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Projetos
               </Link>
             </div>
             <div className="space-y-3">
-              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Incorporadora</p>
-              <Link to="/cadastro" className="block text-white/70 transition-colors duration-300 hover:text-white">
-                Criar Empresa
+              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Institucional</p>
+              <Link to="/#sobre" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Quem Somos
               </Link>
-              <Link to="/meus-projetos" className="block text-white/70 transition-colors duration-300 hover:text-white">
-                Meus Projetos
+              <Link to="/#central-duvidas" className="block text-white/70 transition-colors duration-300 hover:text-white">
+                Conteúdos
               </Link>
               <a href="mailto:contato@atlashub.com.br" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Contato
               </a>
-              <Link to="/portais" className="block text-white/70 transition-colors duration-300 hover:text-white">
-                Portais
-              </Link>
             </div>
             <div className="space-y-3">
-              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Links</p>
+              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Legal</p>
               <Link to="/termos" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Termos de Uso
               </Link>
@@ -168,19 +169,15 @@ function MarketingFooter(): ReactNode {
                 Privacidade
               </Link>
               <a href="#" className="block text-white/70 transition-colors duration-300 hover:text-white">
-                DVM Resoluções 88
+                CVM Resolução 88
               </a>
             </div>
           </div>
         </div>
       </div>
-      <div className="border-t border-white/10 bg-[#D2A047] py-3 text-center">
-        <div className="lp-container flex items-center justify-center gap-2 text-[11px] font-medium text-[#1C2E5E]">
-          <span>© 2026 Atlas Hub - Crowdfunding Imobiliário</span>
-          <span>•</span>
-          <span>CVM Resolução 88</span>
-          <span>•</span>
-          <span>Todos os direitos reservados</span>
+      <div className="border-t border-white/10 bg-[#D9B366] py-3 text-center">
+        <div className="lp-container flex items-center justify-center text-[11px] font-medium text-[#6C4C14]">
+          <span>© 2026 Atlas Hub - Crowdfunding Imobiliário. CNPJ: 68.693.823/0001-83. Todos os direitos reservados.</span>
         </div>
       </div>
     </footer>
