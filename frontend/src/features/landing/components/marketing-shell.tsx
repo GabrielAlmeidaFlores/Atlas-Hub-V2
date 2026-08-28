@@ -131,10 +131,10 @@ function MarketingFooter(): ReactNode {
             marca Atlas Hub.
           </p>
         </div>
-        <div className="md:col-span-8">
-          <div className="grid grid-cols-3 gap-0 justify-end text-[12px]">
+        <div className="md:col-span-8 flex justify-end">
+          <div className="flex flex-wrap justify-end gap-10 lg:gap-14 text-[12px]">
             <div className="space-y-3">
-              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Navegação</p>
+              <p className="font-semibold text-[#D2A047]">Navegação</p>
               <Link to="/#como-funciona" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Como Funciona
               </Link>
@@ -149,7 +149,7 @@ function MarketingFooter(): ReactNode {
               </Link>
             </div>
             <div className="space-y-3">
-              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Institucional</p>
+              <p className="font-semibold text-[#D2A047]">Institucional</p>
               <Link to="/#sobre" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Quem Somos
               </Link>
@@ -161,7 +161,7 @@ function MarketingFooter(): ReactNode {
               </a>
             </div>
             <div className="space-y-3">
-              <p className="font-semibold uppercase tracking-wider text-[#D2A047]">Legal</p>
+              <p className="font-semibold text-[#D2A047]">Legal</p>
               <Link to="/termos" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Termos de Uso
               </Link>
