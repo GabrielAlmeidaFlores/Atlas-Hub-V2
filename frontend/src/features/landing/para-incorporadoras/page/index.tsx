@@ -137,10 +137,10 @@ function AvaliacaoProjeto(): ReactNode {
             Aprovar um projeto
           </h2>
         </AnimateIn>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {AVALIACAO_CRITERIOS.map(({ icon: Icon, title, desc }, i) => (
-            <AnimateIn key={title} delay={i * 70} className="flex flex-col items-center rounded-[12px] border-4 border-[#D9B366] px-6 py-8 text-center">
-              <div className="mb-4 flex items-center justify-center">
+            <AnimateIn key={title} delay={i * 70} className="relative flex flex-col items-center rounded-[12px] border-4 border-[#D9B366] px-6 pb-8 pt-10 text-center">
+              <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex items-center justify-center">
                 {title === "Localização e potencial" ? (
                   <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />

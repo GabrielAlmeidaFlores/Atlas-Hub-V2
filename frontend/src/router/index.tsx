@@ -5,6 +5,8 @@ import { useAuthStore } from "@/stores/auth";
 const LandingPage          = React.lazy(() => import("@/features/landing/page"));
 const ParaIncorporadorasPage = React.lazy(() => import("@/features/landing/para-incorporadoras/page"));
 const ParaInvestidoresPage   = React.lazy(() => import("@/features/landing/para-investidores/page"));
+const ProjetosLandingPage    = React.lazy(() => import("@/features/landing/projetos/page"));
+const QuemSomosLandingPage   = React.lazy(() => import("@/features/landing/quem-somos/page"));
 const LoginPage            = React.lazy(() => import("@/features/auth/login/page"));
 const CadastroPage         = React.lazy(() => import("@/features/auth/cadastro/page"));
 const ConfirmarEmailPage   = React.lazy(() => import("@/features/auth/confirmar-email/page"));
@@ -53,7 +55,7 @@ function CatchAllRedirect(): ReactNode {
   if (pathname.startsWith("/admin")) return <Navigate to="/admin" replace />;
   if (
     pathname.startsWith("/dashboard")
-    || pathname.startsWith("/projetos")
+    || (pathname.startsWith("/projetos/") && pathname !== "/projetos")
     || pathname.startsWith("/perfil")
     || pathname.startsWith("/notificacoes")
   ) {
@@ -87,6 +89,8 @@ const router = createBrowserRouter([
   { path: "/",                  element: withSuspense(<LandingPage />) },
   { path: "/para-incorporadoras", element: withSuspense(<ParaIncorporadorasPage />) },
   { path: "/para-investidores",   element: withSuspense(<ParaInvestidoresPage />) },
+  { path: "/projetos",          element: withSuspense(<ProjetosLandingPage />) },
+  { path: "/quem-somos",        element: withSuspense(<QuemSomosLandingPage />) },
   { path: "/login",             element: withSuspense(<LoginPage />) },
   { path: "/cadastro",          element: withSuspense(<CadastroPage />) },
   { path: "/confirmar-email",   element: withSuspense(<ConfirmarEmailPage />) },

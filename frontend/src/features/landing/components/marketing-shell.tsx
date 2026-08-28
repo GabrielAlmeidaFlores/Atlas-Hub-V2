@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { label: "Investidores", href: "/para-investidores" },
   { label: "Incorporadoras", href: "/para-incorporadoras" },
-  { label: "Projetos", href: "/#projetos-atlas" },
-  { label: "Quem somos", href: "/#sobre" },
+  { label: "Projetos", href: "/projetos" },
+  { label: "Quem somos", href: "/quem-somos" },
 ] as const;
 
 function MarketingNavbar(): ReactNode {
@@ -144,13 +144,13 @@ function MarketingFooter(): ReactNode {
               <Link to="/para-incorporadoras" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Para Incorporadoras
               </Link>
-              <Link to="/#projetos-atlas" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/projetos" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Projetos
               </Link>
             </div>
             <div className="space-y-3">
               <p className="font-semibold text-[#D2A047]">Institucional</p>
-              <Link to="/#sobre" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/quem-somos" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Quem Somos
               </Link>
               <Link to="/#central-duvidas" className="block text-white/70 transition-colors duration-300 hover:text-white">
@@ -177,7 +177,9 @@ function MarketingFooter(): ReactNode {
       </div>
       <div className="border-t border-white/10 bg-[#D9B366] py-3 text-center">
         <div className="lp-container flex items-center justify-center text-[11px] font-medium text-[#6C4C14]">
-          <span>© 2026 Atlas Hub - Crowdfunding Imobiliário. CNPJ: 68.693.823/0001-83. Todos os direitos reservados.</span>
+          <span>
+            <strong className="font-bold">© 2026 Atlas Hub</strong> - Crowdfunding Imobiliário. <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83. <strong className="font-bold">Todos os direitos reservados.</strong>
+          </span>
         </div>
       </div>
     </footer>
