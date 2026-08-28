@@ -1,38 +1,92 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import {
-  ArrowRight, CheckCircle, ChevronLeft, ChevronRight, ShieldCheck, Wallet,
-  RefreshCw, LineChart, Building2, Coins, FileCheck, TrendingUp,
+  CheckCircle, ChevronLeft, ChevronRight, ShieldCheck, Wallet,
+  RefreshCw, LineChart, Building2, Coins,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
-import { TypedHeroTitle } from "@/components/typed-hero-title";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
 import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
-const HERO_TITLE = [
-  { text: "Invista em imóveis com ", tone: "base" as const },
-  { text: "curadoria Atlas", tone: "gold" as const },
-  { text: " e regras CVM", tone: "base" as const },
+function InvestidoresHero(): ReactNode {
+  return (
+    <section
+      className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
+      data-analytics-section="hero"
+    >
+      <div className="relative overflow-hidden rounded-[14px] shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
+        <img
+          src="/bg-investidores.png"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "right center" }}
+        />
+        <div className="lp-container relative flex min-h-[480px] items-center py-8 sm:min-h-[520px] lg:min-h-[557px] lg:py-4">
+          <div className="relative max-w-[680px]">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
+              Para investidores
+            </p>
+            <h1 className="text-[36px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white sm:text-[42px] lg:text-[48px]">
+              Diversifique com imóveis,
+              <br />
+              a partir de R$10
+            </h1>
+            <p className="mt-5 text-[18px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[20px]">
+              Acesse projetos curados por especialistas.
+            </p>
+            <WhatsappLink variant="gold" className="mt-8">
+              Criar minha conta de investidor
+            </WhatsappLink>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const INVESTIR_PASSOS = [
+  { n: "01", desc: "Crie sua conta e complete seu cadastro de investidor." },
+  { n: "02", desc: "Escolha um projeto entre os disponíveis na plataforma." },
+  { n: "03", desc: "Aplique o valor desejado, a partir de R$10." },
+  { n: "04", desc: "Acompanhe o andamento do projeto pela sua área logada." },
 ] as const;
 
-const FLOW = [
-  {
-    icon: Building2,
-    title: "Originação",
-    desc: "Projeto entra pelo portal da incorporadora",
-  },
-  {
-    icon: FileCheck,
-    title: "Curadoria",
-    desc: "Atlas aprova ou pede ajuste",
-  },
-  {
-    icon: TrendingUp,
-    title: "Investimento",
-    desc: "Você aporta na oferta publicada",
-  },
-] as const;
+function InvestirPassos(): ReactNode {
+  return (
+    <section className="bg-white py-14 lg:py-16" data-analytics-section="como-investir">
+      <div className="lp-container flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-10">
+        <AnimateIn className="shrink-0 lg:w-[22%]">
+          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[44px] lg:text-[48px]">
+            Como investir em
+            <br />
+            <span className="text-[#D2A047]">4 passos</span>
+          </h2>
+        </AnimateIn>
+        <div className="grid flex-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {INVESTIR_PASSOS.map(({ n, desc }, i) => (
+            <AnimateIn key={n} delay={i * 70} className="relative pt-6 pb-5">
+              <div className="relative flex min-h-[11.5rem] flex-col items-center justify-center rounded-[14px] border-2 border-[#1C2E5E] bg-white px-4 pb-9 pt-7 text-center sm:min-h-[12.5rem]">
+                <span
+                  className="absolute -top-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-[#1C2E5E] text-base font-bold text-white"
+                  aria-hidden
+                >
+                  {n}
+                </span>
+                <p className="text-[13px] font-semibold leading-snug text-[#1C2E5E] sm:text-sm">{desc}</p>
+                <span
+                  className="absolute -bottom-5 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#1C2E5E] bg-white"
+                  aria-hidden
+                >
+                  <ChevronRight className="h-4 w-4 text-[#1C2E5E]" strokeWidth={2.5} />
+                </span>
+              </div>
+            </AnimateIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const JOURNEY = [
   {
@@ -191,56 +245,8 @@ export default function ParaInvestidoresPage(): ReactNode {
   useLandingAnalytics(true);
   return (
     <MarketingShell>
-      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28" data-analytics-section="hero">
-        <div className="relative lp-container">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para investidores</p>
-          <TypedHeroTitle
-            segments={HERO_TITLE}
-            className="lp-hero-title max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl"
-          />
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">
-            A experiência de investimento é 100% Atlas Hub: vitrine, KYC, PIX, escrow e carteira.
-            Por trás, a mesma infraestrutura regulatória usada em operações CVM 88 — você não precisa lidar com o portal da incorporadora.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <WhatsappLink variant="gold">Quero saber das ofertas</WhatsappLink>
-            <Link to="/para-incorporadoras" className="btn btn-lp inline-flex items-center justify-center border-2 border-white/20 bg-transparent text-sm font-bold text-white hover:bg-white/5">
-              Sou incorporadora
-            </Link>
-            <Link to="/" className="btn btn-lp inline-flex items-center justify-center gap-2 border-2 border-white/10 bg-transparent text-sm font-bold text-white/80 hover:bg-white/5">
-              Voltar ao início <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-steps-section border-b border-border py-16">
-        <div className="lp-container">
-          <AnimateIn className="mb-10 max-w-3xl">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold">Como se encaixa</p>
-            <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Incorporadora originadora · você investe</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-              Incorporadoras submetem projetos no portal Atlas e passam por curadoria humana.
-              Só depois a oferta aparece na <strong className="text-foreground">plataforma de investimento Atlas Hub</strong>,
-              onde você avalia, investe e acompanha — com escrow, tokenização de cotas e proteção dos gatilhos CVM.
-            </p>
-          </AnimateIn>
-          <div className="grid gap-6 md:grid-cols-3 lg:gap-7">
-            {FLOW.map(({ icon: Icon, title, desc }, i) => (
-              <AnimateIn key={title} delay={i * 80} className="lp-step-card">
-                <span className="lp-step-watermark" aria-hidden>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="relative">
-                  <Icon className="mb-5 h-5 w-5 text-navy" strokeWidth={1.75} />
-                  <h3 className="text-base font-bold tracking-tight text-navy">{title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
-                </div>
-              </AnimateIn>
-            ))}
-          </div>
-        </div>
-      </section>
+      <InvestidoresHero />
+      <InvestirPassos />
 
       <section className="lp-section-alt py-16">
         <div className="lp-container">

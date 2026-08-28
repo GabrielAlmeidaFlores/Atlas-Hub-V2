@@ -15,6 +15,7 @@ import {
   Scale,
   BadgeCheck,
   Layers,
+  MapPin,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
 import { CountUp } from "@/components/count-up";
@@ -218,6 +219,209 @@ function ComoFunciona(): ReactNode {
   );
 }
 
+function Curadoria(): ReactNode {
+  const cards = [
+    {
+      icon: MapPin,
+      title: "Localização",
+      desc: "Avaliamos a região e o entorno do empreendimento.",
+      offset: "lg:mt-0",
+      bg: "#294574",
+    },
+    {
+      icon: BarChart3,
+      title: "Viabilidade",
+      desc: "Potencial de retorno e solidez financeira do projeto.",
+      offset: "lg:mt-10",
+      bg: "#1C2E5E",
+    },
+    {
+      icon: Building2,
+      title: "Solidez",
+      desc: "Histórico e capacidade técnica da incorporadora.",
+      offset: "lg:mt-0",
+      bg: "#161F48",
+    },
+  ];
+
+  return (
+    <section id="curadoria" className="bg-white pt-16 lg:pt-20" data-analytics-section="curadoria">
+      <div className="lp-container pb-12 lg:pb-16">
+        <div className="grid items-start gap-12 lg:grid-cols-12 lg:gap-10">
+          <AnimateIn className="lg:col-span-5 lg:pt-6">
+            <h2 className="text-[2.05rem] font-extrabold uppercase leading-[1.12] tracking-tight text-navy sm:text-[2.25rem] lg:text-[2.5rem]">
+              Cada projeto passa
+              <br />
+              por uma curadoria
+            </h2>
+            <p className="mt-3 text-[1.40625rem] font-medium text-[#D2A047] sm:text-[1.5625rem]">
+              antes de chegar até você.
+            </p>
+            <p className="mt-5 max-w-sm text-[1.2rem] leading-relaxed text-[#3A3A3A]">
+              Analisamos a localização do empreendimento, o potencial de retorno e a viabilidade técnica e financeira de cada projeto antes de abri-lo para captação. Só entram na plataforma os projetos que passam por esse crivo.
+            </p>
+          </AnimateIn>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7 lg:gap-5">
+            {cards.map(({ icon: Icon, title, desc, offset, bg }, i) => (
+              <AnimateIn key={title} delay={i * 80} className={offset}>
+                <div
+                  className="flex flex-col items-center rounded-[12px] px-4 py-4 text-center sm:px-5 sm:py-5"
+                  style={{ backgroundColor: bg }}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D2A047]/40 bg-[#D2A047]/10">
+                    <Icon className="h-5 w-5 text-[#D2A047]" strokeWidth={1.75} />
+                  </div>
+                  <h3 className="mt-4 text-sm font-bold uppercase tracking-wide text-[#D2A047]">{title}</h3>
+                  <p className="mt-2 text-xs leading-snug text-white/90 sm:text-sm">{desc}</p>
+                </div>
+              </AnimateIn>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CvmBanner(): ReactNode {
+  return (
+    <section className="bg-white pb-16 pt-0 lg:pb-20" data-analytics-section="cvm-banner">
+      <div className="flex justify-center px-4">
+        <AnimateIn className="w-[80%]">
+          <div className="flex w-full flex-col items-start gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 lg:gap-9 lg:px-12">
+            <ShieldCheck className="h-[3.6rem] w-[3.6rem] shrink-0 text-[#D2A047] sm:h-[4.5rem] sm:w-[4.5rem]" strokeWidth={1.25} />
+            <div className="w-full min-w-0 flex-1 text-left">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.42em] text-[#D2A047] sm:text-[11px] sm:tracking-[0.48em]">
+                Uma operação dentro das regras
+              </p>
+              <h2 className="mt-1.5 text-xl font-extrabold uppercase leading-tight tracking-[0.04em] text-white sm:text-2xl lg:text-[1.75rem]">
+                Regulada pela CVM — Resolução 88
+              </h2>
+              <p className="mt-2.5 text-[0.74375rem] leading-relaxed text-white/90 sm:text-[0.796875rem]">
+                A Atlas Hub opera como plataforma de crowdfunding de investimento regulada pela Comissão de Valores Mobiliários, sob a Resolução CVM 88.
+              </p>
+            </div>
+          </div>
+        </AnimateIn>
+      </div>
+    </section>
+  );
+}
+
+function Parceiros(): ReactNode {
+  const logos = [
+    { src: "/divify.svg", alt: "Divify", className: "h-12 w-auto max-w-[11.4rem] object-contain sm:h-[3.3rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.2rem] w-auto max-w-[11.4rem] object-contain sm:h-[4.8rem]" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[4.8rem] w-auto max-w-[8.4rem] object-contain sm:h-[5.4rem]" },
+    { src: "/starkbank.svg", alt: "Stark Bank", className: "h-9 w-auto max-w-[10.5rem] object-contain sm:h-10" },
+  ];
+
+  return (
+    <section className="bg-[#D2A047] py-10 lg:py-12" data-analytics-section="parceiros">
+      <div className="lp-container flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+        <AnimateIn className="max-w-md shrink-0 text-center lg:text-left">
+          <h2 className="text-xl font-extrabold uppercase leading-tight tracking-tight text-[#6C4C14] sm:text-2xl lg:text-[1.65rem]">
+            Quem constrói com a Atlas Hub
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-[#6C4C14]/90 sm:text-[0.9375rem]">
+            Uma rede de parceiros que compartilha conhecimento, experiência e oportunidades.
+          </p>
+        </AnimateIn>
+        <AnimateIn delay={80} className="flex flex-wrap items-center justify-center gap-8 sm:gap-10 lg:justify-end">
+          {logos.map(({ src, alt, className }) => (
+            <img key={alt} src={src} alt={alt} className={className} />
+          ))}
+        </AnimateIn>
+      </div>
+    </section>
+  );
+}
+
+function CentralDuvidas(): ReactNode {
+  const btn =
+    "inline-flex h-10 items-center justify-center rounded-[4px] bg-[#D2A047] px-5 text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity duration-200 hover:opacity-90";
+
+  return (
+    <section id="central-duvidas" className="bg-white py-10 sm:py-12 lg:py-14" data-analytics-section="central-duvidas">
+      <div className="lp-container grid items-center gap-6 lg:grid-cols-12 lg:gap-8">
+        <AnimateIn className="flex justify-center lg:col-span-5 lg:justify-start">
+          <img
+            src="/Mask%20group.svg"
+            alt=""
+            className="block h-auto w-full max-w-[26rem] object-contain lg:max-w-none"
+          />
+        </AnimateIn>
+        <AnimateIn delay={80} className="lg:col-span-7 lg:pl-2 xl:pl-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.42em] text-[#D2A047]">
+            Central de dúvidas
+          </p>
+          <h2 className="mt-4 text-[1.85rem] font-extrabold uppercase leading-[1.12] tracking-[0.12em] text-navy sm:text-4xl lg:text-[2.75rem]">
+            Tire suas
+            <br />
+            principais
+            <br />
+            dúvidas
+          </h2>
+          <p className="mt-5 max-w-md text-sm leading-relaxed text-[#3A3A3A] sm:text-[0.95rem]">
+            Encontre respostas para as principais dúvidas sobre investimentos, projetos e funcionamento da Atlas Hub
+          </p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link to="/para-investidores" className={btn}>
+              <span className="font-semibold">FAQ |</span>{" "}
+              <span className="font-light">Investidor</span>
+            </Link>
+            <Link to="/para-incorporadoras" className={btn}>
+              <span className="font-semibold">FAQ |</span>{" "}
+              <span className="font-light">Incorporadora</span>
+            </Link>
+          </div>
+        </AnimateIn>
+      </div>
+    </section>
+  );
+}
+
+function CtaFinal(): ReactNode {
+  return (
+    <section className="bg-white pb-0 pt-0" data-analytics-section="cta-final">
+      <div className="relative min-h-[21.6rem] overflow-hidden bg-[#121A3E] sm:min-h-[24rem] lg:min-h-[26.4rem]">
+        <div className="absolute inset-y-0 right-0 w-[58%] sm:w-[55%] lg:w-[52%]">
+          <img
+            src="/banner-mulher.png"
+            alt=""
+            className="h-full w-full object-cover object-center"
+          />
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, #121A3E 0%, #121A3E 38%, rgb(18 26 62 / 0.92) 48%, rgb(18 26 62 / 0.55) 62%, transparent 82%)",
+          }}
+        />
+        <div className="lp-container relative z-10 flex min-h-[21.6rem] items-center py-[3.6rem] sm:min-h-[24rem] lg:min-h-[26.4rem] lg:py-[4.2rem]">
+          <AnimateIn className="max-w-md">
+            <h2 className="text-3xl font-extrabold uppercase leading-tight tracking-tight text-[#D2A047] sm:text-4xl lg:text-[2.75rem]">
+              Pronto para começar?
+            </h2>
+            <p className="mt-4 max-w-md text-lg font-medium leading-relaxed text-white sm:text-xl">
+              Crie sua conta e invista no seu primeiro projeto em poucos minutos.
+            </p>
+            <Link
+              to="/para-investidores"
+              data-analytics-cta="final_investir"
+              className="mt-7 inline-flex h-10 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+            >
+              Quero investir
+            </Link>
+          </AnimateIn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Numeros(): ReactNode {
   const sectionRef = useRef<HTMLElement>(null);
   const [glow, setGlow] = useState({ x: 50, y: 50, visible: false });
@@ -290,6 +494,11 @@ export default function LandingPage(): ReactNode {
       <ComoFunciona />
       <Ecossistema />
       <ProjetosAtlas />
+      <Curadoria />
+      <CvmBanner />
+      <Parceiros />
+      <CentralDuvidas />
+      <CtaFinal />
       <Numeros />
     </MarketingShell>
   );

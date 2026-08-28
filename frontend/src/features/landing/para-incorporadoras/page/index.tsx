@@ -5,16 +5,48 @@ import {
   ShieldCheck, Users,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
-import { TypedHeroTitle } from "@/components/typed-hero-title";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
 import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
-const HERO_TITLE = [
-  { text: "Capte recursos com investidores — ", tone: "base" as const },
-  { text: "sem depender só", tone: "gold" as const },
-  { text: " do banco", tone: "base" as const },
-] as const;
+function IncorporadorasHero(): ReactNode {
+  return (
+    <section
+      className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
+      data-analytics-section="hero"
+    >
+      <div className="relative min-h-[480px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[520px] lg:min-h-[557px]">
+        <img
+          src="/bg-incorporadoras.png"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-left"
+        />
+        <div className="lp-container relative flex min-h-[480px] items-center py-8 sm:min-h-[520px] lg:min-h-[557px] lg:py-4">
+          <div className="relative z-10 max-w-[720px]">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
+              Para incorporadoras
+            </p>
+            <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[38px] lg:text-[44px]">
+              Capture recursos sem
+              <br />
+              financiamento bancário
+            </h1>
+            <p className="mt-5 max-w-[640px] text-[15px] font-normal leading-relaxed text-white/95 sm:text-[16px]">
+              Apresente seu projeto, passe pela nossa curadoria e conte com a Atlas Hub para atrair investidores.
+            </p>
+            <Link
+              to="/cadastro"
+              data-analytics-cta="inc_hero_cadastro"
+              className="mt-8 inline-flex h-10 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+            >
+              Solicitar avaliação do meu projeto
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const STEPS = [
   {
@@ -95,27 +127,7 @@ export default function ParaIncorporadorasPage(): ReactNode {
   useLandingAnalytics(true);
   return (
     <MarketingShell>
-      <section className="lp-hero-bg relative overflow-hidden pb-16 pt-28" data-analytics-section="hero">
-        <div className="relative lp-container">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Para incorporadoras</p>
-          <TypedHeroTitle
-            segments={HERO_TITLE}
-            className="lp-hero-title max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl"
-          />
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">
-            O Atlas Hub é o originador: você submete o empreendimento, nossa curadoria valida, e a oferta sobe na plataforma de investimento Atlas Hub para o público investir com KYC, escrow e regras CVM.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/cadastro" className="btn btn-gold btn-lp inline-flex items-center gap-2 text-sm font-bold">
-              Cadastrar incorporadora <ArrowRight className="h-4 w-4" />
-            </Link>
-            <WhatsappLink variant="hero">Falar com suporte</WhatsappLink>
-            <Link to="/para-investidores" className="btn btn-lp inline-flex items-center justify-center border-2 border-white/20 bg-transparent text-sm font-bold text-white hover:bg-white/5">
-              Ver lado do investidor
-            </Link>
-          </div>
-        </div>
-      </section>
+      <IncorporadorasHero />
 
       <section className="border-b border-border py-16">
         <div className="lp-container">
