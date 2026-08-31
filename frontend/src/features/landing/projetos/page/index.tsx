@@ -48,7 +48,14 @@ export default function ProjetosPage(): ReactNode {
   return (
     <MarketingShell>
       <ProjetosHero />
-      <ProjetosAtlas />
+      <ProjetosAtlas
+        shellClassName="!bg-[#B89048] ![background-image:url('/projetos-sessao.svg')] bg-[length:100%_auto] bg-bottom bg-no-repeat"
+        titleSuffix=" disponíveis"
+        titleHighlightClassName="text-[#6C4C14]"
+        titleSuffixClassName="text-[#6C4C14]"
+        ctaClassName="!bg-[#001F4E] group-hover:!bg-[#001a40] !shadow-none group-hover:!shadow-[0_4px_14px_rgba(0,31,78,0.28)]"
+        projectNameClassName="text-[#001F4E]"
+      />
     </MarketingShell>
   );
 }

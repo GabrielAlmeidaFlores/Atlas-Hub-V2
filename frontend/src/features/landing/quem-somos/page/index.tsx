@@ -24,7 +24,9 @@ function QuemSomosHero(): ReactNode {
               Quem somos
             </p>
             <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[38px] lg:text-[44px]">
-              A curadoria por trás
+              A curadoria
+              <br />
+              por trás
               <br />
               de cada projeto
             </h1>
@@ -59,25 +61,35 @@ function QuemSomosHero(): ReactNode {
 function NossoProposito(): ReactNode {
   return (
     <section
-      className="relative bg-cover bg-center py-16 lg:py-24"
-      style={{ backgroundImage: "url('/bg-nossoproposito.svg')" }}
+      className="bg-white px-4 pb-10 pt-2 sm:px-6 sm:pb-12 lg:px-8"
       data-analytics-section="nosso-proposito"
     >
-      <div className="lp-container">
-        <AnimateIn className="max-w-4xl text-left">
-          <h2 className="text-[36px] font-extrabold uppercase leading-[1.08] tracking-[-0.04em] text-[#6C4C14] sm:text-[44px] lg:text-[52px]">
-            Nosso propósito
-          </h2>
-          <div className="mt-8 space-y-6 text-[16px] font-medium leading-relaxed text-[#6C4C14]">
-            <p>
-              A AtlasHub conecta capital, ativos, projetos e oportunidades do mercado imobiliário, transformando boas ideias em negócios estruturados e capazes de gerar valor. Criamos pontes entre quem possui oportunidades e quem possui capital para viabilizá-las, oferecendo tecnologia, estrutura financeira, governança, transparência e acompanhamento em toda a jornada.
-            </p>
-            <p>
-              Mais do que uma plataforma de captação, somos um ecossistema que amplia o acesso a diferentes formas de investir, financiar e gerar renda por meio do mercado imobiliário.
-            </p>
+      <AnimateIn className="overflow-hidden rounded-[14px] shadow-[0_10px_30px_rgba(7,17,34,0.15)]">
+          <div className="relative flex min-h-[22rem] flex-col bg-gradient-to-r from-[#D2A047] to-[#E1C683] sm:min-h-[26rem] lg:min-h-[28rem] lg:flex-row lg:items-end">
+            <div className="relative z-10 flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-12 lg:w-[55%] lg:px-12 lg:py-14">
+              <h2 className="text-[36px] font-extrabold uppercase leading-[1.08] tracking-[-0.04em] text-[#6C4C14] sm:text-[44px] lg:text-[52px]">
+                Nosso
+                <br />
+                propósito
+              </h2>
+              <div className="mt-6 space-y-5 text-[15px] font-medium leading-relaxed text-[#6C4C14] sm:text-[16px] lg:mt-8 lg:space-y-6">
+                <p>
+                  A AtlasHub conecta capital, ativos, projetos e oportunidades do mercado imobiliário, transformando boas ideias em negócios estruturados e capazes de gerar valor. Criamos pontes entre quem possui oportunidades e quem possui capital para viabilizá-las, oferecendo tecnologia, estrutura financeira, governança, transparência e acompanhamento em toda a jornada.
+                </p>
+                <p>
+                  Mais do que uma plataforma de captação, somos um ecossistema que amplia o acesso a diferentes formas de investir, financiar e gerar renda por meio do mercado imobiliário.
+                </p>
+              </div>
+            </div>
+            <div className="relative z-10 flex flex-1 items-end justify-center px-4 pb-0 lg:justify-end lg:px-6">
+              <img
+                src="/ilustracao.svg"
+                alt=""
+                className="h-auto w-full max-h-[14rem] object-contain object-bottom sm:max-h-[18rem] lg:max-h-[26rem] lg:w-auto lg:max-w-full"
+              />
+            </div>
           </div>
-        </AnimateIn>
-      </div>
+      </AnimateIn>
     </section>
   );
 }
@@ -111,7 +123,7 @@ function MissaoValores(): ReactNode {
               </span>
             </div>
           </div>
-          <div className="mt-8 space-y-5 text-sm leading-relaxed text-[#1E1E1E] sm:text-[15px]">
+          <div className="mt-8 space-y-5 text-sm font-medium leading-relaxed text-[#1E1E1E] sm:text-[15px]">
             <p>
               Estruturar e conectar oportunidades imobiliárias ao capital necessário para transformá-las em negócios viáveis, transparentes e rentáveis.
             </p>
@@ -152,8 +164,8 @@ function MissaoValores(): ReactNode {
               </span>
             </div>
           </div>
-          <div className="mt-8 grid gap-x-8 gap-y-4 sm:grid-cols-2 text-sm leading-relaxed text-[#1E1E1E] sm:text-[14.5px]">
-            <div className="space-y-4">
+          <div className="mt-8 grid gap-x-8 gap-y-2 sm:grid-cols-2 text-sm leading-relaxed text-[#1E1E1E] sm:text-[14.5px]">
+            <div className="space-y-2">
               <p>
                 <span className="text-[#D2A047] font-semibold">• Transparência:</span> Clareza em todas as etapas e informações relevantes para cada decisão.
               </p>
@@ -170,7 +182,7 @@ function MissaoValores(): ReactNode {
                 <span className="text-[#D2A047] font-semibold">• Governança:</span> Processos claros, acompanhamento e prestação de contas.
               </p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <p>
                 <span className="text-[#D2A047] font-semibold">• Tecnologia:</span> Simplificamos o acesso e a conexão entre capital e oportunidades.
               </p>
@@ -232,16 +244,15 @@ function CvmBanner(): ReactNode {
 
 function Parceiros(): ReactNode {
   const logos = [
-    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.2rem] w-auto max-w-[11.4rem] object-contain sm:h-[4.8rem]" },
-    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[4.8rem] w-auto max-w-[8.4rem] object-contain sm:h-[5.4rem]" },
-    { src: "/starkbank.svg", alt: "Stark Bank", className: "h-9 w-auto max-w-[10.5rem] object-contain sm:h-10" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[7.6rem] w-auto max-w-[15.2rem] object-contain sm:h-[8.85rem] sm:max-w-[17.7rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[6.35rem] w-auto max-w-[19rem] object-contain sm:h-[7.6rem] sm:max-w-[22.8rem]" },
   ];
 
   return (
-    <section className="bg-[#D9B366] py-10 lg:py-12" data-analytics-section="parceiros">
-      <div className="lp-container flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-        <AnimateIn className="max-w-md shrink-0 text-center lg:text-left">
-          <h2 className="max-w-md text-2xl font-extrabold leading-tight tracking-tight text-[#6C4C14] uppercase sm:text-3xl lg:text-[1.95rem]">
+    <section className="bg-[#D5A650] py-[5.18rem] lg:py-[6.2rem]" data-analytics-section="parceiros">
+      <div className="lp-container flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-12">
+        <AnimateIn className="shrink-0 text-center lg:text-left">
+          <h2 className="max-w-md text-[1.75rem] font-extrabold leading-tight tracking-tight text-[#6C4C14] uppercase sm:text-[2.15rem] lg:text-[2.25rem]">
             Equipe
             <br />
             responsável
@@ -249,7 +260,7 @@ function Parceiros(): ReactNode {
             pela curadoria
           </h2>
         </AnimateIn>
-        <AnimateIn delay={80} className="flex flex-wrap items-center justify-center gap-8 sm:gap-10 lg:justify-start">
+        <AnimateIn delay={80} className="flex flex-1 flex-wrap items-center justify-center gap-10 sm:gap-12 lg:justify-center xl:gap-16">
           {logos.map(({ src, alt, className }) => (
             <img key={alt} src={src} alt={alt} className={className} />
           ))}

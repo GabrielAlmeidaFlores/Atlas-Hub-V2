@@ -20,7 +20,15 @@ export interface ProjetoPublico {
   readonly prazoRestanteDias?: number | null;
 }
 
-function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNode {
+function ProjetoCard({
+  projeto,
+  ctaClassName,
+  projectNameClassName = "text-[#D2A047]",
+}: {
+  readonly projeto: ProjetoPublico;
+  readonly ctaClassName?: string;
+  readonly projectNameClassName?: string;
+}): ReactNode {
   const href = projeto.ofertaLink;
   const percentual = projeto.percentualCaptado ?? null;
   const prazo = projeto.prazoRestanteDias ?? null;
@@ -39,7 +47,7 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
       </div>
       <div className="lp-project-accent" aria-hidden />
       <div className="relative flex flex-1 flex-col gap-0 p-4 text-left sm:p-5">
-        <h3 className="lp-project-title mt-3 w-full text-[#D2A047]">{projeto.nome}</h3>
+        <h3 className={cn("lp-project-title mt-3 w-full", projectNameClassName)}>{projeto.nome}</h3>
         <p className="mt-1.5 flex w-full items-center gap-1.5 text-sm font-bold text-black">
           <MapPin className="h-4 w-4 shrink-0 text-[#D2A047]" strokeWidth={1.75} />
           {projeto.cidade}, {projeto.estado}
@@ -82,7 +90,7 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
           )}
         </div>
 
-        <span className="lp-project-cta mt-3 w-full">
+        <span className={cn("lp-project-cta mt-3 w-full", ctaClassName)}>
           Ver Projeto
         </span>
       </div>
@@ -91,16 +99,30 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
 
   if (href !== null && href.length > 0) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="lp-project-card">
+      <a href={href} target="_blank" rel="noopener noreferrer" className="lp-project-card group">
         {content}
       </a>
     );
   }
 
-  return <div className="lp-project-card lp-project-card-disabled">{content}</div>;
+  return <div className="lp-project-card lp-project-card-disabled group">{content}</div>;
 }
 
-export function ProjetosAtlas(): ReactNode {
+export function ProjetosAtlas({
+  shellClassName,
+  titleSuffix = " em captação",
+  titleHighlightClassName = "text-[#D2A047]",
+  titleSuffixClassName = "text-white",
+  ctaClassName,
+  projectNameClassName,
+}: {
+  readonly shellClassName?: string;
+  readonly titleSuffix?: string;
+  readonly titleHighlightClassName?: string;
+  readonly titleSuffixClassName?: string;
+  readonly ctaClassName?: string;
+  readonly projectNameClassName?: string;
+}): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
@@ -237,12 +259,12 @@ export function ProjetosAtlas(): ReactNode {
 
   return (
     <section id="projetos-atlas" className="lp-projects-section py-10 lg:py-14" data-analytics-section="projetos">
-      <div className="lp-projects-shell relative overflow-hidden py-10 lg:py-14">
+      <div className={cn("lp-projects-shell relative overflow-hidden py-10 lg:py-14", shellClassName)}>
       <div className="lp-container relative">
         <AnimateIn className="mx-auto mb-6 max-w-2xl text-center lg:mb-8">
           <h2 className="text-3xl font-extrabold uppercase tracking-tight md:text-4xl">
-            <span className="text-[#D2A047]">projetos</span>
-            <span className="text-white"> em captação</span>
+            <span className={titleHighlightClassName}>projetos</span>
+            <span className={titleSuffixClassName}>{titleSuffix}</span>
           </h2>
         </AnimateIn>
 
@@ -299,7 +321,11 @@ export function ProjetosAtlas(): ReactNode {
                 className="lp-project-slide"
               >
                 <AnimateIn delay={Math.min(i, 4) * 40} className="h-full">
-                  <ProjetoCard projeto={projeto} />
+                  <ProjetoCard
+                    projeto={projeto}
+                    ctaClassName={ctaClassName}
+                    projectNameClassName={projectNameClassName}
+                  />
                 </AnimateIn>
               </div>
             ))}
