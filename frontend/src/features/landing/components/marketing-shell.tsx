@@ -224,35 +224,12 @@ function MarketingFooter(): ReactNode {
   );
 }
 
-function MobileCtaBar(): ReactNode {
-  return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur md:hidden">
-      <div className="mx-auto flex max-w-7xl gap-2">
-        <Link to="/cadastro" className="btn btn-gold flex-1 justify-center text-[11px] uppercase tracking-wider">
-          Cadastrar
-        </Link>
-        {hasWhatsappSupport() ? (
-          <WhatsappLink variant="navy" className="flex-1 justify-center text-[11px] uppercase tracking-wider !py-2.5">
-            WhatsApp
-          </WhatsappLink>
-        ) : (
-          <Link to="/login" className="btn btn-outline flex-1 justify-center text-[11px] uppercase tracking-wider">
-            Entrar
-          </Link>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export function MarketingShell({ children }: { readonly children: ReactNode }): ReactNode {
   return (
     <div className={cn("min-h-screen overflow-x-hidden bg-background pt-[72px] text-foreground sm:pt-[84px] lg:pt-[92px]")}>
       <MarketingNavbar />
       {children}
       <MarketingFooter />
-      <div className="h-16 md:hidden" />
-      <MobileCtaBar />
       <WhatsappFab />
     </div>
   );
