@@ -49,15 +49,15 @@ function Hero(): ReactNode {
 
           <div className="absolute inset-y-0 right-0 hidden w-[4%] bg-transparent lg:block" aria-hidden="true" />
 
-          <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
-            <div className="relative max-w-[760px] pb-3 pt-1 lg:pb-4">
+          <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
+            <div className="relative max-w-[760px] pb-3 pt-1 sm:pb-3 lg:pb-4">
               <p className="mb-6 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]" style={{ animation: "lp-fade-in 0.35s ease-out both" }}>
                 <span className="font-semibold">crowdfunding</span>
                 <span className="ml-1 font-light">imobiliário regulado pela CVM</span>
               </p>
 
               <h1
-                className="mb-5 max-w-[760px] text-[48px] font-extrabold uppercase leading-[0.95] tracking-[0.04em] text-white"
+                className="mb-5 max-w-[760px] text-[28px] font-extrabold uppercase leading-[1.02] tracking-[0.04em] text-white sm:text-[36px] md:text-[42px] lg:text-[48px]"
                 style={{ animation: "lp-fade-in-up 0.38s 0.06s ease-out both" }}
               >
                 INVISTA EM IMÓVEIS
@@ -68,47 +68,41 @@ function Hero(): ReactNode {
               </h1>
 
               <p
-                className="mb-8 max-w-[680px] text-[20px] font-medium leading-[1.12] tracking-[-0.04em] text-[#D2A047]"
+                className="mb-6 max-w-[680px] text-[16px] font-medium leading-[1.2] tracking-[-0.04em] text-[#D2A047] sm:mb-8 sm:text-[20px]"
                 style={{ animation: "lp-fade-in-up 0.38s 0.12s ease-out both" }}
               >
-                Ou capte recursos para o seu projeto
-                <br />
-                sem depender de financiamento bancário
+                Ou capte recursos para o seu projeto sem depender de financiamento bancário
               </p>
 
               <p
-                className="max-w-[820px] text-[14px] font-light leading-[1.25] tracking-[-0.03em] text-white"
+                className="max-w-[820px] text-[13px] font-light leading-[1.35] tracking-[-0.03em] text-white sm:text-[14px]"
                 style={{ animation: "lp-fade-in-up 0.38s 0.18s ease-out both" }}
               >
-                A Atlas Hub conecta investidores e incorporadoras em projetos imobiliários
-                <br />
-                selecionados a dedo — com curadoria técnica de localização e viabilidade,
-                <br />
-                e a segurança de uma plataforma regulada pela CVM.
+                A Atlas Hub conecta investidores e incorporadoras em projetos imobiliários selecionados a dedo — com curadoria técnica de localização e viabilidade, e a segurança de uma plataforma regulada pela CVM.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="relative z-30 -mt-[75px] px-4 pb-5 pt-0 sm:px-6 lg:px-8">
+      <div className="relative z-30 -mt-10 px-4 pb-5 pt-0 sm:-mt-[75px] sm:px-6 lg:px-8">
         <div className="lp-container">
-          <div className="mx-auto flex h-[136px] w-full max-w-[77%] items-center justify-between gap-5 rounded-[14px] bg-[linear-gradient(90deg,#D2A047_0%,#E1C683_100%)] px-5 py-0 text-[#6C4C14] shadow-[0_18px_28px_rgba(10,19,33,0.12),inset_0_1px_0_rgba(255,255,255,0.18)]">
-            <div className="flex-1 px-3 text-center">
-              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">CVM 88</p>
-              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Operação regulada</p>
+          <div className="mx-auto grid w-full max-w-full grid-cols-2 gap-x-2 gap-y-4 rounded-[14px] bg-[linear-gradient(90deg,#D2A047_0%,#E1C683_100%)] px-3 py-5 text-[#6C4C14] shadow-[0_18px_28px_rgba(10,19,33,0.12),inset_0_1px_0_rgba(255,255,255,0.18)] sm:flex sm:h-[136px] sm:max-w-[77%] sm:items-center sm:justify-between sm:gap-5 sm:px-5 sm:py-0">
+            <div className="px-1 text-center sm:flex-1 sm:px-3">
+              <p className="text-[24px] font-bold leading-none tracking-[-0.06em] sm:text-[32px]">CVM 88</p>
+              <p className="mt-1.5 text-[0.625rem] font-black uppercase tracking-[0.12em] text-[#6C4C14] sm:mt-2 sm:text-[0.73rem] sm:tracking-[0.18em]">Operação regulada</p>
             </div>
-            <div className="flex-1 px-3 text-center">
-              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">00</p>
-              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Projetos avaliados</p>
+            <div className="px-1 text-center sm:flex-1 sm:px-3">
+              <p className="text-[24px] font-bold leading-none tracking-[-0.06em] sm:text-[32px]">00</p>
+              <p className="mt-1.5 text-[0.625rem] font-black uppercase tracking-[0.12em] text-[#6C4C14] sm:mt-2 sm:text-[0.73rem] sm:tracking-[0.18em]">Projetos avaliados</p>
             </div>
-            <div className="flex-1 px-3 text-center">
-              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">00</p>
-              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Captados</p>
+            <div className="px-1 text-center sm:flex-1 sm:px-3">
+              <p className="text-[24px] font-bold leading-none tracking-[-0.06em] sm:text-[32px]">00</p>
+              <p className="mt-1.5 text-[0.625rem] font-black uppercase tracking-[0.12em] text-[#6C4C14] sm:mt-2 sm:text-[0.73rem] sm:tracking-[0.18em]">Captados</p>
             </div>
-            <div className="flex-1 px-3 text-center">
-              <p className="text-[32px] font-bold leading-none tracking-[-0.06em]">00</p>
-              <p className="mt-2 text-[0.73rem] font-black uppercase tracking-[0.18em] text-[#6C4C14]">Incorporadoras parceiras</p>
+            <div className="px-1 text-center sm:flex-1 sm:px-3">
+              <p className="text-[24px] font-bold leading-none tracking-[-0.06em] sm:text-[32px]">00</p>
+              <p className="mt-1.5 text-[0.625rem] font-black uppercase tracking-[0.12em] text-[#6C4C14] sm:mt-2 sm:text-[0.73rem] sm:tracking-[0.18em]">Incorporadoras parceiras</p>
             </div>
           </div>
         </div>
@@ -146,12 +140,12 @@ function Ecossistema(): ReactNode {
           {profiles.map(({ title, image, description, href, action, color }, i) => (
             <div
               key={title}
-              className="group relative min-w-0 flex-1 basis-0 aspect-[2.12] min-h-[300px] overflow-hidden rounded-[14px]"
+              className="group relative min-w-0 flex-1 overflow-hidden rounded-[14px] min-h-[280px] sm:aspect-[2.12] sm:min-h-[300px]"
             >
-              <img src={image} alt="" className="absolute inset-0 h-full w-full object-contain object-right" />
+              <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover object-right sm:object-contain" />
               <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, ${color} 0%, ${color} 50%, ${color}55 55%, transparent 100%)` }} />
-              <div className="relative flex h-full max-w-[58%] flex-col justify-center px-8 py-8 text-white sm:px-12 lg:px-14">
-                <h3 className="text-[32px] font-black uppercase leading-[1.05] tracking-[-0.04em] sm:text-[40px]">
+              <div className="relative flex h-full max-w-full flex-col justify-center px-6 py-8 text-white sm:max-w-[58%] sm:px-12 lg:px-14">
+                <h3 className="text-[24px] font-black uppercase leading-[1.05] tracking-[-0.04em] sm:text-[32px] lg:text-[40px]">
                   SOU
                   <br />
                   {title}
@@ -181,14 +175,14 @@ function ComoFunciona(): ReactNode {
     <section id="como-funciona" className="bg-white py-14 lg:py-16" data-analytics-section="como-funciona">
       <div className="lp-container flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-10">
         <AnimateIn className="lg:w-[24%]">
-          <h2 className="text-[52px] font-bold uppercase leading-[1.05] tracking-[-0.07em] text-navy md:text-[52px] lg:text-[52px]">
+          <h2 className="text-[32px] font-bold uppercase leading-[1.05] tracking-[-0.07em] text-navy sm:text-[40px] lg:text-[52px]">
             COMO
             <br />
             FUNCIONA A
             <br />
             ATLAS HUB
           </h2>
-          <p className="mt-5 text-[22.1px] font-medium leading-[1.05] tracking-[-0.04em] text-[#D2A047] md:text-[23.8px]">
+          <p className="mt-4 text-[18px] font-medium leading-[1.1] tracking-[-0.04em] text-[#D2A047] sm:mt-5 sm:text-[22.1px] lg:text-[23.8px]">
             do projeto ao investimento, em quatro passos
           </p>
         </AnimateIn>
@@ -262,7 +256,7 @@ function Curadoria(): ReactNode {
             </p>
           </AnimateIn>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7 lg:w-[110%] lg:gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7 lg:w-[110%] lg:max-w-none lg:gap-5 max-lg:w-full">
             {cards.map(({ icon: Icon, title, desc, offset, bg }, i) => (
               <AnimateIn key={title} delay={i * 80} className={offset}>
                 <div
@@ -312,7 +306,7 @@ function CvmBanner(): ReactNode {
   return (
     <section className="bg-white pb-16 pt-0 lg:pb-20" data-analytics-section="cvm-banner">
       <div className="flex justify-center px-4">
-        <AnimateIn className="w-[73%]">
+        <AnimateIn className="w-full max-w-3xl sm:w-[90%] lg:w-[73%]">
           <div className="flex w-full flex-col items-start gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 lg:gap-9 lg:px-12">
             <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[4.6rem] w-[4.8rem] shrink-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
               <g clipPath="url(#clip0_40_5364)">
@@ -424,30 +418,32 @@ function CentralDuvidas(): ReactNode {
 function CtaFinal(): ReactNode {
   return (
     <section className="bg-white pb-0 pt-0" data-analytics-section="cta-final">
-      <div className="relative min-h-[24rem] overflow-hidden bg-[#121A3E] sm:min-h-[26.4rem] lg:min-h-[29rem]">
-        <div className="absolute inset-y-0 right-0 w-[58%] sm:w-[55%] lg:w-[52%]">
+      <div className="relative min-h-[20rem] overflow-hidden bg-[#121A3E] sm:min-h-[26.4rem] lg:min-h-[29rem]">
+        <div className="absolute inset-0 sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[55%] lg:w-[52%]">
           <img
             src="/banner-mulher.png"
             alt=""
-            className="h-full w-full object-cover object-center"
+            className="h-full w-full object-cover object-center opacity-50 sm:opacity-100"
           />
         </div>
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 bg-[#121A3E]/90 sm:hidden"
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 hidden sm:block"
           style={{
             background:
               "linear-gradient(90deg, #121A3E 0%, #121A3E 38%, rgb(18 26 62 / 0.92) 48%, rgb(18 26 62 / 0.55) 62%, transparent 82%)",
           }}
         />
-        <div className="lp-container relative z-10 flex min-h-[24rem] items-center py-[3.6rem] sm:min-h-[26.4rem] lg:min-h-[29rem] lg:py-[4.2rem]">
+        <div className="lp-container relative z-10 flex min-h-[20rem] items-center py-10 sm:min-h-[26.4rem] sm:py-[3.6rem] lg:min-h-[29rem] lg:py-[4.2rem]">
           <AnimateIn className="max-w-md">
-            <h2 className="text-4xl font-extrabold uppercase leading-tight tracking-tight text-[#D2A047] sm:text-5xl lg:text-[3rem]">
+            <h2 className="text-3xl font-extrabold uppercase leading-tight tracking-tight text-[#D2A047] sm:text-5xl lg:text-[3rem]">
               Pronto para começar?
             </h2>
-            <p className="mt-4 max-w-md text-lg font-medium leading-relaxed text-white sm:text-xl">
-              Crie sua conta e invista no seu primeiro projeto
-              <br />
-              em poucos minutos.
+            <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-white sm:text-lg lg:text-xl">
+              Crie sua conta e invista no seu primeiro projeto em poucos minutos.
             </p>
             <Link
               to="/para-investidores"

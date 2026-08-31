@@ -1,6 +1,6 @@
 import { type ReactNode, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Mail } from "lucide-react";
+import { X } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { WhatsappFab, WhatsappLink } from "@/components/shared/whatsapp-cta";
 import { hasWhatsappSupport } from "@/lib/whatsapp";
@@ -46,9 +46,9 @@ function MarketingNavbar(): ReactNode {
         scrolled && "shadow-[0_8px_24px_rgba(15,23,42,0.08)]",
       )}
     >
-      <div className="lp-container flex h-[92px] items-center justify-between gap-8 lg:gap-12">
+      <div className="lp-container flex h-[72px] items-center justify-between gap-4 sm:h-[84px] sm:gap-6 lg:h-[92px] lg:gap-12">
         <Link to="/" aria-label="Atlas Hub — início" className="shrink-0">
-          <Logo size="lg" scheme="light" showIcon={false} className="scale-[0.85]" />
+          <Logo size="lg" scheme="light" showIcon={false} className="scale-[0.72] sm:scale-[0.8] lg:scale-[0.85]" />
         </Link>
 
         <nav className="hidden flex-1 items-center justify-end lg:ml-[15%] lg:flex" aria-label="Principal">
@@ -84,11 +84,23 @@ function MarketingNavbar(): ReactNode {
         <button
           type="button"
           onClick={() => setOpen((p) => !p)}
-          className="ml-auto rounded-[8px] border border-[#D7D7D7] bg-white p-2 text-[#1B2B5E] transition-colors duration-200 hover:bg-white/90 lg:hidden"
+          className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center lg:hidden"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
           aria-expanded={open}
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? (
+            <X className="h-5 w-5 text-[#1B2B5E]" />
+          ) : (
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path
+                d="M4.5 18H31.5M4.5 9H31.5M4.5 27H31.5"
+                stroke="#D2A047"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
         </button>
       </div>
 
@@ -106,6 +118,22 @@ function MarketingNavbar(): ReactNode {
               </Link>
             ))}
           </div>
+          <div className="mt-5 flex flex-col gap-2 border-t border-[#D9D9D9] pt-5">
+            <Link
+              to="/login"
+              onClick={() => setOpen(false)}
+              className="inline-flex h-11 items-center justify-center rounded-[4px] bg-[#D2A047] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Entrar
+            </Link>
+            <Link
+              to="/cadastro"
+              onClick={() => setOpen(false)}
+              className="inline-flex h-11 items-center justify-center rounded-[4px] bg-[#076C07] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+            >
+              Quero Investir
+            </Link>
+          </div>
           {hasWhatsappSupport() && (
             <div className="mt-5 border-t border-[#D9D9D9] pt-5">
               <WhatsappLink variant="hero" className="w-full justify-center" />
@@ -120,20 +148,17 @@ function MarketingNavbar(): ReactNode {
 function MarketingFooter(): ReactNode {
   return (
     <footer id="contato" className="bg-[#1C2E5E] text-white">
-      <div className="lp-container grid gap-16 py-16 md:grid-cols-12">
+      <div className="lp-container grid gap-10 py-10 sm:gap-12 sm:py-12 md:grid-cols-12 md:py-16">
         <div className="md:col-span-4">
-          <Logo size="lg" scheme="dark" className="origin-left scale-[1.875]" />
-          <p className="mt-5 max-w-xs text-[12px] leading-relaxed text-white/70">
+          <Logo size="lg" scheme="dark" className="origin-left scale-[1.25] sm:scale-[1.5] lg:scale-[1.875]" />
+          <p className="mt-4 max-w-xs text-[11px] leading-relaxed text-white/70 sm:mt-5 sm:text-[12px]">
             Crowdfunding imobiliário regulado pela CVM Resolução 88.
-            <br />
-            Originação, curadoria e oferta sob a
-            <br />
-            marca Atlas Hub.
+            Originação, curadoria e oferta sob a marca Atlas Hub.
           </p>
         </div>
-        <div className="md:col-span-8 flex justify-end">
-          <div className="flex flex-wrap justify-end gap-10 lg:gap-14 text-[12px]">
-            <div className="space-y-3">
+        <div className="md:col-span-8 md:flex md:justify-end">
+          <div className="flex flex-wrap justify-start gap-6 text-[11px] sm:gap-8 sm:text-[10px] lg:gap-[44.8px] lg:text-[9.6px] md:justify-end">
+            <div className="space-y-[9.6px]">
               <p className="font-semibold text-[#D2A047]">Navegação</p>
               <Link to="/#como-funciona" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Como Funciona
@@ -148,7 +173,7 @@ function MarketingFooter(): ReactNode {
                 Projetos
               </Link>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-[9.6px]">
               <p className="font-semibold text-[#D2A047]">Institucional</p>
               <Link to="/quem-somos" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Quem Somos
@@ -160,7 +185,7 @@ function MarketingFooter(): ReactNode {
                 Contato
               </a>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-[9.6px]">
               <p className="font-semibold text-[#D2A047]">Legal</p>
               <Link to="/termos" className="block text-white/70 transition-colors duration-300 hover:text-white">
                 Termos de Uso
@@ -176,9 +201,11 @@ function MarketingFooter(): ReactNode {
         </div>
       </div>
       <div className="border-t border-white/10 bg-[#D9B366] py-3 text-center">
-        <div className="lp-container flex items-center justify-center text-[11px] font-medium text-[#6C4C14]">
+        <div className="lp-container px-2 text-[10px] font-medium leading-snug text-[#6C4C14] sm:text-[11px]">
           <span>
-            <strong className="font-bold">© 2026 Atlas Hub</strong> - Crowdfunding Imobiliário. <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83. <strong className="font-bold">Todos os direitos reservados.</strong>
+            <strong className="font-bold">© 2026 Atlas Hub</strong> — Crowdfunding Imobiliário.{" "}
+            <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83.{" "}
+            <strong className="font-bold">Todos os direitos reservados.</strong>
           </span>
         </div>
       </div>
@@ -209,7 +236,7 @@ function MobileCtaBar(): ReactNode {
 
 export function MarketingShell({ children }: { readonly children: ReactNode }): ReactNode {
   return (
-    <div className={cn("min-h-screen bg-background pt-[88px] text-foreground")}>
+    <div className={cn("min-h-screen overflow-x-hidden bg-background pt-[72px] text-foreground sm:pt-[84px] lg:pt-[92px]")}>
       <MarketingNavbar />
       {children}
       <MarketingFooter />

@@ -10,18 +10,18 @@ function ProjetosHero(): ReactNode {
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative min-h-[557px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] lg:min-h-[600px]">
+      <div className="relative min-h-[420px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[480px] lg:min-h-[600px]">
         <img
           src="/bg-projetos.png"
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
           <div className="relative z-10 max-w-[680px]">
             <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
               Projetos
             </p>
-            <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[38px] lg:text-[44px]">
+            <h1 className="text-[28px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[32px] md:text-[38px] lg:text-[44px]">
               Conheça os projetos
               <br />
               em captação
@@ -55,6 +55,7 @@ export default function ProjetosPage(): ReactNode {
         titleSuffixClassName="text-[#6C4C14]"
         ctaClassName="!bg-[#001F4E] group-hover:!bg-[#001a40] !shadow-none group-hover:!shadow-[0_4px_14px_rgba(0,31,78,0.28)]"
         projectNameClassName="text-[#001F4E]"
+        carouselRows={3}
       />
     </MarketingShell>
   );

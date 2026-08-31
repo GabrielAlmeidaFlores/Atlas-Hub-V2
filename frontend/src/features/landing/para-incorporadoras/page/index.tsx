@@ -14,19 +14,19 @@ function IncorporadorasHero(): ReactNode {
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative min-h-[557px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] lg:min-h-[600px]">
+      <div className="relative min-h-[420px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[480px] lg:min-h-[600px]">
         <img
           src="/bg-incorporadoras.png"
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
           <div className="relative z-10 max-w-[720px]">
             <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
               <span className="font-light">Para </span>
               <span className="font-semibold">incorporadoras</span>
             </p>
-            <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[38px] lg:text-[44px]">
+            <h1 className="text-[28px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[32px] md:text-[38px] lg:text-[44px]">
               capture recursos
               <br />
               sem financiamento
@@ -62,7 +62,7 @@ function CapitarPassos(): ReactNode {
     <section className="bg-white py-14 lg:py-16" data-analytics-section="como-captar">
       <div className="lp-container flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-10">
         <AnimateIn className="shrink-0 lg:w-[22%]">
-          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[44px] lg:text-[48px]">
+          <h2 className="text-[32px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[40px] lg:text-[48px]">
             Como captar em
             <br />
             <span className="text-[#D2A047]">4 passos</span>
@@ -99,7 +99,7 @@ function CapitarPassos(): ReactNode {
                 <p className="text-[13px] font-normal leading-snug text-white sm:text-sm">{desc}</p>
                 {i < CAPTAR_PASSOS.length - 1 && (
                   <span
-                    className="absolute -bottom-5 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center bg-white"
+                    className="absolute -bottom-5 left-1/2 hidden h-11 w-11 -translate-x-1/2 items-center justify-center bg-white xl:flex"
                     style={{
                       borderRadius: "9999px",
                       border: `2px solid ${color}`,
@@ -133,7 +133,7 @@ function AvaliacaoProjeto(): ReactNode {
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
             O que avaliamos antes de
           </p>
-          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-white sm:text-[44px] lg:text-[48px]">
+          <h2 className="text-[32px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-white sm:text-[40px] lg:text-[48px]">
             Aprovar um projeto
           </h2>
         </AnimateIn>
@@ -194,7 +194,7 @@ function SoliciteAvaliacao(): ReactNode {
     <section className="bg-white py-14 lg:py-16" data-analytics-section="solicite-avaliacao">
       <div className="lp-container grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
         <AnimateIn className="lg:col-span-5">
-          <h2 className="text-[40px] font-bold uppercase leading-[1.08] tracking-[-0.06em] text-navy sm:text-[44px] lg:text-[48px]">
+          <h2 className="text-[32px] font-bold uppercase leading-[1.08] tracking-[-0.06em] text-navy sm:text-[40px] lg:text-[48px]">
             Solicite a
             <br />
             <span className="text-[#D2A047]">Avaliação do seu projeto</span>
@@ -236,7 +236,7 @@ function SoliciteAvaliacao(): ReactNode {
             />
             <button
               type="submit"
-              className="mt-2 inline-flex h-12 w-fit items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+              className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90 sm:w-fit"
             >
               Enviar projeto para avaliação
             </button>

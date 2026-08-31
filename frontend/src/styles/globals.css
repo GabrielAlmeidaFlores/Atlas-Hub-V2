@@ -352,7 +352,7 @@
   .animate-in { animation: fadeSlideUp 0.32s ease-out both; }
 
   .lp-container {
-    @apply mx-auto w-full max-w-7xl px-6 lg:px-8;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   .lp-hero-bg {
@@ -464,8 +464,15 @@
     background-position: center bottom;
     background-repeat: no-repeat;
     border-radius: 1.25rem;
-    margin-left: 1.25rem;
-    margin-right: 1.25rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .lp-projects-shell {
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
   }
 
   @media (min-width: 1024px) {
@@ -516,8 +523,20 @@
   }
 
   .lp-project-slide {
-    @apply w-[min(100%,19.5rem)] shrink-0 snap-start;
+    @apply w-[min(100%,18rem)] shrink-0 snap-start sm:w-[min(100%,19.5rem)];
     padding-bottom: 0.35rem;
+  }
+
+  .lp-project-slide-column {
+    height: auto;
+  }
+
+  .lp-project-slide-column .lp-project-card {
+    transform: none;
+  }
+
+  .lp-project-slide-column .lp-project-card:hover {
+    transform: translateY(-4px);
   }
 
   .lp-project-card {
@@ -601,7 +620,7 @@
   }
 
   .lp-project-title {
-    @apply text-lg font-extrabold leading-snug tracking-tight text-[#D2A047] sm:text-xl;
+    @apply text-lg font-extrabold leading-snug tracking-tight sm:text-xl;
   }
 
   .lp-project-divider {

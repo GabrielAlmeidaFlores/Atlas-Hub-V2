@@ -12,18 +12,18 @@ function QuemSomosHero(): ReactNode {
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative min-h-[557px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] lg:min-h-[600px]">
+      <div className="relative min-h-[420px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[480px] lg:min-h-[600px]">
         <img
           src="/bg-quemsomos.png"
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
           <div className="relative z-10 max-w-[680px]">
             <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
               Quem somos
             </p>
-            <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[38px] lg:text-[44px]">
+            <h1 className="text-[28px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[32px] md:text-[38px] lg:text-[44px]">
               A curadoria
               <br />
               por trás
@@ -210,7 +210,7 @@ function CvmBanner(): ReactNode {
   return (
     <section className="bg-white pb-16 pt-12 lg:pb-20 lg:pt-16" data-analytics-section="cvm-banner">
       <div className="flex justify-center px-4">
-        <AnimateIn className="w-[73%]">
+        <AnimateIn className="w-full max-w-3xl sm:w-[90%] lg:w-[73%]">
           <div className="flex w-full flex-col items-start gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 lg:gap-9 lg:px-12">
             <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[4.6rem] w-[4.8rem] shrink-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
               <g clipPath="url(#clip0_40_5364_qs)">
@@ -244,12 +244,12 @@ function CvmBanner(): ReactNode {
 
 function Parceiros(): ReactNode {
   const logos = [
-    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[7.6rem] w-auto max-w-[15.2rem] object-contain sm:h-[8.85rem] sm:max-w-[17.7rem]" },
-    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[6.35rem] w-auto max-w-[19rem] object-contain sm:h-[7.6rem] sm:max-w-[22.8rem]" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[5rem] w-auto max-w-[12rem] object-contain sm:h-[7.6rem] sm:max-w-[15.2rem] lg:h-[8.85rem] lg:max-w-[17.7rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.5rem] w-auto max-w-[14rem] object-contain sm:h-[6.35rem] sm:max-w-[19rem] lg:h-[7.6rem] lg:max-w-[22.8rem]" },
   ];
 
   return (
-    <section className="bg-[#D5A650] py-[5.18rem] lg:py-[6.2rem]" data-analytics-section="parceiros">
+    <section className="bg-[#D5A650] py-12 sm:py-[5.18rem] lg:py-[6.2rem]" data-analytics-section="parceiros">
       <div className="lp-container flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-12">
         <AnimateIn className="shrink-0 text-center lg:text-left">
           <h2 className="max-w-md text-[1.75rem] font-extrabold leading-tight tracking-tight text-[#6C4C14] uppercase sm:text-[2.15rem] lg:text-[2.25rem]">

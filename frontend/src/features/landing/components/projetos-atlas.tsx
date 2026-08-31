@@ -108,6 +108,25 @@ function ProjetoCard({
   return <div className="lp-project-card lp-project-card-disabled group">{content}</div>;
 }
 
+function resolveCarouselRowCount(itemCount: number, maxRows: number): number {
+  if (itemCount <= 0 || maxRows <= 1) return 1;
+  const cap = Math.min(maxRows, itemCount);
+  let bestRows = 1;
+  let bestWaste = itemCount;
+
+  for (let rows = 1; rows <= cap; rows += 1) {
+    const cols = Math.ceil(itemCount / rows);
+    const lastColCount = itemCount - (cols - 1) * rows;
+    const waste = rows - lastColCount;
+    if (waste < bestWaste || (waste === bestWaste && rows > bestRows)) {
+      bestWaste = waste;
+      bestRows = rows;
+    }
+  }
+
+  return bestRows;
+}
+
 export function ProjetosAtlas({
   shellClassName,
   titleSuffix = " em captação",
@@ -115,6 +134,7 @@ export function ProjetosAtlas({
   titleSuffixClassName = "text-white",
   ctaClassName,
   projectNameClassName,
+  carouselRows,
 }: {
   readonly shellClassName?: string;
   readonly titleSuffix?: string;
@@ -122,17 +142,25 @@ export function ProjetosAtlas({
   readonly titleSuffixClassName?: string;
   readonly ctaClassName?: string;
   readonly projectNameClassName?: string;
+  readonly carouselRows?: number;
 }): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const loopingRef = useRef(false);
+  const maxCarouselRows = carouselRows ?? 1;
+  const multiRowCarousel = maxCarouselRows > 1;
+  const fetchLimit = multiRowCarousel ? maxCarouselRows * 4 : 5;
+  const effectiveRowCount =
+    items !== null && multiRowCarousel
+      ? resolveCarouselRowCount(items.length, maxCarouselRows)
+      : maxCarouselRows;
 
   useEffect(() => {
     let cancelled = false;
     void api
-      .get<{ items: ProjetoPublico[] }>("/publico/projetos?limit=5")
+      .get<{ items: ProjetoPublico[] }>(`/publico/projetos?limit=${String(fetchLimit)}`)
       .then((data) => {
         if (!cancelled) setItems(data.items);
       })
@@ -145,10 +173,17 @@ export function ProjetosAtlas({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetchLimit]);
+
+  const projectColumns =
+    items === null || items.length === 0 || !multiRowCarousel
+      ? []
+      : Array.from({ length: Math.ceil(items.length / effectiveRowCount) }, (_, columnIndex) =>
+          items.slice(columnIndex * effectiveRowCount, columnIndex * effectiveRowCount + effectiveRowCount),
+        );
 
   const loopItems =
-    items === null || items.length === 0
+    multiRowCarousel || items === null || items.length === 0
       ? []
       : [0, 1, 2].flatMap((copy) =>
           items.map((projeto) => ({
@@ -158,6 +193,7 @@ export function ProjetosAtlas({
         );
 
   useEffect(() => {
+    if (multiRowCarousel) return;
     const track = scrollerRef.current;
     if (track === null || items === null || items.length === 0) return;
 
@@ -244,25 +280,27 @@ export function ProjetosAtlas({
       track.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [items]);
+  }, [items, multiRowCarousel]);
 
   function scrollBy(dir: -1 | 1): void {
     const el = scrollerRef.current;
     if (el === null) return;
-    const slide = el.querySelector(".lp-project-slide");
+    const slideSelector = multiRowCarousel ? ".lp-project-slide-column" : ".lp-project-slide";
+    const slide = el.querySelector(slideSelector);
     const amount = slide instanceof HTMLElement ? slide.offsetWidth + 40 : Math.min(el.clientWidth * 0.8, 400);
     el.scrollBy({ left: dir * amount, behavior: "smooth" });
   }
 
   const loading = items === null;
   const empty = items !== null && items.length === 0;
+  const hasCarouselItems = multiRowCarousel ? projectColumns.length > 0 : loopItems.length > 0;
 
   return (
     <section id="projetos-atlas" className="lp-projects-section py-10 lg:py-14" data-analytics-section="projetos">
       <div className={cn("lp-projects-shell relative overflow-hidden py-10 lg:py-14", shellClassName)}>
       <div className="lp-container relative">
         <AnimateIn className="mx-auto mb-6 max-w-2xl text-center lg:mb-8">
-          <h2 className="text-3xl font-extrabold uppercase tracking-tight md:text-4xl">
+          <h2 className="text-2xl font-extrabold uppercase tracking-tight sm:text-3xl md:text-4xl">
             <span className={titleHighlightClassName}>projetos</span>
             <span className={titleSuffixClassName}>{titleSuffix}</span>
           </h2>
@@ -285,25 +323,47 @@ export function ProjetosAtlas({
 
       {loading && (
         <div className="lp-projects-bleed relative">
-          <div className="lp-projects-track flex justify-center gap-8 overflow-hidden px-4 sm:gap-10 sm:px-6 lg:px-8">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="lp-project-slide">
-                <div className="lp-project-card p-6 sm:p-7">
-                  <div className="space-y-4">
-                    <div className="skeleton h-6 w-32" />
-                    <div className="skeleton h-6 w-4/5" />
-                    <div className="skeleton h-3 w-1/2" />
-                    <div className="skeleton mt-2 h-16 w-full" />
-                    <div className="skeleton h-11 w-full" />
+          <div
+            className={cn(
+              "lp-projects-track flex gap-8 overflow-hidden px-4 sm:gap-10 sm:px-6 lg:px-8",
+              multiRowCarousel ? "justify-start" : "justify-center",
+            )}
+          >
+            {(multiRowCarousel ? [0, 1] : [0, 1, 2]).map((i) => (
+              <div
+                key={i}
+                className={cn("lp-project-slide", multiRowCarousel && "lp-project-slide-column flex flex-col gap-8 sm:gap-10")}
+              >
+                {multiRowCarousel ? (
+                  Array.from({ length: maxCarouselRows }, (_, row) => row).map((row) => (
+                    <div key={row} className="lp-project-card p-6 sm:p-7">
+                      <div className="space-y-4">
+                        <div className="skeleton h-6 w-32" />
+                        <div className="skeleton h-6 w-4/5" />
+                        <div className="skeleton h-3 w-1/2" />
+                        <div className="skeleton mt-2 h-16 w-full" />
+                        <div className="skeleton h-11 w-full" />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="lp-project-card p-6 sm:p-7">
+                    <div className="space-y-4">
+                      <div className="skeleton h-6 w-32" />
+                      <div className="skeleton h-6 w-4/5" />
+                      <div className="skeleton h-3 w-1/2" />
+                      <div className="skeleton mt-2 h-16 w-full" />
+                      <div className="skeleton h-11 w-full" />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {!loading && loopItems.length > 0 && (
+      {!loading && hasCarouselItems && (
         <div className="relative">
           <div
             ref={scrollerRef}
@@ -311,24 +371,49 @@ export function ProjetosAtlas({
               "lp-projects-bleed lp-projects-track flex gap-8 overflow-x-auto sm:gap-10",
               "snap-x snap-mandatory scroll-smooth",
               "px-4 sm:px-6 lg:px-8",
+              multiRowCarousel && "items-start",
             )}
           >
-            {loopItems.map(({ projeto, loopKey }, i) => (
-              <div
-                key={loopKey}
-                data-loop-key={loopKey}
-                data-project-id={projeto.id}
-                className="lp-project-slide"
-              >
-                <AnimateIn delay={Math.min(i, 4) * 40} className="h-full">
-                  <ProjetoCard
-                    projeto={projeto}
-                    ctaClassName={ctaClassName}
-                    projectNameClassName={projectNameClassName}
-                  />
-                </AnimateIn>
-              </div>
-            ))}
+            {multiRowCarousel
+              ? projectColumns.map((column, columnIndex) => (
+                  <div
+                    key={column.map((projeto) => projeto.id).join("-")}
+                    className="lp-project-slide lp-project-slide-column flex flex-col gap-8 sm:gap-10"
+                  >
+                    {column.map((projeto, rowIndex) => (
+                      <AnimateIn
+                        key={projeto.id}
+                        delay={Math.min(columnIndex * effectiveRowCount + rowIndex, 11) * 40}
+                        className="h-full"
+                      >
+                        <ProjetoCard
+                          projeto={projeto}
+                          ctaClassName={ctaClassName}
+                          projectNameClassName={projectNameClassName}
+                        />
+                      </AnimateIn>
+                    ))}
+                  </div>
+                ))
+              : loopItems.map(({ projeto, loopKey }, i) => (
+                  <div
+                    key={loopKey}
+                    data-loop-key={loopKey}
+                    data-project-id={projeto.id}
+                    className={cn(
+                      "lp-project-slide",
+                      activeKey === loopKey && "lp-project-slide-active",
+                    )}
+                  >
+                    <AnimateIn delay={Math.min(i, 4) * 40} className="h-full">
+                      <ProjetoCard
+                        projeto={projeto}
+                        ctaClassName={ctaClassName}
+                        projectNameClassName={projectNameClassName}
+                      />
+                    </AnimateIn>
+                  </div>
+                ))}
           </div>
 
           <div className="lp-container relative mt-3 flex items-center justify-center gap-3">

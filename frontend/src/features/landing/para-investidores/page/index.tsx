@@ -20,18 +20,18 @@ function InvestidoresHero(): ReactNode {
           className="absolute inset-0 h-full w-full object-contain"
           style={{ objectPosition: "right center" }}
         />
-        <div className="lp-container relative flex min-h-[557px] items-center py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
           <div className="relative max-w-[680px]">
             <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
               <span className="font-light">Para </span>
               <span className="font-semibold">investidores</span>
             </p>
-            <h1 className="text-[36px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white sm:text-[42px] lg:text-[48px]">
+            <h1 className="text-[28px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white sm:text-[36px] md:text-[42px] lg:text-[48px]">
               Diversifique com imóveis,
               <br />
               a partir de R$10
             </h1>
-            <p className="mt-5 text-[20px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[24px]">
+            <p className="mt-5 text-[17px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[20px] lg:text-[24px]">
               Acesse projetos curados por especialistas.
             </p>
             <Link
@@ -60,7 +60,7 @@ function InvestirPassos(): ReactNode {
     <section className="bg-white py-14 lg:py-16" data-analytics-section="como-investir">
       <div className="lp-container flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-10">
         <AnimateIn className="shrink-0 lg:w-[22%]">
-          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[44px] lg:text-[48px]">
+          <h2 className="text-[32px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[40px] lg:text-[48px]">
             Como investir em
             <br />
             <span className="text-[#D2A047]">4 passos</span>
@@ -97,7 +97,7 @@ function InvestirPassos(): ReactNode {
                 <p className="text-[13px] font-normal leading-snug text-navy sm:text-sm">{desc}</p>
                 {i < INVESTIR_PASSOS.length - 1 && (
                   <span
-                    className="absolute -bottom-5 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center bg-white"
+                    className="absolute -bottom-5 left-1/2 hidden h-11 w-11 -translate-x-1/2 items-center justify-center bg-white xl:flex"
                     style={{
                       borderRadius: "9999px",
                       border: `2px solid ${color}`,
@@ -120,7 +120,7 @@ function CvmBanner(): ReactNode {
   return (
     <section className="bg-white pb-16 pt-0 lg:pb-20" data-analytics-section="cvm-banner">
       <div className="flex justify-center px-4">
-        <AnimateIn className="w-[73%]">
+        <AnimateIn className="w-full max-w-3xl sm:w-[90%] lg:w-[73%]">
           <div className="flex w-full flex-col items-start gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 lg:gap-9 lg:px-12">
             <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[4.6rem] w-[4.8rem] shrink-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
               <g clipPath="url(#clip0_40_5364)">
