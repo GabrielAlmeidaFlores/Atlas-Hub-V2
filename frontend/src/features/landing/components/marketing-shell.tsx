@@ -148,61 +148,72 @@ function MarketingNavbar(): ReactNode {
 function MarketingFooter(): ReactNode {
   return (
     <footer id="contato" className="bg-[#1C2E5E] text-white">
-      <div className="lp-container grid gap-10 py-10 sm:gap-12 sm:py-12 md:grid-cols-12 md:py-16">
-        <div className="md:col-span-4">
-          <Logo size="lg" scheme="dark" className="origin-left scale-[1.25] sm:scale-[1.5] lg:scale-[1.875]" />
-          <p className="mt-4 max-w-xs text-[11px] leading-relaxed text-white/70 sm:mt-5 sm:text-[12px]">
+      <div className="lp-container flex flex-col items-center gap-10 py-12 md:grid md:grid-cols-12 md:items-start md:gap-10 md:py-16">
+        <div className="flex flex-col items-center text-center md:col-span-4 md:items-start md:text-left">
+          <Logo size="lg" scheme="dark" className="origin-center scale-[1.35] md:origin-left md:scale-[1.5] lg:scale-[1.875]" />
+          <p className="mt-4 hidden max-w-xs text-[12px] leading-relaxed text-white/70 md:block">
             Crowdfunding imobiliário regulado pela CVM Resolução 88.
             Originação, curadoria e oferta sob a marca Atlas Hub.
           </p>
         </div>
-        <div className="md:col-span-8 md:flex md:justify-end">
-          <div className="flex flex-wrap justify-start gap-6 text-[11px] sm:gap-8 sm:text-[10px] lg:gap-[44.8px] lg:text-[9.6px] md:justify-end">
-            <div className="space-y-[9.6px]">
+        <div className="w-full md:col-span-8 md:flex md:justify-end">
+          <div className="flex w-full flex-col items-center gap-9 text-[11px] md:flex-row md:flex-wrap md:items-start md:justify-end md:gap-8 md:text-[10px] lg:gap-[44.8px] lg:text-[9.6px]">
+            <div className="space-y-3 text-center md:space-y-[9.6px] md:text-left">
               <p className="font-semibold text-[#D2A047]">Navegação</p>
-              <Link to="/#como-funciona" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/#como-funciona" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Como Funciona
               </Link>
-              <Link to="/para-investidores" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/para-investidores" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Para Investidores
               </Link>
-              <Link to="/para-incorporadoras" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/para-incorporadoras" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Para Incorporadoras
               </Link>
-              <Link to="/projetos" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/projetos" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Projetos
               </Link>
             </div>
-            <div className="space-y-[9.6px]">
+            <div className="space-y-3 text-center md:space-y-[9.6px] md:text-left">
               <p className="font-semibold text-[#D2A047]">Institucional</p>
-              <Link to="/quem-somos" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/quem-somos" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Quem Somos
               </Link>
-              <Link to="/#central-duvidas" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/#central-duvidas" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Conteúdos
               </Link>
-              <a href="mailto:contato@atlashub.com.br" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <a href="mailto:contato@atlashub.com.br" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Contato
               </a>
             </div>
-            <div className="space-y-[9.6px]">
+            <div className="space-y-3 text-center md:space-y-[9.6px] md:text-left">
               <p className="font-semibold text-[#D2A047]">Legal</p>
-              <Link to="/termos" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/termos" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Termos de Uso
               </Link>
-              <Link to="/privacidade" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <Link to="/privacidade" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Privacidade
               </Link>
-              <a href="#" className="block text-white/70 transition-colors duration-300 hover:text-white">
+              <a href="#" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 CVM Resolução 88
               </a>
             </div>
           </div>
         </div>
       </div>
-      <div className="border-t border-white/10 bg-[#D9B366] py-3 text-center">
-        <div className="lp-container px-2 text-[10px] font-medium leading-snug text-[#6C4C14] sm:text-[11px]">
-          <span>
+      <div className="border-t border-white/10 bg-[#D9B366] py-4 text-center md:py-3">
+        <div className="lp-container px-4 text-[10px] font-medium leading-relaxed text-[#6C4C14] sm:text-[11px]">
+          <div className="md:hidden">
+            <p>
+              <strong className="font-bold">© 2026 Atlas Hub</strong> — Crowdfunding
+            </p>
+            <p className="mt-1">
+              Imobiliário. <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83.
+            </p>
+            <p className="mt-1">
+              <strong className="font-bold">Todos os direitos reservados.</strong>
+            </p>
+          </div>
+          <span className="hidden md:inline">
             <strong className="font-bold">© 2026 Atlas Hub</strong> — Crowdfunding Imobiliário.{" "}
             <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83.{" "}
             <strong className="font-bold">Todos os direitos reservados.</strong>

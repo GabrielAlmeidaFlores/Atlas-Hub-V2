@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, MapPin, ShieldCheck } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
 import { api } from "@/services/api";
@@ -135,6 +136,7 @@ export function ProjetosAtlas({
   ctaClassName,
   projectNameClassName,
   carouselRows,
+  viewAllProjectsOnMobile,
 }: {
   readonly shellClassName?: string;
   readonly titleSuffix?: string;
@@ -143,6 +145,7 @@ export function ProjetosAtlas({
   readonly ctaClassName?: string;
   readonly projectNameClassName?: string;
   readonly carouselRows?: number;
+  readonly viewAllProjectsOnMobile?: boolean;
 }): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -416,7 +419,7 @@ export function ProjetosAtlas({
                 ))}
           </div>
 
-          <div className="lp-container relative mt-3 flex items-center justify-center gap-3">
+          <div className="lp-container relative mt-3 hidden items-center justify-center gap-3 md:flex">
             <button
               type="button"
               aria-label="Projetos anteriores"
@@ -434,6 +437,17 @@ export function ProjetosAtlas({
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+        </div>
+      )}
+      {viewAllProjectsOnMobile && !loading && (
+        <div className="lp-container mt-6 flex justify-center md:hidden">
+          <Link
+            to="/projetos"
+            data-analytics-cta="projetos_ver_todos"
+            className="inline-flex h-12 w-full max-w-[19.5rem] items-center justify-center rounded-[6px] bg-[#D2A047] px-6 text-sm font-bold text-white transition-opacity duration-200 hover:opacity-90"
+          >
+            Ver todos os projetos
+          </Link>
         </div>
       )}
       </div>

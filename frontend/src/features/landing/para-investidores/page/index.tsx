@@ -159,7 +159,7 @@ function CentralDuvidas(): ReactNode {
   return (
     <section id="central-duvidas" className="bg-white py-10 sm:py-12 lg:py-14" data-analytics-section="central-duvidas">
       <div className="lp-container grid items-center gap-6 lg:grid-cols-12 lg:gap-8">
-        <AnimateIn className="flex justify-center lg:-mb-14 lg:col-span-5 lg:justify-start">
+        <AnimateIn className="hidden justify-center lg:-mb-14 lg:col-span-5 lg:flex lg:justify-start">
           <img
             src="/Mask%20group.svg"
             alt=""
