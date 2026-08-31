@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AnimateIn } from "@/components/animate-in";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
@@ -8,30 +8,72 @@ import { ProjetosAtlas } from "@/features/landing/components/projetos-atlas";
 import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
 function InvestidoresHero(): ReactNode {
+  const heroColor = "#001F4E";
+
   return (
     <section
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
       <div className="relative overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
+        <div className="relative min-h-[676px] overflow-hidden sm:hidden">
+          <img
+            src="/investidores-bg-mobile.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, ${heroColor} 0%, ${heroColor} 34%, ${heroColor}f2 42%, ${heroColor}d9 50%, ${heroColor}b3 58%, ${heroColor}80 66%, ${heroColor}4d 74%, ${heroColor}26 82%, transparent 92%)`,
+            }}
+            aria-hidden
+          />
+          <div className="relative z-10 px-6 pb-12 pt-8 text-left text-white">
+            <p className="mb-6 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
+              <span className="font-light">Para </span>
+              <span className="font-semibold">investidores</span>
+            </p>
+            <h1 className="text-[30px] font-extrabold uppercase leading-[1.12] tracking-[0.04em]">
+              INVISTA EM IMÓVEIS
+              <br />
+              A PARTIR DE R$10,
+              <br />
+              COM CURADORIA
+              <br />
+              PROFISSIONAL
+            </h1>
+            <p className="mt-5 text-[17px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047]">
+              Acesse projetos curados por especialistas.
+            </p>
+            <Link
+              to="/cadastro"
+              data-analytics-cta="inv_hero_cadastro"
+              className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+            >
+              Quero investir
+            </Link>
+          </div>
+        </div>
+
         <img
           src="/bg-investidores.png"
           alt=""
-          className="absolute inset-0 h-full w-full object-contain"
+          className="absolute inset-0 hidden h-full w-full object-contain sm:block"
           style={{ objectPosition: "right center" }}
         />
-        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative hidden min-h-[480px] items-center py-3 sm:flex lg:min-h-[600px] lg:py-4">
           <div className="relative max-w-[680px]">
             <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
               <span className="font-light">Para </span>
               <span className="font-semibold">investidores</span>
             </p>
-            <h1 className="text-[28px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white sm:text-[36px] md:text-[42px] lg:text-[48px]">
+            <h1 className="text-[36px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white md:text-[42px] lg:text-[48px]">
               Diversifique com imóveis,
               <br />
               a partir de R$10
             </h1>
-            <p className="mt-5 text-[17px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[20px] lg:text-[24px]">
+            <p className="mt-5 text-[20px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] lg:text-[24px]">
               Acesse projetos curados por especialistas.
             </p>
             <Link
@@ -57,27 +99,27 @@ const INVESTIR_PASSOS = [
 
 function InvestirPassos(): ReactNode {
   return (
-    <section className="bg-white py-14 lg:py-16" data-analytics-section="como-investir">
-      <div className="lp-container flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-10">
-        <AnimateIn className="shrink-0 lg:w-[22%]">
+    <section className="bg-white py-10 sm:py-14 lg:py-16" data-analytics-section="como-investir">
+      <div className="lp-container flex flex-col gap-8 sm:gap-10 lg:flex-row lg:items-start lg:gap-10">
+        <AnimateIn className="shrink-0 text-center lg:w-[22%] lg:text-left">
           <h2 className="text-[32px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[40px] lg:text-[48px]">
-            Como investir em
+            Como investir
             <br />
-            <span className="text-[#D2A047]">4 passos</span>
+            <span className="text-[#D2A047]">em 4 passos</span>
           </h2>
         </AnimateIn>
-        <div className="grid flex-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="flex flex-1 flex-col max-sm:gap-0 sm:grid sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
           {INVESTIR_PASSOS.map(({ n, desc, color }, i) => (
-            <AnimateIn key={n} delay={i * 70} className="relative pt-9 pb-6">
+            <AnimateIn key={n} delay={i * 70} className="relative pt-9 pb-6 max-sm:pb-10 sm:pb-6">
               <div
-                className="relative flex min-h-[9.2rem] flex-col items-center justify-center bg-white px-4 pb-9 pt-9 text-center sm:min-h-[10rem]"
+                className="relative flex min-h-[9.2rem] flex-col items-center justify-center bg-white px-4 pb-9 pt-9 text-center max-sm:!border-[#1C2E5E] sm:min-h-[10rem]"
                 style={{
                   borderRadius: "10px",
                   border: `2px solid ${color}`,
                 }}
               >
                 <div
-                  className="absolute -top-10 left-1/2 -translate-x-1/2 p-1 bg-white"
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white p-1 max-sm:!border-[#1C2E5E]"
                   style={{
                     borderRadius: "9999px",
                     border: `1.5px solid ${color}`,
@@ -85,7 +127,7 @@ function InvestirPassos(): ReactNode {
                   aria-hidden
                 >
                   <div
-                    className="flex h-[4.25rem] w-[4.25rem] items-center justify-center text-[31px] font-extrabold text-white"
+                    className="flex h-[4.25rem] w-[4.25rem] items-center justify-center text-[31px] font-extrabold text-white max-sm:!bg-[#1C2E5E]"
                     style={{
                       borderRadius: "9999px",
                       backgroundColor: color,
@@ -96,16 +138,28 @@ function InvestirPassos(): ReactNode {
                 </div>
                 <p className="text-[13px] font-normal leading-snug text-navy sm:text-sm">{desc}</p>
                 {i < INVESTIR_PASSOS.length - 1 && (
-                  <span
-                    className="absolute -bottom-5 left-1/2 hidden h-11 w-11 -translate-x-1/2 items-center justify-center bg-white xl:flex"
-                    style={{
-                      borderRadius: "9999px",
-                      border: `2px solid ${color}`,
-                    }}
-                    aria-hidden
-                  >
-                    <ChevronRight className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
-                  </span>
+                  <>
+                    <span
+                      className="absolute -bottom-5 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center bg-white sm:hidden"
+                      style={{
+                        borderRadius: "9999px",
+                        border: "2px solid #1C2E5E",
+                      }}
+                      aria-hidden
+                    >
+                      <ChevronDown className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
+                    </span>
+                    <span
+                      className="absolute -bottom-5 left-1/2 hidden h-11 w-11 -translate-x-1/2 items-center justify-center bg-white xl:flex"
+                      style={{
+                        borderRadius: "9999px",
+                        border: `2px solid ${color}`,
+                      }}
+                      aria-hidden
+                    >
+                      <ChevronRight className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
+                    </span>
+                  </>
                 )}
               </div>
             </AnimateIn>
@@ -118,11 +172,11 @@ function InvestirPassos(): ReactNode {
 
 function CvmBanner(): ReactNode {
   return (
-    <section className="bg-white pb-16 pt-0 lg:pb-20" data-analytics-section="cvm-banner">
+    <section className="bg-white pb-12 pt-2 sm:pb-16 sm:pt-0 lg:pb-20" data-analytics-section="cvm-banner">
       <div className="flex justify-center px-4">
-        <AnimateIn className="w-full max-w-3xl sm:w-[90%] lg:w-[73%]">
-          <div className="flex w-full flex-col items-start gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 lg:gap-9 lg:px-12">
-            <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[4.6rem] w-[4.8rem] shrink-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
+        <AnimateIn className="w-full sm:w-[73%]">
+          <div className="flex w-full flex-col items-center gap-5 rounded-[20px] bg-[#001F4E] px-6 py-8 text-center shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:rounded-[16px] sm:px-10 sm:py-9 sm:text-left lg:gap-9 lg:px-12">
+            <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto h-[4.2rem] w-[4.4rem] shrink-0 sm:mx-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
               <g clipPath="url(#clip0_40_5364)">
                 <path d="M62.3359 29.8081C63.3367 30.5945 63.5511 32.0242 62.8363 33.025L44.608 58.0451C44.1791 58.5455 43.6072 58.9029 42.9639 58.9744C42.249 58.9744 41.6057 58.76 41.1053 58.331L32.0269 49.2523C31.1691 48.323 31.1691 46.8933 32.0269 45.964C32.9562 45.1061 34.3859 45.1061 35.3151 45.964L42.4635 53.184L59.1191 30.3085C59.9054 29.3077 61.3351 29.0933 62.3359 29.8081Z" fill="#D2A047" />
                 <path d="M42.8209 59.8322C42.0346 59.8322 41.2483 59.5462 40.6049 58.9744L31.455 49.8242C30.2398 48.5374 30.2398 46.5358 31.455 45.3205C32.7417 44.1053 34.7433 44.1053 35.9585 45.3205L42.4635 51.8258L58.4758 29.8081C59.548 28.3784 61.4781 28.0924 62.9078 29.0932C64.2659 30.237 64.5519 32.1671 63.5511 33.5254L45.3228 58.5454C44.6795 59.3318 43.8931 59.7607 43.0353 59.8322C42.9639 59.8322 42.8209 59.8322 42.7494 59.8322H42.8209ZM33.671 46.1784C33.3136 46.1784 32.9562 46.3213 32.5988 46.6073C32.0984 47.1077 32.0984 48.037 32.5988 48.6089L41.6772 57.6876C41.6772 57.6876 42.3205 58.1165 42.8209 58.045C43.1783 58.045 43.5357 57.7591 43.8931 57.4017L62.05 32.4531C62.4789 31.8812 62.3359 30.9519 61.764 30.5229C61.1207 30.094 60.2629 30.237 59.834 30.8804L42.6064 54.6137L34.6718 46.6073C34.6718 46.6073 34.0284 46.2499 33.671 46.2499V46.1784Z" fill="#D2A047" />
@@ -134,7 +188,7 @@ function CvmBanner(): ReactNode {
                 </clipPath>
               </defs>
             </svg>
-            <div className="w-full min-w-0 flex-1 text-left">
+            <div className="w-full min-w-0 flex-1 text-center sm:text-left">
               <p className="text-[10px] font-semibold uppercase tracking-[0.42em] text-[#D2A047] sm:text-[11px] sm:tracking-[0.48em]">
                 Uma operação dentro das regras
               </p>
@@ -166,7 +220,7 @@ function CentralDuvidas(): ReactNode {
             className="block h-auto w-full max-w-[26rem] object-contain lg:max-w-none"
           />
         </AnimateIn>
-        <AnimateIn delay={80} className="lg:col-span-7 lg:pl-2 xl:pl-6">
+        <AnimateIn delay={80} className="text-center lg:col-span-7 lg:pl-2 lg:text-left xl:pl-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.42em] text-[#D2A047]">
             Central de dúvidas
           </p>
@@ -177,10 +231,10 @@ function CentralDuvidas(): ReactNode {
             <br />
             dúvidas
           </h2>
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-[#3A3A3A] sm:text-[0.95rem]">
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-[#3A3A3A] sm:text-[0.95rem] lg:mx-0">
             Encontre respostas para as principais dúvidas sobre investimentos, projetos e funcionamento da Atlas Hub
           </p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center lg:justify-start">
             <Link to="/para-investidores" className={btn}>
               <span className="font-semibold">FAQ |</span>{" "}
               <span className="font-light">Investidor</span>
@@ -202,7 +256,9 @@ export default function ParaInvestidoresPage(): ReactNode {
     <MarketingShell>
       <InvestidoresHero />
       <InvestirPassos />
-      <ProjetosAtlas />
+      <div className="hidden sm:block">
+        <ProjetosAtlas />
+      </div>
       <CvmBanner />
       <CentralDuvidas />
     </MarketingShell>

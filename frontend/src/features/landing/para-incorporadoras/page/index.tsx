@@ -1,7 +1,7 @@
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ChevronRight, MapPin, BarChart3, Building2, FileCheck,
+  ChevronDown, ChevronRight, MapPin, BarChart3, Building2, FileCheck,
 } from "lucide-react";
 import { AnimateIn } from "@/components/animate-in";
 import { WhatsappLink } from "@/components/shared/whatsapp-cta";
@@ -9,31 +9,71 @@ import { MarketingShell } from "@/features/landing/components/marketing-shell";
 import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
 function IncorporadorasHero(): ReactNode {
+  const heroColor = "#001F4E";
+
   return (
     <section
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative min-h-[420px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[480px] lg:min-h-[600px]">
+      <div className="relative overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
+        <div className="relative min-h-[676px] overflow-hidden sm:hidden">
+          <img
+            src="/incorporadoras-bg-mobile.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, ${heroColor} 0%, ${heroColor} 34%, ${heroColor}f2 42%, ${heroColor}d9 50%, ${heroColor}b3 58%, ${heroColor}80 66%, ${heroColor}4d 74%, ${heroColor}26 82%, transparent 92%)`,
+            }}
+            aria-hidden
+          />
+          <div className="relative z-10 px-6 pb-12 pt-8 text-left text-white">
+            <p className="mb-6 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
+              <span className="font-light">Para </span>
+              <span className="font-semibold">incorporadoras</span>
+            </p>
+            <h1 className="text-[30px] font-extrabold uppercase leading-[1.12] tracking-[0.04em]">
+              CAPTURE RECURSOS
+              <br />
+              SEM FINANCIAMENTO
+              <br />
+              BANCÁRIO
+            </h1>
+            <p className="mt-5 text-[17px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047]">
+              Apresente seu projeto, passe pela nossa curadoria e conte com a Atlas Hub para atrair investidores.
+            </p>
+            <Link
+              to="/cadastro"
+              data-analytics-cta="inc_hero_cadastro"
+              className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+            >
+              Apresentar meu projeto
+            </Link>
+          </div>
+        </div>
+
         <img
           src="/bg-incorporadoras.png"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="absolute inset-0 hidden h-full w-full object-cover object-center sm:block"
         />
-        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative hidden min-h-[480px] items-center py-3 sm:flex lg:min-h-[600px] lg:py-4">
           <div className="relative z-10 max-w-[720px]">
             <p className="mb-5 text-[11px] uppercase tracking-[0.32em] text-[#D2A047]">
               <span className="font-light">Para </span>
               <span className="font-semibold">incorporadoras</span>
             </p>
-            <h1 className="text-[28px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[32px] md:text-[38px] lg:text-[44px]">
+            <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white md:text-[38px] lg:text-[44px]">
               capture recursos
               <br />
               sem financiamento
               <br />
               bancário
             </h1>
-            <p className="mt-5 text-[20px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] sm:text-[24px]">
+            <p className="mt-5 text-[24px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047]">
               Apresente seu projeto, passe pela nossa curadoria e conte com a Atlas Hub para atrair investidores.
             </p>
             <Link
@@ -59,18 +99,18 @@ const CAPTAR_PASSOS = [
 
 function CapitarPassos(): ReactNode {
   return (
-    <section className="bg-white py-14 lg:py-16" data-analytics-section="como-captar">
-      <div className="lp-container flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-10">
-        <AnimateIn className="shrink-0 lg:w-[22%]">
+    <section className="bg-white py-10 sm:py-14 lg:py-16" data-analytics-section="como-captar">
+      <div className="lp-container flex flex-col gap-8 sm:gap-10 lg:flex-row lg:items-start lg:gap-10">
+        <AnimateIn className="shrink-0 text-center lg:w-[22%] lg:text-left">
           <h2 className="text-[32px] font-bold uppercase leading-[1.05] tracking-[-0.06em] text-navy sm:text-[40px] lg:text-[48px]">
-            Como captar em
+            Como captar
             <br />
-            <span className="text-[#D2A047]">4 passos</span>
+            <span className="text-[#D2A047]">em 4 passos</span>
           </h2>
         </AnimateIn>
-        <div className="grid flex-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="flex flex-1 flex-col max-sm:gap-0 sm:grid sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
           {CAPTAR_PASSOS.map(({ n, desc, color }, i) => (
-            <AnimateIn key={n} delay={i * 70} className="relative pt-9 pb-6">
+            <AnimateIn key={n} delay={i * 70} className="relative pt-9 pb-6 max-sm:pb-10 sm:pb-6">
               <div
                 className="relative flex min-h-[9.2rem] flex-col items-center justify-center px-4 pb-9 pt-9 text-center sm:min-h-[10rem]"
                 style={{
@@ -79,7 +119,7 @@ function CapitarPassos(): ReactNode {
                 }}
               >
                 <div
-                  className="absolute -top-10 left-1/2 -translate-x-1/2 p-1 bg-white"
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white p-1"
                   style={{
                     borderRadius: "9999px",
                     border: `1.5px solid ${color}`,
@@ -98,16 +138,28 @@ function CapitarPassos(): ReactNode {
                 </div>
                 <p className="text-[13px] font-normal leading-snug text-white sm:text-sm">{desc}</p>
                 {i < CAPTAR_PASSOS.length - 1 && (
-                  <span
-                    className="absolute -bottom-5 left-1/2 hidden h-11 w-11 -translate-x-1/2 items-center justify-center bg-white xl:flex"
-                    style={{
-                      borderRadius: "9999px",
-                      border: `2px solid ${color}`,
-                    }}
-                    aria-hidden
-                  >
-                    <ChevronRight className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
-                  </span>
+                  <>
+                    <span
+                      className="absolute -bottom-5 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center bg-white sm:hidden"
+                      style={{
+                        borderRadius: "9999px",
+                        border: `2px solid ${color}`,
+                      }}
+                      aria-hidden
+                    >
+                      <ChevronDown className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
+                    </span>
+                    <span
+                      className="absolute -bottom-5 left-1/2 hidden h-11 w-11 -translate-x-1/2 items-center justify-center bg-white xl:flex"
+                      style={{
+                        borderRadius: "9999px",
+                        border: `2px solid ${color}`,
+                      }}
+                      aria-hidden
+                    >
+                      <ChevronRight className="h-5 w-5 text-[#1C2E5E]" strokeWidth={2.5} />
+                    </span>
+                  </>
                 )}
               </div>
             </AnimateIn>
@@ -193,11 +245,15 @@ function SoliciteAvaliacao(): ReactNode {
   return (
     <section className="bg-white py-14 lg:py-16" data-analytics-section="solicite-avaliacao">
       <div className="lp-container grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
-        <AnimateIn className="lg:col-span-5">
+        <AnimateIn className="text-center lg:col-span-5 lg:text-left">
           <h2 className="text-[32px] font-bold uppercase leading-[1.08] tracking-[-0.06em] text-navy sm:text-[40px] lg:text-[48px]">
             Solicite a
             <br />
-            <span className="text-[#D2A047]">Avaliação do seu projeto</span>
+            <span className="text-[#D2A047]">
+              Avaliação do seu
+              <br className="lg:hidden" />
+              projeto
+            </span>
           </h2>
         </AnimateIn>
         <AnimateIn delay={80} className="lg:col-span-7">
