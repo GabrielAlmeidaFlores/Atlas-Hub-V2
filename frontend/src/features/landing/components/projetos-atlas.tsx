@@ -24,10 +24,12 @@ export interface ProjetoPublico {
 function ProjetoCard({
   projeto,
   ctaClassName,
+  ctaLabel = "Ver Projeto",
   projectNameClassName = "text-[#D2A047]",
 }: {
   readonly projeto: ProjetoPublico;
   readonly ctaClassName?: string;
+  readonly ctaLabel?: string;
   readonly projectNameClassName?: string;
 }): ReactNode {
   const href = projeto.ofertaLink;
@@ -92,7 +94,7 @@ function ProjetoCard({
         </div>
 
         <span className={cn("lp-project-cta mt-3 w-full", ctaClassName)}>
-          Ver Projeto
+          {ctaLabel}
         </span>
       </div>
     </>
@@ -130,35 +132,56 @@ function resolveCarouselRowCount(itemCount: number, maxRows: number): number {
 
 export function ProjetosAtlas({
   shellClassName,
+  sectionClassName,
   titleSuffix = " em captação",
   titleHighlightClassName = "text-[#D2A047]",
   titleSuffixClassName = "text-white",
   ctaClassName,
+  ctaLabel,
   projectNameClassName,
   carouselRows,
+  mobileSingleCarousel,
   viewAllProjectsOnMobile,
 }: {
   readonly shellClassName?: string;
+  readonly sectionClassName?: string;
   readonly titleSuffix?: string;
   readonly titleHighlightClassName?: string;
   readonly titleSuffixClassName?: string;
   readonly ctaClassName?: string;
+  readonly ctaLabel?: string;
   readonly projectNameClassName?: string;
   readonly carouselRows?: number;
+  readonly mobileSingleCarousel?: boolean;
   readonly viewAllProjectsOnMobile?: boolean;
 }): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [singleRowViewport, setSingleRowViewport] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const loopingRef = useRef(false);
+  const mobileSingleCarouselRef = useRef(mobileSingleCarousel ?? false);
+  const singleRowViewportRef = useRef(false);
   const maxCarouselRows = carouselRows ?? 1;
-  const multiRowCarousel = maxCarouselRows > 1;
-  const fetchLimit = multiRowCarousel ? maxCarouselRows * 4 : 5;
+  const desktopMultiRow = maxCarouselRows > 1;
+  mobileSingleCarouselRef.current = mobileSingleCarousel ?? false;
+  singleRowViewportRef.current = singleRowViewport;
+  const useMultiRowLayout = desktopMultiRow && !singleRowViewport;
+  const fetchLimit = desktopMultiRow ? maxCarouselRows * 4 : 5;
   const effectiveRowCount =
-    items !== null && multiRowCarousel
+    items !== null && useMultiRowLayout
       ? resolveCarouselRowCount(items.length, maxCarouselRows)
       : maxCarouselRows;
+
+  useEffect(() => {
+    if (!mobileSingleCarousel) return;
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const sync = (): void => setSingleRowViewport(mediaQuery.matches);
+    sync();
+    mediaQuery.addEventListener("change", sync);
+    return () => mediaQuery.removeEventListener("change", sync);
+  }, [mobileSingleCarousel]);
 
   useEffect(() => {
     let cancelled = false;
@@ -179,14 +202,14 @@ export function ProjetosAtlas({
   }, [fetchLimit]);
 
   const projectColumns =
-    items === null || items.length === 0 || !multiRowCarousel
+    items === null || items.length === 0 || !useMultiRowLayout
       ? []
       : Array.from({ length: Math.ceil(items.length / effectiveRowCount) }, (_, columnIndex) =>
           items.slice(columnIndex * effectiveRowCount, columnIndex * effectiveRowCount + effectiveRowCount),
         );
 
   const loopItems =
-    multiRowCarousel || items === null || items.length === 0
+    useMultiRowLayout || items === null || items.length === 0
       ? []
       : [0, 1, 2].flatMap((copy) =>
           items.map((projeto) => ({
@@ -196,7 +219,7 @@ export function ProjetosAtlas({
         );
 
   useEffect(() => {
-    if (multiRowCarousel) return;
+    if (useMultiRowLayout) return;
     const track = scrollerRef.current;
     if (track === null || items === null || items.length === 0) return;
 
@@ -255,7 +278,13 @@ export function ProjetosAtlas({
         .filter((entry) => entry.overlap > 48)
         .sort((a, b) => a.left - b.left);
 
-      const featured = visible.length >= 2 ? visible[1] : visible[0];
+      const useCenterPick =
+        mobileSingleCarouselRef.current && singleRowViewportRef.current;
+      const featured = useCenterPick
+        ? visible.sort((a, b) => b.overlap - a.overlap)[0]
+        : visible.length >= 2
+          ? visible[1]
+          : visible[0];
       const nextKey = featured?.slide.dataset["loopKey"] ?? null;
       setActiveKey((prev) => (prev === nextKey ? prev : nextKey));
     }
@@ -283,12 +312,12 @@ export function ProjetosAtlas({
       track.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [items, multiRowCarousel]);
+  }, [items, useMultiRowLayout]);
 
   function scrollBy(dir: -1 | 1): void {
     const el = scrollerRef.current;
     if (el === null) return;
-    const slideSelector = multiRowCarousel ? ".lp-project-slide-column" : ".lp-project-slide";
+    const slideSelector = useMultiRowLayout ? ".lp-project-slide-column" : ".lp-project-slide";
     const slide = el.querySelector(slideSelector);
     const amount = slide instanceof HTMLElement ? slide.offsetWidth + 40 : Math.min(el.clientWidth * 0.8, 400);
     el.scrollBy({ left: dir * amount, behavior: "smooth" });
@@ -296,10 +325,16 @@ export function ProjetosAtlas({
 
   const loading = items === null;
   const empty = items !== null && items.length === 0;
-  const hasCarouselItems = multiRowCarousel ? projectColumns.length > 0 : loopItems.length > 0;
+  const hasCarouselItems = useMultiRowLayout ? projectColumns.length > 0 : loopItems.length > 0;
+  const showMobileCarouselNav = mobileSingleCarousel && singleRowViewport;
+  const resolvedCtaLabel = ctaLabel ?? "Ver Projeto";
 
   return (
-    <section id="projetos-atlas" className="lp-projects-section py-10 lg:py-14" data-analytics-section="projetos">
+    <section
+      id="projetos-atlas"
+      className={cn("lp-projects-section py-10 lg:py-14", sectionClassName)}
+      data-analytics-section="projetos"
+    >
       <div className={cn("lp-projects-shell relative overflow-hidden py-10 lg:py-14", shellClassName)}>
       <div className="lp-container relative">
         <AnimateIn className="mx-auto mb-6 max-w-2xl text-center lg:mb-8">
@@ -329,15 +364,20 @@ export function ProjetosAtlas({
           <div
             className={cn(
               "lp-projects-track flex gap-8 overflow-hidden px-4 sm:gap-10 sm:px-6 lg:px-8",
-              multiRowCarousel ? "justify-start" : "justify-center",
+              useMultiRowLayout ? "justify-start" : "justify-center",
+              showMobileCarouselNav && "lp-projects-track-mobile-single",
             )}
           >
-            {(multiRowCarousel ? [0, 1] : [0, 1, 2]).map((i) => (
+            {(useMultiRowLayout ? [0, 1] : [0, 1, 2]).map((i) => (
               <div
                 key={i}
-                className={cn("lp-project-slide", multiRowCarousel && "lp-project-slide-column flex flex-col gap-8 sm:gap-10")}
+                className={cn(
+                  "lp-project-slide",
+                  showMobileCarouselNav && "lp-project-slide-mobile-single",
+                  useMultiRowLayout && "lp-project-slide-column flex flex-col gap-8 sm:gap-10",
+                )}
               >
-                {multiRowCarousel ? (
+                {useMultiRowLayout ? (
                   Array.from({ length: maxCarouselRows }, (_, row) => row).map((row) => (
                     <div key={row} className="lp-project-card p-6 sm:p-7">
                       <div className="space-y-4">
@@ -374,10 +414,11 @@ export function ProjetosAtlas({
               "lp-projects-bleed lp-projects-track flex gap-8 overflow-x-auto sm:gap-10",
               "snap-x snap-mandatory scroll-smooth",
               "px-4 sm:px-6 lg:px-8",
-              multiRowCarousel && "items-start",
+              useMultiRowLayout && "items-start",
+              showMobileCarouselNav && "lp-projects-track-mobile-single snap-center",
             )}
           >
-            {multiRowCarousel
+            {useMultiRowLayout
               ? projectColumns.map((column, columnIndex) => (
                   <div
                     key={column.map((projeto) => projeto.id).join("-")}
@@ -392,6 +433,7 @@ export function ProjetosAtlas({
                         <ProjetoCard
                           projeto={projeto}
                           ctaClassName={ctaClassName}
+                          ctaLabel={resolvedCtaLabel}
                           projectNameClassName={projectNameClassName}
                         />
                       </AnimateIn>
@@ -405,6 +447,7 @@ export function ProjetosAtlas({
                     data-project-id={projeto.id}
                     className={cn(
                       "lp-project-slide",
+                      showMobileCarouselNav && "lp-project-slide-mobile-single",
                       activeKey === loopKey && "lp-project-slide-active",
                     )}
                   >
@@ -412,6 +455,7 @@ export function ProjetosAtlas({
                       <ProjetoCard
                         projeto={projeto}
                         ctaClassName={ctaClassName}
+                        ctaLabel={resolvedCtaLabel}
                         projectNameClassName={projectNameClassName}
                       />
                     </AnimateIn>
@@ -419,22 +463,27 @@ export function ProjetosAtlas({
                 ))}
           </div>
 
-          <div className="lp-container relative mt-3 hidden items-center justify-center gap-3 md:flex">
+          <div
+            className={cn(
+              "lp-container relative mt-3 items-center justify-center gap-4",
+              showMobileCarouselNav ? "flex" : "hidden md:flex",
+            )}
+          >
             <button
               type="button"
               aria-label="Projetos anteriores"
               onClick={() => scrollBy(-1)}
-              className="lp-carousel-nav"
+              className={cn("lp-carousel-nav", showMobileCarouselNav && "lp-carousel-nav-gold-shell")}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
             </button>
             <button
               type="button"
               aria-label="Próximos projetos"
               onClick={() => scrollBy(1)}
-              className="lp-carousel-nav"
+              className={cn("lp-carousel-nav", showMobileCarouselNav && "lp-carousel-nav-gold-shell")}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
             </button>
           </div>
         </div>

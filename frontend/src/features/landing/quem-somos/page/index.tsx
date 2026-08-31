@@ -7,30 +7,80 @@ import { hasWhatsappSupport } from "@/lib/whatsapp";
 import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
 
 function QuemSomosHero(): ReactNode {
+  const heroColor = "#001F4E";
+
   return (
     <section
       className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-[40px] pt-5 sm:px-6 lg:px-8"
       data-analytics-section="hero"
     >
-      <div className="relative min-h-[420px] overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)] sm:min-h-[480px] lg:min-h-[600px]">
+      <div className="relative overflow-hidden rounded-[14px] bg-[#001F4E] shadow-[0_10px_30px_rgba(7,17,34,0.18)]">
+        <div className="relative min-h-[676px] overflow-hidden sm:hidden">
+          <img
+            src="/bg-quemsomos-mobile.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, ${heroColor} 0%, ${heroColor} 34%, ${heroColor}f2 42%, ${heroColor}d9 50%, ${heroColor}b3 58%, ${heroColor}80 66%, ${heroColor}4d 74%, ${heroColor}26 82%, transparent 92%)`,
+            }}
+            aria-hidden
+          />
+          <div className="relative z-10 px-6 pb-12 pt-8 text-left text-white">
+            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
+              Quem somos
+            </p>
+            <h1 className="text-[30px] font-extrabold uppercase leading-[1.12] tracking-[0.04em]">
+              A CURADORIA
+              <br />
+              POR TRÁS
+              <br />
+              DE CADA PROJETO
+            </h1>
+            <p className="mt-5 text-[17px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047]">
+              Conheça a equipe e o propósito da Atlas Hub.
+            </p>
+            {hasWhatsappSupport() ? (
+              <WhatsappLink
+                variant="hero"
+                message="Olá! Gostaria de falar com a equipe da Atlas Hub."
+                data-analytics-cta="quemsomos_hero_whatsapp"
+                className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+              >
+                Fale com a nossa equipe
+              </WhatsappLink>
+            ) : (
+              <a
+                href="mailto:contato@atlashub.com.br"
+                data-analytics-cta="quemsomos_hero_contato"
+                className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
+              >
+                Fale com a nossa equipe
+              </a>
+            )}
+          </div>
+        </div>
+
         <img
           src="/bg-quemsomos.png"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="absolute inset-0 hidden h-full w-full object-cover object-center sm:block"
         />
-        <div className="lp-container relative flex min-h-[420px] items-center py-6 sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
+        <div className="lp-container relative hidden min-h-[480px] items-center py-3 sm:flex lg:min-h-[600px] lg:py-4">
           <div className="relative z-10 max-w-[680px]">
             <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D2A047]">
               Quem somos
             </p>
-            <h1 className="text-[28px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white sm:text-[32px] md:text-[38px] lg:text-[44px]">
+            <h1 className="text-[32px] font-extrabold uppercase leading-[1.08] tracking-[0.04em] text-white md:text-[38px] lg:text-[44px]">
               A curadoria
               <br />
               por trás
               <br />
               de cada projeto
             </h1>
-            <p className="mt-5 text-[18px] font-medium leading-relaxed tracking-[-0.03em] text-[#D2A047] sm:text-[22px]">
+            <p className="mt-5 text-[22px] font-medium leading-relaxed tracking-[-0.03em] text-[#D2A047]">
               Conheça a equipe e o propósito da Atlas Hub.
             </p>
             {hasWhatsappSupport() ? (
@@ -244,15 +294,15 @@ function CvmBanner(): ReactNode {
 
 function Parceiros(): ReactNode {
   const logos = [
-    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[5rem] w-auto max-w-[12rem] object-contain sm:h-[7.6rem] sm:max-w-[15.2rem] lg:h-[8.85rem] lg:max-w-[17.7rem]" },
-    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.5rem] w-auto max-w-[14rem] object-contain sm:h-[6.35rem] sm:max-w-[19rem] lg:h-[7.6rem] lg:max-w-[22.8rem]" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[5.5rem] w-auto max-w-[11rem] object-contain sm:h-[7.6rem] sm:max-w-[15.2rem] lg:h-[8.85rem] lg:max-w-[17.7rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.75rem] w-auto max-w-[13rem] object-contain sm:h-[6.35rem] sm:max-w-[19rem] lg:h-[7.6rem] lg:max-w-[22.8rem]" },
   ];
 
   return (
-    <section className="bg-[#D5A650] py-12 sm:py-[5.18rem] lg:py-[6.2rem]" data-analytics-section="parceiros">
-      <div className="lp-container flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-12">
-        <AnimateIn className="shrink-0 text-center lg:text-left">
-          <h2 className="max-w-md text-[1.75rem] font-extrabold leading-tight tracking-tight text-[#6C4C14] uppercase sm:text-[2.15rem] lg:text-[2.25rem]">
+    <section className="bg-[#D5A650] py-14 sm:py-[5.18rem] lg:py-[6.2rem]" data-analytics-section="parceiros">
+      <div className="lp-container flex flex-col items-center gap-10 sm:gap-12 lg:flex-row lg:items-center lg:gap-12">
+        <AnimateIn className="w-full shrink-0 text-center lg:text-left">
+          <h2 className="mx-auto max-w-md text-[1.65rem] font-extrabold uppercase leading-[1.1] tracking-tight text-[#6C4C14] sm:text-[2.15rem] lg:text-[2.25rem]">
             Equipe
             <br />
             responsável
@@ -260,7 +310,7 @@ function Parceiros(): ReactNode {
             pela curadoria
           </h2>
         </AnimateIn>
-        <AnimateIn delay={80} className="flex flex-1 flex-wrap items-center justify-center gap-10 sm:gap-12 lg:justify-center xl:gap-16">
+        <AnimateIn delay={80} className="flex w-full max-w-sm flex-col items-center gap-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-12 lg:flex-1 lg:justify-center xl:gap-16">
           {logos.map(({ src, alt, className }) => (
             <img key={alt} src={src} alt={alt} className={className} />
           ))}
