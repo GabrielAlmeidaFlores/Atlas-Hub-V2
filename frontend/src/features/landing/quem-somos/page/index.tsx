@@ -115,8 +115,8 @@ function NossoProposito(): ReactNode {
       data-analytics-section="nosso-proposito"
     >
       <AnimateIn className="overflow-hidden rounded-[14px] shadow-[0_10px_30px_rgba(7,17,34,0.15)]">
-          <div className="relative flex min-h-[22rem] flex-col bg-gradient-to-r from-[#D2A047] to-[#E1C683] sm:min-h-[26rem] lg:min-h-[28rem] lg:flex-row lg:items-end">
-            <div className="relative z-10 flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-12 lg:w-[55%] lg:px-12 lg:py-14">
+          <div className="relative flex flex-col bg-gradient-to-r from-[#D2A047] to-[#E1C683] sm:min-h-[26rem] lg:min-h-[28rem] lg:flex-row lg:items-end">
+            <div className="relative z-10 flex flex-col justify-center px-6 py-8 sm:px-10 sm:py-12 lg:w-[55%] lg:px-12 lg:py-14">
               <h2 className="text-[36px] font-extrabold uppercase leading-[1.08] tracking-[-0.04em] text-[#6C4C14] sm:text-[44px] lg:text-[52px]">
                 Nosso
                 <br />
@@ -131,11 +131,11 @@ function NossoProposito(): ReactNode {
                 </p>
               </div>
             </div>
-            <div className="relative z-10 flex flex-1 items-end justify-center px-4 pb-0 lg:justify-end lg:px-6">
+            <div className="relative z-10 flex flex-none items-end justify-end px-2 pb-0 sm:flex-1 sm:justify-center sm:px-4 lg:justify-end lg:px-6">
               <img
                 src="/ilustracao.svg"
                 alt=""
-                className="h-auto w-full max-h-[14rem] object-contain object-bottom sm:max-h-[18rem] lg:max-h-[26rem] lg:w-auto lg:max-w-full"
+                className="h-auto w-full max-h-[12.6rem] origin-bottom-right -translate-y-3 -mb-3 scale-90 object-contain object-bottom object-right sm:mb-0 sm:max-h-[18rem] sm:translate-y-0 sm:scale-100 sm:object-center lg:max-h-[26rem] lg:w-auto lg:max-w-full"
               />
             </div>
           </div>
@@ -261,8 +261,8 @@ function CvmBanner(): ReactNode {
     <section className="bg-white pb-16 pt-12 lg:pb-20 lg:pt-16" data-analytics-section="cvm-banner">
       <div className="flex justify-center px-4">
         <AnimateIn className="w-full max-w-3xl sm:w-[90%] lg:w-[73%]">
-          <div className="flex w-full flex-col items-start gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 lg:gap-9 lg:px-12">
-            <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[4.6rem] w-[4.8rem] shrink-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
+          <div className="flex w-full flex-col items-center gap-5 rounded-[16px] bg-[#001F4E] px-6 py-[1.8rem] text-center shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:gap-7 sm:px-10 sm:py-9 sm:text-left lg:gap-9 lg:px-12">
+            <svg width="93" height="89" viewBox="0 0 93 89" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto h-[4.6rem] w-[4.8rem] shrink-0 sm:mx-0 sm:h-[5.5rem] sm:w-[5.8rem]" aria-hidden="true">
               <g clipPath="url(#clip0_40_5364_qs)">
                 <path d="M62.3359 29.8081C63.3367 30.5945 63.5511 32.0242 62.8363 33.025L44.608 58.0451C44.1791 58.5455 43.6072 58.9029 42.9639 58.9744C42.249 58.9744 41.6057 58.76 41.1053 58.331L32.0269 49.2523C31.1691 48.323 31.1691 46.8933 32.0269 45.964C32.9562 45.1061 34.3859 45.1061 35.3151 45.964L42.4635 53.184L59.1191 30.3085C59.9054 29.3077 61.3351 29.0933 62.3359 29.8081Z" fill="#D2A047" />
                 <path d="M42.8209 59.8322C42.0346 59.8322 41.2483 59.5462 40.6049 58.9744L31.455 49.8242C30.2398 48.5374 30.2398 46.5358 31.455 45.3205C32.7417 44.1053 34.7433 44.1053 35.9585 45.3205L42.4635 51.8258L58.4758 29.8081C59.548 28.3784 61.4781 28.0924 62.9078 29.0932C64.2659 30.237 64.5519 32.1671 63.5511 33.5254L45.3228 58.5454C44.6795 59.3318 43.8931 59.7607 43.0353 59.8322C42.9639 59.8322 42.8209 59.8322 42.7494 59.8322H42.8209ZM33.671 46.1784C33.3136 46.1784 32.9562 46.3213 32.5988 46.6073C32.0984 47.1077 32.0984 48.037 32.5988 48.6089L41.6772 57.6876C41.6772 57.6876 42.3205 58.1165 42.8209 58.045C43.1783 58.045 43.5357 57.7591 43.8931 57.4017L62.05 32.4531C62.4789 31.8812 62.3359 30.9519 61.764 30.5229C61.1207 30.094 60.2629 30.237 59.834 30.8804L42.6064 54.6137L34.6718 46.6073C34.6718 46.6073 34.0284 46.2499 33.671 46.2499V46.1784Z" fill="#D2A047" />
@@ -274,7 +274,7 @@ function CvmBanner(): ReactNode {
                 </clipPath>
               </defs>
             </svg>
-            <div className="w-full min-w-0 flex-1 text-left">
+            <div className="w-full min-w-0 flex-1 text-center sm:text-left">
               <p className="text-[10px] font-semibold uppercase tracking-[0.42em] text-[#D2A047] sm:text-[11px] sm:tracking-[0.48em]">
                 Uma operação dentro das regras
               </p>
