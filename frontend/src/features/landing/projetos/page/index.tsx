@@ -94,7 +94,8 @@ export default function ProjetosPage(): ReactNode {
         ctaClassName="!bg-[#001F4E] group-hover:!bg-[#001a40] !shadow-none group-hover:!shadow-[0_4px_14px_rgba(0,31,78,0.28)]"
         ctaLabel="Ver projeto"
         projectNameClassName="text-[#001F4E]"
-        carouselRows={3}
+        paginatedGrid
+        projectsPerPage={12}
         mobileSingleCarousel
       />
     </MarketingShell>

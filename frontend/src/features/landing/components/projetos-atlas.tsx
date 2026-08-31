@@ -140,6 +140,8 @@ export function ProjetosAtlas({
   ctaLabel,
   projectNameClassName,
   carouselRows,
+  paginatedGrid,
+  projectsPerPage = 12,
   mobileSingleCarousel,
   viewAllProjectsOnMobile,
 }: {
@@ -152,10 +154,14 @@ export function ProjetosAtlas({
   readonly ctaLabel?: string;
   readonly projectNameClassName?: string;
   readonly carouselRows?: number;
+  readonly paginatedGrid?: boolean;
+  readonly projectsPerPage?: number;
   readonly mobileSingleCarousel?: boolean;
   readonly viewAllProjectsOnMobile?: boolean;
 }): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
+  const [total, setTotal] = useState(0);
+  const [pageIndex, setPageIndex] = useState(0);
   const [failed, setFailed] = useState(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [singleRowViewport, setSingleRowViewport] = useState(false);
@@ -168,7 +174,10 @@ export function ProjetosAtlas({
   mobileSingleCarouselRef.current = mobileSingleCarousel ?? false;
   singleRowViewportRef.current = singleRowViewport;
   const useMultiRowLayout = desktopMultiRow && !singleRowViewport;
-  const fetchLimit = desktopMultiRow ? maxCarouselRows * 4 : 5;
+  const usePaginatedGrid = paginatedGrid === true && !singleRowViewport;
+  const pageSize = projectsPerPage;
+  const fetchLimit = usePaginatedGrid ? pageSize : desktopMultiRow ? maxCarouselRows * 4 : 5;
+  const fetchOffset = usePaginatedGrid ? pageIndex * pageSize : 0;
   const effectiveRowCount =
     items !== null && useMultiRowLayout
       ? resolveCarouselRowCount(items.length, maxCarouselRows)
@@ -185,21 +194,29 @@ export function ProjetosAtlas({
 
   useEffect(() => {
     let cancelled = false;
+    setItems(null);
+    const query = usePaginatedGrid
+      ? `/publico/projetos?limit=${String(pageSize)}&offset=${String(fetchOffset)}`
+      : `/publico/projetos?limit=${String(fetchLimit)}`;
     void api
-      .get<{ items: ProjetoPublico[] }>(`/publico/projetos?limit=${String(fetchLimit)}`)
+      .get<{ items: ProjetoPublico[]; total?: number }>(query)
       .then((data) => {
-        if (!cancelled) setItems(data.items);
+        if (!cancelled) {
+          setItems(data.items);
+          setTotal(usePaginatedGrid ? data.total ?? data.items.length : data.items.length);
+        }
       })
       .catch(() => {
         if (!cancelled) {
           setFailed(true);
           setItems([]);
+          setTotal(0);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [fetchLimit]);
+  }, [fetchLimit, fetchOffset, pageSize, usePaginatedGrid]);
 
   const projectColumns =
     items === null || items.length === 0 || !useMultiRowLayout
@@ -325,9 +342,13 @@ export function ProjetosAtlas({
 
   const loading = items === null;
   const empty = items !== null && items.length === 0;
-  const hasCarouselItems = useMultiRowLayout ? projectColumns.length > 0 : loopItems.length > 0;
+  const totalPages = usePaginatedGrid ? Math.max(1, Math.ceil(total / pageSize)) : 1;
+  const hasCarouselItems =
+    !usePaginatedGrid && (useMultiRowLayout ? projectColumns.length > 0 : loopItems.length > 0);
+  const hasPaginatedItems = usePaginatedGrid && items !== null && items.length > 0;
   const showMobileCarouselNav = mobileSingleCarousel && singleRowViewport;
   const resolvedCtaLabel = ctaLabel ?? "Ver Projeto";
+  const showPaginatedNav = usePaginatedGrid && totalPages > 1;
 
   return (
     <section
@@ -359,7 +380,23 @@ export function ProjetosAtlas({
         )}
       </div>
 
-      {loading && (
+      {loading && usePaginatedGrid && (
+        <div className="lp-container grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="lp-project-card p-6 sm:p-7">
+              <div className="space-y-4">
+                <div className="skeleton h-6 w-32" />
+                <div className="skeleton h-6 w-4/5" />
+                <div className="skeleton h-3 w-1/2" />
+                <div className="skeleton mt-2 h-16 w-full" />
+                <div className="skeleton h-11 w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {loading && !usePaginatedGrid && (
         <div className="lp-projects-bleed relative">
           <div
             className={cn(
@@ -404,6 +441,52 @@ export function ProjetosAtlas({
             ))}
           </div>
         </div>
+      )}
+
+      {!loading && hasPaginatedItems && (
+        <>
+          <div className="lp-container grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {items?.map((projeto, index) => (
+              <AnimateIn key={projeto.id} delay={Math.min(index, 11) * 30} className="h-full">
+                <ProjetoCard
+                  projeto={projeto}
+                  ctaClassName={ctaClassName}
+                  ctaLabel={resolvedCtaLabel}
+                  projectNameClassName={projectNameClassName}
+                />
+              </AnimateIn>
+            ))}
+          </div>
+          {showPaginatedNav && (
+            <div className="lp-container mt-8 flex items-center justify-center gap-4">
+              <button
+                type="button"
+                aria-label="Página anterior"
+                disabled={pageIndex === 0}
+                onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
+                className={cn(
+                  "lp-carousel-nav lp-carousel-nav-gold-shell disabled:opacity-40 disabled:pointer-events-none",
+                )}
+              >
+                <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+              </button>
+              <p className="text-sm font-semibold text-[#6C4C14]">
+                {pageIndex + 1} / {totalPages}
+              </p>
+              <button
+                type="button"
+                aria-label="Próxima página"
+                disabled={pageIndex >= totalPages - 1}
+                onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages - 1))}
+                className={cn(
+                  "lp-carousel-nav lp-carousel-nav-gold-shell disabled:opacity-40 disabled:pointer-events-none",
+                )}
+              >
+                <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {!loading && hasCarouselItems && (
