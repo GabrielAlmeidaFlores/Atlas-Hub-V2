@@ -155,12 +155,12 @@ function Ecossistema(): ReactNode {
                 <img
                   src={mobileImage ?? image}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover object-[center_28%]"
+                  className="absolute inset-0 h-full w-full object-cover object-[center_72%]"
                 />
                 <div
                   className="absolute inset-0"
                   style={{
-                    background: `linear-gradient(180deg, ${color} 0%, ${color} 34%, ${color}f2 42%, ${color}d9 50%, ${color}b3 58%, ${color}80 66%, ${color}4d 74%, ${color}26 82%, transparent 92%)`,
+                    background: `linear-gradient(180deg, ${color} 0%, ${color} 24%, ${color}eb 32%, ${color}d4 38%, ${color}b8 44%, ${color}8f 50%, ${color}66 56%, ${color}40 62%, ${color}1a 68%, transparent 76%)`,
                   }}
                   aria-hidden
                 />
@@ -519,7 +519,10 @@ export default function LandingPage(): ReactNode {
       <Hero />
       <ComoFunciona />
       <Ecossistema />
-      <ProjetosAtlas viewAllProjectsOnMobile />
+      <ProjetosAtlas
+        viewAllProjectsOnMobile
+        shellClassName="max-sm:![background-image:url('/elemento-projetos.png')] max-sm:!bg-[length:100%_auto] bg-bottom bg-no-repeat"
+      />
       <Curadoria />
       <CvmBanner />
       <Parceiros />
