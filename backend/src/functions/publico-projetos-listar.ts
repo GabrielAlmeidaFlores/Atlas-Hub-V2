@@ -24,7 +24,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   try {
     const rawLimit = Number(event.queryStringParameters?.['limit'] ?? '5');
     const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.trunc(rawLimit), 1), 12) : 5;
-    const projetos = await listProjetosPublicados(limit);
+    const rawOffset = Number(event.queryStringParameters?.['offset'] ?? '0');
+    const offset = Number.isFinite(rawOffset) ? Math.max(Math.trunc(rawOffset), 0) : 0;
+    const { items: projetos, total } = await listProjetosPublicados(limit, offset);
     const items = await Promise.all(
       projetos.map(async (p) => ({
         id: p.id,
@@ -40,8 +42,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         publicadoEm: publishedAt(p),
       })),
     );
-    log.info('Public projects listed', { count: items.length });
-    return ok(event, { items });
+    log.info('Public projects listed', { count: items.length, total, offset });
+    return ok(event, { items, total, limit, offset });
   } catch (err) {
     log.error('Unexpected error', err);
     return serverError(event, err);

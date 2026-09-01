@@ -48,7 +48,7 @@ export function AnimateIn({
 
   const style: CSSProperties = visible
     ? { animation: ANIMATION_STYLES[animation], animationDelay: `${String(delay)}ms` }
-    : { opacity: 0 };
+    : { opacity: 1 };
 
   return (
     <div ref={ref} className={className} style={style}>

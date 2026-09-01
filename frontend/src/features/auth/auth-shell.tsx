@@ -15,15 +15,7 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactN
       <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-navy-dark p-10 lg:flex xl:w-[40%]">
         <div
           className="pointer-events-none absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/auth-bg.jpg')" }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(165deg, rgb(10 18 36 / 0.82) 0%, rgb(15 26 58 / 0.72) 45%, rgb(10 18 36 / 0.88) 100%)",
-          }}
+          style={{ backgroundImage: "url('/banner-login.png')" }}
           aria-hidden
         />
 

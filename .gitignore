@@ -1,6 +1,7 @@
 # Build output
 dist/
 .serverless/
+backend/.esbuild/
 
 # Dependencies
 node_modules/
@@ -13,3 +14,4 @@ node_modules/
 # Editor
 .DS_Store
 *.log
+

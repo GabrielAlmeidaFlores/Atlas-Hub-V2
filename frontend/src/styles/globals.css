@@ -66,12 +66,12 @@
 
   *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
 
-  html { scroll-behavior: smooth; font-family: Poppins, ui-sans-serif, system-ui, sans-serif; }
+  html { scroll-behavior: smooth; font-family: Roboto, ui-sans-serif, system-ui, sans-serif; }
 
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Poppins, ui-sans-serif, system-ui, sans-serif;
+    font-family: Roboto, ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.55;
@@ -352,7 +352,7 @@
   .animate-in { animation: fadeSlideUp 0.32s ease-out both; }
 
   .lp-container {
-    @apply mx-auto w-full max-w-7xl px-6 lg:px-8;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   .lp-hero-bg {
@@ -454,10 +454,32 @@
   }
 
   .lp-projects-section {
-    background:
-      radial-gradient(ellipse 55% 45% at 0% 100%, rgb(196 144 32 / 0.07), transparent 55%),
-      radial-gradient(ellipse 50% 40% at 100% 0%, rgb(27 43 94 / 0.06), transparent 50%),
-      linear-gradient(180deg, #f5f7fb 0%, #eef1f7 100%);
+    background: #ffffff;
+  }
+
+  .lp-projects-shell {
+    background-color: #001F4E;
+    background-image: url("/projetos-bg.svg");
+    background-size: 100% auto;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    border-radius: 1.25rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .lp-projects-shell {
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .lp-projects-shell {
+      margin-left: 2.5rem;
+      margin-right: 2.5rem;
+    }
   }
 
   .lp-projects-watermark {
@@ -501,47 +523,34 @@
   }
 
   .lp-project-slide {
-    @apply w-[min(100%,19.5rem)] shrink-0 snap-start;
-    transform: scale(0.9);
-    opacity: 0.68;
-    transition: transform 0.35s ease, opacity 0.35s ease;
-    transform-origin: center center;
+    @apply w-[min(100%,18rem)] shrink-0 snap-start sm:w-[min(100%,19.5rem)];
     padding-bottom: 0.35rem;
   }
 
-  .lp-project-slide-active {
-    transform: scale(1.04);
-    opacity: 1;
-    z-index: 2;
+  .lp-project-slide-column {
+    height: auto;
   }
 
-  .lp-project-slide-active .lp-project-card {
-    border-color: rgb(255 255 255 / 0.75);
-    background:
-      linear-gradient(165deg, rgb(255 255 255 / 0.66) 0%, rgb(255 255 255 / 0.4) 100%);
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.75) inset,
-      0 14px 28px rgb(27 43 94 / 0.1),
-      0 6px 14px rgb(196 144 32 / 0.08);
+  .lp-project-slide-column .lp-project-card {
+    transform: none;
+  }
+
+  .lp-project-slide-column .lp-project-card:hover {
+    transform: translateY(-4px);
   }
 
   .lp-project-card {
     @apply relative flex h-full flex-col overflow-hidden text-left;
     border-radius: 12px;
-    border: 1px solid rgb(255 255 255 / 0.45);
-    background:
-      linear-gradient(165deg, rgb(255 255 255 / 0.48) 0%, rgb(255 255 255 / 0.28) 100%);
-    backdrop-filter: blur(18px) saturate(1.15);
-    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    border: 2px solid var(--gold);
+    background: #ffffff;
     box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.5) inset,
       0 8px 20px rgb(27 43 94 / 0.06),
       0 2px 6px rgb(15 23 42 / 0.04);
     transition:
       transform 0.3s ease,
       box-shadow 0.3s ease,
-      border-color 0.3s ease,
-      background 0.3s ease;
+      border-color 0.3s ease;
   }
 
   .lp-project-media {
@@ -549,6 +558,17 @@
     aspect-ratio: 16 / 8;
     background:
       linear-gradient(145deg, rgb(27 43 94 / 0.08), rgb(196 144 32 / 0.1));
+  }
+
+  .lp-projects-track-mobile-single {
+    justify-content: center;
+    scroll-padding-inline: 1.25rem;
+    gap: 1.25rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .lp-project-slide-mobile-single {
+    width: min(calc(100vw - 2.5rem), 21rem);
   }
   .lp-project-media-img {
     @apply h-full w-full object-cover;
@@ -560,18 +580,16 @@
   .lp-project-media-empty {
     @apply flex h-full w-full items-center justify-center;
   }
-  .lp-project-slide-active .lp-project-card:hover {
-    transform: translateY(-6px);
-  }
   .lp-project-card:hover {
-    border-color: rgb(255 255 255 / 0.7);
-  }
-  .lp-project-slide:not(.lp-project-slide-active) .lp-project-card:hover {
-    transform: none;
+    transform: translateY(-4px);
+    border-color: var(--gold);
+    box-shadow:
+      0 12px 24px rgb(27 43 94 / 0.1),
+      0 4px 10px rgb(196 144 32 / 0.08);
   }
   .lp-project-card:hover .lp-project-cta {
-    background: var(--gold-light);
-    box-shadow: 0 4px 14px rgb(196 144 32 / 0.28);
+    background: #dfb35f;
+    box-shadow: 0 4px 14px rgb(210 160 71 / 0.28);
   }
   .lp-project-card-disabled {
     @apply pointer-events-none opacity-90;
@@ -613,7 +631,7 @@
   }
 
   .lp-project-title {
-    @apply text-base font-extrabold leading-snug tracking-tight text-navy sm:text-[1.05rem];
+    @apply text-lg font-extrabold leading-snug tracking-tight sm:text-xl;
   }
 
   .lp-project-divider {
@@ -668,27 +686,33 @@
   .lp-project-cta {
     @apply inline-flex w-full items-center justify-center;
     @apply px-4 py-2 text-sm font-bold tracking-wide text-white;
-    border-radius: 10px;
-    background: var(--gold);
+    border-radius: 5px;
+    background: #D2A047;
     transition: background 0.3s ease, box-shadow 0.3s ease;
   }
 
   .lp-carousel-nav {
-    @apply inline-flex h-10 w-10 items-center justify-center text-navy;
+    @apply inline-flex h-12 w-12 items-center justify-center text-navy;
     border-radius: 9999px;
-    border: 1px solid rgb(255 255 255 / 0.7);
-    background: rgb(255 255 255 / 0.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 4px 14px rgb(27 43 94 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.8);
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgb(27 43 94 / 0.08);
     transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
   }
   .lp-carousel-nav:hover {
-    @apply text-white;
-    background: var(--navy);
+    background: #ffffff;
     border-color: var(--navy);
-    box-shadow: 0 8px 20px rgb(27 43 94 / 0.2);
+    box-shadow: 0 8px 20px rgb(27 43 94 / 0.18);
     transform: translateY(-1px);
+  }
+
+  .lp-carousel-nav-gold-shell {
+    border: none;
+    box-shadow: none;
+  }
+  .lp-carousel-nav-gold-shell:hover {
+    border: none;
+    box-shadow: 0 6px 16px rgb(0 31 78 / 0.14);
   }
 
   .lp-features-track {
