@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeft, ExternalLink, AlertCircle, CheckCircle,
-  Clock, FileText, Users, BarChart3, History,
+  FileText, Users, BarChart3, History,
 } from "lucide-react";
 import { api } from "@/services/api";
 import type { Projeto, AuditoriaEntry } from "@/types";
@@ -58,8 +58,7 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
         action={<StatusBadge status={projeto.status} size="md" />}
       />
 
-      <div className="page-content space-y-5">
-        {/* Alert banners */}
+      <div className="page-content space-y-6">
         {projeto.status === "AJUSTE_SOLICITADO" && projeto.textoAjuste !== undefined && (
           <div className="alert alert-warn animate-in">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-status-warning" />
@@ -110,11 +109,9 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
           </div>
         )}
 
-        <div className="grid gap-5 lg:grid-cols-3">
-          {/* Main content */}
+        <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="card overflow-hidden">
-              {/* Tabs */}
               <div className="tab-bar overflow-x-auto">
                 {TABS.map(({ key, label, icon: Icon }) => (
                   <button key={key} type="button" onClick={() => setTab(key)}
@@ -124,40 +121,41 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                 ))}
               </div>
 
-              <div className="p-5">
+              <div className="p-6">
                 {tab === "visao-geral" && (
-                  <div className="animate-in space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-2">
-                      <div><p className="text-muted-foreground">Modelo</p><p className="mt-0.5 font-medium">{projeto.modelo}</p></div>
-                      <div><p className="text-muted-foreground">Tipo de Imóvel</p><p className="mt-0.5 font-medium">{projeto.tipoImovel}</p></div>
-                      <div><p className="text-muted-foreground">Cidade / Estado</p><p className="mt-0.5 font-medium">{projeto.cidade} — {projeto.estado}</p></div>
-                      <div><p className="text-muted-foreground">Endereço</p><p className="mt-0.5 font-medium text-xs">{projeto.endereco}</p></div>
-                      {projeto.valorCaptar !== undefined && <div><p className="text-muted-foreground">Valor a Captar</p><p className="mt-0.5 font-semibold text-navy">{formatCurrency(projeto.valorCaptar)}</p></div>}
-                      {projeto.valorTotal !== undefined && <div><p className="text-muted-foreground">Valor Total do Projeto</p><p className="mt-0.5 font-medium">{formatCurrency(projeto.valorTotal)}</p></div>}
-                      {projeto.rentabilidadeEstimada !== undefined && <div><p className="text-muted-foreground">Rentabilidade Estimada</p><p className="mt-0.5 font-medium text-status-success">{String(projeto.rentabilidadeEstimada)}% a.a.</p></div>}
-                      {projeto.prazoObra !== undefined && <div><p className="text-muted-foreground">Prazo de Obra</p><p className="mt-0.5 font-medium">{String(projeto.prazoObra)} meses</p></div>}
-                      {projeto.modeloRetorno !== undefined && <div><p className="text-muted-foreground">Modelo de Retorno</p><p className="mt-0.5 font-medium">{projeto.modeloRetorno}</p></div>}
-                      {projeto.tipoOferta !== undefined && <div><p className="text-muted-foreground">Tipo de Oferta</p><p className="mt-0.5 font-medium">{projeto.tipoOferta}</p></div>}
+                  <div className="animate-in space-y-5">
+                    <div className="grid grid-cols-2 gap-5 text-sm sm:grid-cols-2">
+                      <div><p className="text-muted-foreground">Modelo</p><p className="mt-1 font-medium">{projeto.modelo}</p></div>
+                      <div><p className="text-muted-foreground">Tipo de Imóvel</p><p className="mt-1 font-medium">{projeto.tipoImovel}</p></div>
+                      <div><p className="text-muted-foreground">Cidade / Estado</p><p className="mt-1 font-medium">{projeto.cidade} — {projeto.estado}</p></div>
+                      <div><p className="text-muted-foreground">Endereço</p><p className="mt-1 text-xs font-medium">{projeto.endereco}</p></div>
+                      {projeto.valorCaptar !== undefined && <div><p className="text-muted-foreground">Valor a Captar</p><p className="mt-1 font-semibold text-navy">{formatCurrency(projeto.valorCaptar)}</p></div>}
+                      {projeto.valorTotal !== undefined && <div><p className="text-muted-foreground">Valor Total do Projeto</p><p className="mt-1 font-medium">{formatCurrency(projeto.valorTotal)}</p></div>}
+                      {projeto.rentabilidadeEstimada !== undefined && <div><p className="text-muted-foreground">Rentabilidade Estimada</p><p className="mt-1 font-medium text-status-success">{String(projeto.rentabilidadeEstimada)}% a.a.</p></div>}
+                      {projeto.prazoObra !== undefined && <div><p className="text-muted-foreground">Prazo de Obra</p><p className="mt-1 font-medium">{String(projeto.prazoObra)} meses</p></div>}
+                      {projeto.modeloRetorno !== undefined && <div><p className="text-muted-foreground">Modelo de Retorno</p><p className="mt-1 font-medium">{projeto.modeloRetorno}</p></div>}
+                      {projeto.tipoOferta !== undefined && <div><p className="text-muted-foreground">Tipo de Oferta</p><p className="mt-1 font-medium">{projeto.tipoOferta}</p></div>}
                     </div>
                     <div className="divider" />
                     <div>
-                      <p className="mb-1.5 text-xs font-medium text-muted-foreground">Descrição do Projeto</p>
+                      <p className="mb-2 text-xs font-medium text-muted-foreground">Descrição do Projeto</p>
                       <p className="text-sm leading-relaxed text-foreground">{projeto.descricao}</p>
                     </div>
                     {projeto.planoSaida !== undefined && (
                       <div>
-                        <p className="mb-1.5 text-xs font-medium text-muted-foreground">Plano de Saída dos Investidores</p>
+                        <p className="mb-2 text-xs font-medium text-muted-foreground">Plano de Saída dos Investidores</p>
                         <p className="text-sm leading-relaxed text-foreground">{projeto.planoSaida}</p>
                       </div>
                     )}
                     {projeto.viabilidade !== undefined && (
-                      <div className="border border-border p-4">
-                        <p className="mb-2 text-xs font-medium text-muted-foreground">Viabilidade calculada</p>
+                      <div className="rounded-[8px] border border-border p-5">
+                        <p className="mb-3 text-xs font-medium text-muted-foreground">Viabilidade calculada</p>
                         <ViabilidadeReadOnly data={projeto.viabilidade} />
                       </div>
                     )}
                   </div>
                 )}
+
 
                 {tab === "documentos" && (
                   <div className="animate-in space-y-2">
@@ -179,8 +177,8 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                     {(projeto.equipe ?? []).length === 0
                       ? <p className="py-4 text-center text-sm text-muted-foreground">Nenhum membro cadastrado</p>
                       : (projeto.equipe ?? []).map((m, i) => (
-                          <div key={i} className="flex gap-3   border border-border p-4">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center   bg-navy-100 text-navy font-bold">
+                          <div key={i} className="flex gap-3.5 rounded-[8px] border border-border p-4">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-navy-100 font-bold text-navy">
                               {m.nome.charAt(0)}
                             </div>
                             <div>
@@ -201,7 +199,7 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                       : (projeto.historico ?? []).map((entry) => (
                           <li key={entry.criadoEm} className="flex gap-3">
                             <div className="mt-1.5 flex h-2.5 w-2.5 shrink-0 items-center justify-center">
-                              <div className="h-2 w-2   bg-navy" />
+                              <div className="h-2 w-2 rounded-[9999px] bg-navy" />
                             </div>
                             <div className="min-w-0 flex-1 pb-3 border-b border-border last:border-0">
                               <p className="text-sm font-medium text-foreground">{entry.descricao}</p>
@@ -216,26 +214,25 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <ProjetoProgressBar items={getProjetoProgressItems(projeto)} />
-            <div className="card p-5">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Status Atual</p>
+            <div className="card p-6">
+              <p className="mb-3.5 text-xs font-medium tracking-normal text-muted-foreground">Status Atual</p>
               <StatusBadge status={projeto.status} size="md" />
-              <p className="mt-3 text-xs text-muted-foreground">Atualizado em {formatDateTime(projeto.atualizadoEm)}</p>
+              <p className="mt-3.5 text-xs text-muted-foreground">Atualizado em {formatDateTime(projeto.atualizadoEm)}</p>
 
               {projeto.analistaNome !== undefined && (
-                <div className="mt-3 border-t border-border pt-3">
+                <div className="mt-4 border-t border-border pt-4">
                   <p className="text-xs text-muted-foreground">Analista responsável</p>
-                  <p className="mt-0.5 text-sm font-medium text-foreground">{projeto.analistaNome}</p>
+                  <p className="mt-1 text-sm font-medium text-foreground">{projeto.analistaNome}</p>
                 </div>
               )}
             </div>
 
             {projeto.valorCaptar !== undefined && (
-              <div className="card p-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Financeiro</p>
-                <div className="space-y-2 text-sm">
+              <div className="card p-6">
+                <p className="mb-3.5 text-xs font-medium tracking-normal text-muted-foreground">Financeiro</p>
+                <div className="space-y-2.5 text-sm">
                   <div className="flex justify-between"><span className="text-muted-foreground">A captar</span><span className="font-semibold text-navy">{formatCurrency(projeto.valorCaptar)}</span></div>
                   {projeto.rentabilidadeEstimada !== undefined && <div className="flex justify-between"><span className="text-muted-foreground">Rentabilidade</span><span className="font-medium text-status-success">{String(projeto.rentabilidadeEstimada)}% a.a.</span></div>}
                   {projeto.prazoRetorno !== undefined && <div className="flex justify-between"><span className="text-muted-foreground">Retorno estimado</span><span className="font-medium">{String(projeto.prazoRetorno)} meses</span></div>}

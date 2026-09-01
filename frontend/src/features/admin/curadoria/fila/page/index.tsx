@@ -76,10 +76,10 @@ export default function AdminCuradoriaFilaPage(): ReactNode {
     <div className="animate-in">
       <PageHeader
         title="Fila de Curadoria"
-        description={`${String(filtered.length)} projeto${filtered.length !== 1 ? "s" : ""} aguardando análise · Ordem: mais antigo primeiro`}
+        description={`${String(filtered.length)} projeto${filtered.length !== 1 ? "s" : ""} aguardando análise`}
       />
 
-      <div className="page-content space-y-4">
+      <div className="page-content space-y-5">
         {projetos.length === 0 ? (
           <EmptyState
             icon={ClipboardList}
@@ -95,22 +95,22 @@ export default function AdminCuradoriaFilaPage(): ReactNode {
               onClear={() => setFilters({})}
             />
 
-            <div className="space-y-3 sm:hidden">
+            <div className="space-y-3.5 sm:hidden">
               {filtered.map((p) => (
-                <Link key={p.id} to={`/admin/curadoria/${p.id}`} className="card card-hover block p-4">
+                <Link key={p.id} to={`/admin/curadoria/${p.id}`} className="card card-hover block p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold text-foreground">{p.nome}</p>
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPin className="h-3 w-3" />{p.cidade}, {p.estado}
                       </p>
                       {p.submetidoEm !== undefined && (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                        <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />{timeAgo(p.submetidoEm)}
                         </p>
                       )}
                     </div>
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex flex-col items-end gap-2.5">
                       <StatusBadge status={p.status} />
                       <span className="text-xs text-muted-foreground">Rev. {String(p.revisao)}</span>
                     </div>
@@ -144,16 +144,19 @@ export default function AdminCuradoriaFilaPage(): ReactNode {
                           </div>
                         ) : <span className="text-muted-foreground">—</span>}
                       </td>
-                      <td>
-                        <span className="bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                          Rev. {String(p.revisao)}
+                      <td className="whitespace-nowrap">
+                        <span className="inline-block whitespace-nowrap rounded-[6px] bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                          Rev.&nbsp;{String(p.revisao)}
                         </span>
                       </td>
                       <td><StatusBadge status={p.status} /></td>
                       <td className="text-sm text-muted-foreground">{p.analistaNome ?? "—"}</td>
                       <td className="text-right">
-                        <Link to={`/admin/curadoria/${p.id}`} className="btn btn-primary btn-sm inline-flex">
-                          {p.status === "SUBMETIDO" ? "Iniciar" : "Continuar"}
+                        <Link
+                          to={`/admin/curadoria/${p.id}`}
+                          aria-label={p.status === "SUBMETIDO" ? "Iniciar" : "Continuar"}
+                          className="btn btn-primary btn-sm inline-flex size-8 items-center justify-center p-0"
+                        >
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </td>

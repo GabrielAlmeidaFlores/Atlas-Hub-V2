@@ -34,9 +34,16 @@ export function StatCard({
   className,
 }: StatCardProps): ReactNode {
   return (
-    <div className={cn("flex flex-col gap-2 border border-border border-l-4 bg-card p-4", ACCENT[accent], className)}>
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-bold uppercase leading-tight tracking-widest text-muted-foreground">{label}</span>
+    <div
+      className={cn(
+        "flex flex-col gap-3 border border-border border-l-4 bg-card p-5",
+        "rounded-[8px] shadow-[0_1px_2px_rgb(15_23_42/0.04),0_6px_16px_rgb(15_23_42/0.06)]",
+        ACCENT[accent],
+        className,
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-[11px] font-medium leading-tight tracking-normal text-muted-foreground">{label}</span>
         {Icon !== undefined && <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />}
       </div>
       <span className="text-2xl font-bold leading-none tracking-tight text-foreground">{value}</span>

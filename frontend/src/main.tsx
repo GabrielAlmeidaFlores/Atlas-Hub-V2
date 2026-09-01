@@ -10,11 +10,15 @@ configureAmplify();
 async function enableMocking(): Promise<void> {
   if (!import.meta.env.DEV) return;
   if (VITE_MODE !== "development") return;
-  const { worker, workerOptions } = await import("@/mocks/browser");
-  await worker.start(workerOptions);
+  try {
+    const { worker, workerOptions } = await import("@/mocks/browser");
+    await worker.start(workerOptions);
+  } catch {
+    return;
+  }
 }
 
-void enableMocking().then(() => {
+void enableMocking().finally(() => {
   const root = document.getElementById("root");
   if (root === null) throw new Error("Root element not found");
   ReactDOM.createRoot(root).render(

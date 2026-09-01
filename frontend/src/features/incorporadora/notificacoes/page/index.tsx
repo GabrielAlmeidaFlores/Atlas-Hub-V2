@@ -18,14 +18,14 @@ const TIPO_COLORS: Record<Notificacao["tipo"], string> = {
 };
 
 export default function IncorporadoraNotificacoesPage(): ReactNode {
-  const { items, isLoading, fetchNotificacoes, marcarLida } = useNotificacoesStore();
+  const { items, isLoading, fetchNotificacoes, marcarLida, marcarTodas } = useNotificacoesStore();
 
   useEffect(() => { void fetchNotificacoes(); }, [fetchNotificacoes]);
 
   const naoLidas = items.filter((n) => !n.lida).length;
 
   function handleMarcarTodas(): void {
-    items.filter((n) => !n.lida).forEach((n) => { void marcarLida(n.criadoEm); });
+    void marcarTodas();
   }
 
   return (
@@ -35,7 +35,7 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
         description={naoLidas > 0 ? `${String(naoLidas)} não lida${naoLidas !== 1 ? "s" : ""}` : "Todas lidas"}
         action={
           naoLidas > 0 ? (
-            <button type="button" onClick={handleMarcarTodas} className="btn btn-secondary btn-sm">
+            <button type="button" onClick={handleMarcarTodas} className="btn btn-secondary btn-sm rounded-[8px]">
               <CheckCheck className="h-3.5 w-3.5" /> Marcar todas como lidas
             </button>
           ) : undefined
@@ -44,11 +44,11 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
 
       <div className="page-content">
         {isLoading ? (
-          <div className="card divide-y divide-border">
+          <div className="card divide-y divide-border overflow-hidden">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex gap-4 p-4">
-                <Skeleton className="h-9 w-9  " />
-                <div className="flex-1 space-y-2">
+              <div key={i} className="flex gap-4 px-5 py-5">
+                <Skeleton className="h-10 w-10 rounded-[8px]" />
+                <div className="flex-1 space-y-2.5">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-3 w-72" />
                   <Skeleton className="h-3 w-24" />
@@ -68,12 +68,12 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
               <div
                 key={notif.criadoEm}
                 className={cn(
-                  "flex items-start gap-4 px-4 py-4 transition-colors",
-                  !notif.lida && "bg-navy-50",
+                  "flex items-start gap-4 px-5 py-5 transition-colors",
+                  !notif.lida && "bg-navy-50/70",
                 )}
               >
                 <div className={cn(
-                  "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center  ",
+                  "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px]",
                   TIPO_COLORS[notif.tipo] ?? "bg-muted text-muted-foreground",
                 )}>
                   <Bell className="h-4 w-4" />
@@ -83,15 +83,15 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
                   <p className={cn("text-sm", !notif.lida ? "font-semibold text-foreground" : "font-medium text-foreground")}>
                     {notif.titulo}
                   </p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{notif.mensagem}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{timeAgo(notif.criadoEm)}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{notif.mensagem}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">{timeAgo(notif.criadoEm)}</p>
                 </div>
 
                 {!notif.lida && (
                   <button
                     type="button"
                     onClick={() => void marcarLida(notif.criadoEm)}
-                    className="shrink-0   p-1.5 text-muted-foreground hover:bg-muted hover:text-navy"
+                    className="shrink-0 rounded-[8px] p-2 text-muted-foreground hover:bg-muted hover:text-navy"
                     title="Marcar como lida"
                   >
                     <Check className="h-4 w-4" />

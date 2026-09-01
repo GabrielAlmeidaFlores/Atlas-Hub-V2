@@ -52,7 +52,7 @@ export function EquipeEditor({ value, onChange }: Props): ReactNode {
       )}
 
       <div className="space-y-3 border border-dashed border-input p-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Novo membro</p>
+        <p className="text-xs font-medium tracking-normal text-muted-foreground">Novo membro</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="form-group">
             <label className="form-label">Nome</label>

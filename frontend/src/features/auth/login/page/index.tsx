@@ -5,6 +5,7 @@ import { useToastStore } from "@/stores/toast";
 import { getApiErrorMessage } from "@/services/api";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { analytics } from "@/lib/analytics";
 
 export default function LoginPage(): ReactNode {
   const [email, setEmail] = useState("");
@@ -24,6 +25,8 @@ export default function LoginPage(): ReactNode {
     try {
       await login(email, password);
       const user = useAuthStore.getState().user;
+      if (user?.id !== undefined) analytics.identify(user.id);
+      analytics.track("login");
       navigate(user?.perfil === "INCORPORADORA" ? "/dashboard" : "/admin");
     } catch (err) {
       addToast({ type: "error", title: "Credenciais inválidas", description: getApiErrorMessage(err) });
@@ -38,6 +41,8 @@ export default function LoginPage(): ReactNode {
     try {
       await handleNewPasswordRequired(newPwd);
       const user = useAuthStore.getState().user;
+      if (user?.id !== undefined) analytics.identify(user.id);
+      analytics.track("login");
       navigate(user?.perfil === "INCORPORADORA" ? "/dashboard" : "/admin");
     } catch (err) {
       addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
@@ -101,12 +106,7 @@ export default function LoginPage(): ReactNode {
         </div>
 
         <div className="form-group">
-          <div className="flex items-center justify-between">
-            <label className="form-label">Senha</label>
-            <Link to="/esqueci-senha" className="text-[10px] font-bold uppercase tracking-wider text-navy hover:underline">
-              Esqueci minha senha
-            </Link>
-          </div>
+          <label className="form-label">Senha</label>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -124,21 +124,24 @@ export default function LoginPage(): ReactNode {
           </div>
         </div>
 
+        <div className="flex justify-end">
+          <Link to="/esqueci-senha" className="text-xs font-medium text-navy hover:underline">
+            Esqueci minha senha
+          </Link>
+        </div>
+
         <button type="submit" disabled={loading} className="btn btn-navy w-full">
           {loading ? (
             <span className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white" />
           ) : (
-            <>
-              <ArrowRight className="h-4 w-4" />
-              Entrar na plataforma
-            </>
+            "Entrar na plataforma"
           )}
         </button>
       </form>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
         Incorporadora sem conta?{" "}
-        <Link to="/cadastro" className="font-bold uppercase tracking-wider text-navy hover:underline">
+        <Link to="/cadastro" className="font-semibold text-navy hover:underline">
           Criar conta
         </Link>
       </p>

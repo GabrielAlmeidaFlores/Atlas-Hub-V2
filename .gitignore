@@ -1,14 +1,17 @@
 # Build output
 dist/
 .serverless/
+backend/.esbuild/
 
 # Dependencies
 node_modules/
 
 # Environment
+.env
 .env.local
 .env.*.local
 
 # Editor
 .DS_Store
 *.log
+

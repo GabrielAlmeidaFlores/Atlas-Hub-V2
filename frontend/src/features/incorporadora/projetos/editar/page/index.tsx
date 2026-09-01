@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode, type ChangeEvent, type FormEvent }
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
-import { uploadProjetoDocumento } from "@/lib/upload";
+import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
+import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import type { DocumentosProjeto, MembroEquipe, Projeto, StatusProjeto } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
@@ -18,6 +19,7 @@ import {
 } from "@/components/shared/viabilidade-calculator";
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
+import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
@@ -50,6 +52,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [form, setForm] = useState({
@@ -74,6 +77,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       .then((p) => {
         setProjeto(p);
         setDocumentos(p.documentos ?? {});
+        setFotosUrls([...(p.fotosUrls ?? [])]);
         setEquipe([...(p.equipe ?? [])]);
         setViabilidadeForm(viabilidadeToForm(p.viabilidade));
         setForm({
@@ -108,6 +112,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       const next = { ...documentos, [key]: location };
       setDocumentos(next);
       await api.put(`/projetos/${id}`, { documentos: next });
+      analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
       addToast({
@@ -117,6 +122,22 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       });
     } finally {
       setUploadingKey(null);
+    }
+  }
+
+  async function handleFotoUpload(file: File): Promise<string> {
+    if (id === undefined) throw new Error("Projeto inválido");
+    return uploadProjetoFoto(id, file);
+  }
+
+  async function handleFotosChange(urls: string[]): Promise<void> {
+    if (id === undefined) return;
+    setFotosUrls(urls);
+    try {
+      await api.put(`/projetos/${id}`, { fotosUrls: urls });
+      if (urls.length > 0) analytics.track("project_photo_uploaded", { projectId: id, count: urls.length });
+    } catch (err) {
+      addToast({ type: "error", title: "Falha ao salvar fotos", description: getApiErrorMessage(err) });
     }
   }
 
@@ -150,13 +171,17 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         planoSaida: form.planoSaida,
         tipoOferta: form.tipoOferta,
         documentos,
+        fotosUrls,
         equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
+      analytics.track("project_updated", { projectId: id });
       if (projeto.status === "RASCUNHO") {
         await api.post(`/projetos/${id}/submeter`, {});
+        analytics.track("project_submitted", { projectId: id });
       } else {
         await api.post(`/projetos/${id}/resubmeter`, {});
+        analytics.track("project_resubmitted", { projectId: id });
       }
       addToast({ type: "success", title: "Projeto enviado para análise" });
       navigate(`/projetos/${id}`);
@@ -179,11 +204,13 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
 
   if (!EDITABLE.includes(projeto.status)) {
     return (
-      <div className="animate-in page-content space-y-4">
+      <div className="animate-in">
         <PageHeader title={projeto.nome} action={<StatusBadge status={projeto.status} size="md" />} />
-        <div className="alert alert-warn">
-          <p className="text-sm">Este projeto não pode ser editado no status atual.</p>
-          <Link to={`/projetos/${id}`} className="btn btn-sm btn-secondary mt-3 inline-flex">Ver detalhe</Link>
+        <div className="page-content">
+          <div className="alert alert-warn">
+            <p className="text-sm">Este projeto não pode ser editado no status atual.</p>
+            <Link to={`/projetos/${id}`} className="btn btn-sm btn-secondary mt-3 inline-flex">Ver detalhe</Link>
+          </div>
         </div>
       </div>
     );
@@ -202,20 +229,20 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         action={<StatusBadge status={projeto.status} size="md" />}
       />
 
-      <form onSubmit={(e) => void handleSubmit(e)} className="page-content space-y-5">
+      <form onSubmit={(e) => void handleSubmit(e)} className="page-content space-y-6">
         {projeto.status === "AJUSTE_SOLICITADO" && projeto.textoAjuste !== undefined && (
           <div className="alert alert-warn text-sm">{projeto.textoAjuste}</div>
         )}
 
-        <div className="grid gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-5">
-        <div className="card p-5 sm:p-6 space-y-4">
+        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+        <div className="card space-y-5 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Dados do projeto</h2>
           <div className="form-group">
             <label className="form-label">Nome</label>
             <input className="input-base" value={form.nome} onChange={setField("nome")} required />
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="form-group">
               <label className="form-label">Cidade</label>
               <input className="input-base" value={form.cidade} onChange={setField("cidade")} required />
@@ -233,11 +260,32 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             <label className="form-label">Descrição</label>
             <textarea className="input-base min-h-[100px] resize-y" rows={4} value={form.descricao} onChange={setField("descricao")} required />
           </div>
+          <ProjetoFotosField
+            value={fotosUrls}
+            disabled={isSaving}
+            onUpload={async (file) => {
+              try {
+                const location = await handleFotoUpload(file);
+                addToast({ type: "success", title: "Foto enviada" });
+                return location;
+              } catch (err) {
+                addToast({
+                  type: "error",
+                  title: "Falha no upload",
+                  description: err instanceof Error ? err.message : getApiErrorMessage(err),
+                });
+                throw err;
+              }
+            }}
+            onChange={(urls) => {
+              void handleFotosChange(urls);
+            }}
+          />
         </div>
 
-        <div className="card p-5 sm:p-6 space-y-4">
+        <div className="card space-y-5 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Financeiro</h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="form-group">
               <label className="form-label">Valor total (R$)</label>
               <input type="number" min={0} className="input-base" value={form.valorTotal} onChange={setField("valorTotal")} required />
@@ -280,12 +328,12 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
         </div>
 
-        <div className="card p-5 sm:p-6 space-y-3">
+        <div className="card space-y-4 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Equipe</h2>
           <EquipeEditor value={equipe} onChange={setEquipe} />
         </div>
 
-        <div className="card p-5 sm:p-6 space-y-3">
+        <div className="card space-y-4 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Documentos</h2>
           <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB</p>
           {DOC_FIELDS.map(({ key, label, required }) => {
@@ -293,7 +341,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             const done = typeof url === "string" && url !== "";
             const busy = uploadingKey === key;
             return (
-              <div key={key} className="flex items-center justify-between border border-border px-4 py-3">
+              <div key={key} className="flex items-center justify-between rounded-[8px] border border-border px-4 py-3.5">
                 <div className="min-w-0 pr-3">
                   <p className="text-sm font-medium text-foreground">
                     {label}{required && <span className="text-status-danger"> *</span>}

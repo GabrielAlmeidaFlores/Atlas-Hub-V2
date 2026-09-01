@@ -61,7 +61,7 @@ export function WhatsappFab(): ReactNode {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-20 right-5 z-50 flex h-14 w-14 items-center justify-center border border-gold/40 bg-navy text-gold shadow-lg transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold md:bottom-5"
+      className="fixed bottom-20 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-[8px] border border-gold/40 bg-navy text-gold shadow-lg transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold md:bottom-5"
       aria-label="Abrir WhatsApp de suporte"
     >
       <WhatsappIcon className="h-7 w-7" />

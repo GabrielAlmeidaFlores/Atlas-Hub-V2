@@ -64,7 +64,7 @@ export default function AdminIncorporadorasListaPage(): ReactNode {
         description={`${String(filtered.length)} empresa${filtered.length !== 1 ? "s" : ""} cadastrada${filtered.length !== 1 ? "s" : ""}`}
       />
 
-      <div className="page-content space-y-4">
+      <div className="page-content space-y-5">
         {items.length === 0 ? (
           <EmptyState icon={Building2} title="Nenhuma incorporadora" description="Empresas que se cadastrarem aparecerão aqui" />
         ) : (
@@ -76,17 +76,17 @@ export default function AdminIncorporadorasListaPage(): ReactNode {
               onClear={() => setFilters({})}
             />
 
-            <div className="space-y-3 sm:hidden">
+            <div className="space-y-3.5 sm:hidden">
               {filtered.map((inc) => (
-                <Link key={inc.id} to={`/admin/incorporadoras/${inc.id}`} className="card card-hover block p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-navy-100 font-bold text-navy">
+                <Link key={inc.id} to={`/admin/incorporadoras/${inc.id}`} className="card card-hover block p-5">
+                  <div className="flex items-start gap-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-navy-100 font-bold text-navy">
                       {(inc.razaoSocial || inc.email).charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold text-foreground">{inc.razaoSocial || "—"}</p>
                       <p className="text-xs text-muted-foreground">{inc.cnpj || "—"}</p>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><Mail className="h-3 w-3" />{inc.email}</p>
+                      <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground"><Mail className="h-3 w-3" />{inc.email}</p>
                     </div>
                     <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                   </div>
@@ -99,12 +99,7 @@ export default function AdminIncorporadorasListaPage(): ReactNode {
                 {filtered.map((inc) => (
                   <tr key={inc.id} className="table-row">
                     <td>
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-navy-100 text-xs font-bold text-navy">
-                          {(inc.razaoSocial || inc.email).charAt(0).toUpperCase()}
-                        </div>
-                        <p className="font-semibold text-foreground">{inc.razaoSocial || "—"}</p>
-                      </div>
+                      <p className="font-semibold text-foreground">{inc.razaoSocial || "—"}</p>
                     </td>
                     <td className="font-mono text-xs text-foreground">{inc.cnpj || "—"}</td>
                     <td className="text-foreground">{inc.nomeResponsavel || "—"}</td>

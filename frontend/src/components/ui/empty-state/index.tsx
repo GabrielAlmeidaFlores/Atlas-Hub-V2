@@ -10,15 +10,15 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps): ReactNode {
   return (
-    <div className="empty-state animate-in px-6">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center bg-navy-50">
-        <Icon className="h-5 w-5 text-navy" />
+    <div className="empty-state animate-in gap-6 px-8">
+      <div className="flex h-14 w-14 items-center justify-center rounded-[8px] bg-navy-50">
+        <Icon className="h-7 w-7 text-navy" />
       </div>
-      <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">{title}</h3>
+      <h3 className="text-sm font-semibold tracking-normal text-foreground">{title}</h3>
       {description !== undefined && (
-        <p className="mt-2 max-w-sm text-xs text-muted-foreground">{description}</p>
+        <p className="max-w-sm text-xs text-muted-foreground">{description}</p>
       )}
-      {action !== undefined && <div className="mt-5">{action}</div>}
+      {action !== undefined && <div>{action}</div>}
     </div>
   );
 }

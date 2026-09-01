@@ -92,13 +92,13 @@ export default function IncorporadoraDashboardPage(): ReactNode {
         title="Meus Projetos"
         description="Acompanhe e gerencie todos os seus projetos na plataforma"
         action={
-          <Link to="/projetos/novo" className="btn btn-primary">
+          <Link to="/projetos/novo" className="btn btn-primary rounded-[8px]">
             <Plus className="h-4 w-4" /> Novo Projeto
           </Link>
         }
       />
 
-      <div className="page-content space-y-6">
+      <div className="page-content space-y-7">
         <div className="kpi-strip grid-cols-2 lg:grid-cols-4">
           {STAT_ITEMS.map(({ key, label, icon, accent }) => {
             const count = projetos.filter((p) => (key as readonly StatusProjeto[]).includes(p.status)).length;
@@ -121,13 +121,13 @@ export default function IncorporadoraDashboardPage(): ReactNode {
             title="Nenhum projeto ainda"
             description="Crie seu primeiro projeto para começar a captar recursos com investidores"
             action={
-              <Link to="/projetos/novo" className="btn btn-primary">
+              <Link to="/projetos/novo" className="btn btn-primary rounded-[8px]">
                 <Plus className="h-4 w-4" /> Criar primeiro projeto
               </Link>
             }
           />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <FilterBar
               fields={FILTER_FIELDS}
               values={filters}
@@ -135,25 +135,25 @@ export default function IncorporadoraDashboardPage(): ReactNode {
               onClear={() => setFilters({})}
             />
 
-            <div className="flex items-center justify-between">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Todos os projetos</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-medium text-muted-foreground">Todos os projetos</h2>
               <span className="text-xs text-muted-foreground">{String(filtered.length)} projeto{filtered.length !== 1 ? "s" : ""}</span>
             </div>
 
-            <div className="space-y-3 sm:hidden">
+            <div className="space-y-3.5 sm:hidden">
               {filtered.map((p) => (
-                <Link key={p.id} to={`/projetos/${p.id}`} className="card card-hover block p-4">
+                <Link key={p.id} to={`/projetos/${p.id}`} className="card card-hover block p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold uppercase tracking-widest text-foreground">{p.nome}</p>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                      <p className="truncate text-sm font-semibold tracking-normal text-foreground">{p.nome}</p>
+                      <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
                         <MapPin className="h-3 w-3 shrink-0" /> {p.cidade} — {p.estado}
                       </div>
                       {p.valorCaptar !== undefined && (
-                        <p className="mt-1 text-xs font-medium text-foreground">{formatCurrency(p.valorCaptar)}</p>
+                        <p className="mt-2 text-xs font-medium text-foreground">{formatCurrency(p.valorCaptar)}</p>
                       )}
                     </div>
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex flex-col items-end gap-2.5">
                       <StatusBadge status={p.status} />
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </div>

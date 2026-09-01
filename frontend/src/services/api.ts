@@ -37,11 +37,30 @@ function throwApiError(errorCode: ApiErrorCode, message: string): never {
 export function getApiErrorMessage(err: unknown): string {
   if (!(err instanceof Error)) return "Erro interno. Tente novamente.";
   const msg = err.message;
-  if (!msg.startsWith(API_ERROR_PREFIX)) return "Erro interno. Tente novamente.";
-  const rest = msg.slice(API_ERROR_PREFIX.length);
-  const separatorIndex = rest.indexOf("::");
-  if (separatorIndex === -1) return "Erro interno. Tente novamente.";
-  return rest.slice(separatorIndex + 2);
+  if (msg.startsWith(API_ERROR_PREFIX)) {
+    const rest = msg.slice(API_ERROR_PREFIX.length);
+    const separatorIndex = rest.indexOf("::");
+    if (separatorIndex === -1) return "Erro interno. Tente novamente.";
+    return rest.slice(separatorIndex + 2);
+  }
+
+  const name = "name" in err && typeof err.name === "string" ? err.name : "";
+  if (name === "NotAuthorizedException" || msg.toLowerCase().includes("incorrect username or password")) {
+    return "E-mail ou senha incorretos.";
+  }
+  if (name === "UserNotConfirmedException") {
+    return "Confirme seu e-mail antes de entrar.";
+  }
+  if (name === "UserAlreadyAuthenticatedException" || msg.toLowerCase().includes("already a signed in user")) {
+    return "Já existe uma sessão ativa. Atualize a página e tente novamente.";
+  }
+  if (name === "LimitExceededException" || name === "TooManyRequestsException") {
+    return "Muitas tentativas. Aguarde um momento e tente de novo.";
+  }
+  if (msg.length > 0 && msg.length < 180 && !msg.includes("http")) {
+    return msg;
+  }
+  return "Erro interno. Tente novamente.";
 }
 
 async function parseResponseBody(response: Response): Promise<unknown> {
@@ -75,6 +94,11 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
   if (!response.ok) {
     const raw = await parseResponseBody(response);
+    if (!path.startsWith("/analytics")) {
+      void import("@/lib/analytics").then(({ analytics }) => {
+        analytics.track("api_error", { code: extractCode(raw), route: path, status: response.status });
+      });
+    }
     throwApiError(extractCode(raw), extractMessage(raw, response.statusText));
   }
 

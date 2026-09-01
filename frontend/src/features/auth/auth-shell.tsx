@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { Building2, TrendingUp, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 
@@ -11,37 +12,30 @@ interface AuthShellProps {
 export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactNode {
   return (
     <div className="relative flex min-h-screen bg-background">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--navy) 1px, transparent 1px), linear-gradient(90deg, var(--navy) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
       <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-navy-dark p-10 lg:flex xl:w-[40%]">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="lp-float absolute -left-16 -top-16 h-72 w-72   opacity-30 blur-[90px]" style={{ background: "radial-gradient(circle, #1B2B5E, transparent)" }} />
-          <div className="absolute bottom-0 right-0 h-56 w-56   opacity-20 blur-[70px]" style={{ background: "radial-gradient(circle, #C49020, transparent)" }} />
+        <div
+          className="pointer-events-none absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/banner-login.png')" }}
+          aria-hidden
+        />
+
+        <div className="relative">
+          <Link to="/" aria-label="Atlas Hub — início">
+            <Logo size="md" scheme="dark" />
+          </Link>
         </div>
 
         <div className="relative">
-          <Logo size="md" scheme="dark" />
-        </div>
-
-        <div className="relative">
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gold">Atlas Hub</p>
           <h2 className="text-3xl font-extrabold leading-tight text-white xl:text-4xl">
             Construa sem banco.
             <br />
             <span className="text-gradient-gold">Capte com investidores.</span>
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-white/50">
+          <p className="mt-4 text-sm leading-relaxed text-white/55">
             Crowdfunding imobiliário regulado pela CVM Resolução 88.
           </p>
 
-          <div className="mt-8 grid grid-cols-3 gap-0 border border-white/10">
+          <div className="mt-8 grid grid-cols-3 gap-0 border border-white/10 bg-white/[0.04] backdrop-blur-sm">
             {[
               { icon: Building2, label: "Incorporadoras" },
               { icon: TrendingUp, label: "Rentabilidade" },
@@ -55,16 +49,18 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactN
           </div>
         </div>
 
-        <p className="relative text-[10px] font-bold uppercase tracking-widest text-white/25">
-          © 2026 Atlas Hub · CVM Resolução 88
+        <p className="relative text-xs text-white/45">
+          © 2026 Atlas Hub - Crowdfunding Imobiliário. Todos os direitos reservados.
         </p>
       </div>
 
       <div className="relative flex flex-1 flex-col justify-center px-5 py-12 sm:px-8 lg:px-12">
         <div className="mb-8 lg:hidden">
-          <Logo size="md" />
+          <Link to="/" aria-label="Atlas Hub — início">
+            <Logo size="md" />
+          </Link>
         </div>
-        <div className="mx-auto w-full max-w-md border border-border bg-card p-6 sm:p-8">
+        <div className="mx-auto w-full max-w-md rounded-[8px] border border-border bg-card p-6 sm:p-8">
           <div className="mb-6">
             <h1 className="text-sm font-bold uppercase tracking-widest text-foreground">{title}</h1>
             <p className="mt-1.5 text-xs text-muted-foreground">{subtitle}</p>

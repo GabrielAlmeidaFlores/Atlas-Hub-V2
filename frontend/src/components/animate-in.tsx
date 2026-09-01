@@ -13,9 +13,9 @@ interface AnimateInProps {
 }
 
 const ANIMATION_STYLES: Record<AnimationType, string> = {
-  "fade-in-up": "lp-fade-in-up 0.65s ease-out both",
-  "fade-in": "lp-fade-in 0.5s ease-out both",
-  "scale-in": "lp-scale-in 0.55s ease-out both",
+  "fade-in-up": "lp-fade-in-up 0.38s ease-out both",
+  "fade-in": "lp-fade-in 0.32s ease-out both",
+  "scale-in": "lp-scale-in 0.36s ease-out both",
 };
 
 export function AnimateIn({
@@ -48,7 +48,7 @@ export function AnimateIn({
 
   const style: CSSProperties = visible
     ? { animation: ANIMATION_STYLES[animation], animationDelay: `${String(delay)}ms` }
-    : { opacity: 0 };
+    : { opacity: 1 };
 
   return (
     <div ref={ref} className={className} style={style}>

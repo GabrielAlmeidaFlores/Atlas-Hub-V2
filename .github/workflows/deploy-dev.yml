@@ -258,6 +258,49 @@ jobs:
             echo "✓ Branch '$BRANCH' já existe"
           fi
 
+      - name: Allow static video assets in Amplify SPA rewrite
+        env:
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
+          REGION: ${{ vars.AWS_REGION }}
+        run: |
+          python3 <<'PY'
+          import json, os, subprocess
+          app_id = os.environ["APP_ID"]
+          region = os.environ["REGION"]
+          raw = subprocess.check_output(
+              [
+                  "aws", "amplify", "get-app",
+                  "--app-id", app_id,
+                  "--region", region,
+                  "--query", "app.customRules",
+                  "--output", "json",
+              ],
+              text=True,
+          )
+          rules = json.loads(raw) or []
+          spa_source = (
+              "</^[^.]+$|\\.(?!(css|gif|ico|jpg|jpeg|js|png|txt|svg|woff|woff2|"
+              "ttf|map|json|webp|mp4|webm)$)([^.]+$)/>"
+          )
+          updated = []
+          found = False
+          for rule in rules:
+              if rule.get("status") == "200" and str(rule.get("target", "")).rstrip("/").endswith("index.html"):
+                  updated.append({**rule, "source": spa_source, "target": "/index.html"})
+                  found = True
+              else:
+                  updated.append(rule)
+          if not found:
+              updated.append({"source": spa_source, "target": "/index.html", "status": "200"})
+          with open("/tmp/amplify-rules.json", "w", encoding="utf-8") as fh:
+              json.dump(updated, fh)
+          print(json.dumps(updated, indent=2))
+          PY
+          aws amplify update-app \
+            --app-id "$APP_ID" \
+            --region "$REGION" \
+            --custom-rules file:///tmp/amplify-rules.json
+
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
@@ -265,7 +308,9 @@ jobs:
           path: dist
 
       - name: Create zip
-        run: cd dist && zip -r /tmp/dist.zip .
+        run: |
+          test -f dist/hero-bg.mp4
+          cd dist && zip -r /tmp/dist.zip .
 
       - name: Create Amplify deployment
         id: amplify

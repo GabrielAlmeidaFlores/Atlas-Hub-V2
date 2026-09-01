@@ -180,4 +180,50 @@ export const criarUsuarioAdminSchema = z.object({
   perfil: z.enum(['ANALISTA', 'ADMIN_MASTER']),
 });
 
+const analyticsContextSchema = z.object({
+  path: z.string().max(500).optional(),
+  referrer: z.string().max(1000).optional(),
+  utmSource: z.string().max(200).optional(),
+  utmMedium: z.string().max(200).optional(),
+  utmCampaign: z.string().max(200).optional(),
+  utmContent: z.string().max(200).optional(),
+  utmTerm: z.string().max(200).optional(),
+  browser: z.string().max(100).optional(),
+  os: z.string().max(100).optional(),
+  device: z.string().max(50).optional(),
+  screenWidth: z.number().int().positive().optional(),
+  screenHeight: z.number().int().positive().optional(),
+  language: z.string().max(32).optional(),
+  timeZone: z.string().max(80).optional(),
+  country: z.string().max(80).optional(),
+  region: z.string().max(80).optional(),
+  city: z.string().max(80).optional(),
+}).optional();
+
+export const analyticsCollectSchema = z.object({
+  sessionId: z.string().min(8).max(80),
+  anonymousId: z.string().min(8).max(80),
+  userId: z.string().min(1).max(128).optional(),
+  events: z.array(z.object({
+    eventName: z.string().min(2).max(80),
+    ts: z.string().min(10).max(40).optional(),
+    props: z.record(z.unknown()).optional(),
+    context: analyticsContextSchema,
+  })).min(1).max(50),
+});
+
+export const analyticsAlertSchema = z.object({
+  name: z.string().min(3).max(120),
+  rule: z.enum([
+    'conversion_drop',
+    'bounce_high',
+    'traffic_drop',
+    'form_error',
+    'api_error',
+    'traffic_spike',
+  ]),
+  threshold: z.number().min(0).max(1000),
+  active: z.boolean().default(true),
+});
+
 export { cnpjRegex, cpfRegex };

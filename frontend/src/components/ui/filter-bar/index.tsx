@@ -31,7 +31,6 @@ export type FilterField = SelectFilterField | TextFilterField | DateFilterField;
 export interface FilterBarProps {
   fields: FilterField[];
   values: Record<string, string | undefined>;
-  title?: string;
   onChange: (key: string, value: string | null) => void;
   onClear?: () => void;
 }
@@ -43,7 +42,6 @@ function hasActiveFilter(values: Record<string, string | undefined>): boolean {
 export function FilterBar({
   fields,
   values,
-  title = "Filtros",
   onChange,
   onClear,
 }: FilterBarProps): ReactNode {
@@ -61,27 +59,13 @@ export function FilterBar({
 
   return (
     <div className="filter-bar">
-      <div className="filter-bar-header flex items-center justify-between">
-        <span>{title}</span>
-        {active && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="inline-flex h-6 items-center gap-1 px-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-3 w-3" />
-            Limpar
-          </button>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-end gap-3 px-4 py-3">
+      <div className="flex flex-wrap items-end gap-4 px-5 py-4">
         {fields.map((field) => {
           if (field.type === "select") {
             const currentValue = values[field.key] ?? "all";
             return (
-              <div key={field.key} className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <div key={field.key} className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-medium tracking-normal text-muted-foreground">
                   {field.label}
                 </span>
                 <select
@@ -89,7 +73,7 @@ export function FilterBar({
                   onChange={(e) => {
                     onChange(field.key, e.target.value);
                   }}
-                  className={`field h-8 py-1 text-xs ${field.width ?? "min-w-[130px]"}`}
+                  className={`field h-9 py-1 text-xs ${field.width ?? "min-w-[130px]"}`}
                 >
                   <option value="all">{field.allLabel ?? "Todos"}</option>
                   {field.options.map((opt) => (
@@ -104,13 +88,13 @@ export function FilterBar({
 
           if (field.type === "text") {
             return (
-              <div key={field.key} className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <div key={field.key} className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-medium tracking-normal text-muted-foreground">
                   {field.label}
                 </span>
                 <input
                   key={`${field.key}-${values[field.key] ?? ""}`}
-                  className={`field h-8 text-xs ${field.width ?? "w-[200px]"} ${field.mono === true ? "font-mono" : ""}`}
+                  className={`field h-9 text-xs ${field.width ?? "w-[200px]"} ${field.mono === true ? "font-mono" : ""}`}
                   placeholder={field.placeholder}
                   defaultValue={values[field.key] ?? ""}
                   onBlur={(e) => {
@@ -125,13 +109,13 @@ export function FilterBar({
           }
 
           return (
-            <div key={field.key} className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <div key={field.key} className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-medium tracking-normal text-muted-foreground">
                 {field.label}
               </span>
               <input
                 type="date"
-                className={`field h-8 text-xs ${field.width ?? "w-[140px]"}`}
+                className={`field h-9 text-xs ${field.width ?? "w-[140px]"}`}
                 defaultValue={values[field.key] ?? ""}
                 onChange={(e) => {
                   onChange(field.key, e.target.value);
@@ -140,6 +124,16 @@ export function FilterBar({
             </div>
           );
         })}
+        {active && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="inline-flex h-9 items-center gap-1 px-2 text-[11px] font-medium tracking-normal text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3 w-3" />
+            Limpar
+          </button>
+        )}
       </div>
     </div>
   );

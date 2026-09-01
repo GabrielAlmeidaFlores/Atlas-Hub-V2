@@ -42,7 +42,10 @@ export async function getIncorporadora(id: string): Promise<Incorporadora | null
 }
 
 export async function putIncorporadora(item: Incorporadora): Promise<void> {
-  await db.send(new PutCommand({ TableName: Tables.INCORPORADORAS, Item: item }));
+  const cleaned = Object.fromEntries(
+    Object.entries(item).filter(([, value]) => value !== ""),
+  );
+  await db.send(new PutCommand({ TableName: Tables.INCORPORADORAS, Item: cleaned }));
 }
 
 export async function updateIncorporadora(
@@ -177,6 +180,46 @@ export async function listProjetosByStatus(
   }
   allItems.sort((a, b) => a.criadoEm.localeCompare(b.criadoEm));
   return { items: allItems.slice(0, limit), cursor: null };
+}
+
+export async function listProjetosPublicados(
+  limit = 5,
+  offset = 0,
+): Promise<{ items: Projeto[]; total: number }> {
+  const result = await db.send(new QueryCommand({
+    TableName: Tables.PROJETOS,
+    IndexName: 'status-criadoEm-index',
+    KeyConditionExpression: '#s = :s',
+    ExpressionAttributeNames: { '#s': 'status' },
+    ExpressionAttributeValues: { ':s': 'OFERTA_CRIADA' },
+    ScanIndexForward: false,
+    Limit: 100,
+  }));
+  const items = (result.Items ?? []) as Projeto[];
+  const publishedAt = (p: Projeto): string =>
+    p.ofertaConfirmadaEm ?? p.aprovadoEm ?? p.atualizadoEm ?? p.criadoEm;
+  const isPublicavel = (p: Projeto): boolean => {
+    if (p.nome.trim().length < 3) return false;
+    if (p.cidade.trim().length < 2) return false;
+    if (p.estado.trim().length !== 2) return false;
+    if (p.ofertaLink === undefined || p.ofertaLink.trim() === '') return false;
+    try {
+      const url = new URL(p.ofertaLink);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+    } catch {
+      return false;
+    }
+    return true;
+  };
+  const published = [...items]
+    .filter(isPublicavel)
+    .sort((a, b) => publishedAt(b).localeCompare(publishedAt(a)));
+  const safeOffset = Math.max(Math.trunc(offset), 0);
+  const safeLimit = Math.max(Math.trunc(limit), 1);
+  return {
+    items: published.slice(safeOffset, safeOffset + safeLimit),
+    total: published.length,
+  };
 }
 
 // ── Scorecard ───────────────────────────────────────────────────────

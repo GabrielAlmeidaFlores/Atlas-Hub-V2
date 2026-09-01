@@ -2,7 +2,8 @@ import { useState, type ReactNode, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
-import { uploadProjetoDocumento } from "@/lib/upload";
+import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
+import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ import {
 } from "@/components/shared/viabilidade-calculator";
 import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
+import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -77,6 +79,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
   const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
@@ -102,12 +105,45 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       descricao: gerais.descricao,
       ...(gerais.videoUrl !== "" && { videoUrl: gerais.videoUrl }),
     });
+    analytics.track("project_created", { projectId: r.id });
     setProjetoId(r.id);
     return r.id;
   }
 
   async function persistDocumentos(id: string, docs: DocumentosProjeto): Promise<void> {
     await api.put(`/projetos/${id}`, { documentos: docs });
+  }
+
+  async function persistFotos(id: string, urls: string[]): Promise<void> {
+    await api.put(`/projetos/${id}`, { fotosUrls: urls });
+  }
+
+  async function handleFotoUpload(file: File): Promise<string> {
+    if (
+      projetoId === null
+      && (
+        gerais.nome.length < 3
+        || gerais.cidade.length < 2
+        || gerais.estado.length !== 2
+        || gerais.endereco.length < 5
+        || gerais.descricao.length < 200
+      )
+    ) {
+      throw new Error("Preencha nome, localização e descrição (mín. 200 caracteres) antes de enviar fotos.");
+    }
+    const id = await salvarRascunho();
+    return uploadProjetoFoto(id, file);
+  }
+
+  async function handleFotosChange(urls: string[]): Promise<void> {
+    setFotosUrls(urls);
+    try {
+      const id = await salvarRascunho();
+      await persistFotos(id, urls);
+      if (urls.length > 0) analytics.track("project_photo_uploaded", { projectId: id, count: urls.length });
+    } catch (err) {
+      addToast({ type: "error", title: "Falha ao salvar fotos", description: getApiErrorMessage(err) });
+    }
   }
 
   async function handleDocUpload(key: keyof DocumentosProjeto, file: File | undefined): Promise<void> {
@@ -119,6 +155,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       const next = { ...documentos, [key]: location };
       setDocumentos(next);
       await persistDocumentos(id, next);
+      analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
       addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) !== "Erro interno. Tente novamente." ? getApiErrorMessage(err) : (err instanceof Error ? err.message : "Tente novamente.") });
@@ -157,10 +194,12 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
         documentos,
+        fotosUrls,
         equipe,
         ...(viabilidade !== null && { viabilidade }),
       });
       await api.post(`/projetos/${projetoId}/submeter`, {});
+      analytics.track("project_submitted", { projectId: projetoId });
       addToast({ type: "success", title: "Projeto submetido!", description: "Aguarde a análise da nossa equipe." });
       navigate("/dashboard");
     } catch (err) {
@@ -194,7 +233,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       <PageHeader title="Novo Projeto" description="Preencha as informações para submeter à curadoria" />
 
       <div className="page-content">
-        {/* Progress */}
         <div className="mb-6 card p-4">
           <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-medium">{ETAPAS[etapa - 1]?.label ?? ""}</span>
@@ -207,12 +245,9 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             {ETAPAS.map(({ num, label, icon: Icon }) => (
               <button key={num} type="button"
                 onClick={() => { if (num < etapa) setEtapa(num); }}
-                className={cn("flex items-center gap-1.5 text-xs font-medium transition-colors",
+                className={cn("flex items-center gap-3 text-xs font-medium transition-colors",
                   num === etapa ? "text-navy" : num < etapa ? "cursor-pointer text-status-success hover:text-status-success" : "text-muted-foreground")}>
-                <div className={cn("flex h-6 w-6 items-center justify-center  ",
-                  num === etapa ? "bg-navy text-white" : num < etapa ? "bg-status-success-subtle text-status-success" : "bg-muted text-muted-foreground")}>
-                  {num < etapa ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
-                </div>
+                {num < etapa ? <Check className="h-5 w-5 shrink-0" strokeWidth={2.25} /> : <Icon className="h-5 w-5 shrink-0" strokeWidth={num === etapa ? 2.25 : 2} />}
                 {label}
               </button>
             ))}
@@ -252,6 +287,33 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <Field label="Vídeo de Apresentação (opcional)" hint="Link do YouTube">
                 <input className="input-base" placeholder="https://youtube.com/watch?v=..." value={gerais.videoUrl} onChange={g("videoUrl")} />
               </Field>
+              <ProjetoFotosField
+                value={fotosUrls}
+                disabled={isLoading}
+                onUpload={async (file) => {
+                  try {
+                    const location = await handleFotoUpload(file);
+                    addToast({ type: "success", title: "Foto enviada" });
+                    return location;
+                  } catch (err) {
+                    const message = err instanceof Error ? err.message : getApiErrorMessage(err);
+                    addToast({
+                      type: "error",
+                      title: "Falha no upload",
+                      description: message,
+                    });
+                    throw err;
+                  }
+                }}
+                onChange={(urls) => {
+                  void handleFotosChange(urls);
+                }}
+              />
+              {projetoId === null && gerais.descricao.length < 200 && (
+                <p className="text-xs text-muted-foreground">
+                  Complete a descrição (mín. 200 caracteres) para liberar o envio das fotos.
+                </p>
+              )}
             </div>
           )}
 
@@ -346,7 +408,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <p className="text-sm text-muted-foreground">Verifique os dados antes de submeter para análise.</p>
               <div className="space-y-3">
                 <div className="  bg-muted p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dados Gerais</p>
+                  <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Dados Gerais</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-muted-foreground">Projeto</dt><dd className="font-medium">{gerais.nome || "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{gerais.modelo}</dd></div>
@@ -355,7 +417,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   </dl>
                 </div>
                 <div className="  bg-muted p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dados Financeiros</p>
+                  <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Dados Financeiros</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-muted-foreground">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" ? `R$ ${financeiros.valorCaptar}` : "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Rentabilidade</dt><dd className="font-medium text-status-success">{financeiros.rentabilidadeEstimada !== "" ? `${financeiros.rentabilidadeEstimada}% a.a.` : "—"}</dd></div>
@@ -364,7 +426,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   </dl>
                 </div>
                 <div className="bg-muted p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Documentos</p>
+                  <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Documentos</p>
                   <p className="text-sm text-foreground">
                     {DOC_FIELDS.filter((d) => typeof documentos[d.key] === "string" && documentos[d.key] !== "").length}
                     {" / "}
@@ -397,7 +459,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             ) : (
               <button type="button" onClick={() => void submeter()} disabled={isLoading || projetoId === null}
                 className="btn bg-status-success text-white hover:opacity-90">
-                {isLoading ? <><span className="h-4 w-4 animate-spin   border-2 border-white/30 border-t-white" />Submetendo...</> : <><Check className="h-4 w-4" />Submeter Projeto</>}
+                {isLoading ? <><span className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white" />Submetendo...</> : "Submeter Projeto"}
               </button>
             )}
           </div>
