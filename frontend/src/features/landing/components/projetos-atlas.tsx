@@ -366,7 +366,7 @@ export function ProjetosAtlas({
         </AnimateIn>
 
         {!loading && empty && (
-          <AnimateIn className="lp-project-card mx-auto max-w-2xl px-8 py-12 text-center">
+          <AnimateIn className="lp-project-card mx-auto max-w-2xl items-center px-8 py-12 !text-center">
             <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-[16px] border border-gold/25 bg-gold/10">
               <ShieldCheck className="h-6 w-6 text-gold" />
             </div>
