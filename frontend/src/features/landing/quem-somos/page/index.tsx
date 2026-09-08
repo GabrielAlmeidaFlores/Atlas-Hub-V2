@@ -259,15 +259,15 @@ function MissaoValores(): ReactNode {
 
 function Parceiros(): ReactNode {
   const logos = [
-    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[5.5rem] w-auto max-w-[11rem] object-contain sm:h-[7.6rem] sm:max-w-[15.2rem] lg:h-[8.85rem] lg:max-w-[17.7rem]" },
-    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.75rem] w-auto max-w-[13rem] object-contain sm:h-[6.35rem] sm:max-w-[19rem] lg:h-[7.6rem] lg:max-w-[22.8rem]" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[5.5rem] w-auto max-w-full max-w-[11rem] object-contain sm:h-[6.5rem] sm:max-w-[13rem] lg:h-[7rem] lg:max-w-[14rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.75rem] w-auto max-w-full max-w-[13rem] object-contain sm:h-[5.5rem] sm:max-w-[16rem] lg:h-[6.5rem] lg:max-w-[18rem]" },
   ];
 
   return (
     <section className="bg-[#D5A650] py-14 sm:py-[5.18rem] lg:py-[6.2rem]" data-analytics-section="parceiros">
-      <div className="lp-container flex flex-col items-center gap-10 sm:gap-12 lg:flex-row lg:items-center lg:gap-12">
-        <AnimateIn className="w-full shrink-0 text-center lg:text-left">
-          <h2 className="mx-auto max-w-md text-[1.65rem] font-extrabold uppercase leading-[1.1] tracking-tight text-[#6C4C14] sm:text-[2.15rem] lg:text-[2.25rem]">
+      <div className="lp-container flex flex-col items-center gap-10 sm:gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+        <AnimateIn className="w-full text-center lg:w-auto lg:max-w-md lg:shrink-0 lg:text-left">
+          <h2 className="mx-auto max-w-md text-[1.65rem] font-extrabold uppercase leading-[1.1] tracking-tight text-[#6C4C14] sm:text-[2.15rem] lg:mx-0 lg:text-[2.25rem]">
             Equipe
             <br />
             responsável
@@ -275,7 +275,7 @@ function Parceiros(): ReactNode {
             pela curadoria
           </h2>
         </AnimateIn>
-        <AnimateIn delay={80} className="flex w-full max-w-sm flex-col items-center gap-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-12 lg:flex-1 lg:justify-center xl:gap-16">
+        <AnimateIn delay={80} className="flex min-w-0 w-full flex-col items-center gap-10 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-10 lg:flex-1 lg:justify-start xl:gap-14">
           {logos.map(({ src, alt, className }) => (
             <img key={alt} src={src} alt={alt} className={className} />
           ))}

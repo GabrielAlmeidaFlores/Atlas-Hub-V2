@@ -107,7 +107,7 @@ export default function CadastroPage(): ReactNode {
 
   return (
     <AuthShell
-      title="Cadastro de Incorporadora"
+      title="Cadastro de Incorporadora, Construtora"
       subtitle="Crie sua conta para submeter projetos à curadoria"
     >
       <div className="mb-6 flex items-center justify-center gap-0">
@@ -143,7 +143,7 @@ export default function CadastroPage(): ReactNode {
           <div className="space-y-4">
             <div className="mb-5">
               <h2 className="text-sm font-semibold text-foreground">Dados da Empresa</h2>
-              <p className="text-xs text-muted-foreground">Informações sobre a sua incorporadora</p>
+              <p className="text-xs text-muted-foreground">Informações sobre sua incorporadora ou construtora.</p>
             </div>
             <div className="form-group">
               <label className="form-label">Razão Social</label>

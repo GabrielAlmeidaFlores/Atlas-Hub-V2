@@ -60,8 +60,7 @@ function Hero(): ReactNode {
                 className="mb-8 text-[13px] uppercase tracking-[0.28em] text-[#D2A047] sm:mb-6 sm:text-[11px] sm:tracking-[0.32em]"
                 style={{ animation: "lp-fade-in 0.35s ease-out both" }}
               >
-                <span className="font-semibold">crowdfunding</span>
-                <span className="font-light sm:ml-1"> imobiliário regulado pela CVM</span>
+                AtlasHub - Conectando Capital ao Mercado Imobiliário
               </p>
 
               <h1

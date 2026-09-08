@@ -18,8 +18,8 @@ export function CvmBanner({
       className={cn("bg-white pb-12 pt-2 sm:pb-16 sm:pt-0 lg:pb-20", sectionClassName)}
       data-analytics-section="cvm-banner"
     >
-      <div className="flex justify-center px-4">
-        <AnimateIn className={cn("w-full sm:w-[73%]", shellClassName)}>
+      <div className="lp-container">
+        <AnimateIn className={cn("w-full", shellClassName)}>
           <div className="relative flex w-full flex-col items-center gap-5 rounded-[20px] bg-[#001F4E] px-6 py-8 text-center shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:rounded-[16px] sm:px-10 sm:py-9 sm:text-left lg:gap-9 lg:px-12">
             <button
               type="button"

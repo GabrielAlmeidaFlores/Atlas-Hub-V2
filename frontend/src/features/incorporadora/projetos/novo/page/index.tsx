@@ -17,6 +17,7 @@ import {
 import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
 import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
+import { TipoProjetoExemplos } from "@/components/shared/tipo-projeto-exemplos";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -466,6 +467,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         </div>
         <div className="space-y-4">
           <ProjetoProgressBar items={progressItems} />
+          {etapa === 1 && <TipoProjetoExemplos />}
         </div>
         </div>
       </div>
