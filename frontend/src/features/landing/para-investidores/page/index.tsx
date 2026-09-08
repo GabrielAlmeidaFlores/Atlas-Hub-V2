@@ -52,7 +52,7 @@ function InvestidoresHero(): ReactNode {
               data-analytics-cta="inv_hero_cadastro"
               className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
-              Quero investir
+              Investidor
             </Link>
           </div>
         </div>
@@ -173,7 +173,7 @@ function InvestirPassos(): ReactNode {
 
 function CentralDuvidas(): ReactNode {
   const btn =
-    "inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-[22px] text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity duration-200 hover:opacity-90";
+    "inline-flex h-12 min-w-[207px] items-center justify-center rounded-[4px] bg-[#D2A047] px-[22px] text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity duration-200 hover:opacity-90";
 
   return (
     <section id="central-duvidas" className="bg-white py-10 sm:py-12 lg:py-14" data-analytics-section="central-duvidas">

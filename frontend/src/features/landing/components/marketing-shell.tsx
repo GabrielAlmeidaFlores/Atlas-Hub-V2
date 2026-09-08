@@ -68,16 +68,16 @@ function MarketingNavbar(): ReactNode {
 
         <div className="hidden items-center gap-3 lg:flex">
           <Link
-            to="/login"
-            className="inline-flex h-[32px] w-[120px] items-center justify-center rounded-[4px] bg-[#D2A047] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-90"
+            to="/cadastro"
+            className="inline-flex h-[32px] w-auto items-center justify-center whitespace-nowrap rounded-[4px] bg-[#D2A047] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-90"
           >
-            Entrar
+            Apresentar projeto
           </Link>
           <Link
-            to="/cadastro"
+            to="/para-investidores"
             className="inline-flex h-[32px] w-[120px] items-center justify-center rounded-[4px] bg-[#076C07] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-95"
           >
-            Quero Investir
+            Investidor
           </Link>
         </div>
 
@@ -120,18 +120,18 @@ function MarketingNavbar(): ReactNode {
           </div>
           <div className="mt-5 flex flex-col gap-2 border-t border-[#D9D9D9] pt-5">
             <Link
-              to="/login"
+              to="/cadastro"
               onClick={() => setOpen(false)}
               className="inline-flex h-11 items-center justify-center rounded-[4px] bg-[#D2A047] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              Entrar
+              Apresentar projeto
             </Link>
             <Link
-              to="/cadastro"
+              to="/para-investidores"
               onClick={() => setOpen(false)}
               className="inline-flex h-11 items-center justify-center rounded-[4px] bg-[#076C07] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-95"
             >
-              Quero Investir
+              Investidor
             </Link>
           </div>
           {hasWhatsappSupport() && (
@@ -151,9 +151,10 @@ function MarketingFooter(): ReactNode {
       <div className="lp-container flex flex-col items-center gap-10 py-12 md:grid md:grid-cols-12 md:items-start md:gap-10 md:py-16">
         <div className="flex flex-col items-center text-center md:col-span-4 md:items-start md:text-left">
           <Logo size="lg" scheme="dark" className="origin-center scale-[1.35] md:origin-left md:scale-[1.5] lg:scale-[1.875]" />
-          <p className="mt-4 hidden max-w-xs text-[12px] leading-relaxed text-white/70 md:block">
-            Crowdfunding imobiliário regulado pela CVM Resolução 88.
-            Originação, curadoria e oferta sob a marca Atlas Hub.
+          <p className="mt-4 max-w-xs text-[11px] leading-relaxed text-white/70 md:text-[12px]">
+            Crowdfunding imobiliário.
+            <br />
+            Originação e curadoria de projetos.
           </p>
         </div>
         <div className="w-full md:col-span-8 md:flex md:justify-end">

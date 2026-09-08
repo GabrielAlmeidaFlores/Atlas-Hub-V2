@@ -107,7 +107,7 @@ export default function CadastroPage(): ReactNode {
 
   return (
     <AuthShell
-      title="Cadastro de Incorporadora, Construtora"
+      title="Cadastro de Incorporadora/Construtora"
       subtitle="Crie sua conta para submeter projetos à curadoria"
     >
       <div className="mb-6 flex items-center justify-center gap-0">

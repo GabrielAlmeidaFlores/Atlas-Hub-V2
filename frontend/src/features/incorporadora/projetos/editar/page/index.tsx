@@ -20,7 +20,6 @@ import {
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
 import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
-import { TipoProjetoExemplos } from "@/components/shared/tipo-projeto-exemplos";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
@@ -394,7 +393,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             equipe,
             viabilidade: formToViabilidade(viabilidadeForm) ?? undefined,
           })} />
-          <TipoProjetoExemplos />
         </div>
         </div>
       </form>

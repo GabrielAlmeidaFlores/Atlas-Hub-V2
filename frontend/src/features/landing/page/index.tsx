@@ -35,7 +35,7 @@ function ScrollToHash(): ReactNode {
 
 function Hero(): ReactNode {
   const kpiItems = [
-    { value: "CVM 88", label: "Operação regulada" },
+    { value: "CVM 88", label: "Conforme Resolução 88" },
     { value: "00", label: "Projetos avaliados" },
     { value: "00", label: "Captados" },
     { value: "00", label: "Incorporadoras parceiras" },
@@ -54,38 +54,64 @@ function Hero(): ReactNode {
 
           <div className="absolute inset-y-0 right-0 hidden w-[4%] bg-transparent lg:block" aria-hidden="true" />
 
-          <div className="lp-container relative flex min-h-[520px] items-center py-[3.25rem] sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:py-4">
-            <div className="relative max-w-[760px] pb-10 text-left sm:pb-0">
+          <div className="lp-container relative grid min-h-[520px] items-center gap-8 py-[3.25rem] sm:min-h-[480px] sm:py-3 lg:min-h-[600px] lg:grid-cols-2 lg:gap-12 lg:py-4">
+            {/* Coluna Esquerda - Investidor */}
+            <div className="relative text-left">
               <p
-                className="mb-8 text-[13px] uppercase tracking-[0.28em] text-[#D2A047] sm:mb-6 sm:text-[11px] sm:tracking-[0.32em]"
+                className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D2A047] sm:mb-5 sm:text-[12px] sm:tracking-[0.32em] lg:text-[13px]"
                 style={{ animation: "lp-fade-in 0.35s ease-out both" }}
               >
-                AtlasHub - Conectando Capital ao Mercado Imobiliário
+                AtlasHub - Conectando Capital
+                <br />
+                ao Mercado Imobiliário
               </p>
 
               <h1
-                className="mb-7 max-w-[760px] text-[34px] font-extrabold uppercase leading-[1.12] tracking-[0.04em] text-white sm:mb-5 sm:text-[36px] sm:leading-[1.08] md:text-[42px] lg:text-[48px]"
+                className="mb-5 text-[38px] font-extrabold uppercase leading-[1.1] tracking-[0.02em] text-white sm:mb-4 sm:text-[44px] sm:leading-[1.08] lg:text-[52px]"
                 style={{ animation: "lp-fade-in-up 0.38s 0.06s ease-out both" }}
               >
-                INVISTA EM IMÓVEIS
+                INVISTA
                 <br />
-                A PARTIR DE R$10,
+                EM IMÓVEIS
                 <br />
-                COM CURADORIA PROFISSIONAL
+                A PARTIR DE
+                <br />
+                R$10, COM
+                <br />
+                CURADORIA
+                <br />
+                PROFISSIONAL
               </h1>
+            </div>
 
+            {/* Coluna Direita - Incorporadora */}
+            <div className="relative text-left lg:pl-12 lg:text-right">
               <p
-                className="mb-8 max-w-[680px] text-[19px] font-medium uppercase leading-[1.3] tracking-[-0.03em] text-[#D2A047] sm:mb-8 sm:normal-case sm:text-[20px] sm:leading-[1.2] sm:tracking-[-0.04em]"
+                className="mb-5 text-[24px] font-bold uppercase leading-[1.15] tracking-[0.01em] text-[#D2A047] sm:mb-6 sm:text-[28px] lg:text-[32px]"
                 style={{ animation: "lp-fade-in-up 0.38s 0.12s ease-out both" }}
               >
-                Ou capte recursos para o seu projeto sem depender de financiamento bancário
+                CAPTE RECURSOS
+                <br />
+                PARA O SEU PROJETO
+                <br />
+                SEM DEPENDER
+                <br />
+                DE FINANCIAMENTO
+                <br />
+                BANCÁRIO
               </p>
 
               <p
-                className="max-w-[820px] text-[15px] font-light leading-[1.5] tracking-[-0.02em] text-white sm:text-[14px] sm:leading-[1.35] sm:tracking-[-0.03em]"
+                className="text-[14px] font-light leading-[1.55] tracking-[-0.01em] text-white sm:text-[15px] sm:leading-[1.6] lg:text-[16px]"
                 style={{ animation: "lp-fade-in-up 0.38s 0.18s ease-out both" }}
               >
-                A Atlas Hub conecta investidores e incorporadoras em projetos imobiliários selecionados a dedo — com curadoria técnica de localização e viabilidade, e a segurança de uma plataforma regulada pela CVM.
+                A Atlas Hub conecta investidores e
+                <br />
+                incorporadoras em projetos imobiliários
+                <br />
+                selecionados a dedo — com curadoria técnica
+                <br />
+                de localização e viabilidade.
               </p>
             </div>
           </div>
@@ -137,7 +163,7 @@ function Ecossistema(): ReactNode {
       image: "/incorporadora.png",
       mobileImage: "/incorporadora-mobile.png",
       description:
-        "Análise em até X dias. Captação de recursos sem financiamento bancário.",
+        "Análise em até 96 horas. Captação de recursos sem financiamento bancário.",
       href: "/para-incorporadoras",
       action: "Apresentar meu projeto",
       color: "#192145",
@@ -358,9 +384,9 @@ function Curadoria(): ReactNode {
 
 function Parceiros(): ReactNode {
   const logos = [
-    { src: "/divify.svg", alt: "Divify", className: "h-10 w-auto max-w-[10rem] object-contain sm:h-[3.3rem] sm:max-w-[11.4rem]" },
-    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-14 w-auto max-w-[12.5rem] object-contain sm:h-[4.8rem] sm:max-w-[11.4rem]" },
-    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-12 w-auto max-w-[9rem] object-contain sm:h-[5.4rem] sm:max-w-[8.4rem]" },
+    { src: "/divify.svg", alt: "Divify", className: "h-14 w-auto max-w-[13rem] object-contain sm:h-[3.3rem] sm:max-w-[11.4rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-20 w-auto max-w-[16rem] object-contain sm:h-[4.8rem] sm:max-w-[11.4rem]" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-16 w-auto max-w-[12rem] object-contain sm:h-[5.4rem] sm:max-w-[8.4rem]" },
   ];
 
   return (
@@ -388,7 +414,7 @@ function Parceiros(): ReactNode {
 
 function CentralDuvidas(): ReactNode {
   const btn =
-    "inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-[22px] text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity duration-200 hover:opacity-90";
+    "inline-flex h-12 min-w-[207px] items-center justify-center rounded-[4px] bg-[#D2A047] px-[22px] text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity duration-200 hover:opacity-90";
 
   return (
     <section id="central-duvidas" className="bg-white py-10 sm:py-12 lg:py-14" data-analytics-section="central-duvidas">
@@ -460,13 +486,22 @@ function CtaFinal(): ReactNode {
             <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-white sm:text-lg lg:text-xl">
               Crie sua conta e invista no seu primeiro projeto em poucos minutos.
             </p>
-            <Link
-              to="/para-investidores"
-              data-analytics-cta="final_investir"
-              className="mt-7 inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-[26px] text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
-            >
-              Quero investir
-            </Link>
+            <div className="mt-7 flex flex-col gap-4 sm:flex-row">
+              <Link
+                to="/para-investidores"
+                data-analytics-cta="final_investir"
+                className="inline-flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-[26px] text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90 sm:w-[225px]"
+              >
+                Investidor
+              </Link>
+              <Link
+                to="/cadastro"
+                data-analytics-cta="final_apresentar_projeto"
+                className="inline-flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-[26px] text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90 sm:w-[225px]"
+              >
+                Apresentar meu projeto
+              </Link>
+            </div>
           </AnimateIn>
         </div>
       </div>
@@ -483,7 +518,7 @@ export default function LandingPage(): ReactNode {
       <ComoFunciona />
       <Ecossistema />
       <ProjetosAtlas
-        viewAllProjectsOnMobile
+        staticGrid
         shellClassName="max-sm:![background-image:url('/elemento-projetos.png')] max-sm:!bg-[length:100%_auto] bg-bottom bg-no-repeat"
       />
       <Curadoria />

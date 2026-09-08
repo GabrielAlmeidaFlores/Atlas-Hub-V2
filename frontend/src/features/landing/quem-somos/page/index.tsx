@@ -259,8 +259,8 @@ function MissaoValores(): ReactNode {
 
 function Parceiros(): ReactNode {
   const logos = [
-    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[5.5rem] w-auto max-w-full max-w-[11rem] object-contain sm:h-[6.5rem] sm:max-w-[13rem] lg:h-[7rem] lg:max-w-[14rem]" },
-    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[4.75rem] w-auto max-w-full max-w-[13rem] object-contain sm:h-[5.5rem] sm:max-w-[16rem] lg:h-[6.5rem] lg:max-w-[18rem]" },
+    { src: "/swiss.svg", alt: "Swiss Capital", className: "h-[7rem] w-auto max-w-full max-w-[14rem] object-contain sm:h-[6.5rem] sm:max-w-[13rem] lg:h-[7rem] lg:max-w-[14rem]" },
+    { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-[6rem] w-auto max-w-full max-w-[16rem] object-contain sm:h-[5.5rem] sm:max-w-[16rem] lg:h-[6.5rem] lg:max-w-[18rem]" },
   ];
 
   return (

@@ -19,7 +19,7 @@ export function CvmBanner({
       data-analytics-section="cvm-banner"
     >
       <div className="lp-container">
-        <AnimateIn className={cn("w-full", shellClassName)}>
+        <AnimateIn className={cn("mx-auto w-full max-w-[82%] sm:max-w-[77%]", shellClassName)}>
           <div className="relative flex w-full flex-col items-center gap-5 rounded-[20px] bg-[#001F4E] px-6 py-8 text-center shadow-[0_8px_32px_rgb(0_0_0_/_0.12)] sm:flex-row sm:items-center sm:rounded-[16px] sm:px-10 sm:py-9 sm:text-left lg:gap-9 lg:px-12">
             <button
               type="button"
@@ -60,14 +60,13 @@ export function CvmBanner({
             </svg>
             <div className="w-full min-w-0 flex-1 text-center sm:pr-8 sm:text-left">
               <p className="text-[10px] font-semibold uppercase tracking-[0.42em] text-[#D2A047] sm:text-[11px] sm:tracking-[0.48em]">
-                Uma operação dentro das regras
+                Crowdfunding Imobiliário
               </p>
               <h2 className="mt-1.5 text-xl font-extrabold uppercase leading-tight tracking-[0.04em] text-white sm:text-2xl lg:text-[1.75rem]">
-                Regulada pela CVM — Resolução 88
+                Conforme Resolução CVM 88
               </h2>
               <p className="mt-2.5 text-[0.74375rem] leading-relaxed text-white sm:text-[0.796875rem]">
-                A Atlas Hub opera como plataforma de crowdfunding de investimento regulada pela Comissão de Valores
-                Mobiliários, sob a Resolução CVM 88 através da Divify.
+                Os projetos são estruturados em conformidade com a Resolução CVM 88, através da parceria estratégica com a Divify, plataforma regulada pela Comissão de Valores Mobiliários.
               </p>
             </div>
           </div>
