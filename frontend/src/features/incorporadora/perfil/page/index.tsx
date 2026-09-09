@@ -163,7 +163,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
 
   return (
     <div className="animate-in">
-      <PageHeader title="Empresa" description="Informações sobre a sua incorporadora" />
+      <PageHeader title="Empresa" description="Informações sobre sua incorporadora ou construtora." />
 
       <div className="page-content">
         <div className="grid gap-6 lg:grid-cols-3">

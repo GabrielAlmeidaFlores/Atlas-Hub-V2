@@ -377,7 +377,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           </button>
         </div>
         </div>
-        <div>
+        <div className="space-y-4">
           <ProjetoProgressBar items={getProjetoProgressItems({
             ...projeto,
             descricao: form.descricao,

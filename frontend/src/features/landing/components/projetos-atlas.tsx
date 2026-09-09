@@ -144,6 +144,7 @@ export function ProjetosAtlas({
   projectsPerPage = 12,
   mobileSingleCarousel,
   viewAllProjectsOnMobile,
+  staticGrid,
 }: {
   readonly shellClassName?: string;
   readonly sectionClassName?: string;
@@ -158,6 +159,7 @@ export function ProjetosAtlas({
   readonly projectsPerPage?: number;
   readonly mobileSingleCarousel?: boolean;
   readonly viewAllProjectsOnMobile?: boolean;
+  readonly staticGrid?: boolean;
 }): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
   const [total, setTotal] = useState(0);
@@ -175,8 +177,9 @@ export function ProjetosAtlas({
   singleRowViewportRef.current = singleRowViewport;
   const useMultiRowLayout = desktopMultiRow && !singleRowViewport;
   const usePaginatedGrid = paginatedGrid === true && !singleRowViewport;
+  const useStaticGrid = staticGrid === true;
   const pageSize = projectsPerPage;
-  const fetchLimit = usePaginatedGrid ? pageSize : desktopMultiRow ? maxCarouselRows * 4 : 5;
+  const fetchLimit = useStaticGrid ? 3 : usePaginatedGrid ? pageSize : desktopMultiRow ? maxCarouselRows * 4 : 5;
   const fetchOffset = usePaginatedGrid ? pageIndex * pageSize : 0;
   const effectiveRowCount =
     items !== null && useMultiRowLayout
@@ -236,7 +239,7 @@ export function ProjetosAtlas({
         );
 
   useEffect(() => {
-    if (useMultiRowLayout) return;
+    if (useMultiRowLayout || useStaticGrid) return;
     const track = scrollerRef.current;
     if (track === null || items === null || items.length === 0) return;
 
@@ -344,11 +347,16 @@ export function ProjetosAtlas({
   const empty = items !== null && items.length === 0;
   const totalPages = usePaginatedGrid ? Math.max(1, Math.ceil(total / pageSize)) : 1;
   const hasCarouselItems =
-    !usePaginatedGrid && (useMultiRowLayout ? projectColumns.length > 0 : loopItems.length > 0);
+    !usePaginatedGrid && !useStaticGrid && (useMultiRowLayout ? projectColumns.length > 0 : loopItems.length > 0);
   const hasPaginatedItems = usePaginatedGrid && items !== null && items.length > 0;
   const showMobileCarouselNav = mobileSingleCarousel && singleRowViewport;
   const resolvedCtaLabel = ctaLabel ?? "Ver Projeto";
   const showPaginatedNav = usePaginatedGrid && totalPages > 1;
+
+  // Ocultar seção inteira se não houver projetos
+  if (!loading && empty) {
+    return null;
+  }
 
   return (
     <section
@@ -364,21 +372,23 @@ export function ProjetosAtlas({
             <span className={titleSuffixClassName}>{titleSuffix}</span>
           </h2>
         </AnimateIn>
-
-        {!loading && empty && (
-          <AnimateIn className="lp-project-card mx-auto max-w-2xl items-center px-8 py-12 !text-center">
-            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-[16px] border border-gold/25 bg-gold/10">
-              <ShieldCheck className="h-6 w-6 text-gold" />
-            </div>
-            <h3 className="text-lg font-bold tracking-tight text-foreground">Nenhuma oferta publicada ainda</h3>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-              {failed
-                ? "Não foi possível carregar a vitrine no momento. Tente novamente em instantes."
-                : "Só entram aqui projetos com oferta confirmada pela curadoria (status Oferta Publicada). Assim que houver publicações no Atlas, elas aparecem nesta lista."}
-            </p>
-          </AnimateIn>
-        )}
       </div>
+
+      {loading && useStaticGrid && (
+        <div className="lp-container grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="lp-project-card p-6 sm:p-7">
+              <div className="space-y-4">
+                <div className="skeleton h-6 w-32" />
+                <div className="skeleton h-6 w-4/5" />
+                <div className="skeleton h-3 w-1/2" />
+                <div className="skeleton mt-2 h-16 w-full" />
+                <div className="skeleton h-11 w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {loading && usePaginatedGrid && (
         <div className="lp-container grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
@@ -396,7 +406,7 @@ export function ProjetosAtlas({
         </div>
       )}
 
-      {loading && !usePaginatedGrid && (
+      {loading && !usePaginatedGrid && !useStaticGrid && (
         <div className="lp-projects-bleed relative">
           <div
             className={cn(
@@ -441,6 +451,32 @@ export function ProjetosAtlas({
             ))}
           </div>
         </div>
+      )}
+
+      {!loading && useStaticGrid && items !== null && items.length > 0 && (
+        <>
+          <div className="lp-container grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            {items.map((projeto, index) => (
+              <AnimateIn key={projeto.id} delay={index * 30} className="h-full">
+                <ProjetoCard
+                  projeto={projeto}
+                  ctaClassName={ctaClassName}
+                  ctaLabel={resolvedCtaLabel}
+                  projectNameClassName={projectNameClassName}
+                />
+              </AnimateIn>
+            ))}
+          </div>
+          <div className="lp-container mt-8 flex justify-center">
+            <Link
+              to="/projetos"
+              data-analytics-cta="projetos_ver_todos"
+              className="inline-flex h-12 items-center justify-center rounded-[6px] bg-[#D2A047] px-8 text-sm font-bold text-white transition-opacity duration-200 hover:opacity-90"
+            >
+              Ver todos os projetos
+            </Link>
+          </div>
+        </>
       )}
 
       {!loading && hasPaginatedItems && (
