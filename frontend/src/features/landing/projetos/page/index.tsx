@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { Home, Building2, Warehouse, Calendar, Hotel, Hammer, Key, FileText } from "lucide-react";
 import { MarketingShell } from "@/features/landing/components/marketing-shell";
 import { ProjetosAtlas } from "@/features/landing/components/projetos-atlas";
 import { useLandingAnalytics } from "@/lib/analytics/use-landing-analytics";
@@ -39,11 +40,11 @@ function ProjetosHero(): ReactNode {
               Todos os projetos listados passam pela curadoria técnica da Atlas Hub antes de chegar até você.
             </p>
             <Link
-              to="/cadastro"
+              to="/para-investidores"
               data-analytics-cta="projetos_hero_investir"
               className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
-              Quero investir
+              Investidor
             </Link>
           </div>
         </div>
@@ -67,13 +68,95 @@ function ProjetosHero(): ReactNode {
               Todos os projetos listados passam pela curadoria técnica da Atlas Hub antes de chegar até você.
             </p>
             <Link
-              to="/cadastro"
+              to="/para-investidores"
               data-analytics-cta="projetos_hero_investir"
               className="mt-8 inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
-              Quero investir
+              Investidor
             </Link>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExemplosProjetos(): ReactNode {
+  const exemplos = [
+    {
+      titulo: "Construção para Venda",
+      descricao: "Casas, apartamentos e kitnets para venda.",
+      Icon: Home,
+    },
+    {
+      titulo: "Construção para Locação",
+      descricao: "Casas e apartamentos desenvolvidos para gerar renda com aluguel.",
+      Icon: Building2,
+    },
+    {
+      titulo: "Construção de Barracão",
+      descricao: "Barracões e galpões construídos para locação.",
+      Icon: Warehouse,
+    },
+    {
+      titulo: "Aluguel de Curta Temporada",
+      descricao: "Imóveis para Airbnb, temporada e hospedagem por períodos curtos.",
+      Icon: Calendar,
+    },
+    {
+      titulo: "Hospedagem",
+      descricao: "Hotéis, pousadas, studios, resorts e outros empreendimentos de hospedagem.",
+      Icon: Hotel,
+    },
+    {
+      titulo: "House Flip",
+      descricao: "Compra, reforma e revenda de imóveis com foco na valorização e geração de lucro.",
+      Icon: Hammer,
+    },
+    {
+      titulo: "Compra para Locação",
+      descricao: "Aquisição de imóveis para gerar renda recorrente com aluguel. Opções para locação tradicional ou de curta temporada, com gestão do imóvel.",
+      Icon: Key,
+    },
+    {
+      titulo: "Licitações",
+      descricao: "Obras e projetos vinculados a contratos e licitações públicas.",
+      Icon: FileText,
+    },
+  ];
+
+  return (
+    <section className="bg-white py-12 sm:py-16 lg:py-20">
+      <div className="lp-container">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.42em] text-[#D2A047]">
+            Tipos de Projetos
+          </p>
+          <h2 className="mt-3 text-2xl font-extrabold uppercase tracking-tight text-navy sm:text-3xl">
+            Encontre o projeto que combina com sua estratégia
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Explore diferentes modelos de projetos imobiliários para encontrar oportunidades que façam sentido para seus objetivos — ou inspire-se para apresentar seu próprio projeto na Atlas Hub.
+          </p>
+        </div>
+        
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {exemplos.map(({ titulo, descricao, Icon }) => (
+            <div
+              key={titulo}
+              className="flex h-full min-h-[160px] flex-col rounded-[16px] border-2 border-[#6C4C14] bg-transparent p-5 transition-shadow hover:shadow-md"
+            >
+              <div className="mb-3 flex h-10 w-10 items-center justify-center">
+                <Icon className="h-5 w-5 text-[#D2A047]" strokeWidth={2} />
+              </div>
+              <h3 className="text-sm font-bold uppercase tracking-tight text-[#6C4C14]">
+                {titulo}
+              </h3>
+              <p className="mt-3 text-xs leading-relaxed text-[#6C4C14]/80">
+                {descricao}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -85,6 +168,7 @@ export default function ProjetosPage(): ReactNode {
   return (
     <MarketingShell>
       <ProjetosHero />
+      <ExemplosProjetos />
       <ProjetosAtlas
         sectionClassName="max-sm:px-4 max-sm:pt-0"
         shellClassName="!bg-[#B89048] max-sm:![background-image:url('/projetos-mobile-sessao.png')] sm:![background-image:url('/projetos-sessao.svg')] max-sm:!bg-[length:100%_auto] sm:bg-[length:100%_auto] bg-bottom bg-no-repeat max-sm:!rounded-[14px] max-sm:!mx-0 max-sm:shadow-[0_10px_30px_rgba(7,17,34,0.18)]"
