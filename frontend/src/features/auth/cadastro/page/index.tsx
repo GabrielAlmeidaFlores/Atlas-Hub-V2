@@ -291,7 +291,7 @@ export default function CadastroPage(): ReactNode {
       <p className="mt-6 text-center text-xs text-muted-foreground">
         Já tem conta?{" "}
         <Link to="/login" className="font-semibold text-navy hover:underline">
-          Entrar
+          Entrar como incorporador/projeto
         </Link>
       </p>
     </AuthShell>
