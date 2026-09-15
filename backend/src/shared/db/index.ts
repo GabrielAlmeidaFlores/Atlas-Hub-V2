@@ -182,6 +182,36 @@ export async function listProjetosByStatus(
   return { items: allItems.slice(0, limit), cursor: null };
 }
 
+export async function listAllProjetosByStatus(status: StatusProjeto): Promise<Projeto[]> {
+  const items: Projeto[] = [];
+  let exclusiveStartKey: Record<string, unknown> | undefined;
+  do {
+    const result = await db.send(new QueryCommand({
+      TableName: Tables.PROJETOS,
+      IndexName: 'status-criadoEm-index',
+      KeyConditionExpression: '#s = :s',
+      ExpressionAttributeNames: { '#s': 'status' },
+      ExpressionAttributeValues: { ':s': status },
+      ...(exclusiveStartKey !== undefined ? { ExclusiveStartKey: exclusiveStartKey } : {}),
+    }));
+    items.push(...((result.Items ?? []) as Projeto[]));
+    exclusiveStartKey = result.LastEvaluatedKey as Record<string, unknown> | undefined;
+  } while (exclusiveStartKey !== undefined);
+  return items;
+}
+
+export async function getProjetoByOfertaId(ofertaId: string): Promise<Projeto | null> {
+  const result = await db.send(new QueryCommand({
+    TableName: Tables.PROJETOS,
+    IndexName: 'ofertaId-index',
+    KeyConditionExpression: 'ofertaId = :o',
+    ExpressionAttributeValues: { ':o': ofertaId },
+    Limit: 1,
+  }));
+  const item = result.Items?.[0];
+  return (item as Projeto | undefined) ?? null;
+}
+
 export async function listProjetosPublicados(
   limit = 5,
   offset = 0,

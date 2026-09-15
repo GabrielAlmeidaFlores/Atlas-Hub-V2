@@ -226,4 +226,36 @@ export const analyticsAlertSchema = z.object({
   active: z.boolean().default(true),
 });
 
+export const criarContaFinanceiroSchema = z.discriminatedUnion('tipo', [
+  z.object({
+    tipo: z.literal('TESOURARIA'),
+  }),
+  z.object({
+    tipo: z.literal('SPE'),
+    projetoId: z.string().min(1).max(80),
+    cnpjSpe: z.string().regex(cnpjRegex, 'CNPJ da SPE inválido'),
+    razaoSocialSpe: z.string().min(3).max(200),
+  }),
+]);
+
+export const criarSolicitacaoFinanceiroSchema = z.object({
+  projetoId: z.string().min(1).max(80),
+  amountReais: z.number().positive('Informe um valor maior que zero').max(15_000_000),
+  description: z.string().min(5).max(200),
+  pixKey: z.string().min(8).max(80).optional(),
+  name: z.string().min(2).max(200).optional(),
+  taxId: z.string().min(11).max(18).optional(),
+  bankCode: z.string().min(3).max(8).optional(),
+  branchCode: z.string().min(1).max(10).optional(),
+  accountNumber: z.string().min(2).max(20).optional(),
+  accountType: z.enum(['checking', 'savings', 'salary', 'payment']).optional(),
+}).superRefine((data, ctx) => {
+  const hasPix = data.pixKey !== undefined && data.pixKey.length > 0;
+  const hasConta = data.name !== undefined && data.taxId !== undefined && data.bankCode !== undefined
+    && data.branchCode !== undefined && data.accountNumber !== undefined;
+  if (!hasPix && !hasConta) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Informe a chave Pix ou os dados da conta destino' });
+  }
+});
+
 export { cnpjRegex, cpfRegex };

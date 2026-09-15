@@ -1,6 +1,7 @@
 import { type ReactNode, Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { TESOURARIA_CONTA_ID } from "@/types";
 import { cn } from "@/lib/utils";
 
 interface Crumb {
@@ -17,6 +18,8 @@ const LABELS: Record<string, string> = {
   editar: "Editar",
   curadoria: "Curadoria",
   historico: "Histórico",
+  financeiro: "Financeiro",
+  captacao: "Captação",
   incorporadoras: "Incorporadoras",
   usuarios: "Usuários",
   analytics: "Analytics",
@@ -42,6 +45,7 @@ function buildCrumbs(pathname: string): Crumb[] {
     }
 
     let label = LABELS[part];
+    if (part === TESOURARIA_CONTA_ID) label = "Tesouraria";
     if (label === undefined) {
       if (isId) label = "Detalhe";
       else label = part.charAt(0).toUpperCase() + part.slice(1);

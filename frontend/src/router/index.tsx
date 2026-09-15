@@ -32,6 +32,10 @@ const AdminIncorporadoraDetalhePage = React.lazy(() => import("@/features/admin/
 const AdminUsuariosPage            = React.lazy(() => import("@/features/admin/usuarios/page"));
 const AdminAnalyticsPage           = React.lazy(() => import("@/features/admin/analytics/page"));
 const AdminAnalyticsUserPage       = React.lazy(() => import("@/features/admin/analytics/users/page"));
+const AdminFinanceiroListaPage     = React.lazy(() => import("@/features/admin/financeiro/lista/page"));
+const AdminFinanceiroDetalhePage   = React.lazy(() => import("@/features/admin/financeiro/detalhe/page"));
+const AdminCaptacaoListaPage       = React.lazy(() => import("@/features/admin/captacao/lista/page"));
+const AdminCaptacaoOfertaPage      = React.lazy(() => import("@/features/admin/captacao/oferta/page"));
 
 function Spinner(): ReactNode {
   return (
@@ -133,6 +137,10 @@ const router = createBrowserRouter([
       { path: "analytics",           element: withSuspense(<AdminAnalyticsPage />), errorElement: <RouteError /> },
       { path: "analytics/users/:userId", element: withSuspense(<AdminAnalyticsUserPage />), errorElement: <RouteError /> },
       { path: "usuarios",            element: withSuspense(<AdminUsuariosPage />) },
+      { path: "financeiro",          element: withSuspense(<AdminFinanceiroListaPage />) },
+      { path: "financeiro/:projetoId", element: withSuspense(<AdminFinanceiroDetalhePage />) },
+      { path: "captacao",            element: withSuspense(<AdminCaptacaoListaPage />) },
+      { path: "captacao/:ofertaId",  element: withSuspense(<AdminCaptacaoOfertaPage />) },
     ],
   },
 

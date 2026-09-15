@@ -274,6 +274,29 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Detalhe | Dados cadastrais, documentos, histórico declarado, todos os projetos com status/nota/decisão |
 | Resumo | Contagens: submetidos / aprovados / reprovados / publicados |
 
+#### 3.7 Financeiro (pós-sucesso)
+
+| Funcionalidade | Descrição |
+|---|---|
+| Tesouraria Atlas | Workspace operacional da organization Atlas |
+| Conta SPE por projeto | Um workspace isolado por oferta publicada (`OFERTA_CRIADA`); CNPJ da SPE é metadado |
+| Saldo e extrato | Saldo ao vivo + ledger conciliado (API + webhook) |
+| Pix com dupla aprovação | Admin master solicita; outro master aprova e dispara a transferência |
+| Split | Criação de beneficiários para dividir recebíveis (`POST /admin/financeiro/split`) |
+| Extrato público | API autenticada por token para consulta por investidor/integração (`GET /publico/financeiro/projetos/:projetoId/extrato`) |
+| Auditoria | Trilha de abertura de conta, solicitações, aprovações e conciliação |
+| Fora desta fase | Escrow da oferta, portal investidor, cartão CDI |
+
+#### 3.8 Captação (admin)
+
+| Funcionalidade | Descrição |
+|---|---|
+| Webhook da plataforma | `POST /webhooks/divify` — investidor criado, compra aprovada, compra expirada (outros eventos são gravados como “outro”) |
+| Progresso por oferta | Soma compras `APPROVED`/`COMPLETED` e vincula ao projeto pelo `ofertaId` |
+| Tela Captação | Lista ofertas publicadas, valores, eventos recentes. Sem cadastro de investidor no Atlas |
+
+O dinheiro do investidor **não** entra nas contas Stark durante a captação.
+
 ---
 
 ### 4. API backend (endpoints)
@@ -325,6 +348,17 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | `GET` | `/admin/dashboard/metricas` | Métricas do dashboard |
 | `GET` / `POST` | `/admin/usuarios` | Listar / criar admin |
 | `PUT` | `/admin/usuarios/{id}/desativar` | Desativar admin |
+| `GET` / `POST` | `/admin/financeiro/contas` | Listar / abrir tesouraria ou conta SPE |
+| `GET` | `/admin/financeiro/contas/{projetoId}` | Detalhe + saldo |
+| `GET` | `/admin/financeiro/contas/{projetoId}/extrato` | Extrato conciliado |
+| `GET` | `/admin/financeiro/contas/{projetoId}/movimentos` | Solicitações + auditoria |
+| `POST` | `/admin/financeiro/solicitacoes` | Criar pedido de Pix (master) |
+| `POST` | `/admin/financeiro/solicitacoes/{id}/aprovar` | Segundo master executa Pix |
+| `POST` | `/admin/financeiro/solicitacoes/{id}/rejeitar` | Rejeitar pedido |
+| `POST` | `/webhooks/starkbank` | Webhook assinado (conciliação) |
+| `GET` | `/admin/captacao` | Ofertas + eventos de captação |
+| `GET` | `/admin/captacao/ofertas/{ofertaId}` | Compras e eventos de uma oferta |
+| `POST` | `/webhooks/divify` | Webhook da plataforma (secret no header) |
 
 Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no DynamoDB após signup.
 
@@ -345,12 +379,30 @@ Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no D
 
 ### 6. Integração white-label (MVP)
 
-No MVP a integração é **operacional/manual**, não via API:
+No MVP a **criação da oferta** continua **manual** no painel da plataforma:
 
 1. Analista aprova no Atlas Hub  
 2. Cria a oferta no painel da plataforma (pública ou privada, SCP/Nota Comercial, spread 10%)  
 3. Registra ID + link no Atlas Hub → `OFERTA_CRIADA`  
 4. Incorporadora recebe o link para compartilhar com investidores  
+5. A plataforma dispara webhooks de captação; o admin acompanha o progresso em **Captação**
+
+Auth do webhook: header `X-Webhook-Secret` (ou `Authorization: Bearer`) igual a `DIVIFY_WEBHOOK_SECRET`. Opcional: `x-tenant-id` conferido com `DIVIFY_TENANT_ID` se este estiver preenchido.
+
+Payload aceito (campos flexíveis; `data`/`payload` aninhados também):
+
+```json
+{
+  "event": "purchase.approved",
+  "offerId": "offer-001",
+  "purchaseId": "buy-001",
+  "investorId": "inv-001",
+  "amount": 10000,
+  "status": "APPROVED"
+}
+```
+
+Eventos reconhecidos: `investor.created` / `investidor criado`, `purchase.approved` / `compra aprovada`, `purchase.expired` / `compra expirada`.
 
 Fora deste repo (já na experiência Atlas Hub): vitrine, KYC, investimento PIX, escrow, tokenização, mercado secundário, triggers CVM.
 

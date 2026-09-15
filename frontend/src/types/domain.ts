@@ -206,3 +206,170 @@ export interface DashboardMetricas {
   readonly metricas: Record<StatusProjeto, number>;
   readonly total: number;
 }
+
+export const TESOURARIA_CONTA_ID = "__TESOURARIA__";
+
+export type SpeContaTipo = "TESOURARIA" | "SPE";
+export type SpeContaStatus = "ATIVA" | "BLOQUEADA" | "ERRO";
+export type LedgerTipo = "DEPOSIT" | "TRANSFER" | "INVOICE" | "TRANSACTION";
+export type SolicitacaoStatus = "PENDENTE" | "APROVADA" | "EXECUTADA" | "REJEITADA" | "FALHOU";
+
+export interface SpeConta {
+  readonly projetoId: string;
+  readonly tipo: SpeContaTipo;
+  readonly workspaceId: string;
+  readonly username: string;
+  readonly status: SpeContaStatus;
+  readonly cnpjSpe?: string;
+  readonly razaoSocialSpe?: string;
+  readonly pixKey?: string;
+  readonly projetoNome?: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly criadoPor: string;
+  readonly saldoCents?: number | null;
+}
+
+export interface ProjetoElegivel {
+  readonly id: string;
+  readonly nome: string;
+  readonly cidade: string;
+  readonly estado: string;
+  readonly valorCaptar?: number;
+}
+
+export interface FinanceiroContasResponse {
+  readonly configured: boolean;
+  readonly tesouraria: SpeConta | null;
+  readonly items: SpeConta[];
+  readonly elegiveis: ProjetoElegivel[];
+}
+
+export interface FinanceiroLedgerEntry {
+  readonly projetoId: string;
+  readonly starkId: string;
+  readonly workspaceId: string;
+  readonly tipo: LedgerTipo;
+  readonly amount: number;
+  readonly description: string;
+  readonly criadoEm: string;
+  readonly conciliado: boolean;
+  readonly source: "webhook" | "sync";
+  readonly tags?: string[];
+}
+
+export interface DestinoPix {
+  readonly pixKey?: string;
+  readonly name: string;
+  readonly taxId: string;
+  readonly bankCode: string;
+  readonly branchCode: string;
+  readonly accountNumber: string;
+  readonly accountType: "checking" | "savings" | "salary" | "payment";
+}
+
+export interface FinanceiroSolicitacao {
+  readonly id: string;
+  readonly projetoId: string;
+  readonly workspaceId: string;
+  readonly amount: number;
+  readonly description: string;
+  readonly destino: DestinoPix;
+  readonly status: SolicitacaoStatus;
+  readonly solicitadoPor: string;
+  readonly solicitadoPorNome: string;
+  readonly solicitadoEm: string;
+  readonly aprovadoPor?: string;
+  readonly aprovadoPorNome?: string;
+  readonly aprovadoEm?: string;
+  readonly starkTransferId?: string;
+  readonly erro?: string;
+}
+
+export interface FinanceiroAuditoriaEntry {
+  readonly projetoId: string;
+  readonly criadoEm: string;
+  readonly id: string;
+  readonly acao: string;
+  readonly userId: string;
+  readonly userName: string;
+  readonly descricao: string;
+  readonly solicitacaoId?: string;
+  readonly workspaceId?: string;
+}
+
+export type CaptacaoEventoTipo = "INVESTOR_CREATED" | "PURCHASE_APPROVED" | "PURCHASE_EXPIRED" | "OUTRO";
+
+export type CaptacaoCompraStatus =
+  | "PENDING"
+  | "CANCELED"
+  | "FAILED"
+  | "FAILED_REFUND"
+  | "APPROVED"
+  | "EXPIRED"
+  | "REFUNDED"
+  | "COMPLETED"
+  | "UNKNOWN";
+
+export interface CaptacaoEvento {
+  readonly id: string;
+  readonly tipo: CaptacaoEventoTipo;
+  readonly tipoOriginal: string;
+  readonly recebidoEm: string;
+  readonly occurredAt?: string;
+  readonly ofertaId?: string;
+  readonly purchaseId?: string;
+  readonly investorId?: string;
+  readonly status?: CaptacaoCompraStatus;
+  readonly amountCents?: number;
+  readonly projetoId?: string;
+  readonly projetoNome?: string;
+}
+
+export interface CaptacaoCompra {
+  readonly ofertaId: string;
+  readonly purchaseId: string;
+  readonly status: CaptacaoCompraStatus;
+  readonly atualizadoEm: string;
+  readonly recebidoEm: string;
+  readonly investorId?: string;
+  readonly amountCents?: number;
+  readonly projetoId?: string;
+  readonly projetoNome?: string;
+}
+
+export interface CaptacaoOfertaResumo {
+  readonly ofertaId: string;
+  readonly projetoId?: string;
+  readonly projetoNome?: string;
+  readonly valorCaptar?: number;
+  readonly valorAprovadoCents: number;
+  readonly comprasAprovadas: number;
+  readonly comprasExpiradas: number;
+  readonly investidores: number;
+  readonly atualizadoEm?: string;
+  readonly vinculada: boolean;
+}
+
+export interface CaptacaoListaResponse {
+  readonly configured: boolean;
+  readonly ofertas: CaptacaoOfertaResumo[];
+  readonly eventos: CaptacaoEvento[];
+}
+
+export interface CaptacaoOfertaDetalhe {
+  readonly configured: boolean;
+  readonly ofertaId: string;
+  readonly projeto: {
+    readonly id: string;
+    readonly nome: string;
+    readonly cidade: string;
+    readonly estado: string;
+    readonly valorCaptar: number | null;
+    readonly ofertaLink: string | null;
+  } | null;
+  readonly valorAprovadoCents: number;
+  readonly comprasAprovadas: number;
+  readonly compras: CaptacaoCompra[];
+  readonly eventos: CaptacaoEvento[];
+}

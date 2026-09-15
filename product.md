@@ -826,7 +826,7 @@ No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o inve
 | Recuperação de senha | Fluxo de "esqueci minha senha" não existe na API |
 | Criação/gestão de ofertas | Somente via painel da plataforma |
 | Histórico de rendimentos | Não disponível na API |
-| Webhooks de eventos | Status desconhecido — a confirmar com o fornecedor da stack |
+| Webhooks de eventos | Ingestão Atlas: investidor criado, compra aprovada, compra expirada (`POST /webhooks/divify`). Demais eventos a confirmar com o fornecedor |
 
 ### 8.4 Modelos de contrato na plataforma
 

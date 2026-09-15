@@ -264,4 +264,53 @@ export const handlers = [
   http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: [] })),
   http.post(`${BASE}/admin/usuarios`, () => HttpResponse.json({ id: "admin-new" }, { status: 201 })),
   http.put(`${BASE}/admin/usuarios/:id/desativar`, () => HttpResponse.json({ updated: true })),
+
+  http.get(`${BASE}/admin/financeiro/contas`, () => HttpResponse.json({
+    configured: false,
+    tesouraria: null,
+    items: [],
+    elegiveis: mockProjetos.filter((p) => p.status === "OFERTA_CRIADA").map((p) => ({
+      id: p.id,
+      nome: p.nome,
+      cidade: p.cidade,
+      estado: p.estado,
+      valorCaptar: p.valorCaptar,
+    })),
+  })),
+  http.post(`${BASE}/admin/financeiro/contas`, () => HttpResponse.json({ conta: { projetoId: "proj-1", tipo: "SPE", workspaceId: "ws-1", username: "atlashub-spe-dev", status: "ATIVA", criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString(), criadoPor: "admin-1" } }, { status: 201 })),
+  http.get(`${BASE}/admin/financeiro/contas/:projetoId`, () => HttpResponse.json({
+    conta: { projetoId: "proj-1", tipo: "SPE", workspaceId: "ws-1", username: "atlashub-spe-dev", status: "ATIVA", projetoNome: "Mock", criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString(), criadoPor: "admin-1" },
+    saldoCents: 0,
+    configured: false,
+  })),
+  http.get(`${BASE}/admin/financeiro/contas/:projetoId/extrato`, () => HttpResponse.json({ items: [], configured: false })),
+  http.get(`${BASE}/admin/financeiro/contas/:projetoId/movimentos`, () => HttpResponse.json({ solicitacoes: [], auditoria: [] })),
+  http.post(`${BASE}/admin/financeiro/solicitacoes`, () => HttpResponse.json({ solicitacao: { id: "sol-1", status: "PENDENTE" } }, { status: 201 })),
+  http.post(`${BASE}/admin/financeiro/solicitacoes/:id/aprovar`, () => HttpResponse.json({ status: "EXECUTADA" })),
+  http.post(`${BASE}/admin/financeiro/solicitacoes/:id/rejeitar`, () => HttpResponse.json({ status: "REJEITADA" })),
+
+  http.get(`${BASE}/admin/captacao`, () => HttpResponse.json({
+    configured: false,
+    ofertas: mockProjetos.filter((p) => p.status === "OFERTA_CRIADA" && p.ofertaId !== undefined).map((p) => ({
+      ofertaId: p.ofertaId,
+      projetoId: p.id,
+      projetoNome: p.nome,
+      valorCaptar: p.valorCaptar,
+      valorAprovadoCents: 0,
+      comprasAprovadas: 0,
+      comprasExpiradas: 0,
+      investidores: 0,
+      vinculada: true,
+    })),
+    eventos: [],
+  })),
+  http.get(`${BASE}/admin/captacao/ofertas/:ofertaId`, ({ params }) => HttpResponse.json({
+    configured: false,
+    ofertaId: params["ofertaId"],
+    projeto: null,
+    valorAprovadoCents: 0,
+    comprasAprovadas: 0,
+    compras: [],
+    eventos: [],
+  })),
 ];
