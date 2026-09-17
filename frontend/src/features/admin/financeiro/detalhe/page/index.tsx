@@ -16,8 +16,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatCurrency, formatDateTime, parseMoneyInput } from "@/lib/utils";
+import { cn, formatCpfCnpj, isValidCpfCnpj } from "@/lib/utils";
+import { CurrencyInput } from "@/components/shared/currency-input";
 
 const EXTRATO_COLS = [
   { label: "Data" },
@@ -90,8 +91,11 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showPix, setShowPix] = useState(false);
+  const [showSplit, setShowSplit] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ amountReais: "", description: "", pixKey: "" });
+  const [splitForm, setSplitForm] = useState({ name: "", taxId: "", pixKey: "" });
+  const [lastSplitId, setLastSplitId] = useState<string | null>(null);
 
   async function load(): Promise<void> {
     const encoded = encodeURIComponent(projetoId);
@@ -139,7 +143,7 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
     try {
       await api.post("/admin/financeiro/solicitacoes", {
         projetoId,
-        amountReais: Number(form.amountReais.replace(",", ".")),
+        amountReais: parseMoneyInput(form.amountReais),
         description: form.description,
         pixKey: form.pixKey,
       });
@@ -180,6 +184,32 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
     }
   }
 
+  async function criarSplit(e: FormEvent): Promise<void> {
+    e.preventDefault();
+    if (!isValidCpfCnpj(splitForm.taxId)) {
+      addToast({ type: "error", title: "CPF ou CNPJ inválido" });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const result = await api.post<{ receiverId: string }>("/admin/financeiro/split", {
+        projetoId,
+        name: splitForm.name,
+        taxId: splitForm.taxId.replace(/\D/g, ""),
+        pixKey: splitForm.pixKey,
+      });
+      setLastSplitId(result.receiverId);
+      addToast({ type: "success", title: "Beneficiário de split criado", description: result.receiverId });
+      setShowSplit(false);
+      setSplitForm({ name: "", taxId: "", pixKey: "" });
+      await load();
+    } catch (err) {
+      addToast({ type: "error", title: getApiErrorMessage(err) });
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <div className="animate-in">
       <PageHeader
@@ -192,9 +222,14 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
         }
         action={
           isMaster ? (
-            <button type="button" className="btn btn-primary btn-sm rounded-[8px]" onClick={() => setShowPix(true)}>
-              Solicitar Pix
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className="btn btn-secondary btn-sm rounded-[8px]" onClick={() => setShowSplit(true)}>
+                Cadastrar split
+              </button>
+              <button type="button" className="btn btn-primary btn-sm rounded-[8px]" onClick={() => setShowPix(true)}>
+                Solicitar Pix
+              </button>
+            </div>
           ) : undefined
         }
       />
@@ -203,6 +238,12 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
         {!configured && (
           <p className="alert-warn px-4 py-3 text-xs text-status-warning">
             Integração bancária não configurada. Você consulta a conta, mas saldo ao vivo e envio de Pix ficam indisponíveis até conectar o banco.
+          </p>
+        )}
+
+        {lastSplitId !== null && (
+          <p className="px-4 py-3 text-xs text-muted-foreground">
+            Último beneficiário de split: <span className="font-medium text-foreground">{lastSplitId}</span>
           </p>
         )}
 
@@ -298,12 +339,11 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
         <form onSubmit={(e) => void criarSolicitacao(e)} className="space-y-5">
           <div className="form-group">
             <label className="form-label">Valor (R$)</label>
-            <input
-              className="input-base"
+            <CurrencyInput
               value={form.amountReais}
-              onChange={(e) => setForm((p) => ({ ...p, amountReais: e.target.value }))}
+              onValueChange={(v) => setForm((p) => ({ ...p, amountReais: v }))}
               required
-              inputMode="decimal"
+              placeholder="0,00"
             />
           </div>
           <div className="form-group">
@@ -333,6 +373,72 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
             <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowPix(false)}>Cancelar</button>
             <button type="submit" disabled={isSaving} className="btn btn-primary rounded-[8px]">
               {isSaving ? "Enviando…" : "Solicitar"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={showSplit}
+        onOpenChange={setShowSplit}
+        title="Cadastrar beneficiário de split"
+        description="Prepara o receptor Stark para divisão operacional de recebíveis desta conta. Distribuição de rendimentos da oferta continua automática na Divify."
+      >
+        <form onSubmit={(e) => void criarSplit(e)} className="space-y-5">
+          <div className="form-group">
+            <label className="form-label">Nome</label>
+            <input
+              className="input-base"
+              value={splitForm.name}
+              onChange={(e) => setSplitForm((p) => ({ ...p, name: e.target.value }))}
+              required
+              minLength={2}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">CPF ou CNPJ</label>
+            <input
+              className={cn(
+                "input-base",
+                (splitForm.taxId.replace(/\D/g, "").length === 11 || splitForm.taxId.replace(/\D/g, "").length === 14)
+                  && !isValidCpfCnpj(splitForm.taxId)
+                  && "field-error",
+              )}
+              value={formatCpfCnpj(splitForm.taxId)}
+              onChange={(e) => setSplitForm((p) => ({ ...p, taxId: e.target.value.replace(/\D/g, "").slice(0, 14) }))}
+              required
+              inputMode="numeric"
+              placeholder="000.000.000-00"
+              maxLength={18}
+            />
+            {(splitForm.taxId.replace(/\D/g, "").length === 11 || splitForm.taxId.replace(/\D/g, "").length === 14)
+              && !isValidCpfCnpj(splitForm.taxId) && (
+              <p className="form-error">CPF ou CNPJ inválido</p>
+            )}
+            {isValidCpfCnpj(splitForm.taxId) && (
+              <p className="mt-1 text-xs font-medium text-status-success">
+                {splitForm.taxId.replace(/\D/g, "").length === 14 ? "CNPJ válido" : "CPF válido"}
+              </p>
+            )}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Chave Pix</label>
+            <input
+              className="input-base"
+              value={splitForm.pixKey}
+              onChange={(e) => setSplitForm((p) => ({ ...p, pixKey: e.target.value }))}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowSplit(false)}>Cancelar</button>
+            <button
+              type="submit"
+              disabled={isSaving || !isValidCpfCnpj(splitForm.taxId)}
+              className="btn btn-primary rounded-[8px]"
+            >
+              {isSaving ? "Cadastrando…" : "Cadastrar"}
             </button>
           </div>
         </form>

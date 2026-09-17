@@ -5,6 +5,8 @@ import { createLogger } from '../shared/core/logger.js';
 import { listAllProjetosByStatus } from '../shared/db/index.js';
 import { listCaptacaoCompras, listCaptacaoEventos } from '../shared/db/captacao.js';
 import { isDivifyWebhookConfigured } from '../shared/divify/auth.js';
+import { isDivifyApiConfigured } from '../shared/divify/client.js';
+import type { CaptacaoOfertaEncerramento } from '../shared/core/types/index.js';
 
 interface OfertaResumo {
   readonly ofertaId: string;
@@ -17,6 +19,14 @@ interface OfertaResumo {
   readonly investidores: number;
   readonly atualizadoEm?: string;
   readonly vinculada: boolean;
+  readonly encerramento?: CaptacaoOfertaEncerramento;
+  readonly encerradaEm?: string;
+}
+
+function encerramentoFromTipo(tipo: string): CaptacaoOfertaEncerramento | null {
+  if (tipo === 'OFFER_FINISHED_SUCCESS') return 'FINISHED_SUCCESS';
+  if (tipo === 'OFFER_FINISHED_UNSUCCESS') return 'FINISHED_UNSUCCESS';
+  return null;
 }
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -25,10 +35,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     getUserId(event);
     requireAdmin(event);
 
-    const [publicados, compras, eventos] = await Promise.all([
+    const [publicados, compras, eventosAll] = await Promise.all([
       listAllProjetosByStatus('OFERTA_CRIADA'),
       listCaptacaoCompras(),
-      listCaptacaoEventos(60),
+      listCaptacaoEventos(400),
     ]);
 
     const byOferta = new Map<string, OfertaResumo>();
@@ -83,8 +93,36 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
 
-    for (const evento of eventos) {
-      if (evento.ofertaId === undefined || evento.tipo !== 'INVESTOR_CREATED' || evento.investorId === undefined) continue;
+    for (const evento of eventosAll) {
+      if (evento.ofertaId === undefined) continue;
+
+      const enc = encerramentoFromTipo(evento.tipo);
+      if (enc !== null) {
+        const current = byOferta.get(evento.ofertaId) ?? {
+          ofertaId: evento.ofertaId,
+          valorAprovadoCents: 0,
+          comprasAprovadas: 0,
+          comprasExpiradas: 0,
+          investidores: 0,
+          vinculada: false,
+          ...(evento.projetoId !== undefined ? { projetoId: evento.projetoId } : {}),
+          ...(evento.projetoNome !== undefined ? { projetoNome: evento.projetoNome } : {}),
+        };
+        const when = evento.occurredAt ?? evento.recebidoEm;
+        const keepExisting = current.encerradaEm !== undefined && current.encerradaEm >= when;
+        byOferta.set(evento.ofertaId, {
+          ...current,
+          ...(keepExisting
+            ? {}
+            : { encerramento: enc, encerradaEm: when }),
+          atualizadoEm: current.atualizadoEm === undefined || when > current.atualizadoEm
+            ? when
+            : current.atualizadoEm,
+        });
+      }
+
+      if (evento.investorId === undefined) continue;
+      if (evento.tipo !== 'INVESTOR_CREATED' && evento.tipo !== 'USER_ACTIVE') continue;
       const set = investidoresPorOferta.get(evento.ofertaId) ?? new Set<string>();
       set.add(evento.investorId);
       investidoresPorOferta.set(evento.ofertaId, set);
@@ -96,11 +134,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }));
     ofertas.sort((a, b) => (b.atualizadoEm ?? '').localeCompare(a.atualizadoEm ?? ''));
 
-    log.info('Captacao listed', { ofertas: ofertas.length, eventos: eventos.length });
+    log.info('Captacao listed', { ofertas: ofertas.length, eventos: eventosAll.length });
     return ok(event, {
       configured: isDivifyWebhookConfigured(),
+      apiConfigured: isDivifyApiConfigured(),
       ofertas,
-      eventos,
+      eventos: eventosAll.slice(0, 60),
     });
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);

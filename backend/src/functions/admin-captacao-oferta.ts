@@ -5,6 +5,27 @@ import { createLogger } from '../shared/core/logger.js';
 import { getProjetoByOfertaId } from '../shared/db/index.js';
 import { listCaptacaoComprasByOferta, listCaptacaoEventosByOferta } from '../shared/db/captacao.js';
 import { isDivifyWebhookConfigured } from '../shared/divify/auth.js';
+import { isDivifyApiConfigured } from '../shared/divify/client.js';
+import type { CaptacaoOfertaEncerramento } from '../shared/core/types/index.js';
+
+function resolveEncerramento(eventos: ReadonlyArray<{ tipo: string; occurredAt?: string; recebidoEm: string }>): {
+  readonly encerramento?: CaptacaoOfertaEncerramento;
+  readonly encerradaEm?: string;
+} {
+  let best: { encerramento: CaptacaoOfertaEncerramento; encerradaEm: string } | null = null;
+  for (const evento of eventos) {
+    const enc: CaptacaoOfertaEncerramento | null =
+      evento.tipo === 'OFFER_FINISHED_SUCCESS' ? 'FINISHED_SUCCESS'
+        : evento.tipo === 'OFFER_FINISHED_UNSUCCESS' ? 'FINISHED_UNSUCCESS'
+          : null;
+    if (enc === null) continue;
+    const when = evento.occurredAt ?? evento.recebidoEm;
+    if (best === null || when > best.encerradaEm) {
+      best = { encerramento: enc, encerradaEm: when };
+    }
+  }
+  return best ?? {};
+}
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const log = createLogger('adminCaptacaoOferta');
@@ -27,10 +48,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const aprovadas = compras.filter((c) => c.status === 'APPROVED' || c.status === 'COMPLETED');
     const valorAprovadoCents = aprovadas.reduce((sum, c) => sum + (c.amountCents ?? 0), 0);
+    const enc = resolveEncerramento(eventos);
 
-    log.info('Captacao offer loaded', { ofertaId: decoded, compras: compras.length });
+    log.info('Captacao offer loaded', { ofertaId: decoded, compras: compras.length, encerramento: enc.encerramento ?? null });
     return ok(event, {
       configured: isDivifyWebhookConfigured(),
+      apiConfigured: isDivifyApiConfigured(),
       ofertaId: decoded,
       projeto: projeto === null ? null : {
         id: projeto.id,
@@ -42,6 +65,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       },
       valorAprovadoCents,
       comprasAprovadas: aprovadas.length,
+      ...enc,
       compras,
       eventos,
     });

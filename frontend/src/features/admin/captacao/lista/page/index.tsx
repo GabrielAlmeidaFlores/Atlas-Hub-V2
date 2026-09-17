@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 const OFERTA_COLS = [
   { label: "Projeto" },
+  { label: "Status" },
   { label: "Captado" },
   { label: "Compras" },
   { label: "Atualizado" },
@@ -26,9 +27,12 @@ const EVENTO_COLS = [
 ];
 
 const TIPO_LABEL: Record<string, string> = {
+  USER_ACTIVE: "Usuário ativo",
   INVESTOR_CREATED: "Investidor criado",
   PURCHASE_APPROVED: "Compra aprovada",
   PURCHASE_EXPIRED: "Compra expirada",
+  OFFER_FINISHED_SUCCESS: "Oferta encerrada (sucesso)",
+  OFFER_FINISHED_UNSUCCESS: "Oferta encerrada (insucesso)",
   OUTRO: "Outro evento",
 };
 
@@ -39,6 +43,18 @@ function centsToReais(cents: number): string {
 function progresso(oferta: CaptacaoOfertaResumo): number | null {
   if (oferta.valorCaptar === undefined || oferta.valorCaptar <= 0) return null;
   return Math.min(100, Math.round((oferta.valorAprovadoCents / 100 / oferta.valorCaptar) * 100));
+}
+
+function encerramentoLabel(oferta: CaptacaoOfertaResumo): string {
+  if (oferta.encerramento === "FINISHED_SUCCESS") return "Sucesso";
+  if (oferta.encerramento === "FINISHED_UNSUCCESS") return "Insucesso";
+  return "Em captação";
+}
+
+function encerramentoClass(oferta: CaptacaoOfertaResumo): string {
+  if (oferta.encerramento === "FINISHED_SUCCESS") return "badge-aprovado";
+  if (oferta.encerramento === "FINISHED_UNSUCCESS") return "badge-reprovado";
+  return "badge-ajuste";
 }
 
 export default function AdminCaptacaoListaPage(): ReactNode {
@@ -94,7 +110,12 @@ export default function AdminCaptacaoListaPage(): ReactNode {
       <div className="page-content space-y-5">
         {!data.configured && (
           <p className="alert-warn px-4 py-3 text-xs text-status-warning">
-            Eventos da plataforma ainda não entram neste ambiente. Ofertas publicadas aparecem abaixo; valores atualizam quando o webhook estiver ligado.
+            Webhook da Divify ainda não está ligado neste ambiente. Ofertas publicadas aparecem abaixo; valores atualizam com UserActiveEvent (com offerId), InvestorCreatedEvent, PurchaseApprovedEvent, PurchaseExpiredEvent e oferta encerrada.
+          </p>
+        )}
+        {data.configured && data.apiConfigured === false && (
+          <p className="alert-warn px-4 py-3 text-xs text-status-warning">
+            Webhook ativo. API docs-third (`DIVIFY_API_BASE_URL` + token) ainda não configurada — compras sem valor no evento não serão enriquecidas.
           </p>
         )}
 
@@ -136,6 +157,9 @@ export default function AdminCaptacaoListaPage(): ReactNode {
                     )}
                   </td>
                   <td>
+                    <span className={cn("badge border", encerramentoClass(oferta))}>{encerramentoLabel(oferta)}</span>
+                  </td>
+                  <td>
                     <p className="font-medium text-foreground">{centsToReais(oferta.valorAprovadoCents)}</p>
                     {oferta.valorCaptar !== undefined && (
                       <p className="mt-0.5 text-xs text-muted-foreground">de {formatCurrency(oferta.valorCaptar)}</p>
@@ -149,6 +173,7 @@ export default function AdminCaptacaoListaPage(): ReactNode {
                   <td className="text-muted-foreground">
                     {oferta.comprasAprovadas} aprovada{oferta.comprasAprovadas === 1 ? "" : "s"}
                     {oferta.comprasExpiradas > 0 ? ` · ${String(oferta.comprasExpiradas)} expirada${oferta.comprasExpiradas === 1 ? "" : "s"}` : ""}
+                    {oferta.investidores > 0 ? ` · ${String(oferta.investidores)} invest.` : ""}
                   </td>
                   <td className="text-muted-foreground">{oferta.atualizadoEm !== undefined ? formatDateTime(oferta.atualizadoEm) : "—"}</td>
                   <td className="text-right">

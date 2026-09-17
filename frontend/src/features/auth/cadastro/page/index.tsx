@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToastStore } from "@/stores/toast";
 import { Mail, Phone, Eye, EyeOff } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
-import { cn, formatCnpj, formatCpf, formatCelular } from "@/lib/utils";
+import { cn, formatCnpj, formatCpf, formatCelular, isValidCnpj, isValidCpf } from "@/lib/utils";
 import { analytics } from "@/lib/analytics";
 
 interface FormData {
@@ -54,7 +54,11 @@ export default function CadastroPage(): ReactNode {
   }
 
   const cnpjDigits = form.cnpj.replace(/\D/g, "");
+  const cnpjCompleto = cnpjDigits.length === 14;
+  const cnpjValido = isValidCnpj(form.cnpj);
   const cpfDigits = form.cpfResponsavel.replace(/\D/g, "");
+  const cpfCompleto = cpfDigits.length === 11;
+  const cpfValido = isValidCpf(form.cpfResponsavel);
   const celularDigits = form.telefone.replace(/\D/g, "");
   const senhaCurta = form.senha.length > 0 && form.senha.length < 8;
   const senhasDiferentes = form.confirmarSenha.length > 0 && form.senha !== form.confirmarSenha;
@@ -68,6 +72,14 @@ export default function CadastroPage(): ReactNode {
     }
     if (form.senha !== form.confirmarSenha) {
       addToast({ type: "error", title: "Senhas não conferem" });
+      return;
+    }
+    if (!isValidCnpj(form.cnpj)) {
+      addToast({ type: "error", title: "CNPJ inválido" });
+      return;
+    }
+    if (!isValidCpf(form.cpfResponsavel)) {
+      addToast({ type: "error", title: "CPF inválido" });
       return;
     }
     setIsLoading(true);
@@ -152,7 +164,7 @@ export default function CadastroPage(): ReactNode {
             <div className="form-group">
               <label className="form-label">CNPJ</label>
               <input
-                className="field"
+                className={cn("field", cnpjCompleto && !cnpjValido && "field-error")}
                 placeholder="00.000.000/0001-00"
                 value={form.cnpj}
                 onChange={onCnpjChange}
@@ -160,8 +172,10 @@ export default function CadastroPage(): ReactNode {
                 maxLength={18}
                 required
               />
+              {cnpjCompleto && !cnpjValido && <p className="form-error">CNPJ inválido</p>}
+              {cnpjValido && <p className="mt-1 text-xs font-medium text-status-success">CNPJ válido</p>}
             </div>
-            <button type="button" onClick={() => setStep(2)} disabled={!form.razaoSocial || cnpjDigits.length !== 14} className="btn btn-navy mt-2 w-full">
+            <button type="button" onClick={() => setStep(2)} disabled={!form.razaoSocial || !cnpjValido} className="btn btn-navy mt-2 w-full">
               Continuar
             </button>
           </div>
@@ -181,7 +195,7 @@ export default function CadastroPage(): ReactNode {
               <div className="form-group">
                 <label className="form-label">CPF</label>
                 <input
-                  className="field"
+                  className={cn("field", cpfCompleto && !cpfValido && "field-error")}
                   placeholder="000.000.000-00"
                   value={form.cpfResponsavel}
                   onChange={onCpfChange}
@@ -189,6 +203,8 @@ export default function CadastroPage(): ReactNode {
                   maxLength={14}
                   required
                 />
+                {cpfCompleto && !cpfValido && <p className="form-error">CPF inválido</p>}
+                {cpfValido && <p className="mt-1 text-xs font-medium text-status-success">CPF válido</p>}
               </div>
               <div className="form-group">
                 <label className="form-label">Cargo</label>
@@ -214,7 +230,7 @@ export default function CadastroPage(): ReactNode {
               <button type="button" onClick={() => setStep(1)} className="btn btn-outline flex-1">
                 Voltar
               </button>
-              <button type="button" onClick={() => setStep(3)} disabled={!form.nomeResponsavel || cpfDigits.length !== 11 || celularDigits.length !== 11} className="btn btn-navy flex-1">
+              <button type="button" onClick={() => setStep(3)} disabled={!form.nomeResponsavel || !cpfValido || celularDigits.length !== 11} className="btn btn-navy flex-1">
                 Continuar
               </button>
             </div>

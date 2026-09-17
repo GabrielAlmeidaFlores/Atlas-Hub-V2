@@ -1,0 +1,12 @@
+Então, sobre essa questão de mandar para o site deles e depois devolver para o nosso,
+eu estava até pensando, tem que assinar o contrato e ver como que o sistema deles foi
+construído, eles precisam liberar para a gente, mas assim que for liberado, eu quero
+ver como que foi construído e também depois se der para fazer, se for viável tecnicamente,
+perguntar para eles se da parte legal para eles está tudo certo, mas ao invés de
+a gente mandar o cliente para o site da DiviFi, a gente encapsula o site da DiviFi dentro
+do nosso, então a gente pega e renderiza o site deles dentro do nosso, então o cliente
+vai estar no nosso domínio e a gente não perde o controle, porque se a gente mandar
+para a DiviFi, meio que a gente vai perder o controle, então a gente mantém ao máximo
+o cara ali dentro do nosso site, encapsulando ele, criando um componentezinho, um pop-up
+que aparece ali na tela para ele assinar, só que vai estar no nosso domínio ainda,
+essa aqui eu estou pensando dessa forma, mas vamos ver se é viável tecnicamente.

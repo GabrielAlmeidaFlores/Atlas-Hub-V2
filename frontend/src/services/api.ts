@@ -103,6 +103,9 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   }
 
   const responseBody = await parseResponseBody(response);
+  if (responseBody === undefined || typeof responseBody !== "object") {
+    throwApiError("INTERNAL_ERROR", "Resposta inválida do servidor");
+  }
   return responseBody as T;
 }
 

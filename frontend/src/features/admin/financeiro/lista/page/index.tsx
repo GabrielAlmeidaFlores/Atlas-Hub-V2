@@ -11,7 +11,7 @@ import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
-import { formatCurrency, formatCnpj, formatDate } from "@/lib/utils";
+import { formatCurrency, formatCnpj, formatDate, isValidCnpj } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const COLUMNS = [
@@ -89,6 +89,10 @@ export default function AdminFinanceiroListaPage(): ReactNode {
 
   async function openSpe(e: FormEvent): Promise<void> {
     e.preventDefault();
+    if (!isValidCnpj(form.cnpjSpe)) {
+      addToast({ type: "error", title: "CNPJ da SPE inválido" });
+      return;
+    }
     setIsSaving(true);
     try {
       await api.post("/admin/financeiro/contas", {
@@ -110,6 +114,9 @@ export default function AdminFinanceiroListaPage(): ReactNode {
 
   const tesouraria: SpeConta | null = data.tesouraria;
   const elegiveis: ProjetoElegivel[] = data.elegiveis;
+  const cnpjSpeDigits = form.cnpjSpe.replace(/\D/g, "");
+  const cnpjSpeCompleto = cnpjSpeDigits.length === 14;
+  const cnpjSpeValido = isValidCnpj(form.cnpjSpe);
 
   return (
     <div className="animate-in">
@@ -259,16 +266,24 @@ export default function AdminFinanceiroListaPage(): ReactNode {
           <div className="form-group">
             <label className="form-label">CNPJ da SPE</label>
             <input
-              className="input-base"
+              className={cn("input-base", cnpjSpeCompleto && !cnpjSpeValido && "field-error")}
               value={formatCnpj(form.cnpjSpe)}
               onChange={(e) => setForm((p) => ({ ...p, cnpjSpe: e.target.value.replace(/\D/g, "").slice(0, 14) }))}
               required
               inputMode="numeric"
+              placeholder="00.000.000/0001-00"
+              maxLength={18}
             />
+            {cnpjSpeCompleto && !cnpjSpeValido && (
+              <p className="form-error">CNPJ inválido</p>
+            )}
+            {cnpjSpeValido && (
+              <p className="mt-1 text-xs font-medium text-status-success">CNPJ válido</p>
+            )}
           </div>
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowSpe(false)}>Cancelar</button>
-            <button type="submit" disabled={isSaving || form.projetoId.length === 0 || form.cnpjSpe.replace(/\D/g, "").length !== 14} className="btn btn-primary rounded-[8px]">
+            <button type="submit" disabled={isSaving || form.projetoId.length === 0 || !cnpjSpeValido} className="btn btn-primary rounded-[8px]">
               {isSaving ? "Abrindo…" : "Abrir conta"}
             </button>
           </div>

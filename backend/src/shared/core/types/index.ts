@@ -25,6 +25,7 @@ export type {
   FinanceiroSolicitacao,
   FinanceiroAuditoriaEntry,
   CaptacaoEventoTipo,
+  CaptacaoOfertaEncerramento,
   CaptacaoCompraStatus,
   CaptacaoEvento,
   CaptacaoCompra,

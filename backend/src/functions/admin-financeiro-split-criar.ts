@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { created, unauthorized, forbidden, badRequest, serverError } from '../shared/http/response.js';
 import { getUserId, AuthError, ForbiddenError, requireAdminMaster } from '../shared/http/auth.js';
-import { validate, ValidationError } from '../shared/http/validators.js';
+import { validate, ValidationError, isValidCnpjDigits, isValidCpfDigits } from '../shared/http/validators.js';
 import { createLogger } from '../shared/core/logger.js';
 import { getSpeConta } from '../shared/db/financeiro.js';
 import { createSplitReceiverPrep } from '../shared/starkbank/index.js';
@@ -10,7 +10,10 @@ import { z } from 'zod';
 const criarSplitSchema = z.object({
   projetoId: z.string().min(1).max(80),
   name: z.string().min(2).max(200),
-  taxId: z.string().regex(/^\d{11}$|^\d{14}$/, 'CPF ou CNPJ inválido'),
+  taxId: z.string().regex(/^\d{11}$|^\d{14}$/, 'CPF ou CNPJ inválido').refine(
+    (value) => (value.length === 11 ? isValidCpfDigits(value) : isValidCnpjDigits(value)),
+    'CPF ou CNPJ inválido',
+  ),
   pixKey: z.string().min(8).max(80).optional(),
   bankCode: z.string().min(3).max(8).optional(),
   branchCode: z.string().min(1).max(10).optional(),

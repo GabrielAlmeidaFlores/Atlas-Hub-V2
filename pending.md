@@ -10,7 +10,7 @@ O MVP deste repositório é **somente** Portal Incorporadora + Painel de Curador
 - Carteira, PIX, cotas, suitability, ranking de investidores
 - Features do “Plano A” (docs históricos mai–jun/2026 em `~/Downloads/.../atlas-hub/documents`)
 
-A ingestão admin dos webhooks de captação (investidor criado, compra aprovada, compra expirada) **já está no MVP**. Sem portal de investidor neste repo.
+A ingestão admin dos webhooks de captação (`UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`) **já está no MVP**. Sem portal de investidor neste repo.
 
 Referência: [`docs/SCOPE.md`](docs/SCOPE.md).
 
@@ -29,8 +29,10 @@ Referência: [`docs/SCOPE.md`](docs/SCOPE.md).
 
 Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não houver resposta, o investidor permanece 100% na plataforma.
 
-- [x] **Webhooks de captação (admin)** — eventos consumidos: investidor criado, compra aprovada, compra expirada. Auth: `X-Webhook-Secret` (ou `Authorization: Bearer`) com `DIVIFY_WEBHOOK_SECRET` (≥16 chars). HMAC da plataforma ainda a confirmar se for o esquema deles.
-- [ ] **Webhooks restantes** — KYC aprovado, rendimento distribuído, oferta encerrada (sucesso/insucesso)
+- [x] **Webhooks de captação (admin)** — eventos: `UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada (`FINISHED_SUCCESS` / `FINISHED_UNSUCCESS`). Auth: `X-Webhook-Secret` (ou `Authorization: Bearer`) com `DIVIFY_WEBHOOK_SECRET` (≥16 chars). HMAC da plataforma ainda a confirmar se for o esquema deles.
+- [x] **Fluxo financeiro Divify (Danillo 11/09)** — SmartEscrow durante a oferta; sucesso → CNPJ emissor (sem Atlas); insucesso → devolução automática; SPE por contrato Atlas/emissor; split de rendimentos automático na Divify (fluxo mensal).
+- [x] **Cliente API docs-third** — enrich de compra via `GET /balance/offer/{offerId}/purchase/{id}/detailed` quando `DIVIFY_API_BASE_URL` + `DIVIFY_API_TOKEN` + `DIVIFY_TENANT_ID` estiverem setados. Endpoints de investidor (auth/KYC/carteira) **não** são chamados pelo Atlas.
+- [x] **UserActive com offerId** — só conta no progresso por oferta quando o evento traz `offerId` (ou `offer.id`). Sem oferta, o evento é gravado mas não entra no KPI do projeto.
 - [ ] **Endpoint de listagem de investimentos por usuário** — existe `GET /balance/purchases` ou similar?
 - [ ] **Endpoint de dados de oferta por ID** — existe `GET /offers/{id}` com progresso de captação e status?
 - [ ] **Endpoint de histórico de rendimentos** — existe?

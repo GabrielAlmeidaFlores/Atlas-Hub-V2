@@ -54,6 +54,8 @@ provider:
     STARK_PRIVATE_KEY: ${env:STARK_PRIVATE_KEY, ''}
     DIVIFY_WEBHOOK_SECRET: ${env:DIVIFY_WEBHOOK_SECRET, ''}
     DIVIFY_TENANT_ID: ${env:DIVIFY_TENANT_ID, ''}
+    DIVIFY_API_BASE_URL: ${env:DIVIFY_API_BASE_URL, ''}
+    DIVIFY_API_TOKEN: ${env:DIVIFY_API_TOKEN, ''}
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
     SES_FROM_EMAIL: noreply@atlashub.com.br
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}

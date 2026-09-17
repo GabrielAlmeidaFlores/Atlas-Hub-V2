@@ -710,11 +710,13 @@ Lista todas as incorporadoras cadastradas.
 
 O Atlas Hub é um **tenant white-label** da plataforma. Toda autenticação com a API usa o header `x-tenant-id` (UUID da plataforma Atlas Hub).
 
-A API disponível (`docs-third`) cobre operações do investidor. A gestão de ofertas e a criação de emissores são feitas pelo painel da plataforma.
+A API disponível (`docs-third`, resumida abaixo e em `product.md` §8.2) cobre operações do investidor. A gestão de ofertas e a criação de emissores são feitas pelo painel da plataforma.
+
+**Fluxo confirmado (Danillo, 11/09):** aportes na SmartEscrow Divify; sucesso → repasse direto ao CNPJ emissor (não passa pela Atlas); insucesso → devolução automática; contas SPE por contrato Atlas/emissor; split de distribuição de rendimentos automático na Divify (incl. fluxo mensal). O Atlas consome webhooks e, quando configurado, enriquece compras via API.
 
 ### 8.2 Endpoints Disponíveis na API da plataforma de investimento
 
-No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o investidor usa a interface nativa da plataforma. Documentados aqui para referência futura.
+No MVP o Atlas **não** chama endpoints de auth/KYC/carteira do investidor. Usa webhooks + enrich opcional de compra (`GET /balance/offer/{offerId}/purchase/{id}/detailed`).
 
 #### Autenticação
 
@@ -826,7 +828,7 @@ No MVP, **nenhum desses endpoints é chamado pelo sistema Atlas Hub** — o inve
 | Recuperação de senha | Fluxo de "esqueci minha senha" não existe na API |
 | Criação/gestão de ofertas | Somente via painel da plataforma |
 | Histórico de rendimentos | Não disponível na API |
-| Webhooks de eventos | Ingestão Atlas: investidor criado, compra aprovada, compra expirada (`POST /webhooks/divify`). Demais eventos a confirmar com o fornecedor |
+| Webhooks de eventos | Ingestão Atlas: `UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada (`FINISHED_SUCCESS` / `FINISHED_UNSUCCESS`) (`POST /webhooks/divify`). `UserActive` só entra no progresso da oferta se vier com `offerId`. Enrich opcional via `GET /balance/offer/{offerId}/purchase/{id}/detailed`. Rendimento distribuído a confirmar |
 
 ### 8.4 Modelos de contrato na plataforma
 
@@ -881,8 +883,10 @@ Antes de o sistema Atlas Hub entrar em produção, o seguinte deve estar configu
 - Taxa da plataforma: **10% sobre o valor captado**, cobrada progressivamente durante a captação
 - Configurada no spread da oferta no painel da plataforma
 - O emissor recebe líquido após dedução da taxa
-- Recursos durante a captação ficam em conta ECO (escrow plataforma) — Atlas Hub não tem acesso
-- Após sucesso: recursos liberados para a wallet do emissor → emissor faz cash-out via PIX para conta bancária da SPE
+- Recursos durante a captação ficam em conta SmartEscrow da Divify — Atlas Hub não tem acesso
+- Após sucesso: repasse direto ao CNPJ emissor (não passa pela conta Atlas)
+- No insucesso: devolução automática pela Divify
+- Distribuição de rendimentos / split mensal: automático na Divify
 - **Proibido durante a captação:** aplicar os recursos em CDB ou qualquer investimento — CVM 88 proíbe gestão discricionária dos recursos dos investidores durante a captação
 
 ### 9.3 Regras do Período de Carência (Incorporadora)

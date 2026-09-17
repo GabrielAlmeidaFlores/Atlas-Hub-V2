@@ -1,6 +1,7 @@
 import { type ReactNode, type ChangeEvent } from "react";
 import { buildViabilidade, type ViabilidadeInputs, type ViabilidadeProjeto } from "@/lib/viabilidade";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatMoneyFromNumber, parseMoneyInput } from "@/lib/utils";
+import { CurrencyInput } from "@/components/shared/currency-input";
 
 export interface ViabilidadeFormState {
   unidades: string;
@@ -27,19 +28,19 @@ export function viabilidadeToForm(v: ViabilidadeProjeto | undefined): Viabilidad
   const i = v.inputs;
   return {
     unidades: String(i.unidades),
-    custoObra: String(i.custoObra),
-    precoMedioUnidade: String(i.precoMedioUnidade),
+    custoObra: formatMoneyFromNumber(i.custoObra),
+    precoMedioUnidade: formatMoneyFromNumber(i.precoMedioUnidade),
     prazoMeses: String(i.prazoMeses),
     taxaDescontoInvestidor: i.taxaDescontoInvestidor !== undefined ? String(i.taxaDescontoInvestidor) : "",
-    valorTerreno: i.valorTerreno !== undefined ? String(i.valorTerreno) : "",
+    valorTerreno: i.valorTerreno !== undefined ? formatMoneyFromNumber(i.valorTerreno) : "",
     unidadesPermuta: i.unidadesPermuta !== undefined ? String(i.unidadesPermuta) : "",
   };
 }
 
 export function formToViabilidade(form: ViabilidadeFormState): ViabilidadeProjeto | null {
   const unidades = parseFloat(form.unidades);
-  const custoObra = parseFloat(form.custoObra);
-  const precoMedioUnidade = parseFloat(form.precoMedioUnidade);
+  const custoObra = parseMoneyInput(form.custoObra);
+  const precoMedioUnidade = parseMoneyInput(form.precoMedioUnidade);
   const prazoMeses = parseInt(form.prazoMeses, 10);
   if (![unidades, custoObra, precoMedioUnidade, prazoMeses].every((n) => Number.isFinite(n) && n > 0)) {
     return null;
@@ -52,8 +53,8 @@ export function formToViabilidade(form: ViabilidadeFormState): ViabilidadeProjet
     ...(form.taxaDescontoInvestidor !== "" && Number.isFinite(parseFloat(form.taxaDescontoInvestidor))
       ? { taxaDescontoInvestidor: parseFloat(form.taxaDescontoInvestidor) }
       : {}),
-    ...(form.valorTerreno !== "" && Number.isFinite(parseFloat(form.valorTerreno))
-      ? { valorTerreno: parseFloat(form.valorTerreno) }
+    ...(form.valorTerreno !== "" && Number.isFinite(parseMoneyInput(form.valorTerreno))
+      ? { valorTerreno: parseMoneyInput(form.valorTerreno) }
       : {}),
     ...(form.unidadesPermuta !== "" && Number.isFinite(parseFloat(form.unidadesPermuta))
       ? { unidadesPermuta: parseFloat(form.unidadesPermuta) }
@@ -94,11 +95,11 @@ export function ViabilidadeCalculator({ value, onChange, readOnly = false }: Pro
         </div>
         <div className="form-group">
           <label className="form-label">Custo de obra (R$)</label>
-          <input type="number" min={0} className="input-base" value={value.custoObra} onChange={set("custoObra")} disabled={readOnly} />
+          <CurrencyInput value={value.custoObra} onValueChange={(v) => onChange({ ...value, custoObra: v })} disabled={readOnly} />
         </div>
         <div className="form-group">
           <label className="form-label">Preço médio / unidade (R$)</label>
-          <input type="number" min={0} className="input-base" value={value.precoMedioUnidade} onChange={set("precoMedioUnidade")} disabled={readOnly} />
+          <CurrencyInput value={value.precoMedioUnidade} onValueChange={(v) => onChange({ ...value, precoMedioUnidade: v })} disabled={readOnly} />
         </div>
         <div className="form-group">
           <label className="form-label">Prazo (meses)</label>
@@ -110,7 +111,7 @@ export function ViabilidadeCalculator({ value, onChange, readOnly = false }: Pro
         </div>
         <div className="form-group">
           <label className="form-label">Valor do terreno (R$, opcional)</label>
-          <input type="number" min={0} className="input-base" value={value.valorTerreno} onChange={set("valorTerreno")} disabled={readOnly} />
+          <CurrencyInput value={value.valorTerreno} onValueChange={(v) => onChange({ ...value, valorTerreno: v })} disabled={readOnly} />
         </div>
         <div className="form-group sm:col-span-2">
           <label className="form-label">Unidades em permuta (opcional)</label>

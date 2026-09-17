@@ -31,6 +31,8 @@ export const CAPTACAO_COMPRAS_TABLE = process.env['CAPTACAO_COMPRAS_TABLE'] ?? '
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
 export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';
+export const DIVIFY_API_BASE_URL = process.env['DIVIFY_API_BASE_URL'] ?? '';
+export const DIVIFY_API_TOKEN = process.env['DIVIFY_API_TOKEN'] ?? '';
 
 export const STARK_ENVIRONMENT = process.env['STARK_ENVIRONMENT'] ?? 'sandbox';
 export const STARK_ORGANIZATION_ID = process.env['STARK_ORGANIZATION_ID'] ?? '';

@@ -298,7 +298,16 @@ export interface FinanceiroAuditoriaEntry {
   readonly workspaceId?: string;
 }
 
-export type CaptacaoEventoTipo = "INVESTOR_CREATED" | "PURCHASE_APPROVED" | "PURCHASE_EXPIRED" | "OUTRO";
+export type CaptacaoEventoTipo =
+  | "USER_ACTIVE"
+  | "INVESTOR_CREATED"
+  | "PURCHASE_APPROVED"
+  | "PURCHASE_EXPIRED"
+  | "OFFER_FINISHED_SUCCESS"
+  | "OFFER_FINISHED_UNSUCCESS"
+  | "OUTRO";
+
+export type CaptacaoOfertaEncerramento = "FINISHED_SUCCESS" | "FINISHED_UNSUCCESS";
 
 export type CaptacaoCompraStatus =
   | "PENDING"
@@ -349,16 +358,20 @@ export interface CaptacaoOfertaResumo {
   readonly investidores: number;
   readonly atualizadoEm?: string;
   readonly vinculada: boolean;
+  readonly encerramento?: CaptacaoOfertaEncerramento;
+  readonly encerradaEm?: string;
 }
 
 export interface CaptacaoListaResponse {
   readonly configured: boolean;
+  readonly apiConfigured?: boolean;
   readonly ofertas: CaptacaoOfertaResumo[];
   readonly eventos: CaptacaoEvento[];
 }
 
 export interface CaptacaoOfertaDetalhe {
   readonly configured: boolean;
+  readonly apiConfigured?: boolean;
   readonly ofertaId: string;
   readonly projeto: {
     readonly id: string;
@@ -370,6 +383,8 @@ export interface CaptacaoOfertaDetalhe {
   } | null;
   readonly valorAprovadoCents: number;
   readonly comprasAprovadas: number;
+  readonly encerramento?: CaptacaoOfertaEncerramento;
+  readonly encerradaEm?: string;
   readonly compras: CaptacaoCompra[];
   readonly eventos: CaptacaoEvento[];
 }

@@ -1,0 +1,9 @@
+A linha de raciocínio que eu estou vendo é a seguinte, vai librar o CNPJ, aí a gente vai ter a primeira fase, vamos dizer assim, que vai ser configurar o domínio,
+comprar o domínio, configurar ele para apontar para a LP e também configurar o e-mail, que a gente vai precisar do e-mail de FAC, o e-mail de contato e outros e-mails.
+E configurar o domínio, os e-mails e também atualizar o código, com base no Figma que o designer lá está fazendo, atualizar o código da LP para deixar certinho.
+E é isso a primeira fase, se quiser também dá para colocar esse app renderizado logo na primeira fase, eu só vou precisar fazer uma pergunta na DiviFive só para validar realmente se eles vão permitir isso,
+eu acho que vão permitir, mas eu vou escrever uma mensagem aqui para enviar para eles.
+Então eu acho que esse é o pacote da primeira fase.
+Aí da segunda fase, porque primeiro a gente vai fazer tudo isso, vai fazer o marketing e vai fazer aquele soft release que você falou, eu acho, que é esse o nome que você usou,
+que é, a gente não precisa ter os bancos e a DiviFive ainda para fazer essa primeira fase, e daí depois que tiver tudo certo, a gente ative algumas prospecções,
+aí contatar a DiviFive e fazer essa liberação das APIs, etc. Essa é a segunda fase, né?

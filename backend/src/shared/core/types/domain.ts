@@ -279,7 +279,16 @@ export interface FinanceiroAuditoriaEntry {
   readonly workspaceId?: string;
 }
 
-export type CaptacaoEventoTipo = 'INVESTOR_CREATED' | 'PURCHASE_APPROVED' | 'PURCHASE_EXPIRED' | 'OUTRO';
+export type CaptacaoEventoTipo =
+  | 'USER_ACTIVE'
+  | 'INVESTOR_CREATED'
+  | 'PURCHASE_APPROVED'
+  | 'PURCHASE_EXPIRED'
+  | 'OFFER_FINISHED_SUCCESS'
+  | 'OFFER_FINISHED_UNSUCCESS'
+  | 'OUTRO';
+
+export type CaptacaoOfertaEncerramento = 'FINISHED_SUCCESS' | 'FINISHED_UNSUCCESS';
 
 export type CaptacaoCompraStatus =
   | 'PENDING'

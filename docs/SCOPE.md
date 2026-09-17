@@ -9,7 +9,7 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 | **Portal da Incorporadora** | Cadastro, perfil, wizard 5 etapas + editar, equipe, viabilidade simplificada, barra de progresso, upload/download S3, acompanhamento de status, notificações, link da oferta quando `OFERTA_CRIADA` |
 | **Painel de Curadoria (Admin)** | Fila, scorecard (5 critérios), checklist pré-aprovação (validado na API), notas internas, ajuste / reprovar / aprovar, CRM incorporadoras, usuários (master + senha temporária), registro manual de ID/link da oferta |
 | **Financeiro (Admin, pós-sucesso)** | Conta tesouraria Atlas + workspace por projeto/SPE (mesmo CNPJ Atlas), saldo, extrato, Pix (solicitação + dupla aprovação de dois `ADMIN_MASTER`), split, extrato público para integração, conciliação via webhook, trilha de auditoria. Cartão CDI **não** entra. O dinheiro da oferta **não** passa por aqui durante a captação. |
-| **Captação (Admin)** | Ingestão de webhooks da plataforma (`investidor criado`, `compra aprovada`, `compra expirada`), vínculo ao projeto via `ofertaId`, progresso por oferta. Sem cadastro/KYC/carteira de investidor neste repo. |
+| **Captação (Admin)** | Ingestão de webhooks Divify (`UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada sucesso/insucesso), vínculo ao projeto via `ofertaId`, progresso por oferta, enrich opcional via API docs-third. SmartEscrow, sucesso→CNPJ emissor e split de rendimentos ficam na Divify. Sem cadastro/KYC/carteira de investidor neste repo. |
 | **Analytics (Admin)** | Coleta nativa LP+app, funil Atlas, dashboard, heatmaps, jornada do usuário, segmentação, export CSV, alertas, replay (metadados/opt-in). Catálogo: [`analytics.md`](analytics.md) |
 
 **Oferta no MVP:** criação **manual** no painel da plataforma após `APROVADO`. Sem API de criação de oferta obrigatória no Atlas.
@@ -24,7 +24,7 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 - Extrato público para integração/investidor (autenticação via token)
 - Webhooks para eventos bancários (depósito, transferência, etc)
 
-**Captação no MVP:** o Atlas **não** opera a compra. Consome webhooks da plataforma, persiste compras/eventos e mostra progresso no admin. Portal do investidor continua 100% na plataforma.
+**Captação no MVP:** o Atlas **não** opera a compra. Consome webhooks da Divify (`UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`), persiste compras/eventos e mostra progresso no admin. Aportes ficam na SmartEscrow; no sucesso o repasse vai ao CNPJ emissor sem passar pela Atlas; no insucesso a devolução é automática; split de rendimentos (incl. fluxo mensal) é automático na Divify. Portal do investidor continua 100% na plataforma. Enrich de compra via `GET /balance/offer/{offerId}/purchase/{id}/detailed` quando `DIVIFY_API_*` estiver configurado.
 
 ## Fora do MVP Atlas (experiência investidor Atlas — fora deste repo)
 

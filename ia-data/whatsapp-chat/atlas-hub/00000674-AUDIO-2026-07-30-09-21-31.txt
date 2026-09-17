@@ -1,0 +1,2 @@
+Pelo que eu entendi também, não é só IA que ele usa, ele faz acho que a
+primeiro filtro por IA e depois faz validação humana também.

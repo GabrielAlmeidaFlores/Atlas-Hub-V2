@@ -23,9 +23,12 @@ const EVENTO_COLS = [
 ];
 
 const TIPO_LABEL: Record<string, string> = {
+  USER_ACTIVE: "Usuário ativo",
   INVESTOR_CREATED: "Investidor criado",
   PURCHASE_APPROVED: "Compra aprovada",
   PURCHASE_EXPIRED: "Compra expirada",
+  OFFER_FINISHED_SUCCESS: "Oferta encerrada (sucesso)",
+  OFFER_FINISHED_UNSUCCESS: "Oferta encerrada (insucesso)",
   OUTRO: "Outro evento",
 };
 
@@ -108,7 +111,7 @@ export default function AdminCaptacaoOfertaPage(): ReactNode {
           </p>
         )}
 
-        <div className="kpi-strip grid-cols-1 sm:grid-cols-3">
+        <div className="kpi-strip grid-cols-1 sm:grid-cols-4">
           <div className="card border-l-4 border-l-navy p-4">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Captado</p>
             <p className="mt-2 text-lg font-semibold text-foreground">{centsToReais(data.valorAprovadoCents)}</p>
@@ -119,6 +122,19 @@ export default function AdminCaptacaoOfertaPage(): ReactNode {
           <div className="card p-4">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Compras aprovadas</p>
             <p className="mt-2 text-lg font-semibold text-foreground">{data.comprasAprovadas}</p>
+          </div>
+          <div className="card p-4">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Encerramento</p>
+            <p className="mt-2 text-sm font-semibold text-foreground">
+              {data.encerramento === "FINISHED_SUCCESS"
+                ? "Sucesso"
+                : data.encerramento === "FINISHED_UNSUCCESS"
+                  ? "Insucesso"
+                  : "Em captação"}
+            </p>
+            {data.encerradaEm !== undefined && (
+              <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(data.encerradaEm)}</p>
+            )}
           </div>
           <div className="card p-4">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">ID da oferta</p>

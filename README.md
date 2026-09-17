@@ -282,7 +282,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Conta SPE por projeto | Um workspace isolado por oferta publicada (`OFERTA_CRIADA`); CNPJ da SPE é metadado |
 | Saldo e extrato | Saldo ao vivo + ledger conciliado (API + webhook) |
 | Pix com dupla aprovação | Admin master solicita; outro master aprova e dispara a transferência |
-| Split | Criação de beneficiários para dividir recebíveis (`POST /admin/financeiro/split`) |
+| Split | Criação de beneficiários para dividir recebíveis (`POST /admin/financeiro/split` + UI no detalhe da conta) |
 | Extrato público | API autenticada por token para consulta por investidor/integração (`GET /publico/financeiro/projetos/:projetoId/extrato`) |
 | Auditoria | Trilha de abertura de conta, solicitações, aprovações e conciliação |
 | Fora desta fase | Escrow da oferta, portal investidor, cartão CDI |
@@ -291,11 +291,12 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 
 | Funcionalidade | Descrição |
 |---|---|
-| Webhook da plataforma | `POST /webhooks/divify` — investidor criado, compra aprovada, compra expirada (outros eventos são gravados como “outro”) |
-| Progresso por oferta | Soma compras `APPROVED`/`COMPLETED` e vincula ao projeto pelo `ofertaId` |
+| Webhook Divify | `POST /webhooks/divify` — `UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada (`FINISHED_SUCCESS` / `FINISHED_UNSUCCESS`) |
+| Enrich API | Com `DIVIFY_API_*`, completa valor/status via `GET /balance/offer/{offerId}/purchase/{id}/detailed` |
+| Progresso por oferta | Soma compras `APPROVED`/`COMPLETED`, investidores com `offerId`, status de encerramento |
 | Tela Captação | Lista ofertas publicadas, valores, eventos recentes. Sem cadastro de investidor no Atlas |
 
-O dinheiro do investidor **não** entra nas contas Stark durante a captação.
+Aportes ficam na SmartEscrow da Divify. Sucesso → CNPJ emissor (sem Atlas). Insucesso → devolução automática. Split de rendimentos é automático na Divify.
 
 ---
 
