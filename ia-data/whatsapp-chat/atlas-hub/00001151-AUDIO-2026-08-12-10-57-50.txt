@@ -1,0 +1,6 @@
+Agora, para fazer o aplicativo, sem essa questão de renderizar, fazer uma interface de aplicativo mesmo,
+aí a gente só vai precisar alinhar com a de VIFI para eles liberarem todas as funcionalidades que a gente precisa.
+Aí eles falaram lá que tem algumas coisas que eles não tem como liberar, que tem que ir para a página deles,
+que é, na hora de, se eu não me engano, de assinar ou pagar o contrato, algo do tipo,
+aí a gente tem que fazer, a gente teria que renderizar mesmo a tela do browser como se fosse um aplicativo,
+porque daí a pessoa estaria acessando ali, mesmo sem ela saber, ela estaria acessando a página da de VIFI para assinar, sabe?

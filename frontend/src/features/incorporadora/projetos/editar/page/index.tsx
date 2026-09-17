@@ -9,7 +9,7 @@ import type { DocumentosProjeto, MembroEquipe, Projeto, StatusProjeto } from "@/
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSpinner } from "@/components/ui/spinner";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { cn } from "@/lib/utils";
+import { cn, parseMoneyInput, formatMoneyFromNumber } from "@/lib/utils";
 import {
   ViabilidadeCalculator,
   formToViabilidade,
@@ -20,6 +20,7 @@ import {
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
 import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
+import { CurrencyInput } from "@/components/shared/currency-input";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
@@ -86,8 +87,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           cidade: p.cidade,
           estado: p.estado,
           endereco: p.endereco,
-          valorTotal: p.valorTotal !== undefined ? String(p.valorTotal) : "",
-          valorCaptar: p.valorCaptar !== undefined ? String(p.valorCaptar) : "",
+          valorTotal: p.valorTotal !== undefined ? formatMoneyFromNumber(p.valorTotal) : "",
+          valorCaptar: p.valorCaptar !== undefined ? formatMoneyFromNumber(p.valorCaptar) : "",
           prazoObra: p.prazoObra !== undefined ? String(p.prazoObra) : "",
           prazoRetorno: p.prazoRetorno !== undefined ? String(p.prazoRetorno) : "",
           rentabilidadeEstimada: p.rentabilidadeEstimada !== undefined ? String(p.rentabilidadeEstimada) : "",
@@ -162,8 +163,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         cidade: form.cidade,
         estado: form.estado,
         endereco: form.endereco,
-        valorTotal: parseFloat(form.valorTotal),
-        valorCaptar: parseFloat(form.valorCaptar),
+        valorTotal: parseMoneyInput(form.valorTotal),
+        valorCaptar: parseMoneyInput(form.valorCaptar),
         prazoObra: parseInt(form.prazoObra, 10),
         prazoRetorno: parseInt(form.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(form.rentabilidadeEstimada),
@@ -288,11 +289,11 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="form-group">
               <label className="form-label">Valor total (R$)</label>
-              <input type="number" min={0} className="input-base" value={form.valorTotal} onChange={setField("valorTotal")} required />
+              <CurrencyInput value={form.valorTotal} onValueChange={(v) => setForm((p) => ({ ...p, valorTotal: v }))} required />
             </div>
             <div className="form-group">
               <label className="form-label">Valor a captar (R$)</label>
-              <input type="number" min={0} max={15000000} className="input-base" value={form.valorCaptar} onChange={setField("valorCaptar")} required />
+              <CurrencyInput value={form.valorCaptar} onValueChange={(v) => setForm((p) => ({ ...p, valorCaptar: v }))} required />
             </div>
             <div className="form-group">
               <label className="form-label">Prazo de obra (meses)</label>
@@ -381,8 +382,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           <ProjetoProgressBar items={getProjetoProgressItems({
             ...projeto,
             descricao: form.descricao,
-            valorTotal: form.valorTotal !== "" ? parseFloat(form.valorTotal) : undefined,
-            valorCaptar: form.valorCaptar !== "" ? parseFloat(form.valorCaptar) : undefined,
+            valorTotal: form.valorTotal !== "" ? parseMoneyInput(form.valorTotal) : undefined,
+            valorCaptar: form.valorCaptar !== "" ? parseMoneyInput(form.valorCaptar) : undefined,
             prazoObra: form.prazoObra !== "" ? parseInt(form.prazoObra, 10) : undefined,
             prazoRetorno: form.prazoRetorno !== "" ? parseInt(form.prazoRetorno, 10) : undefined,
             rentabilidadeEstimada: form.rentabilidadeEstimada !== "" ? parseFloat(form.rentabilidadeEstimada) : undefined,

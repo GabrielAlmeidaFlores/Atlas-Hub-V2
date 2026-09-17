@@ -1,0 +1,18 @@
+Fala Vitor, beleza? Eu vou dar, fazer o meu, falar a minha visão aqui, o workflow mais ou menos,
+como que funcionaria, e vou passar também para o nosso desenvolvedor, que ele já tem mais mapeado, tá?
+Vamos ver, assim, pelo lado do do incorporador. O incorporador, primeiro, ele vai ter que se
+colocar, né? Colocar o CNPJ, tudo da empresa, fazer todo o cadastro dele, e vai ter que colocar o
+responsável pela empresa, tem que estar lá também, tem que enviar a documentação dele para falar quem
+que é o responsável da empresa. Depois disso, quando ele for, a gente aprova o cadastro dele,
+quando aprovar, daí ele vai subir o projeto, né? O projeto tem todos os detalhes lá, que ele
+vai ter que preencher o valor do custo do projeto, o VGV, né? Que é o valor de venda, o tempo estimado
+para concluir, e o tempo estimado de retorno do investimento. Ali na análise financeira,
+tem que mostrar outros projetos parecidos ali na região, para a gente validar o metro quadrado,
+se está ok mesmo, entendeu? O que mais? A parte jurídica, todo matrícula, contratos de compra e
+venda que ele tenha feito de terreno, contratos de permuta, qualquer coisa nesse sentido, ele tem
+que enviar para a gente, para a gente fazer análise jurídica, né? Se tiver alguma, já o CNPJ
+também vai validar com o contador, ver se está tudo ok, a CND, e tal. Ele vai ter que
+colocar ali a planilha de custo, assinada por um engenheiro de custo, toda a parte de
+documentação técnica do projeto, assinado por um engenheiro, para a gente poder validar também.
+Acho que é, bom, da parte do incorporador é mais ou menos isso, que seria, com essa
+documentação, a gente vai fazer a curadoria, né?

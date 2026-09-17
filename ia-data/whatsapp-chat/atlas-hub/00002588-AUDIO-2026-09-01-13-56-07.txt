@@ -1,0 +1,15 @@
+Então, nas nossas primeiras reuniões com o Danilo, da Dvify,
+eu me lembro que eu perguntei isso e ele respondeu o seguinte,
+que eles podem disponibilizar, naquela época,
+não sei como está hoje, mas naquela época,
+eles não tinham os endpoints, eles poderiam fazer se a gente
+viesse a assinar o contrato, para disponibilizar uma forma da gente integrar
+e puxar os dados que fossem necessários,
+para a gente manter os nossos clientes ao máximo no nosso sistema.
+A única exigência que ele tinha, que ele me falou,
+é que na hora de assinar e pagar o contrato,
+de fato, precisa ser na Dvify, na página da Dvify,
+e o resto, a gente pode conversar com eles,
+assim que o contrato for assinado, para eles liberarem os endpoints
+e a gente daí poder fazer as integrações necessárias
+e manter o cara no nosso sistema.

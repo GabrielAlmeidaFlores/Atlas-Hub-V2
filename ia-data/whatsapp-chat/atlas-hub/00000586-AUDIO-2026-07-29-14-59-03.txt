@@ -1,0 +1,4 @@
+Eu acredito que dá sim. Se pra você não tiver problema, você liberar pra gente os endpoints,
+pra gente fazer integração com a nossa, que daí a gente vai ter a página lá da curadoria,
+vamos dizer assim, a gente integra com a white label de vocês. Aí aparece lá que é
+Sponsored by Swiss Capital.

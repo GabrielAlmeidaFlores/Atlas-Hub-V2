@@ -1,0 +1,2 @@
+Ô, Gabriel, mas a gente perde alguma coisa ao invés de fazer a interface de app ou fazer a renderização?
+A gente perde alguma coisa em qualidade, em alguma funcionalidade a gente vai perder ou não vai perder nada?

@@ -1,0 +1,27 @@
+Opa Felipe, vou mandar um áudio aqui, mas se precisar depois eu mando por escrito.
+Mas, só pra ter uma perspectiva, depois eu mando por escrito se for necessário, mas
+olha, o site, eu entendo que é fazer igual o designer tá fazendo lá, né, atualizar o código.
+Cara, o site, pra deixar exatamente igual o designer tá fazendo,
+passar pro código, assim, no máximo uma semana, sabe, no máximo uma semana.
+O banco de dados, agora o banco de dados, né, que é o próximo item que você mandou,
+ele já existe o banco de dados, só que vai precisar atualizar quando a gente for
+fazer a integração com o StarkBank e com a DiviFi. Então, eu entendo que o banco
+de dados, integração, StarkBank e a DiviFi é tudo uma coisa só.
+O que mais prende nessa integração, o StarkBank e o banco de dados, vai ser a
+comunicação com a DiviFi e eles liberarem as coisas pra gente e tudo mais.
+Então, eu entendo que esse combo de itens aí, esse bowl de itens, levaria vai colocando
+tudo, a comunicação com a DiviFi, colocando a liberação da parte deles e a gente fazer o
+código e etc, deixar redondinho mesmo, e pra subir, até pra subir pra publicação,
+né, rodando em produção, eu calculo que levaria assim de um mês a dois meses, tá,
+porque ele vai ter o atraso a gente conversar com eles, eles liberarem, etc, etc.
+Então, eu calculo que um mês a dois meses. Agora, o último item que você mandou,
+que é o app renderizado, o código em si, pra fazer, a gente tem que fazer só um
+aplicativozinho que renderiza o app. O código em si, eu já tenho alguns
+templates prontos aqui, só terei que adaptar mesmo, um dia faz o código.
+O que demora, é mandar pra loja e tem que esperar eles validarem, aí provavelmente
+eles vão fazer alguma pergunta e a gente vai ter que responder.
+Então, o que demora, assim, do app renderizado, não é fazer o código em si,
+mas mandar pra loja e ficar conversando com eles até eles liberarem.
+Daí, pra fazer o app em si, eu imagino, assim, que seria de um mês a dois meses
+também, por conta dessa conversa com eles, até eles, talvez seja rápido,
+seja, sei lá, três semanas, talvez seja dois meses dependendo da demora deles, sabe?

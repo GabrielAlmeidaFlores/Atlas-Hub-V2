@@ -1,0 +1,21 @@
+Assim, Felipe, acho que a gente tem que só deixar definido o nosso plano, sabe?
+O nosso plano de ação.
+Por exemplo, se a nossa ideia primeiro é captar os clientes, que nem você falou do soft
+open, só pra sentir o mercado, fazer o marketing, pagar aquelas propagandas pagas, e mais
+pra sentir o mercado e ver o que acontece, conversar também com os clientes, entender,
+aí a gente pode esperar.
+Assim, eu penso, pelo que eu vi da documentação deles, lá da DiviFi, que pra integrar nossa
+plataforma com a deles, claro que de imediato não dá pra integrar 100% de tudo porque
+eles precisam também liberar algumas outras coisas, mas demoraria ali com as funcionalidades
+que eles têm e colaborando liberando algumas poucas outras, devaria sim um mês
+pra integrar e deixar redondinho pra seguir o resto do fluxo do MVP.
+Então assim, se você quiser só sentir o mercado e depois ver o que acontece e daí
+a gente integra nesses um mês aí só pra ter um produto com a DiviFi, beleza, mas
+se quiser também a gente pode ir adiantando, sabe?
+Acho que entra mais como uma questão, uma decisão financeira, porque tipo,
+se for soft open, beleza, a gente espera, mas se não, a gente pode integrando já
+e antes de ter qualquer cliente, qualquer corporadora, a gente já vai integrando
+já e deixando certo e pedindo pra eles fazerem algumas liberações pra gente,
+então acho que é mais uma questão de decisão, de estratégia pra lançar o produto, sabe?
+Mas se falar assim, vamos lançar com a DiviFi, beleza?
+Já vou integrando aqui pra adiantar, acho que é mais uma questão financeira.

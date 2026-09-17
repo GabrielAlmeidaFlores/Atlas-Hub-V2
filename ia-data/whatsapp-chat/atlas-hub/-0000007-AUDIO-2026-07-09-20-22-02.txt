@@ -1,0 +1,3 @@
+Mas assim, só pra deixar claro, para o MVP, que é assim, o incorporador ir lá e poder cadastrar o projeto dele pra gente poder avaliar e se tiver toquei a gente cadastrar na DiviFi e ficar uma oferta pública lá, isso dá pra fazer hoje, eu já comecei a fazer esse desenvolvimento.
+Só essa parte aí, tipo de gamificação, colocar gráfico, colocar dashboard, colocar essa questão que o Cristian falou de comparar com a Selic, PCA, isso aí vai ter que ficar pra uma fase dois, também depende do que o Danilo falar pra gente.
+Se ele tem os endpoints, se tem como que funciona o callback. Então, eu entendo que isso vai ser mais pra uma fase dois, o nosso objetivo inicial agora é poder publicar a plataforma e poder validar a ideia.

@@ -14,4 +14,21 @@ export type {
   Notificacao,
   AuditoriaEntry,
   NotaInterna,
+  SpeContaTipo,
+  SpeContaStatus,
+  LedgerTipo,
+  SolicitacaoStatus,
+  FinanceiroAuditoriaAcao,
+  SpeConta,
+  FinanceiroLedgerEntry,
+  DestinoPix,
+  FinanceiroSolicitacao,
+  FinanceiroAuditoriaEntry,
+  CaptacaoEventoTipo,
+  CaptacaoOfertaEncerramento,
+  CaptacaoCompraStatus,
+  CaptacaoEvento,
+  CaptacaoCompra,
 } from './domain.js';
+
+export { TESOURARIA_CONTA_ID } from './domain.js';

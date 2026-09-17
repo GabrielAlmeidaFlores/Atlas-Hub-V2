@@ -1,0 +1,10 @@
+Mas assim, da primeira fase é configuração e coisas que são mais rápidas, e também tem
+o app renderizado que a gente pode colocar nesse bolo da primeira fase.
+E, assim cara, pra ser em global, né, porque dá pra fazer várias coisas em paralelo,
+né, uma coisa não é uma fila única, né, vai fazendo várias coisas em paralelo,
+então assim, em um mês a gente consegue fazer tudo isso e também em paralelo enviar
+pra loja, sabe?
+Talvez até menos, estou falando assim, no máximo, provavelmente menos mas estou
+falando no máximo pra gente ter uma boa perspectiva.
+Mas nessa primeira fase a gente consegue fazer tudo isso em no máximo um mês, até
+pra enviar pra loja lá, pra Apple Store e pra Apple Store pra eles poderem validar.

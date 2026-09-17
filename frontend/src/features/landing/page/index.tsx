@@ -492,7 +492,7 @@ function CtaFinal(): ReactNode {
                 data-analytics-cta="final_investir"
                 className="inline-flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-[26px] text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90 sm:w-[225px]"
               >
-                Investidor
+                Quero Investir
               </Link>
               <Link
                 to="/cadastro"

@@ -1,0 +1,5 @@
+Ah sim, eu vi Felipe. Ela tá falando só da API mesmo de integração, isso aí eu já tinha visto já.
+Pra como fazer de fato o que ela tá falando aí no grupo, de que ela tá falando de Workspace,
+a gente tava falando de conta bolsão, mas é a mesma coisa.
+Que é pra integrar basicamente via API e poder esses Workspaces renderem CDI.
+Então tá tranquilo, isso aí já era esperado.

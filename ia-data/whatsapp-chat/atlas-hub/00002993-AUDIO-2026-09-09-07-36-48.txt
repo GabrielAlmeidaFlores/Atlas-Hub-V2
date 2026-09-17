@@ -1,0 +1,9 @@
+Bom dia Felipe, tudo bom? Para responder a sua pergunta, sim, pelo que é um API, com a
+DiviFi e a Starkey Bank, a gente tem toda a infraestrutura necessária para entrar em produção
+em um primeiro momento, sabe? Claro que quando a gente entrar em produção, vão surgir novas
+necessidades, mas para um primeiro momento de produção, com a DiviFi e a Starkey Bank já é
+suficiente. E para adiantar aqui também, para não ficar parado, eu estou fazendo a integração
+com a Starkey Bank, só que no momento de usando um ambiente de homologação, sabe? Não é um ambiente
+de produção da Starkey Bank, é de homologação. É uma conta de teste que eu criei lá e eu já estou
+fazendo as integrações e fazendo algumas definições aqui, tá? Mas para adiantar também, sabe? Mas com a
+DiviFi e a Starkey Bank, sim, aí a gente já tem tudo para entrar em produção.

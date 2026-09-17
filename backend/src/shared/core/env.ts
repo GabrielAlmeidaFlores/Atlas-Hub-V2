@@ -22,6 +22,22 @@ export const ANALYTICS_HEATMAPS_TABLE = process.env['ANALYTICS_HEATMAPS_TABLE'] 
 export const ANALYTICS_ALERTS_TABLE = process.env['ANALYTICS_ALERTS_TABLE'] ?? 'AtlasAnalyticsAlerts-dev';
 export const ANALYTICS_REPLAYS_TABLE = process.env['ANALYTICS_REPLAYS_TABLE'] ?? 'AtlasAnalyticsReplays-dev';
 
+export const SPE_CONTAS_TABLE = process.env['SPE_CONTAS_TABLE'] ?? 'AtlasSpeContas-dev';
+export const FINANCEIRO_LEDGER_TABLE = process.env['FINANCEIRO_LEDGER_TABLE'] ?? 'AtlasFinanceiroLedger-dev';
+export const FINANCEIRO_SOLICITACOES_TABLE = process.env['FINANCEIRO_SOLICITACOES_TABLE'] ?? 'AtlasFinanceiroSolicitacoes-dev';
+export const FINANCEIRO_AUDITORIA_TABLE = process.env['FINANCEIRO_AUDITORIA_TABLE'] ?? 'AtlasFinanceiroAuditoria-dev';
+export const CAPTACAO_EVENTOS_TABLE = process.env['CAPTACAO_EVENTOS_TABLE'] ?? 'AtlasCaptacaoEventos-dev';
+export const CAPTACAO_COMPRAS_TABLE = process.env['CAPTACAO_COMPRAS_TABLE'] ?? 'AtlasCaptacaoCompras-dev';
+
+export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
+export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';
+export const DIVIFY_API_BASE_URL = process.env['DIVIFY_API_BASE_URL'] ?? '';
+export const DIVIFY_API_TOKEN = process.env['DIVIFY_API_TOKEN'] ?? '';
+
+export const STARK_ENVIRONMENT = process.env['STARK_ENVIRONMENT'] ?? 'sandbox';
+export const STARK_ORGANIZATION_ID = process.env['STARK_ORGANIZATION_ID'] ?? '';
+export const STARK_PRIVATE_KEY = (process.env['STARK_PRIVATE_KEY'] ?? '').replace(/\\n/g, '\n');
+
 export const DOCUMENTS_BUCKET = process.env['DOCUMENTS_BUCKET'] ?? 'atlas-hub-documents-dev';
 
 export const USER_POOL_ID = process.env['USER_POOL_ID'] ?? '';

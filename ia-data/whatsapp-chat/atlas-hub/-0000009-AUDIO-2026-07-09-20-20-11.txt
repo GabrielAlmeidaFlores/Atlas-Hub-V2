@@ -1,0 +1,7 @@
+Então, até dá, mas eles tem que ter também essa questão que o Bruno falou do callback, né?
+Então, tipo, sempre quando tiver um investimento novo, poder configurar um callback para notificar a
+nossa plataforma em si. E é isso que eu vou perguntar também. Então, assim, eles têm que ter
+ou o endpoint, ou criar, ou falar para a gente que existe, o endpoint para a gente consumir os dados,
+ou ter esse tal de callback aí que eles vão notificar o nosso sistema que um novo
+investimento foi feito, ou qualquer coisa foi feita, sabe? Mas de qualquer forma,
+eu preciso perguntar para o Bruno, que não tem na documentação deles.

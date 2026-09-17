@@ -75,6 +75,17 @@ export function conflict(
   return build(409, { code: 'CONFLICT' satisfies ApiErrorCode, error: 'Conflict', message }, event);
 }
 
+export function serviceUnavailable(
+  event: APIGatewayProxyEvent,
+  message: string,
+): APIGatewayProxyResult {
+  return build(503, {
+    code: 'INTERNAL_ERROR' satisfies ApiErrorCode,
+    error: 'Service Unavailable',
+    message,
+  }, event);
+}
+
 export function serverError(
   event: APIGatewayProxyEvent,
   err: unknown,

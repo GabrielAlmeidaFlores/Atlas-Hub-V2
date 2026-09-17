@@ -1,0 +1,8 @@
+Então, a gente tem duas opções para fazer o aplicativo, ou a gente faz a nossa própria
+interface e integra com o sistema da DiviFi, mas daí vai precisar de novo daquela questão
+lá deles liberarem os endpoints, as funcionalidades para a gente poder integrar, ou a gente faz
+um esquema de dentro do aplicativo a gente renderiza a tela ali do navegador, entendeu?
+A pessoa não vai ver que é um navegador de fato, vai ficar parecendo como se fosse
+um aplicativo, sabe?
+Aí tem essa opção também que é bem rápida, óbvio, é só você renderizar a tela ali
+sem mostrar os aspectos do browser e daí é bem rápido para fazer.

@@ -1,0 +1,112 @@
+[02/07/26, 17:36:04] Atlas + Divify: ‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.
+[02/07/26, 17:36:04] Atlas + Divify: ‎You created this group
+[02/07/26, 17:38:11] Gabriel Flores: Boa tarde @all 
+
+Criei esse grupo para a gente tirar dúvidas com o @⁨Danillo Divify⁩ sobre a plataforma Divify
+[02/07/26, 17:56:35] Gabriel Flores: @⁨Danillo Divify⁩ será que vocês tem a docuentação da API do sistema?
+
+Gostariamos de dar uma olhada para entender melhor oq é possível e oq não é ‎<This message was edited>
+[03/07/26, 11:26:56] Felipe Flores: Bom dia
+[03/07/26, 11:28:56] Felipe Flores: @⁨Danillo Divify⁩ você comentou sobre acessoria juridica de vocês. Para cada projetos que formos cadastrar o jurídico faz a analise da documentação, SPE, SCP... 
+
+Estavamos pensando em criar um modelo de contrato padrao para a SPE, sera que eles podem nos ajudar? 
+
+O de SCP voces ja tem o modelo certo?
+[03/07/26, 12:04:02] Danillo Divify: Pessoal. Já respondo vcs!
+[03/07/26, 15:55:27] Danillo Divify: Sim, temos APIs disponíveis na plataforma. Como envolvem dados regulados pela CVM, existem algumas restrições sobre o que pode ser disponibilizado publicamente — por isso, antes de compartilhar a documentação, preciso entender melhor o caso de uso de vocês: quais integrações vocês têm em mente e para qual finalidade.
+[03/07/26, 15:56:58] Danillo Divify: após licenciar e tornar-se cliente, auxiliamos nas estruturações e modelos que melhor se encaixam…temos contrato de SCP já disponíveis e utilizados em diversas ofertas
+[03/07/26, 15:59:41] Felipe Flores: Essa acessoria seria para nós ou pode estender para os incorporadores que captarem através da plataforma?
+[03/07/26, 15:59:56] Felipe Flores: Contabilidade vocês fornecem acessoria tambem?
+[03/07/26, 16:02:37] Danillo Divify: não. Contabilidade fica por conta dos emissores
+[03/07/26, 16:02:59] Danillo Divify: o suporte é fornecido para vcs que tem contrato com a Divify.
+[06/07/26, 15:32:58] Gabriel Flores: Boa tarde @⁨Danillo Divify⁩, beleza? 
+
+A ideia é usar a API de vocês para criar uma camada extra no nosso frontend e personalizar a experiência. Queremos montar uma área mais robusta para os investidores, com gráficos de carteira, e também um portal próprio onde as incorporadoras possam enviar os dados iniciais dos projetos para passar por uma pré-análise e curadoria da nossa equipe antes de virar uma oferta.  
+
+A gente sabe que envolve dados regulados pela CVM e que existem restrições. Estamos justamente na fase de avaliar o que é viável ou não construir do nosso lado, então dar uma olhada na documentação nos ajudaria a entender quais endpoints e webhooks estão disponíveis para essa automação. Consegue liberar o acesso pra gente analisar?
+[07/07/26, 10:56:52] Gabriel Flores: Fala @⁨Danillo Divify⁩, beleza? 
+
+Resgatando o que você comentou sobre a própria SPE aplicar o capital da oferta em CDB de liquidez diária e repassar o rendimento como "bônus", a gente está pensando em usar a Stark Bank para abrir e operacionalizar essas contas de cada projeto. Como a conta e a aplicação ficam juridicamente no nome da SPE, essa estrutura é 100% permitida pela CVM ou o fato de automatizarmos esse processo cria algum impedimento na regra de negócio de vocês?
+
+Só queríamos alinhar se existe alguma trava regulatória sobre a SPE usar essa dinâmica da Stark Bank para rentabilizar o dinheiro antes de liberá-lo para a obra, ou se estando no CNPJ da incorporadora o fluxo fica livre. Dá um alô por aqui só para a gente fechar esse entendimento de compliance. Valeu!!
+[07/07/26, 14:02:25] Danillo Divify: Boa tarde.
+
+Vou te enviar por e-mail a documentação. Lembrando que o uso e quais informações podem ficar fora do nosso ambiente eletronico deve ser validado antes.
+[07/07/26, 14:03:10] Felipe Flores: Boa tarde,
+Vamos preparar uma lista após a conferência para enviar para vocês
+[07/07/26, 14:07:52] Danillo Divify: no âmbito de oferta pública, a regulação 88 não permite gestão discricionária de recursos dos investidores. Durante a captação isso não é possível. Temos a opção de ofertas com reserva de cotas, com isso o investidor só faz o aporte na oferta quando tiver o sucesso. As contas de captação tem ficar sobre a gestão da plataforma homologada, a Divify. 
+
+Após a captação encerrada o recurso é liberado para a empresa emissora e a partir daí a responsabilidade de uso do recurso e gestão é da Emissora.
+[07/07/26, 14:09:09] Gabriel Flores: Beleza
+[07/07/26, 15:35:33] Danillo Divify: @⁨Gabriel Flores⁩ 
+
+https://api.divify.com.br/docs-third
+Usuário: partner
+Senha: Bv=PuZFjw0|@
+[07/07/26, 16:12:52] Gabriel Flores: obrigado
+[09/07/26, 08:23:36] Felipe Flores: https://exame.com/negocios/apos-captar-us-100-milhoes-canopy-compra-uber-do-concreto-e-quer-mais-negocios-em-infra/
+[09/07/26, 08:27:18] Felipe Flores: Parcerias
+[10/07/26, 11:22:18] Gabriel Flores: Bom dia @⁨Danillo Divify⁩ , tudo bem? 
+
+Temos algumas perguntas técnicas sobre a plataforma de vocês, se puder nos ajudar por favor.
+
+A plataforma tem suporte a webhooks? se sim quais eventos são disparados? os que mais precisaria são: investimento confirmado, KYC aprovado, rendimento distribuído e oferta encerrada
+
+sobre a API, esses endpoints existem e só não estão na documentação ou realmente não existem?
+
+. listar todos os investimentos de um usuário
+. buscar dados de uma oferta pelo ID com progresso de captação e status
+. histórico de rendimentos recebidos por usuário
+. perfil do usuário autenticado
+[10/07/26, 14:28:21] Gabriel Flores: Boa tarde @⁨Danillo Divify⁩, tudo bem?
+
+Algum retorno sobre essas questões?
+[10/07/26, 15:07:20] Danillo Divify: Sim. A plataforma tem suporte a webhooks, que são:
+UserActiveEvent - usuário se cadastrou na pergunta
+InvestorCreatedEvent - investidor já existia na Divify, porém fez login pela primeira vez na plataforma
+PurchaseApprovedEvent - Usuário realizou um investimento
+PurchaseExpiredEvent - Usuário iniciou o fluxo de compra, mas não concluiu
+
+Sobre os demais eventos, podemos criar no webhook, porém o sistema já dispara e-mails aos administradores nos casos de Rendimento Distribuído e Oferta Encerrada.
+Os endpoints que listou existem internamente, podemos estudar de disponibilizá-los externamente.
+[10/07/26, 15:22:02] Gabriel Flores: Seria possível enviar um exemplo de como o evento de webhook é enviado?
+‎[10/07/26, 15:34:40] Danillo Divify: ‎image omitted
+[16/07/26, 17:13:47] Danillo Divify: Fala Pessoal, td bem?
+Vamos seguir com a parceria? Tem mais alguma dúvida?
+[16/07/26, 17:20:10] Felipe Flores: Boa tarde,bem? Amanhã temos uma reunião entre nós para verificar como ficaram as integrações, mas esta tudo caminhando para seguirmos com a parceria sim
+[16/07/26, 17:21:48] Danillo Divify: combinado..qq coisa é só chamar
+[17/07/26, 18:54:22] Felipe Flores: ‎This message was deleted.
+[17/07/26, 18:57:09] Felipe Flores: @⁨Danillo Divify⁩ uma dúvida sobre uma hipótese. No caso de após a captação concluída 100%. Por algum motivo o incorporador desistir do projeto antes de comecar ( analise detalhada do projeto deu inviabilidade...) nós vamos estornar tudo para os investidores. Os 3% da Divify sao estornados tambem certo?
+[17/07/26, 19:01:03] Danillo Divify: A captação foi sucesso, o recurso enviado ao emissor e ele vale o que está em contrato seja scp ou dívida. 
+Os 3% não eh devolvido.
+‎[17/07/26, 20:04:34] Felipe Flores: ‎<attached: 00000007-AUDIO-2026-07-17-20-04-34.opus>
+[20/07/26, 10:43:34] Danillo Divify: Felipe, bom dia. 
+Não devolvemos nossa parte. O emissor tb não vai conseguir devolver tudo, pq neste ponto já vai ter tido gastos parciais até achar o problema. Esse caso nao é incomum, ele pode encerrar devolvendo parte, ou buscar mais funding pra continuar.
+[20/07/26, 10:45:43] Felipe Flores: Bom dia
+[20/07/26, 10:46:03] Felipe Flores: Certo, entao na captação deixamos esse risco expresso ?
+[20/07/26, 10:46:43] Danillo Divify: Claro… a oferta sai com todos os avisos de riscos padrão de uma oferta pública e vcs podem colocar isso nos matérias tb
+‎[22/07/26, 11:48:00] Felipe Flores: ‎<attached: 00000012-AUDIO-2026-07-22-11-48-00.opus>
+[22/07/26, 11:48:04] Felipe Flores: @⁨Danillo Divify⁩
+[22/07/26, 12:00:37] Felipe Flores: Talvez você tenha um escritório de contabilidade e advogado para indicar que estejam acostumados com esse tipo de empresa para fazer a abertura
+[23/07/26, 18:32:13] Felipe Flores: @⁨Danillo Divify⁩ no momento que o investidor aportar o recurso em uma oportunidade ele assina um contrato para entrar na SCP?
+[23/07/26, 20:51:09] Danillo Divify: Ela assina um termo de adesão a oferta. Este de adesão ele está aderindo as condições do contrato de SCP da oferta
+[23/07/26, 21:43:33] Felipe Flores: Certo, esse contrato e termo vocês geram ou é conosco?
+[23/07/26, 22:08:44] Danillo Divify: O termo de adesão eh gerada pela divify.
+O contrato de investimento (SCP, por exemplo) na oferta pública é gerado na plataforma. Na oferta privada vcs podem usar a nossa minuta ou de vcs
+[30/07/26, 17:51:33] Danillo Divify: Fala pessoal. Boa noite.
+Vamos seguir com a plataforma? 
+Abs ,
+[30/07/26, 18:17:10] Felipe Flores: Fala Danilo, iremos sim
+Estamos finalizando os preparativos
+[10/08/26, 15:40:57] Danillo Divify: Fala Pessoal, boa tarde.
+Conseguiram avançar? precisam de algumas informação?
+abs,
+[10/08/26, 15:41:47] Felipe Flores: Boa tarde, o contador esta tramitando para abrir o CNPJ
+[10/08/26, 15:41:53] Felipe Flores: Andando
+[20/08/26, 13:48:51] Felipe Flores: Boa tarde Danilo, bem?
+[20/08/26, 13:49:31] Felipe Flores: Para te atualizar, saiu hoje o CNPJ, vamos adequar algumas questoes da plataforma aí daremos sequência
+[20/08/26, 14:02:09] Danillo Divify: boa tarde. combinado.
+[01/09/26, 14:14:20] Felipe Flores: Boa tarde @⁨Danillo Divify⁩, tudo bem?
+
+Pode nos enviar o contrato da Divify para ja irmos lendo
+‎[01/09/26, 14:22:02] Danillo Divify: _Minuta Contrato PWL Oferta Pública e Privada (1).pdf • ‎24 pages ‎<attached: 00000028-_Minuta Contrato PWL Oferta Pública e Privada (1).pdf>

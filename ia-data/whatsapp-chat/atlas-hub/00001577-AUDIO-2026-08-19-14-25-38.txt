@@ -1,0 +1,14 @@
+Opa, boa tarde Felipe. Cara, eu vi sim sobre a Starkey Bank. Sobre a parte 2 scroll,
+nativamente eles não fazem, mas a gente através da API consegue fazer esse controle.
+Eu já criei uma conta de teste lá pra gente, só que pra abrir a conta de produção de fato vai
+precisar do CNPJ, sabe? Mas o CNPJ eles abrem a conta e aí a gente já consegue fazer
+algumas informações de liberar dinheiro, etc. Só tem que ficar com a DIVIFY mesmo, certinho,
+pra poder deixar isso alinhado com eles, sabe? Porque como tudo funciona na DIVIFY,
+vai funcionar na DIVIFY, essa parte de transação de dinheiro, etc. A gente precisa que eles,
+que a DIVIFY, liberem uma forma da gente linkar o sistema deles com o nosso, sabe?
+No primeiro momento, como a gente já conversou já um milhão de vezes, né? Vai ser manual,
+mas quando a gente já tiver o CNPJ, a DIVIFY, a conta da Starkey Bank,
+aí liberando tudo certinho, aí a gente já consegue fazer tudo automático. No primeiro
+momento vai ser manual, sabe? Mas essa parte 2 scroll, eles liberam assim o básico,
+aí a parte de controle, de fazer o depósito, puxar o depósito de volta,
+aí a gente faz através da API e a gente já consegue integrar com o nosso sistema.

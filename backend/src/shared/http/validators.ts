@@ -19,6 +19,32 @@ export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
 const cnpjRegex = /^\d{14}$/;
 const cpfRegex = /^\d{11}$/;
 
+function modulo11(digits: readonly number[], weights: readonly number[]): number {
+  const sum = digits.reduce((acc, digit, index) => acc + digit * (weights[index] ?? 0), 0);
+  const rest = sum % 11;
+  return rest < 2 ? 0 : 11 - rest;
+}
+
+function isValidCnpjDigits(value: string): boolean {
+  if (!cnpjRegex.test(value) || /^(\d)\1{13}$/.test(value)) return false;
+  const nums = [...value].map((d) => Number(d));
+  const d1 = modulo11(nums.slice(0, 12), [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  if (nums[12] !== d1) return false;
+  const d2 = modulo11(nums.slice(0, 13), [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  return nums[13] === d2;
+}
+
+function isValidCpfDigits(value: string): boolean {
+  if (!cpfRegex.test(value) || /^(\d)\1{10}$/.test(value)) return false;
+  const nums = [...value].map((d) => Number(d));
+  const d1Sum = nums.slice(0, 9).reduce((acc, n, i) => acc + n * (10 - i), 0);
+  const d1 = (d1Sum * 10) % 11 % 10;
+  if (nums[9] !== d1) return false;
+  const d2Sum = nums.slice(0, 10).reduce((acc, n, i) => acc + n * (11 - i), 0);
+  const d2 = (d2Sum * 10) % 11 % 10;
+  return nums[10] === d2;
+}
+
 export const perfilSchema = z.object({
   endereco: z.string().max(500).optional(),
   site: z.string().url('URL inválida').optional().or(z.literal('')),
@@ -226,4 +252,36 @@ export const analyticsAlertSchema = z.object({
   active: z.boolean().default(true),
 });
 
-export { cnpjRegex, cpfRegex };
+export const criarContaFinanceiroSchema = z.discriminatedUnion('tipo', [
+  z.object({
+    tipo: z.literal('TESOURARIA'),
+  }),
+  z.object({
+    tipo: z.literal('SPE'),
+    projetoId: z.string().min(1).max(80),
+    cnpjSpe: z.string().regex(cnpjRegex, 'CNPJ da SPE inválido').refine(isValidCnpjDigits, 'CNPJ da SPE inválido'),
+    razaoSocialSpe: z.string().min(3).max(200),
+  }),
+]);
+
+export const criarSolicitacaoFinanceiroSchema = z.object({
+  projetoId: z.string().min(1).max(80),
+  amountReais: z.number().positive('Informe um valor maior que zero').max(15_000_000),
+  description: z.string().min(5).max(200),
+  pixKey: z.string().min(8).max(80).optional(),
+  name: z.string().min(2).max(200).optional(),
+  taxId: z.string().min(11).max(18).optional(),
+  bankCode: z.string().min(3).max(8).optional(),
+  branchCode: z.string().min(1).max(10).optional(),
+  accountNumber: z.string().min(2).max(20).optional(),
+  accountType: z.enum(['checking', 'savings', 'salary', 'payment']).optional(),
+}).superRefine((data, ctx) => {
+  const hasPix = data.pixKey !== undefined && data.pixKey.length > 0;
+  const hasConta = data.name !== undefined && data.taxId !== undefined && data.bankCode !== undefined
+    && data.branchCode !== undefined && data.accountNumber !== undefined;
+  if (!hasPix && !hasConta) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Informe a chave Pix ou os dados da conta destino' });
+  }
+});
+
+export { cnpjRegex, cpfRegex, isValidCnpjDigits, isValidCpfDigits };
