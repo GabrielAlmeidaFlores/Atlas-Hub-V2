@@ -200,16 +200,28 @@ export async function listAllProjetosByStatus(status: StatusProjeto): Promise<Pr
   return items;
 }
 
+function isMissingIndexError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  if (err.name !== 'ValidationException' && err.name !== 'ResourceNotFoundException') return false;
+  return err.message.toLowerCase().includes('index');
+}
+
 export async function getProjetoByOfertaId(ofertaId: string): Promise<Projeto | null> {
-  const result = await db.send(new QueryCommand({
-    TableName: Tables.PROJETOS,
-    IndexName: 'ofertaId-index',
-    KeyConditionExpression: 'ofertaId = :o',
-    ExpressionAttributeValues: { ':o': ofertaId },
-    Limit: 1,
-  }));
-  const item = result.Items?.[0];
-  return (item as Projeto | undefined) ?? null;
+  try {
+    const result = await db.send(new QueryCommand({
+      TableName: Tables.PROJETOS,
+      IndexName: 'ofertaId-index',
+      KeyConditionExpression: 'ofertaId = :o',
+      ExpressionAttributeValues: { ':o': ofertaId },
+      Limit: 1,
+    }));
+    const item = result.Items?.[0];
+    if (item !== undefined) return item as Projeto;
+  } catch (err) {
+    if (!isMissingIndexError(err)) throw err;
+  }
+  const publicados = await listAllProjetosByStatus('OFERTA_CRIADA');
+  return publicados.find((item) => item.ofertaId === ofertaId) ?? null;
 }
 
 export async function listProjetosPublicados(

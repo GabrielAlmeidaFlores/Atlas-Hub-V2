@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "serverless offline --stage dev",
+    "local": "tsx local-http.ts",
     "build": "tsc --noEmit",
     "test": "tsx test-integration.ts",
     "deploy:dev": "serverless deploy --stage dev",
