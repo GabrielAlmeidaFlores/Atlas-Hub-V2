@@ -1,8 +1,38 @@
-import { type ReactNode, Fragment } from "react";
+import { type ReactNode, Fragment, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { TESOURARIA_CONTA_ID } from "@/types";
 import { cn } from "@/lib/utils";
+
+let leafLabel: string | undefined;
+const leafListeners = new Set<() => void>();
+
+export function setBreadcrumbLeaf(label: string | undefined): void {
+  leafLabel = label;
+  for (const notify of leafListeners) notify();
+}
+
+function useBreadcrumbLeaf(): string | undefined {
+  const [label, setLabel] = useState(leafLabel);
+  useEffect(() => {
+    const notify = (): void => {
+      setLabel(leafLabel);
+    };
+    leafListeners.add(notify);
+    return () => {
+      leafListeners.delete(notify);
+    };
+  }, []);
+  return label;
+}
+
+function locationBreadcrumb(state: unknown): string | undefined {
+  if (state === null || typeof state !== "object" || !("breadcrumb" in state)) return undefined;
+  const value = (state as { breadcrumb?: unknown }).breadcrumb;
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed === "" ? undefined : trimmed;
+}
 
 interface Crumb {
   readonly label: string;
@@ -27,7 +57,7 @@ const LABELS: Record<string, string> = {
   users: "Usuários",
 };
 
-function buildCrumbs(pathname: string): Crumb[] {
+function buildCrumbs(pathname: string, leafOverride: string | undefined): Crumb[] {
   const parts = pathname.split("/").filter(Boolean);
   if (parts.length === 0) return [{ label: "Início" }];
 
@@ -35,9 +65,10 @@ function buildCrumbs(pathname: string): Crumb[] {
   let acc = "";
 
   for (let i = 0; i < parts.length; i += 1) {
-    const part = parts[i] ?? "";
-    acc += `/${part}`;
+    const part = decodeURIComponent(parts[i] ?? "");
+    acc += `/${parts[i] ?? ""}`;
     const isLast = i === parts.length - 1;
+    const prev = parts[i - 1];
     const isId = /^[0-9a-f-]{8,}$/i.test(part) || (/^\d+$/.test(part) && part.length > 3);
 
     if (part === "admin") {
@@ -47,8 +78,12 @@ function buildCrumbs(pathname: string): Crumb[] {
 
     let label = LABELS[part];
     if (part === TESOURARIA_CONTA_ID) label = "Tesouraria";
+    if (label === undefined && prev === "captacao") {
+      label = leafOverride ?? "Oferta";
+    }
     if (label === undefined) {
-      if (isId) label = "Detalhe";
+      if (isLast && leafOverride !== undefined) label = leafOverride;
+      else if (isId) label = "Detalhe";
       else label = part.charAt(0).toUpperCase() + part.slice(1);
     }
 
@@ -59,8 +94,9 @@ function buildCrumbs(pathname: string): Crumb[] {
 }
 
 export function AppBreadcrumb({ className }: { readonly className?: string }): ReactNode {
-  const { pathname } = useLocation();
-  const crumbs = buildCrumbs(pathname);
+  const location = useLocation();
+  const liveLeaf = useBreadcrumbLeaf();
+  const crumbs = buildCrumbs(location.pathname, liveLeaf ?? locationBreadcrumb(location.state));
 
   return (
     <nav aria-label="Breadcrumb" className={cn("min-w-0", className)}>

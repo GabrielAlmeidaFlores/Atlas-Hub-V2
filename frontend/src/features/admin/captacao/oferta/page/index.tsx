@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import type { CaptacaoCompraStatus, CaptacaoOfertaDetalhe } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
+import { setBreadcrumbLeaf } from "@/components/shared/app-breadcrumb";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
@@ -75,6 +76,13 @@ export default function AdminCaptacaoOfertaPage(): ReactNode {
       })
       .finally(() => setIsLoading(false));
   }, [ofertaId]);
+
+  useEffect(() => {
+    setBreadcrumbLeaf(data?.projeto?.nome);
+    return () => {
+      setBreadcrumbLeaf(undefined);
+    };
+  }, [data]);
 
   if (isLoading) return <SkeletonPage />;
   if (data === null) {

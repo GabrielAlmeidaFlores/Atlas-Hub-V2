@@ -177,7 +177,11 @@ export default function AdminCaptacaoListaPage(): ReactNode {
                   </td>
                   <td className="text-muted-foreground">{oferta.atualizadoEm !== undefined ? formatDateTime(oferta.atualizadoEm) : "—"}</td>
                   <td className="text-right">
-                    <Link to={`/admin/captacao/${encodeURIComponent(oferta.ofertaId)}`} className="btn btn-ghost btn-sm inline-flex">
+                    <Link
+                      to={`/admin/captacao/${encodeURIComponent(oferta.ofertaId)}`}
+                      state={oferta.projetoNome !== undefined ? { breadcrumb: oferta.projetoNome } : undefined}
+                      className="btn btn-ghost btn-sm inline-flex"
+                    >
                       Ver <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </td>
