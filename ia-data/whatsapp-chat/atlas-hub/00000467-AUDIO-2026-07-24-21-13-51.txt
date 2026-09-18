@@ -1,0 +1,11 @@
+Quando eu estava saindo do Super, eu implantei o funil de vendas mesmo, a gente parou de usar
+o do franqueado porque ele não atualizava mais o aplicativo, então tipo pra gente foi
+ficando ruim por conta de questão de API, porque lá a gente também queria não só
+integração com a landing page, mas a gente também queria integração com o aplicativo
+que o Super usava, porque aí a gente automatizava tudo, se o cara fez o fechamento ou não,
+se ele virou matrícula ou não, era isso. Aí o funil de vendas a gente tinha um relatório,
+então por exemplo lá no Super eu sei que a taxa de conversão do top funil pra conversão
+mesmo em matrícula era de 2% e isso era a conversão muito boa, entendeu? Em meses,
+por exemplo, que essa taxa de conversão do top funil diminuía, aí a gente tinha um trabalho
+mais forte na área de vendas, porque aí provavelmente os vendedores foram ruins, entendeu?
+Obviamente, aí a gente analisava top funil pra chegar numa decisão.

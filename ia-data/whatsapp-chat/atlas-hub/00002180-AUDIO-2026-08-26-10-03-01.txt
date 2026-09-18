@@ -1,0 +1,4 @@
+Então eu acho que para o site tá ok, agora é só para o app que ele vai renderizar,
+aí acho que o Gabriel consegue fazer alguma coisa aí. Fica mais fácil. E lembrando que nesse
+primeiro momento o app, o Gabriel vai pegar a página e vai só renderizar para um app,
+não vai deixar específico um app para isso. Aí depois no segundo momento acho que pode melhorar.

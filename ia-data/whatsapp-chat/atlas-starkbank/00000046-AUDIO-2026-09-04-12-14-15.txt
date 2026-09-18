@@ -1,0 +1,11 @@
+O João Gabriel, como que eu vou fazer com você? Até terça-feira, que até mesmo segunda-feira é feriado,
+eu te mando todas as questões que você encaminhou pra mim, até mesmo pra você ver onde eu consigo atender vocês,
+e tem coisas ali que eu já vi que eu não consigo atender, mas eu vou colocar lá o que eu não tô conseguindo.
+Acredito que futuramente eu consiga, mas de início não,
+mas só pra você ter uma noção do que eu vou conseguir fazer aí com vocês, tá?
+E quando eu coloquei o Sandbox e a nossa API, é pra você já dar uma olhada.
+Até mesmo o Sandbox é o nosso webbank, né, então ali você vai ver todas as funcionalidades,
+criação de workspace, que você pode criar vários workspace, vários subcontas, né,
+pra você fazer uma melhor gestão aí da sua empresa e dos seus clientes e fornecedores,
+e assim, da forma que vocês vão administrar aí.
+Então é por isso que eu mandei tudo isso já de início aí pra vocês, mas eu vou mandar as questões também, tá bom?

@@ -1,0 +1,4 @@
+Porque o cara usa uma ferramenta, ele deve alimentar os dados de um template, adiciona todas as informações e manda gerar
+Aí ele só vem com um analista analisando para ver se não tem nada errado
+Normalmente eles devem saber também o que deve sair errado ou não no relatório
+Por que para o cara entregar em 24 horas? É uma ferramenta automática, é uma IA que analisa tudo e pau no gato

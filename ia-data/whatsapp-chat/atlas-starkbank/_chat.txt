@@ -1,0 +1,317 @@
+[01/09/26, 15:45:28] Atlas | Starkbank: ‎You created group “Atlas | Starkbank”
+[01/09/26, 15:45:28] Atlas | Starkbank: ‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.
+[01/09/26, 15:46:18] Gabriel Flores: Boa tarde Pessoal, criei esse grupo para podermos conversar com a @⁨~Danielli Drigotte⁩ sobre a Starkbank
+[01/09/26, 15:59:07] ~ Danielli Drigotte: Fico a disposição para sanar as dúvidas de vocês.
+[01/09/26, 16:04:31] Felipe Flores: Boa tarde Danielli, tudo bem?
+
+Estava tratando com a Fernanda por email, vi que ela direcionou para você.
+
+Vou passar aqui nossa demanda para adiantar, mas creio que podemos marcar uma reuniao online
+[01/09/26, 16:11:05] Felipe Flores: Nossas necessidades contemplam os seguintes serviços:
+
+*1. Conta principal da AtlasHub*
+
+Conta bancária empresarial destinada à movimentação operacional da AtlasHub, incluindo recebimento de receitas, pagamento de fornecedores, tributos e despesas administrativas.
+
+*2. Contas bolsão / contas segregadas por projeto*
+
+Precisamos criar estruturas financeiras independentes para cada empreendimento disponibilizado na plataforma.
+
+O objetivo é que os recursos captados para o Projeto A, por exemplo, permaneçam completamente identificáveis e segregados dos recursos dos Projetos B, C e da própria AtlasHub.
+
+Precisamos entender quais soluções a Stark Bank oferece para isso, como:
+
+- contas bolsão;
+- subcontas;
+- contas virtuais;
+- contas vinculadas;
+- contas de pagamento individualizadas;
+- ou outra estrutura equivalente via API.
+
+A solução deverá ser escalável para dezenas ou centenas de projetos simultaneamente.
+
+*3. Conta Escrow / conta vinculada de captação*
+
+Precisamos de uma estrutura equivalente a uma conta Escrow para receber os aportes dos investidores durante o período de captação.
+
+Os recursos deverão permanecer segregados e com movimentação condicionada ao cumprimento de determinadas condições da oferta.
+
+Exemplo:
+
+Investidores → Conta Escrow do Projeto → atingimento das condições da captação → liberação dos recursos para a SPE/projeto.
+
+Caso a oferta não seja concluída ou seja cancelada, deverá existir mecanismo para devolução dos recursos aos investidores.
+
+Precisamos entender se a Stark Bank possui produto de Escrow, conta vinculada, saldo bloqueado ou outra arquitetura que permita implementar esse fluxo.
+
+*4. Contas das SPEs / empreendimentos*
+
+Após a conclusão da captação, cada SPE ou veículo responsável pelo empreendimento deverá possuir conta própria para recebimento dos recursos e movimentação financeira do projeto.
+
+Precisamos de uma estrutura que facilite a abertura e integração dessas contas com a AtlasHub.
+
+*5. Identificação individual dos aportes*
+
+Cada aporte deverá ser automaticamente identificado por:
+
+- investidor;
+- CPF/CNPJ;
+- projeto;
+- oferta;
+- valor;
+- data;
+- identificador da transação.
+
+Idealmente, cada ordem de investimento deverá possuir um identificador único para conciliação automática.
+
+*6. Recebimentos via Pix*
+
+Integração para geração de Pix por API, preferencialmente com QR Code dinâmico e identificador único por investimento.
+
+O objetivo é permitir investimentos de valores muito pequenos, inclusive a partir de R$ 10, com conciliação automática e em tempo real.
+
+*7. Boletos e outros meios de pagamento*
+
+Possibilidade de emissão de boletos ou Invoices para investidores que optarem por essa modalidade, sempre vinculando automaticamente o pagamento ao investidor e ao projeto correspondente.
+
+*8. Split de pagamentos*
+
+Precisamos avaliar a utilização do Split de Pagamentos para automatizar determinadas distribuições financeiras.
+
+Por exemplo, quando aplicável:
+
+Valor captado → taxas da operação + valores destinados ao projeto.
+
+A AtlasHub trabalhará inicialmente com um fee total de 11% sobre a captação, sendo 3% destinados ao parceiro responsável pela infraestrutura regulatória e 8% destinados à AtlasHub.
+
+Precisamos entender se essas regras de split podem ser configuradas e executadas automaticamente via API, respeitando a estrutura jurídica e regulatória de cada oferta.
+
+*9. Distribuição de rendimentos aos investidores*
+
+A plataforma deverá futuramente realizar pagamentos periódicos aos investidores, como:
+
+- distribuição de resultados;
+- rendimentos;
+- amortizações;
+- devolução de capital;
+- pagamento no encerramento do investimento.
+
+Precisamos de infraestrutura para realizar grande quantidade de Pix simultaneamente ou pagamentos em lote via API.
+
+*10. Reembolso automático*
+
+Caso um investimento seja cancelado, uma oferta não seja concluída ou exista necessidade de restituição, precisamos realizar devoluções de forma automatizada para os respectivos investidores.
+
+*11. API bancária completa*
+
+Toda a operação financeira deverá estar integrada à plataforma AtlasHub.
+
+Precisamos de APIs para:
+
+- criação de cobranças;
+- geração de Pix;
+- consulta de saldos;
+- consulta de extratos;
+- identificação de pagamentos;
+- transferências;
+- pagamentos;
+- estornos;
+- splits;
+- conciliação;
+- gerenciamento de contas ou estruturas segregadas.
+
+*12. Webhooks em tempo real*
+
+Precisamos receber eventos automaticamente sempre que ocorrer:
+
+- aporte confirmado;
+- Pix recebido;
+- boleto pago;
+- pagamento recusado;
+- estorno;
+- transferência;
+- alteração de saldo;
+- movimentação relevante da conta.
+
+Esses eventos alimentarão automaticamente o sistema da AtlasHub.
+
+*13. Conciliação financeira*
+
+Precisamos realizar conciliação automática entre:
+
+Investidor → aporte → oferta → projeto → conta bancária → participação adquirida.
+
+Toda movimentação financeira deverá ser rastreável dentro da plataforma.
+
+*14. Controle de acesso e aprovação*
+
+Precisamos de diferentes níveis de permissão para:
+
+- AtlasHub;
+- equipe financeira;
+- administradores;
+- responsáveis pelo projeto;
+- responsáveis pelas SPEs;
+- auditoria.
+
+Também temos interesse em fluxos de dupla aprovação para determinadas movimentações financeiras.
+
+*15. Trilhas de auditoria*
+
+Precisamos manter histórico completo das movimentações, contendo:
+
+- usuário responsável;
+- data;
+- horário;
+- conta;
+- projeto;
+- valor;
+- origem;
+- destino;
+- autorização.
+
+Essa rastreabilidade será importante tanto para governança quanto para auditoria das operações.
+
+*16. Estrutura para grande volume de investidores*
+
+O modelo da AtlasHub prevê democratizar o acesso ao investimento imobiliário, permitindo aportes a partir de R$ 10.
+
+Por isso, a infraestrutura precisa suportar:
+
+- milhares de investidores;
+- grande número de transações;
+- múltiplos projetos simultâneos;
+- grande quantidade de pequenos aportes;
+- conciliação em tempo real;
+- pagamentos em massa.
+
+Principal ponto a ser discutido com a Stark Bank
+
+Gostaríamos principalmente de entender qual arquitetura a Stark Bank recomenda para uma plataforma como a AtlasHub, na qual existirão simultaneamente:
+
+AtlasHub → diversos projetos/SPEs → conta segregada de cada projeto → milhares de investidores → aportes individuais → liberação condicionada dos recursos → distribuição futura de rendimentos.
+
+Temos especial interesse em entender as soluções disponíveis para contas bolsão, contas virtuais/subcontas, Escrow ou contas vinculadas, Split de Pagamentos e integração integral via API.
+[01/09/26, 17:40:20] ~ Danielli Drigotte: Vou verificar as perguntas, e venho com as respostas.
+[02/09/26, 08:58:12] Felipe Flores: Bom dia @⁨~Danielli Drigotte⁩ , tudo bem?
+
+Além das perguntas acima, se puder verificar se é possível liberar um cartão de crédito para cada conta segregada das SPEs, e qual limite pode ser oferecido
+[02/09/26, 09:35:29] ~ Danielli Drigotte: Bom dia, tudo bem e você? Nosso cartão corporativo é colaterizado,  o cliente faz aplicação em Renda fixa onde pagamos 100% do CDI e o valor aplicado é colaterizado no cartão e entregamos também 1,5% de cashback na fatura, sem custo algum. Como não somos ainda um banco múltiplo não damos crédito aos clientes, mas dependendo o fluxo de movimentação da conta corrente, podemos ver futuramente limite. Somos uma SCD e trabalhamos com capital dos sócios estamos vendo essa opção no futuro próximo.
+[02/09/26, 09:36:00] ~ Danielli Drigotte: Logo mais já trago as respostas das perguntas
+‎[02/09/26, 11:49:12] ~ Danielli Drigotte: ‎<attached: 00000010-PHOTO-2026-09-02-11-49-12.jpg>
+[02/09/26, 11:49:13] ~ Danielli Drigotte: Por gentileza, olhando o site de vocês, verifiquei que o Stark Bank está como parceiro, ja iniciaram alguma parceria com a gente?
+‎[02/09/26, 12:19:10] Felipe Flores: ‎<attached: 00000012-AUDIO-2026-09-02-12-19-10.opus>
+[02/09/26, 12:19:31] Felipe Flores: @⁨Gabriel Flores⁩ ☝🏻
+[02/09/26, 12:33:30] ~ Danielli Drigotte: Entendi
+[02/09/26, 12:34:31] ~ Danielli Drigotte: Só para saber se já estavam falando com alguém ou se já teria algo aqui dentro.
+[02/09/26, 12:35:09] Gabriel Flores: Beleza
+[02/09/26, 12:45:07] Felipe Flores: Não não
+[02/09/26, 15:51:48] Felipe Flores: @⁨~Danielli Drigotte⁩ a ideia é que nós fiquemos como administradores de cada conta das SPEs, seria possivel nós deixarmos o dinheiro de cada projeto em CDI para liberar o cartao de crédito e o cashback voltar para conta da AtlasHub? ‎<This message was edited>
+[02/09/26, 15:56:17] ~ Danielli Drigotte: Sim, no Stark Bank, vc pode abrir vários worksplace para melhor gerenciar cada projeto, eles são apartados cada um tem seu centro de custo apartados.
+[02/09/26, 15:57:27] ~ Danielli Drigotte: Vou colocar o nosso Sandbox para dar uma olhada em toda a nossa tecnologia web Bank e as nossas APIs
+[02/09/26, 15:58:33] ~ Danielli Drigotte: https://web.starkbank.com/sandbox/create
+[02/09/26, 15:58:59] ~ Danielli Drigotte: https://docs.starkbank.com/api?_gl=1*ijokwq*_gcl_au*MjcyNTYzMDcxLjE3ODgzNzMxNzg.
+[04/09/26, 11:22:41] Felipe Flores: Bom dia @⁨~Danielli Drigotte⁩ , tudo bem?
+
+Conseguiram avaliar se conseguem nos atender nessas demandas?
+
+Qualquer coisa se pudermos agendar uma reunião
+[04/09/26, 11:40:03] ~ Danielli Drigotte: Bom dia, estou bem e vcs? antes de marcar um call, gostaria de encaminhar o que conseguimos atende vocês, não temos tudo o que vcs estão solicitando, mas tenho algumas soluções que podemos atender a empresa. como esses dias estive em eventos e reuniaoes não consegui enviar, mas ate terça feira envio. ‎<This message was edited>
+[04/09/26, 11:40:24] Felipe Flores: Muito obrigado
+[04/09/26, 11:40:35] ~ Danielli Drigotte: eu que agradeço
+[04/09/26, 11:41:07] Felipe Flores: Uma dúvida existe a possibilidade de algumas customizações alinhadas entre nosso TI e o de vocês?
+[04/09/26, 11:42:18] ~ Danielli Drigotte: de inicio não, mas assim que a conta estiver aberta, consigo alinhar uma reunião com os dois times
+[04/09/26, 11:42:27] Felipe Flores: Maravilha
+[04/09/26, 11:42:30] ~ Danielli Drigotte: conseguiu olha a nossa API?
+[04/09/26, 11:42:43] ~ Danielli Drigotte: E O Sandbox ?
+[04/09/26, 11:43:10] Felipe Flores: Existirá um contrato entre nós ou será como abertura de conta em banco convencional mesmo? ‎<This message was edited>
+[04/09/26, 11:43:17] Felipe Flores: @⁨Gabriel Flores⁩
+[04/09/26, 11:43:22] Felipe Flores: @⁨Gabriel Flores⁩
+[04/09/26, 11:45:22] ~ Danielli Drigotte: é abertura de conta tradicional, eu encaminho o link a voces, no caso inicia o processo e meu compliance valida.
+[04/09/26, 11:45:55] ~ Danielli Drigotte: assim que terminar o processo da abertura, iniciamos o projeto de integração.
+[04/09/26, 11:45:56] Felipe Flores: Entao a conta principal da AtlasHub ja poderiamos abrir
+[04/09/26, 11:46:28] ~ Danielli Drigotte: o sistema de vocês e desenvolvimento proprio para integração da API?
+[04/09/26, 11:47:08] ~ Danielli Drigotte: podemos iniciar pq de fato demora um pouco o processo
+[04/09/26, 11:47:26] Felipe Flores: Pode encaminhar por favor
+[04/09/26, 11:47:35] ~ Danielli Drigotte: estamos com muitas contas na esteira
+[04/09/26, 11:48:38] ~ Danielli Drigotte: vou enviar
+[04/09/26, 11:51:01] ~ Danielli Drigotte: https://web.starkbank.com/signup?utm_source=indicacao-comercial&utm_medium=interno&utm_content=indicacao_am-danielli-drigotte&utm_campaign=bank_institucional&bannerid=1158_intention_lead_clientes-outbound
+[04/09/26, 12:07:18] Gabriel Flores: Sim, da parte mais técnica está tranquilo o entendimento . Precisamos mesmo alinhar as funcionalidades e funcionamentos ‎<This message was edited>
+[04/09/26, 12:12:43] ~ Danielli Drigotte: Assim que a conta estiver aberta, alinhamos quais as soluções vão ser utilizadas do Stark Bank e abrimos o projeto com o time de integração
+‎[04/09/26, 12:14:15] ~ Danielli Drigotte: ‎<attached: 00000046-AUDIO-2026-09-04-12-14-15.opus>
+‎[04/09/26, 12:16:13] Gabriel Flores: ‎<attached: 00000047-AUDIO-2026-09-04-12-16-13.opus>
+[04/09/26, 12:17:27] ~ Danielli Drigotte: Pode deixar
+[04/09/26, 16:08:56] Felipe Flores: @⁨~Danielli Drigotte⁩ no nosso modelo de captação, o recurso após captado, tem que ir direto para conta do CNPJ a qual se destina a captação. Não pode cair na nossa conta e depois transferirmos... Conseguimos fazer dessa forma, uma conta segregada por CNPJ mas ao mesmo tempo sob nossa gestão?
+[04/09/26, 16:13:41] ~ Danielli Drigotte: Podemos abrir as contas dos CNPj que precisa ter o recurso captado e no caso deixar a gestão de vcs, sem que entre esse dinheiro na conta da Atlas.
+[04/09/26, 16:13:45] ~ Danielli Drigotte: É isso?
+[04/09/26, 16:57:43] Felipe Flores: Isso
+[04/09/26, 17:06:13] ~ Danielli Drigotte: ótimo
+[04/09/26, 17:08:57] ~ Danielli Drigotte: Já início o processo da abertura?
+[04/09/26, 17:40:42] Felipe Flores: Ja sim
+[04/09/26, 17:40:56] Felipe Flores: Falta só o KYC
+[08/09/26, 10:41:08] ~ Danielli Drigotte: 1. Conta principal da AtlasHub
+
+Conta bancária empresarial destinada à movimentação operacional da AtlasHub, incluindo recebimento de receitas, pagamento de fornecedores, tributos e despesas administrativas.
+
+
+R: Conseguimos atender, disponibelizamos aos cliente a web bank e o Excel Banking, para o giro da empresa.
+
+
+2. Contas bolsão / contas segregadas por projeto
+ 
+R: Conta bolsão não trabalhamos, mas sub contas em nome da Atlashub, por ser criado.
+
+
+- contas bolsão;   Não pode 
+- subcontas;      é possivel
+- contas virtuais; não temos 
+- contas vinculadas; R: a empresa pode abrir a contas dos parceiro e vincular a conta principal, sendo tudo separado os valores
+- contas de pagamento individualizadas;  R: é possivel
+- ou outra estrutura equivalente via API. não temos
+
+
+3. Conta Escrow / conta vinculada de captação : R: em breve vai ser disponibilizada aos clientes, mas não tem data
+
+
+4. Contas das SPEs / empreendimentos: R: pode ser feito via API as contas dos investidores B2B, não abrimos contas de PF
+
+5. Identificação individual dos aportes R: não temos automação automática
+
+6. Recebimentos via Pix R: Conseguimos
+
+7. Boletos e outros meios de pagamento R:  Conseguimos atender
+
+8. Split de pagamentos R: https://docs.starkbank.com/api#split, conseguimos atender
+ 
+9. Distribuição de rendimentos aos investidores R: Processo feito manual via API ou web Bank
+
+10. Reembolso automático R: automatico não conseguimos atender
+ 
+11. API bancária completa R: conseguimos atender https://docs.starkbank.com/api#introduction ou pelo Excel bank seria interessando vcs baixarem via sandbox para dar uma olhada nas funcionalidades do Excel.
+
+12. Webhooks em tempo real R: conseguimos atender / os nossos produtos para atender a operação de vocês.
+
+
+￼
+
+13. Conciliação financeira: do lado de vcs
+
+14. Controle de acesso e aprovação R: Vou colocar os membros que podem ser criados
+￼
+
+￼
+15. Trilhas de auditoria. R: hoje temos o IP fixo dentro da Web Bank trazendo mais segurança aos clientes.
+
+16. Estrutura para grande volume de investidores R: Hoje não atendemos pessoa física e não temos a estátua BaaS, para disponibilizar aos cliente, todas as contas aberta vai ser PJ,
+[08/09/26, 10:49:59] ~ Danielli Drigotte: Bom dia a todos, coloquei o que conseguimos atender, muito do que vcs estão pedindo vai ser do lado de vcs, ou com outro parceiro.
+[08/09/26, 10:52:42] Felipe Flores: Bom dia
+[08/09/26, 10:52:48] Felipe Flores: Obrigado pelo retorno Dani
+[08/09/26, 10:53:13] Felipe Flores: O Christian tentou fazer a autenticação KYC mas o autenticador do IOS esta fora do ar
+[08/09/26, 10:57:40] ~ Danielli Drigotte: Estou verificando com o time está tudo certo
+[08/09/26, 10:58:06] Felipe Flores: Ok
+[08/09/26, 10:58:22] ~ Danielli Drigotte: Consegue iniciar o processo
+[08/09/26, 10:58:27] Felipe Flores: Conseguimos agendar uma reuniao?
+[08/09/26, 10:58:48] ~ Danielli Drigotte: Tem alguma erro que aparece?
+[08/09/26, 10:58:50] Felipe Flores: Sim, ja iniciou, foi ate o final, so nao deu para fazer o KYC
+‎[08/09/26, 10:59:10] Felipe Flores: ‎<attached: 00000068-PHOTO-2026-09-08-10-59-10.jpg>
+[08/09/26, 10:59:42] ~ Danielli Drigotte: Deixa eu enviar esse erro para time técnico ‎<This message was edited>
