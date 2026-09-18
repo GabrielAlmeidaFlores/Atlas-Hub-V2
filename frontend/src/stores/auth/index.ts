@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { AuthUser, Perfil } from "@/types";
-import { VITE_COGNITO_USER_POOL_ID, VITE_COGNITO_CLIENT_ID } from "@/lib/env";
+import { USE_LOCAL_MOCKS, VITE_COGNITO_USER_POOL_ID, VITE_COGNITO_CLIENT_ID } from "@/lib/env";
 
 interface AuthState {
   readonly user: AuthUser | null;
@@ -13,7 +13,8 @@ interface AuthState {
   readonly pendingChallenge: { readonly type: "NEW_PASSWORD_REQUIRED" } | null;
 }
 
-const isCognitoConfigured = VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIENT_ID !== "";
+const isCognitoConfigured =
+  !USE_LOCAL_MOCKS && VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIENT_ID !== "";
 
 function extractPerfil(groups: string[]): Perfil {
   if (groups.includes("ADMIN_MASTER")) return "ADMIN_MASTER";

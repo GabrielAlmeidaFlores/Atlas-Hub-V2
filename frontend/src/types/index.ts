@@ -37,6 +37,14 @@ export type {
   CaptacaoOfertaResumo,
   CaptacaoListaResponse,
   CaptacaoOfertaDetalhe,
+  StatusEtapaObra,
+  StatusLancamentoObra,
+  SituacaoOrcamento,
+  CronogramaResumo,
+  EtapaCronograma,
+  LancamentoObra,
+  CronogramaDetalhe,
+  CronogramaListaItem,
 } from "./domain";
 
 export { TESOURARIA_CONTA_ID } from "./domain";

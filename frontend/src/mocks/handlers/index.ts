@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
 import type { Projeto, Incorporadora, DashboardMetricas, Notificacao, AuditoriaEntry } from "@/types";
+import { cronogramaHandlers } from "./cronograma";
 
 const BASE = "";
 
@@ -477,4 +478,5 @@ export const handlers = [
       { id: "evt-1", ts: new Date().toISOString(), eventName: "login", path: "/login", props: {} },
     ],
   })),
+  ...cronogramaHandlers(mockProjetos),
 ];

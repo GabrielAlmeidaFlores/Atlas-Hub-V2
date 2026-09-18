@@ -388,3 +388,79 @@ export interface CaptacaoOfertaDetalhe {
   readonly compras: CaptacaoCompra[];
   readonly eventos: CaptacaoEvento[];
 }
+
+export type StatusEtapaObra = "PLANEJADA" | "EM_ANDAMENTO" | "CONCLUIDA" | "ATRASADA";
+export type StatusLancamentoObra = "CONFIRMADO" | "CANCELADO";
+export type SituacaoOrcamento = "SEM_LANCAMENTO" | "DENTRO" | "ESTOURO";
+
+export interface CronogramaResumo {
+  readonly etapasAtrasadas: number;
+  readonly etapasConcluidas: number;
+  readonly percentualAvanco: number;
+  readonly valorOrcado: number;
+  readonly valorRealizado: number;
+  readonly saldo: number;
+  readonly percentualRealizado: number;
+  readonly situacaoOrcamento: SituacaoOrcamento;
+}
+
+export interface EtapaCronograma {
+  readonly projetoId: string;
+  readonly etapaId: string;
+  readonly nome: string;
+  readonly ordem: number;
+  readonly inicioPrevisto: string;
+  readonly fimPrevisto: string;
+  readonly percentualExecucao: number;
+  readonly valorOrcado: number;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly inicioReal?: string;
+  readonly fimReal?: string;
+  readonly statusExibicao: StatusEtapaObra;
+  readonly desvioDias: number;
+  readonly valorRealizado: number;
+  readonly saldo: number;
+  readonly percentualRealizado: number;
+  readonly situacaoOrcamento: SituacaoOrcamento;
+}
+
+export interface LancamentoObra {
+  readonly projetoId: string;
+  readonly lancamentoId: string;
+  readonly etapaId: string;
+  readonly descricao: string;
+  readonly valor: number;
+  readonly dataLancamento: string;
+  readonly status: StatusLancamentoObra;
+  readonly criadoPor: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly comprovanteUrl?: string;
+}
+
+export interface CronogramaDetalhe {
+  readonly projeto: {
+    readonly id: string;
+    readonly nome: string;
+    readonly status: StatusProjeto;
+    readonly cidade: string;
+    readonly estado: string;
+    readonly prazoObra?: number;
+    readonly valorTotal?: number;
+  };
+  readonly podeEditarEtapas: boolean;
+  readonly podeLancarGastos: boolean;
+  readonly resumo: CronogramaResumo;
+  readonly etapas: EtapaCronograma[];
+  readonly lancamentos: LancamentoObra[];
+}
+
+export interface CronogramaListaItem extends CronogramaResumo {
+  readonly projetoId: string;
+  readonly nome: string;
+  readonly cidade: string;
+  readonly estado: string;
+  readonly status: StatusProjeto;
+  readonly etapas: number;
+}

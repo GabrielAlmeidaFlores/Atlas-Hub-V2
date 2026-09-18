@@ -6,11 +6,12 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 
 | Superfície | Inclui |
 |---|---|
-| **Portal da Incorporadora** | Cadastro, perfil, wizard 5 etapas + editar, equipe, viabilidade simplificada, barra de progresso, upload/download S3, acompanhamento de status, notificações, link da oferta quando `OFERTA_CRIADA` |
+| **Portal da Incorporadora** | Cadastro, perfil, wizard 5 etapas + editar, equipe, viabilidade simplificada, barra de progresso, upload/download S3, acompanhamento de status, notificações, link da oferta quando `OFERTA_CRIADA`, **cronograma da obra** (etapas + orçado; gastos após `APROVADO`/`OFERTA_CRIADA`) |
 | **Painel de Curadoria (Admin)** | Fila, scorecard (5 critérios), checklist pré-aprovação (validado na API), notas internas, ajuste / reprovar / aprovar, CRM incorporadoras, usuários (master + senha temporária), registro manual de ID/link da oferta |
 | **Financeiro (Admin, pós-sucesso)** | Conta tesouraria Atlas + workspace por projeto/SPE (mesmo CNPJ Atlas), saldo, extrato, Pix (solicitação + dupla aprovação de dois `ADMIN_MASTER`), split, extrato público para integração, conciliação via webhook, trilha de auditoria. Cartão CDI **não** entra. O dinheiro da oferta **não** passa por aqui durante a captação. |
 | **Captação (Admin)** | Ingestão de webhooks Divify (`UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada sucesso/insucesso), vínculo ao projeto via `ofertaId`, progresso por oferta, enrich opcional via API docs-third. SmartEscrow, sucesso→CNPJ emissor e split de rendimentos ficam na Divify. Sem cadastro/KYC/carteira de investidor neste repo. |
 | **Analytics (Admin)** | Coleta nativa LP+app, funil Atlas, dashboard, heatmaps, jornada do usuário, segmentação, export CSV, alertas, replay (metadados/opt-in). Catálogo: [`analytics.md`](analytics.md) |
+| **Cronograma (obra)** | Etapas físicas (previsto/real, %, desvio de prazo) + orçado × realizado por etapa, gastos vinculados à etapa (comprovante opcional). Execução **não** reabre curadoria. Distinto do Financeiro Stark (conta/Pix/split). |
 
 **Oferta no MVP:** criação **manual** no painel da plataforma após `APROVADO`. Sem API de criação de oferta obrigatória no Atlas.
 

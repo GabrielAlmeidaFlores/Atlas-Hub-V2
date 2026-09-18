@@ -217,6 +217,7 @@ Pode adicionar notas internas (não visíveis à incorporadora)
 | Dashboard | `/dashboard` | Visão geral dos projetos e seus status |
 | Novo Projeto | `/projetos/novo` | Wizard em 5 etapas |
 | Detalhe do Projeto | `/projetos/:id` | Acompanhamento, histórico e feedbacks |
+| Cronograma da obra | `/projetos/:id/cronograma` | Etapas, orçado × realizado e gastos |
 | Perfil da Empresa | `/perfil` | Dados cadastrais e documentos |
 | Notificações | `/notificacoes` | Central de notificações |
 
@@ -451,7 +452,24 @@ Tela completa com todas as informações e painel lateral de status.
 
 ---
 
-### 6.9 Notificações
+### 6.9 Cronograma da obra
+
+Módulo operacional, separado da curadoria e do Financeiro (contas Stark). Não reabre ciclo de aprovação.
+
+**Incorporadora** — `/projetos/:id/cronograma`
+- Cadastra etapas (nome, previsto/real, %, orçado)
+- Após `APROVADO` ou `OFERTA_CRIADA`, lança gastos vinculados a uma etapa (descrição, valor, data, comprovante opcional)
+- Vê desvio de prazo e orçado × realizado × saldo
+
+**Admin** — `/admin/cronograma` (somente leitura)
+- Lista obras aprovadas/publicadas com avanço físico e situação orçamentária (`SEM_LANCAMENTO` | `DENTRO` | `ESTOURO`)
+- Detalhe por projeto com as mesmas tabelas
+
+Lançamento de gastos **não** reabre curadoria. Sem centro de custo, fornecedor ou gastos sem etapa.
+
+---
+
+### 6.10 Notificações
 
 A incorporadora recebe notificações **in-app** e por **e-mail** nos seguintes eventos:
 
@@ -483,6 +501,8 @@ O painel admin serve como **CRM de projetos e incorporadoras** da equipe interna
 | Histórico | `/admin/historico` | Projetos já decididos |
 | Incorporadoras | `/admin/incorporadoras` | Lista de todas as incorporadoras |
 | Detalhe da Incorporadora | `/admin/incorporadoras/:id` | Perfil + histórico de projetos |
+| Cronograma | `/admin/cronograma` | Avanço físico e orçado × realizado |
+| Cronograma do projeto | `/admin/cronograma/:projetoId` | Detalhe da obra (leitura) |
 
 ---
 

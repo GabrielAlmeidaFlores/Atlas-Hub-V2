@@ -28,6 +28,8 @@ export const FINANCEIRO_SOLICITACOES_TABLE = process.env['FINANCEIRO_SOLICITACOE
 export const FINANCEIRO_AUDITORIA_TABLE = process.env['FINANCEIRO_AUDITORIA_TABLE'] ?? 'AtlasFinanceiroAuditoria-dev';
 export const CAPTACAO_EVENTOS_TABLE = process.env['CAPTACAO_EVENTOS_TABLE'] ?? 'AtlasCaptacaoEventos-dev';
 export const CAPTACAO_COMPRAS_TABLE = process.env['CAPTACAO_COMPRAS_TABLE'] ?? 'AtlasCaptacaoCompras-dev';
+export const OBRA_ETAPAS_TABLE = process.env['OBRA_ETAPAS_TABLE'] ?? 'AtlasObraEtapas-dev';
+export const OBRA_LANCAMENTOS_TABLE = process.env['OBRA_LANCAMENTOS_TABLE'] ?? 'AtlasObraLancamentos-dev';
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
 export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';

@@ -29,6 +29,11 @@ export type {
   CaptacaoCompraStatus,
   CaptacaoEvento,
   CaptacaoCompra,
+  StatusEtapaObra,
+  StatusLancamentoObra,
+  SituacaoOrcamento,
+  EtapaObra,
+  LancamentoObra,
 } from './domain.js';
 
 export { TESOURARIA_CONTA_ID } from './domain.js';

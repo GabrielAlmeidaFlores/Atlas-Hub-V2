@@ -284,4 +284,56 @@ export const criarSolicitacaoFinanceiroSchema = z.object({
   }
 });
 
+const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida');
+
+function assertPeriodo(inicio: string, fim: string, ctx: z.RefinementCtx, fimPath: string): void {
+  if (inicio > fim) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Término deve ser posterior ao início', path: [fimPath] });
+  }
+}
+
+export const criarEtapaObraSchema = z.object({
+  nome: z.string().min(2).max(120),
+  inicioPrevisto: ymd,
+  fimPrevisto: ymd,
+  inicioReal: ymd.optional(),
+  fimReal: ymd.optional(),
+  percentualExecucao: z.number().min(0).max(100).optional(),
+  valorOrcado: z.number().min(0).max(1_000_000_000),
+}).superRefine((data, ctx) => {
+  assertPeriodo(data.inicioPrevisto, data.fimPrevisto, ctx, 'fimPrevisto');
+  if (data.inicioReal !== undefined && data.fimReal !== undefined) {
+    assertPeriodo(data.inicioReal, data.fimReal, ctx, 'fimReal');
+  }
+});
+
+export const atualizarEtapaObraSchema = z.object({
+  nome: z.string().min(2).max(120).optional(),
+  inicioPrevisto: ymd.optional(),
+  fimPrevisto: ymd.optional(),
+  inicioReal: ymd.optional().or(z.literal('')),
+  fimReal: ymd.optional().or(z.literal('')),
+  percentualExecucao: z.number().min(0).max(100).optional(),
+  valorOrcado: z.number().min(0).max(1_000_000_000).optional(),
+}).superRefine((data, ctx) => {
+  if (data.inicioPrevisto !== undefined && data.fimPrevisto !== undefined) {
+    assertPeriodo(data.inicioPrevisto, data.fimPrevisto, ctx, 'fimPrevisto');
+  }
+  if (data.inicioReal !== undefined && data.inicioReal !== '' && data.fimReal !== undefined && data.fimReal !== '') {
+    assertPeriodo(data.inicioReal, data.fimReal, ctx, 'fimReal');
+  }
+});
+
+export const criarLancamentoObraSchema = z.object({
+  etapaId: z.string().min(1).max(80),
+  descricao: z.string().min(2).max(200),
+  valor: z.number().positive().max(1_000_000_000),
+  dataLancamento: ymd,
+  comprovanteUrl: z.string().url().optional(),
+});
+
+export const atualizarLancamentoObraSchema = z.object({
+  status: z.literal('CANCELADO'),
+});
+
 export { cnpjRegex, cpfRegex, isValidCnpjDigits, isValidCpfDigits };

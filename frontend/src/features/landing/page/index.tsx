@@ -289,7 +289,7 @@ function ComoFunciona(): ReactNode {
 function CuradoriaIcon({ title }: { readonly title: string }): ReactNode {
   if (title === "Localização") {
     return (
-      <svg className="h-11 w-11 shrink-0 lg:h-[55px] lg:w-[55px]" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg className="h-10 w-10 shrink-0 lg:h-11 lg:w-11" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
         <path d="M28 28.0623C28.7563 28.0623 29.4036 27.7869 29.9422 27.2362C30.4807 26.6854 30.75 26.0233 30.75 25.2499C30.75 24.4764 30.4807 23.8143 29.9422 23.2636C29.4036 22.7128 28.7563 22.4374 28 22.4374C27.2437 22.4374 26.5964 22.7128 26.0578 23.2636C25.5193 23.8143 25.25 24.4764 25.25 25.2499C25.25 26.0233 25.5193 26.6854 26.0578 27.2362C26.5964 27.7869 27.2437 28.0623 28 28.0623ZM28 42.1246C24.3104 38.9137 21.5547 35.9314 19.7328 33.1775C17.9109 30.4236 17 27.8748 17 25.5311C17 22.0155 18.1057 19.2148 20.3172 17.1289C22.5286 15.043 25.0896 14 28 14C30.9104 14 33.4714 15.043 35.6828 17.1289C37.8943 19.2148 39 22.0155 39 25.5311C39 27.8748 38.0891 30.4236 36.2672 33.1775C34.4453 35.9314 31.6896 38.9137 28 42.1246Z" fill="#294574" />
       </svg>
@@ -297,14 +297,14 @@ function CuradoriaIcon({ title }: { readonly title: string }): ReactNode {
   }
   if (title === "Viabilidade") {
     return (
-      <svg className="h-11 w-11 shrink-0 lg:h-[55px] lg:w-[55px]" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg className="h-10 w-10 shrink-0 lg:h-11 lg:w-11" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
         <path d="M36 38.0935V24.9101M28 38.0935V17M20 38.0935V30.1834" stroke="#1C2E5E" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
   return (
-    <svg className="h-11 w-11 shrink-0 lg:h-[55px] lg:w-[55px]" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg className="h-10 w-10 shrink-0 lg:h-11 lg:w-11" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="27.5" cy="27.5" r="27.5" fill="#D9B366" />
       <g clipPath="url(#clip0_37_5257)">
         <path d="M27.1448 15.2598C27.6428 14.9134 28.3572 14.9134 28.8767 15.2598L40.2423 22.577C40.8484 22.9883 41.1515 23.7027 40.9567 24.3955C40.7618 25.0883 40.0907 25.5645 39.3763 25.5645H37.7527V36.1291L40.3505 38.0558C40.7618 38.3589 41 38.8784 41 39.3764C41 40.2856 40.2856 41 39.3763 41H16.6453C15.7144 41 15 40.2856 15 39.3764C15 38.8784 15.2598 38.3589 15.6494 38.0558L18.2473 36.1291V25.5645H16.6236C15.9092 25.5645 15.2598 25.1099 15.0433 24.3955C14.8268 23.6811 15.1515 22.9667 15.7577 22.577L27.1448 15.2598ZM20.6936 25.5645V36.1291H23.9408V25.5645H20.6936ZM26.3871 36.1291H29.6344V25.5645H26.3871V36.1291ZM32.0591 25.5645V36.1291H35.3064V25.5645H32.0591Z" fill="#161F48" />
@@ -329,7 +329,7 @@ function Curadoria(): ReactNode {
     {
       title: "Viabilidade",
       desc: "Potencial de retorno e solidez financeira do projeto.",
-      offset: "lg:mt-10",
+      offset: "lg:mt-8",
       bg: "#1C2E5E",
     },
     {
@@ -343,7 +343,7 @@ function Curadoria(): ReactNode {
   return (
     <section id="curadoria" className="bg-white pt-10 sm:pt-16 lg:pt-20" data-analytics-section="curadoria">
       <div className="lp-container pb-8 sm:pb-12 lg:pb-16">
-        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-10">
+        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-8">
           <AnimateIn className="text-left lg:col-span-5 lg:pt-6">
             <h2 className="text-[26px] font-extrabold uppercase leading-[1.08] tracking-tight text-navy sm:text-[2.5rem] lg:text-[3rem]">
               Cada projeto
@@ -360,17 +360,17 @@ function Curadoria(): ReactNode {
             </p>
           </AnimateIn>
 
-          <div className="flex flex-col gap-3 sm:grid sm:grid-cols-3 sm:gap-4 lg:col-span-7 lg:w-[110%] lg:max-w-none lg:gap-5 max-lg:w-full">
+          <div className="flex w-full flex-col gap-3 sm:grid sm:grid-cols-3 sm:gap-3 lg:col-span-7 lg:max-w-[38rem] lg:justify-self-start lg:gap-3">
             {cards.map(({ title, desc, offset, bg }, i) => (
               <AnimateIn key={title} delay={i * 80} className={offset}>
                 <div
-                  className="flex flex-row items-center gap-4 rounded-[12px] px-4 py-5 text-left sm:flex-col sm:items-center sm:px-7 sm:py-7 sm:text-center"
+                  className="flex flex-row items-center gap-3 rounded-[12px] px-4 py-4 text-left sm:flex-col sm:items-center sm:px-4 sm:py-5 sm:text-center"
                   style={{ backgroundColor: bg }}
                 >
                   <CuradoriaIcon title={title} />
                   <div className="min-w-0">
-                    <h3 className="text-[18px] font-bold tracking-wide text-[#D2A047] sm:text-[24px] lg:mt-4">{title}</h3>
-                    <p className="mt-1 text-[12px] leading-snug text-white/90 sm:mt-2 sm:text-sm">{desc}</p>
+                    <h3 className="text-[16px] font-bold tracking-wide text-[#D2A047] sm:text-[18px] lg:mt-3">{title}</h3>
+                    <p className="mt-1 text-[11px] leading-snug text-white/90 sm:mt-1.5 sm:text-[12px]">{desc}</p>
                   </div>
                 </div>
               </AnimateIn>

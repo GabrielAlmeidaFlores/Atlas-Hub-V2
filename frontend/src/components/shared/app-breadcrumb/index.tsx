@@ -20,6 +20,7 @@ const LABELS: Record<string, string> = {
   historico: "Histórico",
   financeiro: "Financeiro",
   captacao: "Captação",
+  cronograma: "Cronograma",
   incorporadoras: "Incorporadoras",
   usuarios: "Usuários",
   analytics: "Analytics",

@@ -27,6 +27,7 @@ Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos Plano A **não** s�
 | Upload S3 (presign PUT) + download (presign GET) | Implementado |
 | Equipe no wizard/editar (mín. 1 membro) | Implementado |
 | Calculadora de viabilidade (`projeto.viabilidade`) + barra de progresso | Implementado |
+| Cronograma da obra (etapas, orçado × realizado, lançamentos) | Implementado |
 | Curadoria: fila, scorecard, notas, ajuste/reprovar/aprovar | Implementado |
 | Checklist pré-aprovação (UI + validação no `POST .../aprovar`) | Implementado |
 | Admin usuários (`/admin/usuarios`) + senha temporária na resposta | Implementado |
@@ -360,6 +361,13 @@ Aportes ficam na SmartEscrow da Divify. Sucesso → CNPJ emissor (sem Atlas). In
 | `GET` | `/admin/captacao` | Ofertas + eventos de captação |
 | `GET` | `/admin/captacao/ofertas/{ofertaId}` | Compras e eventos de uma oferta |
 | `POST` | `/webhooks/divify` | Webhook da plataforma (secret no header) |
+| `GET` | `/projetos/{id}/cronograma` | Cronograma físico + financeiro (incorporadora) |
+| `POST` | `/projetos/{id}/cronograma/etapas` | Cadastrar etapa |
+| `PUT` / `DELETE` | `/projetos/{id}/cronograma/etapas/{etapaId}` | Atualizar / excluir etapa |
+| `POST` | `/projetos/{id}/cronograma/lancamentos` | Lançar gasto (`APROVADO` / `OFERTA_CRIADA`) |
+| `PUT` | `/projetos/{id}/cronograma/lancamentos/{lancamentoId}` | Cancelar lançamento (`{ status: CANCELADO }`) |
+| `GET` | `/admin/cronograma` | Lista de obras com desvios |
+| `GET` | `/admin/cronograma/projetos/{projetoId}` | Detalhe (somente leitura) |
 
 Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no DynamoDB após signup.
 

@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import {
   ClipboardList, CheckCircle, XCircle, Clock,
-  TrendingUp, BarChart3, ArrowRight, AlertCircle, Landmark, CircleDollarSign,
+  TrendingUp, BarChart3, ArrowRight, AlertCircle, Landmark, CircleDollarSign, CalendarRange,
 } from "lucide-react";
 
 const STATS = [
@@ -101,6 +101,7 @@ export default function AdminDashboardPage(): ReactNode {
                 { to: "/admin/historico", label: "Histórico de Decisões", desc: `${String((metricas?.metricas["APROVADO"] ?? 0) + (metricas?.metricas["OFERTA_CRIADA"] ?? 0))} aprovados no total`, icon: CheckCircle, color: "text-status-success bg-status-success-subtle" },
                 { to: "/admin/incorporadoras", label: "Incorporadoras", desc: "Ver todos os cadastros", icon: TrendingUp, color: "text-navy bg-navy-50" },
                 { to: "/admin/financeiro", label: "Financeiro", desc: "Contas SPE, saldo e extrato", icon: Landmark, color: "text-navy bg-navy-50" },
+                { to: "/admin/cronograma", label: "Cronograma", desc: "Avanço físico e orçado × realizado", icon: CalendarRange, color: "text-navy bg-navy-50" },
                 { to: "/admin/captacao", label: "Captação", desc: "Progresso das ofertas publicadas", icon: CircleDollarSign, color: "text-navy bg-navy-50" },
               ].map(({ to, label, desc, icon: Icon, color }) => (
                 <Link

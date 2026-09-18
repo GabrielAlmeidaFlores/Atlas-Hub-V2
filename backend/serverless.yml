@@ -49,6 +49,8 @@ provider:
     FINANCEIRO_AUDITORIA_TABLE: AtlasFinanceiroAuditoria-${self:provider.stage}
     CAPTACAO_EVENTOS_TABLE: AtlasCaptacaoEventos-${self:provider.stage}
     CAPTACAO_COMPRAS_TABLE: AtlasCaptacaoCompras-${self:provider.stage}
+    OBRA_ETAPAS_TABLE: AtlasObraEtapas-${self:provider.stage}
+    OBRA_LANCAMENTOS_TABLE: AtlasObraLancamentos-${self:provider.stage}
     STARK_ENVIRONMENT: ${env:STARK_ENVIRONMENT, 'sandbox'}
     STARK_ORGANIZATION_ID: ${env:STARK_ORGANIZATION_ID, ''}
     STARK_PRIVATE_KEY: ${env:STARK_PRIVATE_KEY, ''}
@@ -852,6 +854,118 @@ functions:
           method: post
           cors: true
 
+  cronogramaObter:
+    handler: src/functions/cronograma-obter.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Gets work schedule for originator project"
+    events:
+      - http:
+          path: projetos/{id}/cronograma
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaEtapaCriar:
+    handler: src/functions/cronograma-etapa-criar.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Creates a work stage"
+    events:
+      - http:
+          path: projetos/{id}/cronograma/etapas
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaEtapaAtualizar:
+    handler: src/functions/cronograma-etapa-atualizar.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Updates a work stage"
+    events:
+      - http:
+          path: projetos/{id}/cronograma/etapas/{etapaId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaEtapaRemover:
+    handler: src/functions/cronograma-etapa-remover.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Deletes a work stage without confirmed expenses"
+    events:
+      - http:
+          path: projetos/{id}/cronograma/etapas/{etapaId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaLancamentoCriar:
+    handler: src/functions/cronograma-lancamento-criar.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Registers an actual construction expense"
+    events:
+      - http:
+          path: projetos/{id}/cronograma/lancamentos
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaLancamentoAtualizar:
+    handler: src/functions/cronograma-lancamento-atualizar.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Updates or cancels a construction expense"
+    events:
+      - http:
+          path: projetos/{id}/cronograma/lancamentos/{lancamentoId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminCronogramaListar:
+    handler: src/functions/admin-cronograma-listar.handler
+    role: !GetAtt CronogramaAdminLambdaRole.Arn
+    timeout: 15
+    description: "Lists physical and financial schedule summaries"
+    events:
+      - http:
+          path: admin/cronograma
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminCronogramaProjeto:
+    handler: src/functions/admin-cronograma-projeto.handler
+    role: !GetAtt CronogramaAdminLambdaRole.Arn
+    timeout: 15
+    description: "Gets work schedule detail for curation team"
+    events:
+      - http:
+          path: admin/cronograma/projetos/{projetoId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
 resources:
   Resources:
 
@@ -1032,6 +1146,56 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasCaptacaoEventos-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasCaptacaoEventos-${self:provider.stage}/index/*'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasCaptacaoCompras-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/*'
+
+    CronogramaIncorporadoraLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-cronogramaInc-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:DeleteItem, dynamodb:Query]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraEtapas-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraLancamentos-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [dynamodb:GetItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+
+    CronogramaAdminLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-cronogramaAdmin-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:Query, dynamodb:Scan]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraEtapas-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraLancamentos-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/*'
 
@@ -2338,6 +2502,38 @@ resources:
           - AttributeName: ofertaId
             KeyType: HASH
           - AttributeName: purchaseId
+            KeyType: RANGE
+
+    AtlasObraEtapasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasObraEtapas-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: etapaId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: etapaId
+            KeyType: RANGE
+
+    AtlasObraLancamentosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasObraLancamentos-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: lancamentoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: lancamentoId
             KeyType: RANGE
 
     # ── S3 Bucket ──────────────────────────────────────────────────────

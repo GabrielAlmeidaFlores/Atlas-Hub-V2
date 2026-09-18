@@ -327,3 +327,38 @@ export interface CaptacaoCompra {
   readonly projetoId?: string;
   readonly projetoNome?: string;
 }
+
+export type StatusEtapaObra = 'PLANEJADA' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'ATRASADA';
+
+export type StatusLancamentoObra = 'CONFIRMADO' | 'CANCELADO';
+
+export type SituacaoOrcamento = 'SEM_LANCAMENTO' | 'DENTRO' | 'ESTOURO';
+
+export interface EtapaObra {
+  readonly projetoId: string;
+  readonly etapaId: string;
+  readonly nome: string;
+  readonly ordem: number;
+  readonly inicioPrevisto: string;
+  readonly fimPrevisto: string;
+  readonly percentualExecucao: number;
+  readonly valorOrcado: number;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly inicioReal?: string;
+  readonly fimReal?: string;
+}
+
+export interface LancamentoObra {
+  readonly projetoId: string;
+  readonly lancamentoId: string;
+  readonly etapaId: string;
+  readonly descricao: string;
+  readonly valor: number;
+  readonly dataLancamento: string;
+  readonly status: StatusLancamentoObra;
+  readonly criadoPor: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly comprovanteUrl?: string;
+}
