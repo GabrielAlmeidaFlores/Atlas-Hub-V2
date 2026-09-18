@@ -14,16 +14,16 @@ export const SITUACAO_LABEL: Record<SituacaoOrcamento, string> = {
 };
 
 export function statusEtapaClass(status: StatusEtapaObra): string {
-  if (status === "CONCLUIDA") return "badge-aprovado";
-  if (status === "ATRASADA") return "badge-reprovado";
-  if (status === "EM_ANDAMENTO") return "badge-analise";
-  return "badge-submetido";
+  if (status === "CONCLUIDA") return "badge badge-aprovado";
+  if (status === "ATRASADA") return "badge badge-reprovado";
+  if (status === "EM_ANDAMENTO") return "badge badge-analise";
+  return "badge badge-submetido";
 }
 
 export function situacaoClass(situacao: SituacaoOrcamento): string {
-  if (situacao === "ESTOURO") return "badge-reprovado";
-  if (situacao === "DENTRO") return "badge-aprovado";
-  return "badge-submetido";
+  if (situacao === "ESTOURO") return "badge badge-reprovado";
+  if (situacao === "DENTRO") return "badge badge-aprovado";
+  return "badge badge-submetido";
 }
 
 export function formatDateYmd(ymd: string | undefined): string {

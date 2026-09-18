@@ -279,7 +279,7 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
               <tr key={etapa.etapaId}>
                 <td className="px-5 py-3 align-top">
                   <p className="font-medium text-foreground">{etapa.nome}</p>
-                  <span className={cn("mt-1 inline-flex", statusEtapaClass(etapa.statusExibicao))}>{STATUS_ETAPA_LABEL[etapa.statusExibicao]}</span>
+                  <span className={cn("mt-1.5 whitespace-nowrap", statusEtapaClass(etapa.statusExibicao))}>{STATUS_ETAPA_LABEL[etapa.statusExibicao]}</span>
                 </td>
                 <td className="px-5 py-3 align-top text-xs text-muted-foreground">
                   <p>Previsto: {formatDateYmd(etapa.inicioPrevisto)} a {formatDateYmd(etapa.fimPrevisto)}</p>
@@ -296,7 +296,11 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
                 <td className="px-5 py-3 text-right font-medium">{formatCurrency(etapa.valorRealizado)}</td>
                 <td className={cn("px-5 py-3 text-right font-medium", etapa.saldo < 0 ? "text-status-danger" : "text-foreground")}>
                   {formatCurrency(etapa.saldo)}
-                  <p className="mt-1"><span className={situacaoClass(etapa.situacaoOrcamento)}>{SITUACAO_LABEL[etapa.situacaoOrcamento]}</span></p>
+                  <p className="mt-1.5">
+                    <span className={cn("whitespace-nowrap px-3 py-1", situacaoClass(etapa.situacaoOrcamento))}>
+                      {SITUACAO_LABEL[etapa.situacaoOrcamento]}
+                    </span>
+                  </p>
                 </td>
                 <td className="px-5 py-3 text-right">
                   {podeEditarEtapas && (

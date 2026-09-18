@@ -83,7 +83,11 @@ export default function AdminCronogramaListaPage(): ReactNode {
                 <td className="px-5 py-3 text-right font-medium">{formatCurrency(item.valorOrcado)}</td>
                 <td className="px-5 py-3 text-right font-medium">{formatCurrency(item.valorRealizado)}</td>
                 <td className={cn("px-5 py-3 text-right font-medium", item.saldo < 0 ? "text-status-danger" : "")}>{formatCurrency(item.saldo)}</td>
-                <td className="px-5 py-3"><span className={situacaoClass(item.situacaoOrcamento)}>{SITUACAO_LABEL[item.situacaoOrcamento]}</span></td>
+                <td className="px-5 py-3.5">
+                  <span className={cn("whitespace-nowrap px-3 py-1", situacaoClass(item.situacaoOrcamento))}>
+                    {SITUACAO_LABEL[item.situacaoOrcamento]}
+                  </span>
+                </td>
                 <td className="px-5 py-3 text-right">
                   <Link to={`/admin/cronograma/${item.projetoId}`} className="btn btn-ghost btn-sm inline-flex">
                     Ver <ArrowRight className="h-3.5 w-3.5" />
