@@ -1,0 +1,7 @@
+Opa pessoal, beleza, passando para avisar, dá uma atualização que sobre o domínio
+está configurado, aqui eu fiz a configuração, estou vendo agora um provedor de e-mail para
+a gente, sabe, um provedor de e-mail barato e que compra o serviço, porque não tem
+por que a gente pegar uma Microsoft da vida e pagar extremamente caro sendo que a gente
+só precisa de uma meia dúzia de caixa de entrada de e-mail e também já estou
+fazendo a lente em page de acordo com o que o Felipe designer fez e essa semana eu já
+subo e já configuro o ALP para usar o domínio, etc.

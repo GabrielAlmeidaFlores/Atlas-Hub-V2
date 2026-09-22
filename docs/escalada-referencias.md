@@ -32,4 +32,4 @@ Comunidade, mentorias, mapa completo de pesquisa de mercado, Business Model Canv
 
 ## Fase 2 (opcional, pós-MVP)
 
-Mapa Leaflet na curadoria (localização), centros de custo para validar orçamento — só se a operação pedir.
+Mapa Leaflet na curadoria (localização). Centros de custo da obra ficam fora do MVP.

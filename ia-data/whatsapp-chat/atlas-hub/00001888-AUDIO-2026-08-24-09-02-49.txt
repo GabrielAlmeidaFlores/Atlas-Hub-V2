@@ -1,0 +1,7 @@
+Sim, isso mesmo, isso mesmo. Lá na página de administração do Atlas Hub tem tudo isso mesmo,
+que é workflow de aprovação. Então, o cara vai lá, o investidor no caso, vai lá, preenche o
+formulário, coloca as informações do projeto, e daí na parte do administrativo da Atlas Hub vai
+aparecer todas as informações que ele preencheu lá no formulário. Aí a gente já tem isso,
+é a opção de mandar uma pendência para ele poder preencher, caso tenha faltado algum documento ou
+coisa do tipo, e tem todo esse workflow completo já. Falta só mesmo a integração com o Starkey
+Bank e com a DiviFi, mas esse workflow já inicial já tem.

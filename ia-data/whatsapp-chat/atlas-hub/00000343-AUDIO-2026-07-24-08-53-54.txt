@@ -1,0 +1,3 @@
+Se você estiver estalando ali no carrossel, dá para colocar a foto genérica assim para o momento, sabe?
+Mas eu vou deixar certa a integração com o back-end, porque quando tiver, aí já vai automático, sabe?
+Mas para esse primeiro momento dá assim para colocar a foto genérica.

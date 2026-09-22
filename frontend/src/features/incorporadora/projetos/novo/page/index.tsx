@@ -6,7 +6,7 @@ import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
 import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
-import { cn } from "@/lib/utils";
+import { cn, parseMoneyInput, formatCurrency } from "@/lib/utils";
 import type { DocumentosProjeto, MembroEquipe } from "@/types";
 import {
   ViabilidadeCalculator,
@@ -17,6 +17,7 @@ import {
 import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/projeto-progress";
 import { EquipeEditor } from "@/components/shared/equipe-editor";
 import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
+import { CurrencyInput } from "@/components/shared/currency-input";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -189,7 +190,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     setIsLoading(true);
     try {
       await api.put(`/projetos/${projetoId}`, {
-        valorTotal: parseFloat(financeiros.valorTotal), valorCaptar: parseFloat(financeiros.valorCaptar),
+        valorTotal: parseMoneyInput(financeiros.valorTotal), valorCaptar: parseMoneyInput(financeiros.valorCaptar),
         prazoObra: parseInt(financeiros.prazoObra, 10), prazoRetorno: parseInt(financeiros.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
@@ -321,8 +322,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Dados Financeiros</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Valor Total do Projeto (R$)"><input type="number" className="input-base" placeholder="0" min={0} value={financeiros.valorTotal} onChange={fin("valorTotal")} required /></Field>
-                <Field label="Valor a Captar (R$)" hint="Máx. R$15M (CVM 88)"><input type="number" className="input-base" placeholder="0" min={0} max={15000000} value={financeiros.valorCaptar} onChange={fin("valorCaptar")} required /></Field>
+                <Field label="Valor Total do Projeto (R$)"><CurrencyInput placeholder="0" value={financeiros.valorTotal} onValueChange={(v) => setFinanceiros((p) => ({ ...p, valorTotal: v }))} required /></Field>
+                <Field label="Valor a Captar (R$)" hint="Máx. R$15M (CVM 88)"><CurrencyInput placeholder="0" value={financeiros.valorCaptar} onValueChange={(v) => setFinanceiros((p) => ({ ...p, valorCaptar: v }))} required /></Field>
                 <Field label="Prazo de Obra (meses)"><input type="number" className="input-base" placeholder="12" min={1} max={120} value={financeiros.prazoObra} onChange={fin("prazoObra")} required /></Field>
                 <Field label="Prazo de Retorno (meses)"><input type="number" className="input-base" placeholder="24" min={1} max={120} value={financeiros.prazoRetorno} onChange={fin("prazoRetorno")} required /></Field>
                 <Field label="Rentabilidade Estimada (% a.a.)"><input type="number" className="input-base" placeholder="20" min={0} max={100} step={0.1} value={financeiros.rentabilidadeEstimada} onChange={fin("rentabilidadeEstimada")} required /></Field>
@@ -419,7 +420,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                 <div className="  bg-muted p-4">
                   <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Dados Financeiros</p>
                   <dl className="grid grid-cols-2 gap-2 text-sm">
-                    <div><dt className="text-muted-foreground">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" ? `R$ ${financeiros.valorCaptar}` : "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" && Number.isFinite(parseMoneyInput(financeiros.valorCaptar)) ? formatCurrency(parseMoneyInput(financeiros.valorCaptar)) : "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Rentabilidade</dt><dd className="font-medium text-status-success">{financeiros.rentabilidadeEstimada !== "" ? `${financeiros.rentabilidadeEstimada}% a.a.` : "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{financeiros.modeloRetorno}</dd></div>
                     <div><dt className="text-muted-foreground">Oferta</dt><dd className="font-medium">{financeiros.tipoOferta}</dd></div>

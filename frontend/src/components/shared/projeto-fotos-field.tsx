@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState, type ChangeEvent } from "react";
+import { type ReactNode, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { api } from "@/services/api";
 import { cn } from "@/lib/utils";
@@ -12,43 +12,65 @@ interface ProjetoFotosFieldProps {
   readonly disabled?: boolean;
 }
 
+function isDirectPreview(location: string): boolean {
+  return location.startsWith("/") || location.startsWith("blob:") || location.startsWith("data:image/");
+}
+
 function FotoThumb({
   location,
+  previewSrc,
   onRemove,
   disabled,
 }: {
   readonly location: string;
+  readonly previewSrc?: string;
   readonly onRemove: () => void;
   readonly disabled?: boolean;
 }): ReactNode {
-  const [src, setSrc] = useState<string | null>(null);
+  const [src, setSrc] = useState<string | null>(previewSrc ?? (isDirectPreview(location) ? location : null));
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    if (location.startsWith("/") || location.startsWith("blob:")) {
-      setSrc(location);
+    if (previewSrc !== undefined && previewSrc.length > 0) {
+      setSrc(previewSrc);
+      setFailed(false);
       return;
     }
+    if (isDirectPreview(location)) {
+      setSrc(location);
+      setFailed(false);
+      return;
+    }
+    let cancelled = false;
+    setSrc(null);
+    setFailed(false);
     void api
       .post<{ url: string }>("/documentos/download-url", { location })
       .then((r) => {
         if (!cancelled) setSrc(r.url);
       })
       .catch(() => {
-        if (!cancelled) setSrc(null);
+        if (!cancelled) setFailed(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [location]);
+  }, [location, previewSrc]);
+
+  const showImage = src !== null && !failed;
 
   return (
     <div className="group relative aspect-[4/3] overflow-hidden border border-border bg-muted">
-      {src !== null ? (
-        <img src={src} alt="" className="h-full w-full object-cover" />
+      {showImage ? (
+        <img
+          src={src}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={() => setFailed(true)}
+        />
       ) : (
-        <div className="flex h-full items-center justify-center text-muted-foreground">
-          <ImagePlus className="h-5 w-5" />
+        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+          <ImagePlus className="h-6 w-6" />
         </div>
       )}
       <button
@@ -56,7 +78,7 @@ function FotoThumb({
         aria-label="Remover foto"
         disabled={disabled}
         onClick={onRemove}
-        className="absolute right-1.5 top-1.5 inline-flex h-7 w-7 items-center justify-center bg-navy text-white opacity-90 transition-opacity hover:opacity-100 disabled:opacity-40"
+        className="absolute right-1.5 top-1.5 z-10 inline-flex h-7 w-7 items-center justify-center bg-navy text-white opacity-90 transition-opacity hover:opacity-100 disabled:opacity-40"
       >
         <X className="h-3.5 w-3.5" />
       </button>
@@ -71,7 +93,32 @@ export function ProjetoFotosField({
   disabled = false,
 }: ProjetoFotosFieldProps): ReactNode {
   const [busy, setBusy] = useState(false);
+  const [pending, setPending] = useState<string[]>([]);
+  const [previewTick, setPreviewTick] = useState(0);
+  const previewsRef = useRef<Map<string, string>>(new Map());
   const remaining = MAX_FOTOS - value.length;
+
+  useEffect(() => {
+    const previews = previewsRef.current;
+    return () => {
+      for (const src of previews.values()) URL.revokeObjectURL(src);
+      previews.clear();
+    };
+  }, []);
+
+  function rememberPreview(location: string, src: string): void {
+    const previous = previewsRef.current.get(location);
+    if (previous !== undefined && previous !== src) URL.revokeObjectURL(previous);
+    previewsRef.current.set(location, src);
+    setPreviewTick((n) => n + 1);
+  }
+
+  function forgetPreview(location: string): void {
+    const src = previewsRef.current.get(location);
+    if (src !== undefined) URL.revokeObjectURL(src);
+    previewsRef.current.delete(location);
+    setPreviewTick((n) => n + 1);
+  }
 
   async function handleFiles(files: FileList | null): Promise<void> {
     if (files === null || files.length === 0 || remaining <= 0) return;
@@ -80,12 +127,18 @@ export function ProjetoFotosField({
       const selected = Array.from(files).slice(0, remaining);
       let next = [...value];
       for (const file of selected) {
+        const localSrc = URL.createObjectURL(file);
+        setPending((p) => [...p, localSrc]);
         try {
           const location = await onUpload(file);
+          rememberPreview(location, localSrc);
           next = [...next, location];
           onChange(next);
         } catch {
+          URL.revokeObjectURL(localSrc);
           break;
+        } finally {
+          setPending((p) => p.filter((src) => src !== localSrc));
         }
       }
     } finally {
@@ -126,15 +179,24 @@ export function ProjetoFotosField({
           />
         </label>
       </div>
-      {value.length > 0 && (
+      {(value.length > 0 || pending.length > 0) && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-          {value.map((url) => (
+          {value.map((url, index) => (
             <FotoThumb
-              key={url}
+              key={`${url}-${String(index)}`}
               location={url}
+              previewSrc={previewTick >= 0 ? previewsRef.current.get(url) : undefined}
               disabled={busy || disabled}
-              onRemove={() => onChange(value.filter((u) => u !== url))}
+              onRemove={() => {
+                forgetPreview(url);
+                onChange(value.filter((_, i) => i !== index));
+              }}
             />
+          ))}
+          {pending.map((src) => (
+            <div key={src} className="relative aspect-[4/3] overflow-hidden border border-border bg-muted">
+              <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            </div>
           ))}
         </div>
       )}

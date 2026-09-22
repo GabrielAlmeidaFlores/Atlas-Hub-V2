@@ -1,0 +1,16 @@
+Doutor, surgiu uma dúvida aqui, quem está fazendo o workflow da parte financeira com o Gabriel que
+está desenvolvendo para a gente. E a gente tem a possibilidade lá com a Starkey Bank de fazer cartão
+de crédito por SPE, certo? Por CNPJ. E a gente está querendo seguir nessa linha até para ter
+mais compliance, né? Que daí o cara vai gastar dentro do cartão, a gente vai ter acesso ao
+cartão ali online e integrado já para estar ao vivo, vamos dizer assim, né? E além do cartão,
+ele tem que enviar as notas, o recibo do que foi gasto no cartão, certo? E é uma outra fonte de
+renda que a gente pode ter, porque a Starkey Bank dá o cashback para a gente, né? Na verdade ela
+dá o cashback na fatura, mas a gente pagaria a fatura ali, como a gente administra, a gente
+faz a fatura e o cashback, cashback viria para a gente. Surgiu uma dúvida aqui, se esse
+modelo, que é assim, para liberar o recurso do cartão, entrou lá vamos dizer 100 mil,
+tem na conta da SPE, esse 100 mil a gente deixa aplicado em CDI ali da Starkey Bank,
+certo? Que daí eles liberam o crédito no cartão, então fica ali colaterizado, né? Fica
+aqui, a gente ia no CDI e daí a gente libera, pagou, veio a fatura, a gente paga com o dinheiro
+que estava investido ali. Daí surgiu essa dúvida se, como a gente vai fazer patrimônio de
+afetação para cada empreendimento, se corre algum risco aí de a gente estar seguindo nesse
+procedimento por causa do patrimônio de afetação. Não sei se deu para explicar aí.

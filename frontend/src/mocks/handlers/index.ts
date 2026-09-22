@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
 import type { Projeto, Incorporadora, DashboardMetricas, Notificacao, AuditoriaEntry } from "@/types";
+import { cronogramaHandlers } from "./cronograma";
 
 const BASE = "";
 
@@ -137,7 +138,7 @@ const mockProjetos: Projeto[] = [
     prazoObra: 18,
     prazoRetorno: 30,
     rentabilidadeEstimada: 19.5,
-    modeloRetorno: "SPE",
+    modeloRetorno: "SCP",
     tipoOferta: "PUBLICA",
     ofertaId: "offer-horizon-sul",
     ofertaLink: "https://investir.atlashub.example/oferta/horizon-parque-sul",
@@ -189,7 +190,7 @@ const mockProjetos: Projeto[] = [
     prazoObra: 22,
     prazoRetorno: 32,
     rentabilidadeEstimada: 17.5,
-    modeloRetorno: "SPE",
+    modeloRetorno: "SCP",
     tipoOferta: "PUBLICA",
     ofertaId: "offer-office-bh",
     ofertaLink: "https://investir.atlashub.example/oferta/office-center-bh",
@@ -203,6 +204,7 @@ const mockProjetos: Projeto[] = [
 const mockNotificacoes: Notificacao[] = [
   { userId: "user-inc-1", criadoEm: "2026-07-09T20:00:00.000Z", id: "n1", tipo: "ANALISE_INICIADA", titulo: "Análise iniciada", mensagem: "Um analista iniciou a revisão do projeto Residencial Jardins.", lida: false, projetoId: "proj-1", projetoNome: "Residencial Jardins" },
   { userId: "user-inc-1", criadoEm: "2026-07-08T14:00:00.000Z", id: "n2", tipo: "PROJETO_SUBMETIDO", titulo: "Projeto recebido", mensagem: "Seu projeto Residencial Jardins foi recebido.", lida: true, projetoId: "proj-1", projetoNome: "Residencial Jardins" },
+  { userId: "user-inc-1", criadoEm: "2026-07-07T11:00:00.000Z", id: "n3", tipo: "CARTAO_HABILITADO", titulo: "Cartão da obra habilitado", mensagem: "A Atlas registrou o pedido de cartão de Residencial Jardins. No cronograma, solicite a liberação da etapa em andamento.", lida: false, projetoId: "proj-1", projetoNome: "Residencial Jardins" },
 ];
 
 const mockMetricas: DashboardMetricas = {
@@ -237,8 +239,38 @@ export const handlers = [
   http.put(`${BASE}/projetos/:id`, () => HttpResponse.json({ updated: true })),
   http.post(`${BASE}/projetos/:id/submeter`, () => HttpResponse.json({ status: "SUBMETIDO" })),
   http.post(`${BASE}/projetos/:id/resubmeter`, () => HttpResponse.json({ status: "SUBMETIDO", revisao: 2 })),
-  http.post(`${BASE}/projetos/:id/documentos/pre-sign`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/upload?presigned=1", location: "https://example.s3.amazonaws.com/doc.pdf" })),
-  http.post(`${BASE}/documentos/download-url`, () => HttpResponse.json({ url: "https://example.s3.amazonaws.com/doc.pdf?download=1" })),
+  http.post(`${BASE}/projetos/:id/documentos/pre-sign`, async ({ request }) => {
+    const body = (await request.json()) as { mimeType?: string; fileName?: string };
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const image = typeof body.mimeType === "string" && body.mimeType.startsWith("image/");
+    if (image) {
+      return HttpResponse.json({
+        url: "https://example.s3.amazonaws.com/upload?presigned=1",
+        location: `https://atlas-hub-documents-dev.s3.sa-east-1.amazonaws.com/projetos/mock/fotos/${id}.jpg`,
+      });
+    }
+    return HttpResponse.json({
+      url: "https://example.s3.amazonaws.com/upload?presigned=1",
+      location: `https://example.s3.amazonaws.com/doc-${id}.pdf`,
+    });
+  }),
+  http.post(`${BASE}/documentos/download-url`, async ({ request }) => {
+    const body = (await request.json()) as { location?: string };
+    const location = body.location ?? "";
+    const image = /\.(jpe?g|png)(\?|$)/i.test(location) || location.includes("/fotos/");
+    if (image) {
+      const pool = [
+        "/lp/projeto-jardins.jpg",
+        "/lp/projeto-jurere.jpg",
+        "/lp/projeto-porto.jpg",
+        "/lp/projeto-recife.jpg",
+        "/lp/projeto-bh.jpg",
+      ];
+      const idx = Math.abs(location.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0)) % pool.length;
+      return HttpResponse.json({ url: pool[idx] });
+    }
+    return HttpResponse.json({ url: location.startsWith("http") ? `${location}?download=1` : location });
+  }),
 
   http.get(`${BASE}/notificacoes`, () => HttpResponse.json({ items: mockNotificacoes, naoLidas: mockNotificacoes.filter((n) => !n.lida).length })),
   http.put(`${BASE}/notificacoes/:id/lida`, () => HttpResponse.json({ updated: true })),
@@ -264,4 +296,296 @@ export const handlers = [
   http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: [] })),
   http.post(`${BASE}/admin/usuarios`, () => HttpResponse.json({ id: "admin-new" }, { status: 201 })),
   http.put(`${BASE}/admin/usuarios/:id/desativar`, () => HttpResponse.json({ updated: true })),
+
+  http.get(`${BASE}/admin/financeiro/contas`, () => HttpResponse.json({
+    configured: false,
+    tesouraria: null,
+    items: [],
+    elegiveis: mockProjetos.filter((p) => p.status === "OFERTA_CRIADA").map((p) => ({
+      id: p.id,
+      nome: p.nome,
+      cidade: p.cidade,
+      estado: p.estado,
+      valorCaptar: p.valorCaptar,
+    })),
+  })),
+  http.post(`${BASE}/admin/financeiro/contas`, () => HttpResponse.json({ conta: { projetoId: "proj-1", tipo: "SPE", workspaceId: "ws-1", username: "atlashub-spe-dev", status: "ATIVA", criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString(), criadoPor: "admin-1" } }, { status: 201 })),
+  http.get(`${BASE}/admin/financeiro/contas/:projetoId`, () => HttpResponse.json({
+    conta: { projetoId: "proj-1", tipo: "SPE", workspaceId: "ws-1", username: "atlashub-spe-dev", status: "ATIVA", projetoNome: "Mock", criadoEm: new Date().toISOString(), atualizadoEm: new Date().toISOString(), criadoPor: "admin-1" },
+    saldoCents: 0,
+    configured: false,
+  })),
+  http.get(`${BASE}/admin/financeiro/contas/:projetoId/extrato`, () => HttpResponse.json({ items: [], configured: false })),
+  http.get(`${BASE}/admin/financeiro/contas/:projetoId/movimentos`, () => HttpResponse.json({ solicitacoes: [], auditoria: [] })),
+  http.post(`${BASE}/admin/financeiro/solicitacoes`, () => HttpResponse.json({ solicitacao: { id: "sol-1", status: "PENDENTE" } }, { status: 201 })),
+  http.post(`${BASE}/admin/financeiro/solicitacoes/:id/aprovar`, () => HttpResponse.json({ status: "EXECUTADA" })),
+  http.post(`${BASE}/admin/financeiro/solicitacoes/:id/rejeitar`, () => HttpResponse.json({ status: "REJEITADA" })),
+  http.get(`${BASE}/admin/financeiro/cartoes/:projetoId`, () => HttpResponse.json({
+    projetoId: "proj-1",
+    projetoNome: "Mock",
+    statusProjeto: "OFERTA_CRIADA",
+    contaTipo: "SPE",
+    emissaoDisponivel: false,
+    regras: {
+      titularidade: "SPE",
+      contaTitular: "CNPJ_SPE",
+      pagamentoFatura: "INTEGRAL_AUTOMATICO",
+      cashbackDestino: "SPE",
+      receitaAtlas: "PERCENTUAL_CAPTACAO",
+      cashbackNaoCompoeComissao: true,
+      rotativo: false,
+      liberacao: "ETAPA_VIGENTE",
+    },
+    status: "PREPARACAO",
+    cartao: null,
+    limites: [{ etapaId: "etapa-1", nome: "Alvenaria", ordem: 1, valorOrcado: 50000, limiteProposto: 50000, statusExibicao: "EM_ANDAMENTO", vigente: true }],
+    limiteTotal: 50000,
+    limiteVigente: 0,
+    etapaVigenteId: "etapa-1",
+    etapaVigenteNome: "Alvenaria",
+    cronogramaDesatualizado: false,
+    limiteRecalculado: false,
+    podeRegistrar: true,
+    podeSolicitarLiberacao: false,
+    liberacoes: [],
+    bloqueios: [
+      { codigo: "STARK_ISSUING_INDISPONIVEL", mensagem: "Emissão, garantia em CDI e cashback ainda não estão ligados." },
+    ],
+    bloqueiosRegistro: [],
+  })),
+  http.post(`${BASE}/admin/financeiro/cartoes/:projetoId/solicitar`, () => HttpResponse.json({
+    projetoId: "proj-1",
+    projetoNome: "Mock",
+    status: "SOLICITADO",
+    podeRegistrar: false,
+    limites: [],
+    limiteTotal: 0,
+    limiteVigente: 0,
+    cronogramaDesatualizado: false,
+    limiteRecalculado: false,
+    podeRegistrar: false,
+    podeSolicitarLiberacao: false,
+    liberacoes: [],
+    bloqueios: [],
+    bloqueiosRegistro: [],
+  }, { status: 201 })),
+  http.post(`${BASE}/admin/financeiro/cartoes/:projetoId/liberacoes/:etapaId/confirmar`, () => HttpResponse.json({
+    projetoId: "proj-1",
+    status: "SOLICITADO",
+    limiteVigente: 0,
+    podeSolicitarLiberacao: false,
+    liberacoes: [],
+    limites: [],
+    limiteTotal: 0,
+    cronogramaDesatualizado: false,
+    limiteRecalculado: false,
+    podeRegistrar: false,
+    bloqueios: [],
+    bloqueiosRegistro: [],
+  })),
+  http.post(`${BASE}/admin/financeiro/cartoes/:projetoId/liberacoes/:etapaId/rejeitar`, () => HttpResponse.json({
+    projetoId: "proj-1",
+    status: "SOLICITADO",
+    limiteVigente: 0,
+    podeSolicitarLiberacao: false,
+    liberacoes: [],
+    limites: [],
+    limiteTotal: 0,
+    cronogramaDesatualizado: false,
+    limiteRecalculado: false,
+    podeRegistrar: false,
+    bloqueios: [],
+    bloqueiosRegistro: [],
+  })),
+  http.get(`${BASE}/projetos/:id/cartao`, () => HttpResponse.json({
+    projetoId: "proj-1",
+    projetoNome: "Mock",
+    contaTipo: "SPE",
+    emissaoDisponivel: false,
+    regras: {
+      titularidade: "SPE",
+      contaTitular: "CNPJ_SPE",
+      pagamentoFatura: "INTEGRAL_AUTOMATICO",
+      cashbackDestino: "SPE",
+      receitaAtlas: "PERCENTUAL_CAPTACAO",
+      cashbackNaoCompoeComissao: true,
+      rotativo: false,
+      liberacao: "ETAPA_VIGENTE",
+    },
+    status: "SOLICITADO",
+    cartao: { projetoId: "proj-1", status: "SOLICITADO", titularidade: "SPE", pagamentoFatura: "INTEGRAL_AUTOMATICO", cashbackDestino: "SPE", receitaAtlas: "PERCENTUAL_CAPTACAO", limites: [], criadoEm: "2026-09-01T10:00:00.000Z", atualizadoEm: "2026-09-01T10:00:00.000Z" },
+    limites: [{ etapaId: "etapa-1", nome: "Alvenaria", ordem: 1, valorOrcado: 50000, limiteProposto: 50000, statusExibicao: "EM_ANDAMENTO", vigente: true }],
+    limiteTotal: 50000,
+    limiteVigente: 0,
+    etapaVigenteId: "etapa-1",
+    etapaVigenteNome: "Alvenaria",
+    cronogramaDesatualizado: false,
+    limiteRecalculado: false,
+    podeRegistrar: false,
+    podeSolicitarLiberacao: true,
+    liberacoes: [],
+    bloqueios: [],
+    bloqueiosRegistro: [],
+  })),
+  http.post(`${BASE}/projetos/:id/cartao/liberacoes`, () => HttpResponse.json({ status: "SOLICITADO", podeSolicitarLiberacao: false }, { status: 201 })),
+  http.post(`${BASE}/admin/financeiro/split`, () => HttpResponse.json({
+    receiverId: "split-receiver-mock",
+    projetoId: "proj-1",
+    name: "Beneficiário Mock",
+    taxId: "12345678901",
+  }, { status: 201 })),
+
+  http.get(`${BASE}/admin/captacao`, () => HttpResponse.json({
+    configured: false,
+    apiConfigured: false,
+    ofertas: mockProjetos.filter((p) => p.status === "OFERTA_CRIADA" && p.ofertaId !== undefined).map((p) => ({
+      ofertaId: p.ofertaId,
+      projetoId: p.id,
+      projetoNome: p.nome,
+      valorCaptar: p.valorCaptar,
+      valorAprovadoCents: 0,
+      comprasAprovadas: 0,
+      comprasExpiradas: 0,
+      investidores: 0,
+      vinculada: true,
+    })),
+    eventos: [],
+  })),
+  http.get(`${BASE}/admin/captacao/ofertas/:ofertaId`, ({ params }) => HttpResponse.json({
+    configured: false,
+    apiConfigured: false,
+    ofertaId: params["ofertaId"],
+    projeto: null,
+    valorAprovadoCents: 0,
+    comprasAprovadas: 0,
+    compras: [],
+    eventos: [],
+  })),
+
+  http.get(`${BASE}/admin/analytics/dashboard`, () => {
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() - (6 - i));
+      return {
+        day: d.toISOString().slice(0, 10),
+        visitors: 40 + i * 8,
+        conversions: 4 + i,
+      };
+    });
+    return HttpResponse.json({
+      cards: {
+        visitorsToday: 86,
+        activeUsers: 24,
+        newSignups: 9,
+        conversion: 12.4,
+        bounceRate: 38,
+        avgSessionMs: 185000,
+        sessions: 112,
+        retentionD1: 41,
+      },
+      visitorsByDay: days,
+      trafficSources: [
+        { key: "direct", count: 48 },
+        { key: "google", count: 31 },
+        { key: "instagram", count: 18 },
+      ],
+      devices: [
+        { key: "desktop", count: 62 },
+        { key: "mobile", count: 41 },
+      ],
+      browsers: [
+        { key: "Chrome", count: 70 },
+        { key: "Safari", count: 22 },
+      ],
+      operatingSystems: [
+        { key: "macOS", count: 38 },
+        { key: "Windows", count: 29 },
+        { key: "iOS", count: 21 },
+      ],
+      countries: [{ key: "BR", count: 97 }],
+      regions: [{ key: "SP", count: 44 }],
+      cities: [{ key: "São Paulo", count: 31 }],
+      topEvents: [
+        { eventName: "page_view", count: 210, recent: 32 },
+        { eventName: "cta_click", count: 54, recent: 8 },
+        { eventName: "signup", count: 9, recent: 2 },
+      ],
+      rangeDays: 7,
+      recentSessions: [],
+    });
+  }),
+  http.get(`${BASE}/admin/analytics/funnel`, () => HttpResponse.json({
+    days: 7,
+    steps: [
+      { eventName: "page_view", label: "Visitou a LP", count: 210, conversionFromPrev: 100, dropOff: 0, avgMsBetween: null },
+      { eventName: "cta_click", label: "Clicou em CTA", count: 54, conversionFromPrev: 26, dropOff: 74, avgMsBetween: 12000 },
+      { eventName: "form_start", label: "Iniciou cadastro", count: 22, conversionFromPrev: 41, dropOff: 59, avgMsBetween: 18000 },
+      { eventName: "signup", label: "Criou conta", count: 9, conversionFromPrev: 41, dropOff: 59, avgMsBetween: 45000 },
+      { eventName: "project_submitted", label: "Submeteu projeto", count: 3, conversionFromPrev: 33, dropOff: 67, avgMsBetween: 86400000 },
+    ],
+  })),
+  http.get(`${BASE}/admin/analytics/heatmap`, () => HttpResponse.json({
+    path: "/",
+    day: new Date().toISOString().slice(0, 10),
+    pageKey: "/",
+    clicks: [
+      { x: 8, y: 6, count: 12 },
+      { x: 10, y: 18, count: 7 },
+    ],
+    scrolls: [
+      { band: "25", count: 40 },
+      { band: "50", count: 28 },
+      { band: "75", count: 14 },
+      { band: "100", count: 6 },
+    ],
+  })),
+  http.get(`${BASE}/admin/analytics/alerts`, () => HttpResponse.json({ items: [] })),
+  http.post(`${BASE}/admin/analytics/alerts`, () => HttpResponse.json({
+    id: "alert-mock",
+    name: "Alerta mock",
+    rule: "conversion_drop",
+    threshold: 20,
+    active: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }, { status: 201 })),
+  http.get(`${BASE}/admin/analytics/export`, () => HttpResponse.json({
+    filename: "analytics-mock.csv",
+    csv: "day,event,count\n2026-09-17,page_view,12\n",
+    rowCount: 1,
+  })),
+  http.get(`${BASE}/admin/analytics/users/:userId`, ({ params }) => HttpResponse.json({
+    profile: {
+      userId: params["userId"],
+      nome: "Usuário mock",
+      email: "joao@atlas.com.br",
+      empresa: "Construtora Atlas Ltda",
+      firstSeenAt: "2026-09-01T10:00:00.000Z",
+      lastSeenAt: new Date().toISOString(),
+      totalSessions: 4,
+      totalEvents: 27,
+    },
+    indicators: {
+      avgEventsPerSession: 6.8,
+      activeDays: 3,
+      logins: 4,
+      projectsCreated: 2,
+      uploads: 5,
+      submissions: 1,
+      topFeatures: [{ name: "wizard", count: 8 }],
+    },
+    device: {
+      browser: "Chrome",
+      os: "macOS",
+      device: "desktop",
+      screen: "1440x900",
+      country: "BR",
+      region: "SP",
+      city: "São Paulo",
+    },
+    timeline: [
+      { id: "evt-1", ts: new Date().toISOString(), eventName: "login", path: "/login", props: {} },
+    ],
+  })),
+  ...cronogramaHandlers(mockProjetos),
 ];

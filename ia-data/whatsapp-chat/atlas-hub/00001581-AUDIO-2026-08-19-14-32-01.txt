@@ -1,0 +1,7 @@
+Sim, eu acho que o negócio da Starkey Bank é um negócio que está mais amarrado, assim,
+porque precisa do CNPJ, evidentemente que precisa do domínio, né, o domínio depende
+do CNPJ, então o negócio da Starkey Bank depende do domínio do CNPJ e também da DeFi,
+porque precisa deixar, a gente precisa alinhar com eles, para eles liberarem um, para
+a gente deixar alinhado os dois sistemas, para eles se conversarem, para que o dinheiro
+que seja, para que o processo que aconteça ali na DeFi, de depósito, possa conversar
+com o nosso sistema e fazer todo esse processo para linkar também com a Starkey Bank.

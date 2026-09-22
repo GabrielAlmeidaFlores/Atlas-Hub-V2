@@ -175,7 +175,7 @@ export interface Notificacao {
   readonly userId: string;
   readonly criadoEm: string;
   readonly id: string;
-  readonly tipo: "PROJETO_SUBMETIDO" | "ANALISE_INICIADA" | "AJUSTE_SOLICITADO" | "REPROVADO" | "APROVADO" | "OFERTA_CRIADA";
+  readonly tipo: "PROJETO_SUBMETIDO" | "ANALISE_INICIADA" | "AJUSTE_SOLICITADO" | "REPROVADO" | "APROVADO" | "OFERTA_CRIADA" | "CARTAO_HABILITADO" | "CARTAO_LIBERACAO_CONFIRMADA" | "CARTAO_LIBERACAO_REJEITADA";
   readonly titulo: string;
   readonly mensagem: string;
   readonly lida: boolean;
@@ -205,4 +205,355 @@ export interface NotaInterna {
 export interface DashboardMetricas {
   readonly metricas: Record<StatusProjeto, number>;
   readonly total: number;
+}
+
+export const TESOURARIA_CONTA_ID = "__TESOURARIA__";
+
+export type SpeContaTipo = "TESOURARIA" | "SPE";
+export type SpeContaStatus = "ATIVA" | "BLOQUEADA" | "ERRO";
+export type LedgerTipo = "DEPOSIT" | "TRANSFER" | "INVOICE" | "TRANSACTION";
+export type SolicitacaoStatus = "PENDENTE" | "APROVADA" | "EXECUTADA" | "REJEITADA" | "FALHOU";
+
+export interface SpeConta {
+  readonly projetoId: string;
+  readonly tipo: SpeContaTipo;
+  readonly workspaceId: string;
+  readonly username: string;
+  readonly status: SpeContaStatus;
+  readonly cnpjSpe?: string;
+  readonly razaoSocialSpe?: string;
+  readonly pixKey?: string;
+  readonly projetoNome?: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly criadoPor: string;
+  readonly saldoCents?: number | null;
+  readonly statusCartao?: "PREPARACAO" | "SOLICITADO";
+  readonly cartaoLiberacaoPendente?: boolean;
+}
+
+export interface ProjetoElegivel {
+  readonly id: string;
+  readonly nome: string;
+  readonly cidade: string;
+  readonly estado: string;
+  readonly valorCaptar?: number;
+}
+
+export interface FinanceiroContasResponse {
+  readonly configured: boolean;
+  readonly tesouraria: SpeConta | null;
+  readonly items: SpeConta[];
+  readonly elegiveis: ProjetoElegivel[];
+}
+
+export interface FinanceiroLedgerEntry {
+  readonly projetoId: string;
+  readonly starkId: string;
+  readonly workspaceId: string;
+  readonly tipo: LedgerTipo;
+  readonly amount: number;
+  readonly description: string;
+  readonly criadoEm: string;
+  readonly conciliado: boolean;
+  readonly source: "webhook" | "sync";
+  readonly tags?: string[];
+}
+
+export interface DestinoPix {
+  readonly pixKey?: string;
+  readonly name: string;
+  readonly taxId: string;
+  readonly bankCode: string;
+  readonly branchCode: string;
+  readonly accountNumber: string;
+  readonly accountType: "checking" | "savings" | "salary" | "payment";
+}
+
+export interface FinanceiroSolicitacao {
+  readonly id: string;
+  readonly projetoId: string;
+  readonly workspaceId: string;
+  readonly amount: number;
+  readonly description: string;
+  readonly destino: DestinoPix;
+  readonly status: SolicitacaoStatus;
+  readonly solicitadoPor: string;
+  readonly solicitadoPorNome: string;
+  readonly solicitadoEm: string;
+  readonly aprovadoPor?: string;
+  readonly aprovadoPorNome?: string;
+  readonly aprovadoEm?: string;
+  readonly starkTransferId?: string;
+  readonly erro?: string;
+}
+
+export interface FinanceiroAuditoriaEntry {
+  readonly projetoId: string;
+  readonly criadoEm: string;
+  readonly id: string;
+  readonly acao: string;
+  readonly userId: string;
+  readonly userName: string;
+  readonly descricao: string;
+  readonly solicitacaoId?: string;
+  readonly workspaceId?: string;
+}
+
+export type StatusCartaoObra = "PREPARACAO" | "SOLICITADO";
+export type StatusLiberacaoCartao = "SOLICITADA" | "CONFIRMADA" | "REJEITADA" | "CANCELADA";
+
+export interface LimiteCartaoEtapa {
+  readonly etapaId: string;
+  readonly nome: string;
+  readonly ordem: number;
+  readonly valorOrcado: number;
+  readonly limiteProposto: number;
+  readonly statusExibicao?: string;
+  readonly vigente?: boolean;
+}
+
+export interface ConfirmacoesCartaoObra {
+  readonly titularSpe: true;
+  readonly faturaIntegral: true;
+  readonly semRotativo: true;
+  readonly cashbackNaSpe: true;
+}
+
+export interface CartaoLiberacao {
+  readonly projetoId: string;
+  readonly etapaId: string;
+  readonly status: StatusLiberacaoCartao;
+  readonly limite: number;
+  readonly solicitadoPor: string;
+  readonly solicitadoPorNome: string;
+  readonly solicitadoEm: string;
+  readonly atualizadoEm: string;
+  readonly confirmadoPor?: string;
+  readonly confirmadoPorNome?: string;
+  readonly confirmadoEm?: string;
+  readonly rejeitadoPor?: string;
+  readonly rejeitadoPorNome?: string;
+  readonly rejeitadoEm?: string;
+}
+
+export interface CartaoObra {
+  readonly projetoId: string;
+  readonly status: StatusCartaoObra;
+  readonly titularidade: "SPE";
+  readonly pagamentoFatura: "INTEGRAL_AUTOMATICO";
+  readonly cashbackDestino: "SPE";
+  readonly receitaAtlas: "COMISSAO_COMERCIAL" | "PERCENTUAL_CAPTACAO";
+  readonly limites: readonly LimiteCartaoEtapa[];
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly solicitadoPor?: string;
+  readonly solicitadoPorNome?: string;
+  readonly solicitadoEm?: string;
+  readonly confirmacoes?: ConfirmacoesCartaoObra;
+}
+
+export interface CartaoObraBloqueio {
+  readonly codigo: string;
+  readonly mensagem: string;
+}
+
+export interface CartaoObraDetalhe {
+  readonly projetoId: string;
+  readonly projetoNome: string;
+  readonly statusProjeto?: string;
+  readonly contaTipo: SpeContaTipo;
+  readonly emissaoDisponivel: boolean;
+  readonly regras: {
+    readonly titularidade: "SPE";
+    readonly contaTitular: "CNPJ_SPE";
+    readonly pagamentoFatura: "INTEGRAL_AUTOMATICO";
+    readonly cashbackDestino: "SPE";
+    readonly receitaAtlas: "PERCENTUAL_CAPTACAO";
+    readonly cashbackNaoCompoeComissao: true;
+    readonly rotativo: false;
+    readonly liberacao: "ETAPA_VIGENTE";
+  };
+  readonly status: StatusCartaoObra;
+  readonly cartao: CartaoObra | null;
+  readonly limites: LimiteCartaoEtapa[];
+  readonly limiteTotal: number;
+  readonly limiteVigente: number;
+  readonly etapaVigenteId?: string;
+  readonly etapaVigenteNome?: string;
+  readonly limiteRegistrado?: number;
+  readonly cronogramaDesatualizado: boolean;
+  readonly limiteRecalculado: boolean;
+  readonly podeRegistrar: boolean;
+  readonly podeSolicitarLiberacao: boolean;
+  readonly liberacoes: CartaoLiberacao[];
+  readonly bloqueios: CartaoObraBloqueio[];
+  readonly bloqueiosRegistro: CartaoObraBloqueio[];
+}
+
+export type CaptacaoEventoTipo =
+  | "USER_ACTIVE"
+  | "INVESTOR_CREATED"
+  | "PURCHASE_APPROVED"
+  | "PURCHASE_EXPIRED"
+  | "OFFER_FINISHED_SUCCESS"
+  | "OFFER_FINISHED_UNSUCCESS"
+  | "OUTRO";
+
+export type CaptacaoOfertaEncerramento = "FINISHED_SUCCESS" | "FINISHED_UNSUCCESS";
+
+export type CaptacaoCompraStatus =
+  | "PENDING"
+  | "CANCELED"
+  | "FAILED"
+  | "FAILED_REFUND"
+  | "APPROVED"
+  | "EXPIRED"
+  | "REFUNDED"
+  | "COMPLETED"
+  | "UNKNOWN";
+
+export interface CaptacaoEvento {
+  readonly id: string;
+  readonly tipo: CaptacaoEventoTipo;
+  readonly tipoOriginal: string;
+  readonly recebidoEm: string;
+  readonly occurredAt?: string;
+  readonly ofertaId?: string;
+  readonly purchaseId?: string;
+  readonly investorId?: string;
+  readonly status?: CaptacaoCompraStatus;
+  readonly amountCents?: number;
+  readonly projetoId?: string;
+  readonly projetoNome?: string;
+}
+
+export interface CaptacaoCompra {
+  readonly ofertaId: string;
+  readonly purchaseId: string;
+  readonly status: CaptacaoCompraStatus;
+  readonly atualizadoEm: string;
+  readonly recebidoEm: string;
+  readonly investorId?: string;
+  readonly amountCents?: number;
+  readonly projetoId?: string;
+  readonly projetoNome?: string;
+}
+
+export interface CaptacaoOfertaResumo {
+  readonly ofertaId: string;
+  readonly projetoId?: string;
+  readonly projetoNome?: string;
+  readonly valorCaptar?: number;
+  readonly valorAprovadoCents: number;
+  readonly comprasAprovadas: number;
+  readonly comprasExpiradas: number;
+  readonly investidores: number;
+  readonly atualizadoEm?: string;
+  readonly vinculada: boolean;
+  readonly encerramento?: CaptacaoOfertaEncerramento;
+  readonly encerradaEm?: string;
+}
+
+export interface CaptacaoListaResponse {
+  readonly configured: boolean;
+  readonly apiConfigured?: boolean;
+  readonly ofertas: CaptacaoOfertaResumo[];
+  readonly eventos: CaptacaoEvento[];
+}
+
+export interface CaptacaoOfertaDetalhe {
+  readonly configured: boolean;
+  readonly apiConfigured?: boolean;
+  readonly ofertaId: string;
+  readonly projeto: {
+    readonly id: string;
+    readonly nome: string;
+    readonly cidade: string;
+    readonly estado: string;
+    readonly valorCaptar: number | null;
+    readonly ofertaLink: string | null;
+  } | null;
+  readonly valorAprovadoCents: number;
+  readonly comprasAprovadas: number;
+  readonly encerramento?: CaptacaoOfertaEncerramento;
+  readonly encerradaEm?: string;
+  readonly compras: CaptacaoCompra[];
+  readonly eventos: CaptacaoEvento[];
+}
+
+export type StatusEtapaObra = "PLANEJADA" | "EM_ANDAMENTO" | "CONCLUIDA" | "ATRASADA";
+export type StatusLancamentoObra = "CONFIRMADO" | "CANCELADO";
+export type SituacaoOrcamento = "SEM_LANCAMENTO" | "DENTRO" | "ESTOURO";
+
+export interface CronogramaResumo {
+  readonly etapasAtrasadas: number;
+  readonly etapasConcluidas: number;
+  readonly percentualAvanco: number;
+  readonly valorOrcado: number;
+  readonly valorRealizado: number;
+  readonly saldo: number;
+  readonly percentualRealizado: number;
+  readonly situacaoOrcamento: SituacaoOrcamento;
+}
+
+export interface EtapaCronograma {
+  readonly projetoId: string;
+  readonly etapaId: string;
+  readonly nome: string;
+  readonly ordem: number;
+  readonly inicioPrevisto: string;
+  readonly fimPrevisto: string;
+  readonly percentualExecucao: number;
+  readonly valorOrcado: number;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly inicioReal?: string;
+  readonly fimReal?: string;
+  readonly statusExibicao: StatusEtapaObra;
+  readonly desvioDias: number;
+  readonly valorRealizado: number;
+  readonly saldo: number;
+  readonly percentualRealizado: number;
+  readonly situacaoOrcamento: SituacaoOrcamento;
+}
+
+export interface LancamentoObra {
+  readonly projetoId: string;
+  readonly lancamentoId: string;
+  readonly etapaId: string;
+  readonly descricao: string;
+  readonly valor: number;
+  readonly dataLancamento: string;
+  readonly status: StatusLancamentoObra;
+  readonly criadoPor: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly comprovanteUrl?: string;
+}
+
+export interface CronogramaDetalhe {
+  readonly projeto: {
+    readonly id: string;
+    readonly nome: string;
+    readonly status: StatusProjeto;
+    readonly cidade: string;
+    readonly estado: string;
+    readonly prazoObra?: number;
+    readonly valorTotal?: number;
+  };
+  readonly podeEditarEtapas: boolean;
+  readonly podeLancarGastos: boolean;
+  readonly resumo: CronogramaResumo;
+  readonly etapas: EtapaCronograma[];
+  readonly lancamentos: LancamentoObra[];
+}
+
+export interface CronogramaListaItem extends CronogramaResumo {
+  readonly projetoId: string;
+  readonly nome: string;
+  readonly cidade: string;
+  readonly estado: string;
+  readonly status: StatusProjeto;
+  readonly etapas: number;
 }

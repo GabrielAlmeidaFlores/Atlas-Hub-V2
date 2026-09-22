@@ -44,7 +44,7 @@ function ProjetosHero(): ReactNode {
               data-analytics-cta="projetos_hero_investir"
               className="mt-8 flex h-12 w-full items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
-              Investidor
+              Quero Investir
             </Link>
           </div>
         </div>
@@ -72,7 +72,7 @@ function ProjetosHero(): ReactNode {
               data-analytics-cta="projetos_hero_investir"
               className="mt-8 inline-flex h-12 items-center justify-center rounded-[4px] bg-[#D2A047] px-6 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90"
             >
-              Investidor
+              Quero Investir
             </Link>
           </div>
         </div>

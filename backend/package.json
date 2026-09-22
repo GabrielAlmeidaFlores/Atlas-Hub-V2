@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "serverless offline --stage dev",
+    "local": "tsx local-http.ts",
     "build": "tsc --noEmit",
+    "test": "tsx test-integration.ts",
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
     "logs:health": "serverless logs -f health --tail"
@@ -17,6 +19,7 @@
     "@aws-sdk/client-ses": "^3.600.0",
     "@aws-sdk/lib-dynamodb": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "starkbank": "^2.42.0",
     "uuid": "^9.0.0",
     "zod": "^3.23.0"
   },

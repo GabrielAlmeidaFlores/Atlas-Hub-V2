@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { Bell, Check, CheckCheck } from "lucide-react";
 import { useNotificacoesStore } from "@/stores/notificacoes";
 import { PageHeader } from "@/components/ui/page-header";
@@ -6,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { timeAgo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { destinoNotificacao } from "@/lib/notificacoes";
 import type { Notificacao } from "@/types";
 
 const TIPO_COLORS: Record<Notificacao["tipo"], string> = {
@@ -15,6 +17,9 @@ const TIPO_COLORS: Record<Notificacao["tipo"], string> = {
   REPROVADO: "bg-status-danger-subtle text-status-danger",
   APROVADO: "bg-status-success-subtle text-status-success",
   OFERTA_CRIADA: "bg-status-success-subtle text-status-success",
+  CARTAO_HABILITADO: "bg-status-info-subtle text-status-info",
+  CARTAO_LIBERACAO_CONFIRMADA: "bg-status-success-subtle text-status-success",
+  CARTAO_LIBERACAO_REJEITADA: "bg-status-danger-subtle text-status-danger",
 };
 
 export default function IncorporadoraNotificacoesPage(): ReactNode {
@@ -64,7 +69,9 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
           />
         ) : (
           <div className="card overflow-hidden divide-y divide-border">
-            {items.map((notif) => (
+            {items.map((notif) => {
+              const destino = destinoNotificacao(notif);
+              return (
               <div
                 key={notif.criadoEm}
                 className={cn(
@@ -85,6 +92,14 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{notif.mensagem}</p>
                   <p className="mt-2 text-xs text-muted-foreground">{timeAgo(notif.criadoEm)}</p>
+                  {destino !== undefined && (
+                    <Link
+                      to={destino}
+                      className="mt-2 inline-block text-xs font-medium text-navy hover:underline"
+                    >
+                      {typeof notif.tipo === "string" && notif.tipo.startsWith("CARTAO_") ? "Abrir cronograma" : "Abrir projeto"}
+                    </Link>
+                  )}
                 </div>
 
                 {!notif.lida && (
@@ -98,7 +113,8 @@ export default function IncorporadoraNotificacoesPage(): ReactNode {
                   </button>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
