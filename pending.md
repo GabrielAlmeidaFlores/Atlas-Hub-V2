@@ -67,3 +67,15 @@ Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não hou
 - [x] **Cognito: um pool com grupos** — `INCORPORADORA`, `ANALISTA`, `ADMIN_MASTER` (adotado no V2)
 - [x] **Stack:** AWS Amplify + Lambda + DynamoDB + S3 + SES + Cognito + Serverless Framework (mesma linha Syntonia)
 - [x] **Monorepo** — `frontend/` + `backend/` na raiz (padrão Syntonia)
+
+---
+
+## 6. Cartão corporativo (preparação Atlas)
+
+- [x] **Proposta de limite por etapa** — orçado do cronograma, checklist jurídico, status na lista e registro interno no financeiro da SPE
+- [ ] **Conta Stark** — KYC/organization aberta e issuing habilitado
+- [ ] **SPE como cliente Stark** — titular do cartão é a SPE, não workspace no CNPJ Atlas
+- [ ] **Aditivo contratual** — sem rotativo, fatura integral automática, garantia CDI
+- [ ] **Contrato comercial Atlas** — comissão/indicação; cashback 1,5% permanece na SPE
+- [ ] **NF / comprovante** por transação do cartão
+

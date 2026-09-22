@@ -34,6 +34,15 @@ export type {
   SituacaoOrcamento,
   EtapaObra,
   LancamentoObra,
+  StatusCartaoObra,
+  TitularidadeCartao,
+  PagamentoFaturaCartao,
+  CashbackDestinoCartao,
+  ReceitaAtlasCartao,
+  LimiteCartaoEtapa,
+  ConfirmacoesCartaoObra,
+  CartaoObra,
+  CartaoObraBloqueio,
 } from './domain.js';
 
 export { TESOURARIA_CONTA_ID } from './domain.js';

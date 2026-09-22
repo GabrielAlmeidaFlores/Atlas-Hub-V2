@@ -336,4 +336,11 @@ export const atualizarLancamentoObraSchema = z.object({
   status: z.literal('CANCELADO'),
 });
 
+export const solicitarCartaoObraSchema = z.object({
+  titularSpe: z.literal(true, { errorMap: () => ({ message: 'Confirme que o titular é a SPE' }) }),
+  faturaIntegral: z.literal(true, { errorMap: () => ({ message: 'Confirme o pagamento integral da fatura' }) }),
+  semRotativo: z.literal(true, { errorMap: () => ({ message: 'Confirme que não haverá crédito rotativo' }) }),
+  cashbackNaSpe: z.literal(true, { errorMap: () => ({ message: 'Confirme que o cashback permanece na SPE' }) }),
+});
+
 export { cnpjRegex, cpfRegex, isValidCnpjDigits, isValidCpfDigits };

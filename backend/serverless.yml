@@ -51,6 +51,7 @@ provider:
     CAPTACAO_COMPRAS_TABLE: AtlasCaptacaoCompras-${self:provider.stage}
     OBRA_ETAPAS_TABLE: AtlasObraEtapas-${self:provider.stage}
     OBRA_LANCAMENTOS_TABLE: AtlasObraLancamentos-${self:provider.stage}
+    SPE_CARTOES_TABLE: AtlasSpeCartoes-${self:provider.stage}
     STARK_ENVIRONMENT: ${env:STARK_ENVIRONMENT, 'sandbox'}
     STARK_ORGANIZATION_ID: ${env:STARK_ORGANIZATION_ID, ''}
     STARK_PRIVATE_KEY: ${env:STARK_PRIVATE_KEY, ''}
@@ -832,6 +833,34 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ApiGatewayAuthorizer
 
+  adminFinanceiroCartaoGet:
+    handler: src/functions/admin-financeiro-cartao-get.handler
+    role: !GetAtt FinanceiroAdminLambdaRole.Arn
+    timeout: 15
+    description: "Gets SPE card proposal from cronograma stages"
+    events:
+      - http:
+          path: admin/financeiro/cartoes/{projetoId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminFinanceiroCartaoSolicitar:
+    handler: src/functions/admin-financeiro-cartao-solicitar.handler
+    role: !GetAtt FinanceiroAdminLambdaRole.Arn
+    timeout: 15
+    description: "Records internal SPE card request without issuing"
+    events:
+      - http:
+          path: admin/financeiro/cartoes/{projetoId}/solicitar
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
   publicoFinanceiroExtrato:
     handler: src/functions/publico-financeiro-extrato.handler
     role: !GetAtt PublicoFinanceiroLambdaRole.Arn
@@ -1089,7 +1118,7 @@ resources:
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
                 - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:Query, dynamodb:Scan]
+                  Action: [dynamodb:GetItem, dynamodb:BatchGetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:Query, dynamodb:Scan]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeContas-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeContas-${self:provider.stage}/index/*'
@@ -1099,6 +1128,8 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasFinanceiroAuditoria-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/*'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraEtapas-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeCartoes-${self:provider.stage}'
 
     FinanceiroWebhookLambdaRole:
       Type: AWS::IAM::Role
@@ -2405,6 +2436,18 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
+
+    AtlasSpeCartoesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasSpeCartoes-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
 
     AtlasFinanceiroLedgerTable:
       Type: AWS::DynamoDB::Table

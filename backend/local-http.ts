@@ -22,6 +22,8 @@ import { handler as adminFinanceiroSolicitacaoCriar } from "./src/functions/admi
 import { handler as adminFinanceiroSolicitacaoAprovar } from "./src/functions/admin-financeiro-solicitacao-aprovar.js";
 import { handler as adminFinanceiroSolicitacaoRejeitar } from "./src/functions/admin-financeiro-solicitacao-rejeitar.js";
 import { handler as adminFinanceiroSplitCriar } from "./src/functions/admin-financeiro-split-criar.js";
+import { handler as adminFinanceiroCartaoGet } from "./src/functions/admin-financeiro-cartao-get.js";
+import { handler as adminFinanceiroCartaoSolicitar } from "./src/functions/admin-financeiro-cartao-solicitar.js";
 import { handler as adminCaptacaoListar } from "./src/functions/admin-captacao-listar.js";
 import { handler as adminCaptacaoOferta } from "./src/functions/admin-captacao-oferta.js";
 
@@ -55,6 +57,8 @@ const routes: Route[] = [
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/solicitacoes\/([^/]+)\/rejeitar\/?$/, handler: adminFinanceiroSolicitacaoRejeitar, params: ["id"] },
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/solicitacoes\/?$/, handler: adminFinanceiroSolicitacaoCriar, params: [] },
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/split\/?$/, handler: adminFinanceiroSplitCriar, params: [] },
+  { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/cartoes\/([^/]+)\/solicitar\/?$/, handler: adminFinanceiroCartaoSolicitar, params: ["projetoId"] },
+  { method: "GET", match: /^\/(?:dev\/)?admin\/financeiro\/cartoes\/([^/]+)\/?$/, handler: adminFinanceiroCartaoGet, params: ["projetoId"] },
   { method: "GET", match: /^\/(?:dev\/)?admin\/captacao\/ofertas\/([^/]+)\/?$/, handler: adminCaptacaoOferta, params: ["ofertaId"] },
   { method: "GET", match: /^\/(?:dev\/)?admin\/captacao\/?$/, handler: adminCaptacaoListar, params: [] },
   { method: "POST", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/etapas\/?$/, handler: cronogramaEtapaCriar, params: ["id"] },

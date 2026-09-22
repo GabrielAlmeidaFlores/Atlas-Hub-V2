@@ -209,7 +209,8 @@ export type FinanceiroAuditoriaAcao =
   | 'SOLICITACAO_REJEITADA'
   | 'TRANSFERENCIA_EXECUTADA'
   | 'TRANSFERENCIA_FALHOU'
-  | 'WEBHOOK_CONCILIADO';
+  | 'WEBHOOK_CONCILIADO'
+  | 'CARTAO_SOLICITADO';
 
 export interface SpeConta {
   readonly projetoId: string;
@@ -326,6 +327,52 @@ export interface CaptacaoCompra {
   readonly amountCents?: number;
   readonly projetoId?: string;
   readonly projetoNome?: string;
+}
+
+export type StatusCartaoObra = 'PREPARACAO' | 'SOLICITADO';
+
+export type TitularidadeCartao = 'SPE';
+
+export type PagamentoFaturaCartao = 'INTEGRAL_AUTOMATICO';
+
+export type CashbackDestinoCartao = 'SPE';
+
+export type ReceitaAtlasCartao = 'COMISSAO_COMERCIAL';
+
+export interface LimiteCartaoEtapa {
+  readonly etapaId: string;
+  readonly nome: string;
+  readonly ordem: number;
+  readonly valorOrcado: number;
+  readonly limiteProposto: number;
+}
+
+export interface ConfirmacoesCartaoObra {
+  readonly titularSpe: true;
+  readonly faturaIntegral: true;
+  readonly semRotativo: true;
+  readonly cashbackNaSpe: true;
+}
+
+export interface CartaoObra {
+  readonly projetoId: string;
+  readonly status: StatusCartaoObra;
+  readonly titularidade: TitularidadeCartao;
+  readonly pagamentoFatura: PagamentoFaturaCartao;
+  readonly cashbackDestino: CashbackDestinoCartao;
+  readonly receitaAtlas: ReceitaAtlasCartao;
+  readonly limites: readonly LimiteCartaoEtapa[];
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly solicitadoPor?: string;
+  readonly solicitadoPorNome?: string;
+  readonly solicitadoEm?: string;
+  readonly confirmacoes?: ConfirmacoesCartaoObra;
+}
+
+export interface CartaoObraBloqueio {
+  readonly codigo: string;
+  readonly mensagem: string;
 }
 
 export type StatusEtapaObra = 'PLANEJADA' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'ATRASADA';

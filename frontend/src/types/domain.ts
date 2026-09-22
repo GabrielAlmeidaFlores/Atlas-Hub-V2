@@ -228,6 +228,7 @@ export interface SpeConta {
   readonly atualizadoEm: string;
   readonly criadoPor: string;
   readonly saldoCents?: number | null;
+  readonly statusCartao?: "PREPARACAO" | "SOLICITADO";
 }
 
 export interface ProjetoElegivel {
@@ -296,6 +297,68 @@ export interface FinanceiroAuditoriaEntry {
   readonly descricao: string;
   readonly solicitacaoId?: string;
   readonly workspaceId?: string;
+}
+
+export type StatusCartaoObra = "PREPARACAO" | "SOLICITADO";
+
+export interface LimiteCartaoEtapa {
+  readonly etapaId: string;
+  readonly nome: string;
+  readonly ordem: number;
+  readonly valorOrcado: number;
+  readonly limiteProposto: number;
+}
+
+export interface ConfirmacoesCartaoObra {
+  readonly titularSpe: true;
+  readonly faturaIntegral: true;
+  readonly semRotativo: true;
+  readonly cashbackNaSpe: true;
+}
+
+export interface CartaoObra {
+  readonly projetoId: string;
+  readonly status: StatusCartaoObra;
+  readonly titularidade: "SPE";
+  readonly pagamentoFatura: "INTEGRAL_AUTOMATICO";
+  readonly cashbackDestino: "SPE";
+  readonly receitaAtlas: "COMISSAO_COMERCIAL";
+  readonly limites: readonly LimiteCartaoEtapa[];
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+  readonly solicitadoPor?: string;
+  readonly solicitadoPorNome?: string;
+  readonly solicitadoEm?: string;
+  readonly confirmacoes?: ConfirmacoesCartaoObra;
+}
+
+export interface CartaoObraBloqueio {
+  readonly codigo: string;
+  readonly mensagem: string;
+}
+
+export interface CartaoObraDetalhe {
+  readonly projetoId: string;
+  readonly projetoNome: string;
+  readonly statusProjeto?: string;
+  readonly contaTipo: SpeContaTipo;
+  readonly emissaoDisponivel: boolean;
+  readonly regras: {
+    readonly titularidade: "SPE";
+    readonly pagamentoFatura: "INTEGRAL_AUTOMATICO";
+    readonly cashbackDestino: "SPE";
+    readonly receitaAtlas: "COMISSAO_COMERCIAL";
+    readonly rotativo: false;
+  };
+  readonly status: StatusCartaoObra;
+  readonly cartao: CartaoObra | null;
+  readonly limites: LimiteCartaoEtapa[];
+  readonly limiteTotal: number;
+  readonly limiteRegistrado?: number;
+  readonly cronogramaDesatualizado: boolean;
+  readonly podeRegistrar: boolean;
+  readonly bloqueios: CartaoObraBloqueio[];
+  readonly bloqueiosRegistro: CartaoObraBloqueio[];
 }
 
 export type CaptacaoEventoTipo =

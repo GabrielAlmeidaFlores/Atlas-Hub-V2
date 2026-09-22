@@ -41,6 +41,7 @@ const T = {
   captacaoCompras: `AtlasCaptacaoCompras-${stage}`,
   etapas: `AtlasObraEtapas-${stage}`,
   lancamentos: `AtlasObraLancamentos-${stage}`,
+  speCartoes: `AtlasSpeCartoes-${stage}`,
 } as const;
 
 type Perfil = 'INCORPORADORA' | 'ANALISTA' | 'ADMIN_MASTER';
@@ -221,7 +222,7 @@ function tableItemKey(table: string, item: Record<string, unknown>): string {
   if (table === T.lancamentos) return `${String(item['projetoId'])}#${String(item['lancamentoId'])}`;
   if (table === T.captacaoEventos) return String(item['id']);
   if (table === T.captacaoCompras) return `${String(item['ofertaId'])}#${String(item['purchaseId'])}`;
-  if (table === T.speContas) return String(item['projetoId']);
+  if (table === T.speContas || table === T.speCartoes) return String(item['projetoId']);
   if (table === T.ledger) return `${String(item['projetoId'])}#${String(item['starkId'])}`;
   if (table === T.solicitacoes) return String(item['id']);
   if (table === T.analyticsEvents) return String(item['id']);
@@ -466,6 +467,7 @@ async function run(): Promise<void> {
   const ledger: Record<string, unknown>[] = [];
   const solicitacoes: Record<string, unknown>[] = [];
   const finAuditoria: Record<string, unknown>[] = [];
+  const speCartoes: Record<string, unknown>[] = [];
 
   function analistaDe(key: AnalistaKey | undefined): ContaUser {
     if (key === 'marcos') return admins.marcos;
@@ -747,6 +749,44 @@ async function run(): Promise<void> {
     finAuditoria.push({ projetoId, criadoEm: isoSalt(1, `finaudpend:${spec.slug}`), id: sid(`finaud:${spec.slug}:pend`), acao: 'SOLICITACAO_CRIADA', userId: admins.gabriel.id, userName: admins.gabriel.nome, descricao: 'Solicitação de Pix de R$ 45000.00', solicitacaoId: solPendId, workspaceId });
   }
 
+  function montarCartaoSpe(spec: ProjetoSpec, projetoId: string): void {
+    if (spec.status !== 'OFERTA_CRIADA') return;
+    if (spec.oferta?.modo === 'insucesso') return;
+    const limites = etapas
+      .filter((e) => e['projetoId'] === projetoId)
+      .sort((a, b) => Number(a['ordem']) - Number(b['ordem']))
+      .map((e) => ({
+        etapaId: String(e['etapaId']),
+        nome: String(e['nome']),
+        ordem: Number(e['ordem']),
+        valorOrcado: Number(e['valorOrcado']),
+        limiteProposto: Number(e['valorOrcado']),
+      }));
+    if (limites.length === 0) return;
+    if (spec.oferta?.modo !== 'sucesso') return;
+    const solicitadoEm = isoDays(spec.dias - 8, 3_000);
+    speCartoes.push({
+      projetoId,
+      status: 'SOLICITADO',
+      titularidade: 'SPE',
+      pagamentoFatura: 'INTEGRAL_AUTOMATICO',
+      cashbackDestino: 'SPE',
+      receitaAtlas: 'COMISSAO_COMERCIAL',
+      limites,
+      confirmacoes: { titularSpe: true, faturaIntegral: true, semRotativo: true, cashbackNaSpe: true },
+      criadoEm: solicitadoEm,
+      atualizadoEm: solicitadoEm,
+      solicitadoPor: admins.gabriel.id,
+      solicitadoPorNome: admins.gabriel.nome,
+      solicitadoEm,
+    });
+    finAuditoria.push({
+      projetoId, criadoEm: solicitadoEm, id: sid(`finaud:${spec.slug}:cartao`), acao: 'CARTAO_SOLICITADO',
+      userId: admins.gabriel.id, userName: admins.gabriel.nome,
+      descricao: `Solicitação interna de cartão com ${String(limites.length)} etapa(s)`,
+    });
+  }
+
   for (const spec of PROJETOS) {
     const owner = incs[spec.inc];
     const projetoId = sid(`projeto:${spec.slug}`);
@@ -893,6 +933,7 @@ async function run(): Promise<void> {
     montarCronograma(spec, projetoId, owner);
     montarCaptacao(spec, projetoId);
     montarFinanceiroSpe(spec, projetoId);
+    montarCartaoSpe(spec, projetoId);
   }
 
   const tesourariaWs = sid('ws:tesouraria');
@@ -1020,6 +1061,7 @@ async function run(): Promise<void> {
   await batchPut(T.ledger, ledger);
   await batchPut(T.solicitacoes, solicitacoes);
   await batchPut(T.finAuditoria, finAuditoria);
+  await batchPut(T.speCartoes, speCartoes);
   await batchPut(T.analyticsEvents, analyticsEvents);
   await batchPut(T.analyticsSessions, analyticsSessions);
   await batchPut(T.analyticsDaily, analyticsDaily);
@@ -1047,7 +1089,7 @@ async function run(): Promise<void> {
   console.log('Seed local concluído');
   console.log(`Projetos: ${String(PROJETOS.length)}  etapas: ${String(etapas.length)}  gastos: ${String(lancamentos.length)}`);
   console.log(`Captação eventos: ${String(captacaoEventos.length)}  compras: ${String(captacaoCompras.length)}`);
-  console.log(`Financeiro contas: ${String(speContas.length)}  ledger: ${String(ledger.length)}`);
+  console.log(`Financeiro contas: ${String(speContas.length)}  ledger: ${String(ledger.length)}  cartões: ${String(speCartoes.length)}`);
   console.log(`Analytics events: ${String(analyticsEvents.length)}  daily: ${String(analyticsDaily.length)}`);
   console.log('');
   console.log('Senha de todos:', password);

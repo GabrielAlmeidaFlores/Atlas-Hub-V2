@@ -19,6 +19,7 @@ const COLUMNS = [
   { label: "SPE" },
   { label: "Saldo" },
   { label: "Status" },
+  { label: "Cartão" },
   { label: "Aberta em" },
   { label: "", align: "right" as const },
 ];
@@ -214,6 +215,11 @@ export default function AdminFinanceiroListaPage(): ReactNode {
                   )}
                   >
                     {conta.status === "ATIVA" ? "Ativa" : conta.status === "BLOQUEADA" ? "Bloqueada" : "Erro"}
+                  </span>
+                </td>
+                <td>
+                  <span className={cn("badge border", conta.statusCartao === "SOLICITADO" ? "badge-aprovado" : "badge-ajuste")}>
+                    {conta.statusCartao === "SOLICITADO" ? "Solicitado" : "Preparação"}
                   </span>
                 </td>
                 <td className="text-muted-foreground">{formatDate(conta.criadoEm)}</td>

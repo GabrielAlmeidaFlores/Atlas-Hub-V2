@@ -30,6 +30,7 @@ export const CAPTACAO_EVENTOS_TABLE = process.env['CAPTACAO_EVENTOS_TABLE'] ?? '
 export const CAPTACAO_COMPRAS_TABLE = process.env['CAPTACAO_COMPRAS_TABLE'] ?? 'AtlasCaptacaoCompras-dev';
 export const OBRA_ETAPAS_TABLE = process.env['OBRA_ETAPAS_TABLE'] ?? 'AtlasObraEtapas-dev';
 export const OBRA_LANCAMENTOS_TABLE = process.env['OBRA_LANCAMENTOS_TABLE'] ?? 'AtlasObraLancamentos-dev';
+export const SPE_CARTOES_TABLE = process.env['SPE_CARTOES_TABLE'] ?? 'AtlasSpeCartoes-dev';
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
 export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';

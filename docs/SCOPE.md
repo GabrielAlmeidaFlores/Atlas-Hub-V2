@@ -8,7 +8,7 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 |---|---|
 | **Portal da Incorporadora** | Cadastro, perfil, wizard 5 etapas + editar, equipe, viabilidade simplificada, barra de progresso, upload/download S3, acompanhamento de status, notificações, link da oferta quando `OFERTA_CRIADA`, **cronograma da obra** (etapas + orçado; gastos após `APROVADO`/`OFERTA_CRIADA`) |
 | **Painel de Curadoria (Admin)** | Fila, scorecard (5 critérios), checklist pré-aprovação (validado na API), notas internas, ajuste / reprovar / aprovar, CRM incorporadoras, usuários (master + senha temporária), registro manual de ID/link da oferta |
-| **Financeiro (Admin, pós-sucesso)** | Conta tesouraria Atlas + workspace por projeto/SPE (mesmo CNPJ Atlas), saldo, extrato, Pix (solicitação + dupla aprovação de dois `ADMIN_MASTER`), split, extrato público para integração, conciliação via webhook, trilha de auditoria. Cartão CDI **não** entra. O dinheiro da oferta **não** passa por aqui durante a captação. |
+| **Financeiro (Admin, pós-sucesso)** | Conta tesouraria Atlas + workspace por projeto/SPE (mesmo CNPJ Atlas), saldo, extrato, Pix (solicitação + dupla aprovação de dois `ADMIN_MASTER`), split, extrato público para integração, conciliação via webhook, trilha de auditoria. **Preparação do cartão:** limite sugerido por etapa do cronograma + registro interno da solicitação. Emissão, CDI, cashback e SPE como cliente Stark **não** entram. O dinheiro da oferta **não** passa por aqui durante a captação. |
 | **Captação (Admin)** | Ingestão de webhooks Divify (`UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada sucesso/insucesso), vínculo ao projeto via `ofertaId`, progresso por oferta, enrich opcional via API docs-third. SmartEscrow, sucesso→CNPJ emissor e split de rendimentos ficam na Divify. Sem cadastro/KYC/carteira de investidor neste repo. |
 | **Analytics (Admin)** | Coleta nativa LP+app, funil Atlas, dashboard, heatmaps, jornada do usuário, segmentação, export CSV, alertas, replay (metadados/opt-in). Catálogo: [`analytics.md`](analytics.md) |
 | **Cronograma (obra)** | Etapas físicas (previsto/real, %, desvio de prazo) + orçado × realizado por etapa, gastos vinculados à etapa (comprovante opcional). Execução **não** reabre curadoria. Distinto do Financeiro Stark (conta/Pix/split). |
@@ -24,6 +24,7 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 - Split (beneficiários para dividir recebíveis)
 - Extrato público para integração/investidor (autenticação via token)
 - Webhooks para eventos bancários (depósito, transferência, etc)
+- Preparação do cartão da obra: limite = orçado da etapa; pedido interno (`SOLICITADO`) com checklist (titular SPE, fatura integral, sem rotativo, cashback na SPE). Sem emitir cartão, aplicar CDI ou creditar cashback.
 
 **Captação no MVP:** o Atlas **não** opera a compra. Consome webhooks da Divify (`UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`), persiste compras/eventos e mostra progresso no admin. Aportes ficam na SmartEscrow; no sucesso o repasse vai ao CNPJ emissor sem passar pela Atlas; no insucesso a devolução é automática; split de rendimentos (incl. fluxo mensal) é automático na Divify. Portal do investidor continua 100% na plataforma. Enrich de compra via `GET /balance/offer/{offerId}/purchase/{id}/detailed` quando `DIVIFY_API_*` estiver configurado.
 
@@ -34,7 +35,7 @@ Documento de fronteira de produto. Spec completa: [`product.md`](../product.md).
 - Carteira, PIX, cotas, escrow, triggers CVM **durante a captação**
 - Mercado secundário, informe de rendimentos, fórum da oferta
 - Distribuição de rendimentos e admin de oferta (painel da plataforma)
-- Cartão corporativo colateralizado em CDI
+- Cartão corporativo colateralizado em CDI (emissão, issuing Stark, garantia e cashback)
 - Abertura de conta bancária no CNPJ da SPE (gate jurídico / banco)
 
 ## Fase 2 (bloqueada)
