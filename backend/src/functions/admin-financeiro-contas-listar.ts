@@ -4,7 +4,7 @@ import { getUserId, AuthError, ForbiddenError, requireAdmin } from '../shared/ht
 import { createLogger } from '../shared/core/logger.js';
 import { TESOURARIA_CONTA_ID } from '../shared/core/types/index.js';
 import { listSpeContas } from '../shared/db/financeiro.js';
-import { listCartoesByProjetos } from '../shared/db/cartao.js';
+import { listCartoesByProjetos, projetosComLiberacaoPendente } from '../shared/db/cartao.js';
 import { listAllProjetosByStatus } from '../shared/db/index.js';
 import { getWorkspaceBalance, isStarkConfigured, StarkNotConfiguredError, StarkOperationError } from '../shared/starkbank/index.js';
 
@@ -24,7 +24,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       .map((p) => ({ id: p.id, nome: p.nome, cidade: p.cidade, estado: p.estado, valorCaptar: p.valorCaptar }));
 
     const configured = isStarkConfigured();
-    const cartoes = await listCartoesByProjetos(spe.map((c) => c.projetoId));
+    const speIdsList = spe.map((c) => c.projetoId);
+    const [cartoes, liberacoesPendentes] = await Promise.all([
+      listCartoesByProjetos(speIdsList),
+      projetosComLiberacaoPendente(speIdsList),
+    ]);
     const withBalance = await Promise.all(contas.map(async (conta) => {
       if (!configured || conta.status !== 'ATIVA') {
         return { ...conta, saldoCents: null as number | null };
@@ -47,6 +51,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       items: withBalance.filter((c) => c.tipo === 'SPE').map((conta) => ({
         ...conta,
         statusCartao: cartoes.get(conta.projetoId)?.status ?? 'PREPARACAO',
+        cartaoLiberacaoPendente: liberacoesPendentes.has(conta.projetoId),
       })),
       elegiveis,
     });

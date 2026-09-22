@@ -9,6 +9,7 @@ import { getCartaoObra, putCartaoObra } from '../shared/db/cartao.js';
 import { getProjeto } from '../shared/db/index.js';
 import { listEtapasByProjeto } from '../shared/db/cronograma.js';
 import { cartaoObraPayload } from '../shared/financeiro/cartao-payload.js';
+import { notificarIncorporadoraCartao } from '../shared/financeiro/cartao-notificacao.js';
 import { montarLimitesCartao, podeRegistrarSolicitacaoCartao, REGRAS_CARTAO_OBRA } from '../shared/financeiro/cartao.js';
 import type { CartaoObra } from '../shared/core/types/index.js';
 
@@ -65,9 +66,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       descricao: `Solicitação interna de cartão com ${String(limites.length)} etapa(s)`,
       workspaceId: conta.workspaceId,
     });
+    await notificarIncorporadoraCartao(
+      projeto,
+      'CARTAO_HABILITADO',
+      'Cartão da obra habilitado',
+      `A Atlas registrou o pedido de cartão de "${projeto?.nome ?? 'sua obra'}". No cronograma, solicite a liberação da etapa em andamento.`,
+    );
 
     log.info('Card request recorded', { projetoId, etapas: limites.length });
-    return created(event, cartaoObraPayload(conta, projeto, etapas, cartao));
+    return created(event, cartaoObraPayload(conta, projeto, etapas, cartao, []));
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);

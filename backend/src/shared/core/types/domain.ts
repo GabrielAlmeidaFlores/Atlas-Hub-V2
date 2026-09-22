@@ -168,7 +168,7 @@ export interface Notificacao {
   readonly userId: string;
   readonly criadoEm: string;
   readonly id: string;
-  readonly tipo: 'PROJETO_SUBMETIDO' | 'ANALISE_INICIADA' | 'AJUSTE_SOLICITADO' | 'REPROVADO' | 'APROVADO' | 'OFERTA_CRIADA';
+  readonly tipo: 'PROJETO_SUBMETIDO' | 'ANALISE_INICIADA' | 'AJUSTE_SOLICITADO' | 'REPROVADO' | 'APROVADO' | 'OFERTA_CRIADA' | 'CARTAO_HABILITADO' | 'CARTAO_LIBERACAO_CONFIRMADA' | 'CARTAO_LIBERACAO_REJEITADA';
   readonly titulo: string;
   readonly mensagem: string;
   readonly lida: boolean;
@@ -210,7 +210,12 @@ export type FinanceiroAuditoriaAcao =
   | 'TRANSFERENCIA_EXECUTADA'
   | 'TRANSFERENCIA_FALHOU'
   | 'WEBHOOK_CONCILIADO'
-  | 'CARTAO_SOLICITADO';
+  | 'CARTAO_SOLICITADO'
+  | 'CARTAO_LIMITE_ATUALIZADO'
+  | 'CARTAO_LIBERACAO_SOLICITADA'
+  | 'CARTAO_LIBERACAO_CONFIRMADA'
+  | 'CARTAO_LIBERACAO_REJEITADA'
+  | 'CARTAO_LIBERACAO_CANCELADA';
 
 export interface SpeConta {
   readonly projetoId: string;
@@ -337,7 +342,9 @@ export type PagamentoFaturaCartao = 'INTEGRAL_AUTOMATICO';
 
 export type CashbackDestinoCartao = 'SPE';
 
-export type ReceitaAtlasCartao = 'COMISSAO_COMERCIAL';
+export type ReceitaAtlasCartao = 'COMISSAO_COMERCIAL' | 'PERCENTUAL_CAPTACAO';
+
+export type StatusLiberacaoCartao = 'SOLICITADA' | 'CONFIRMADA' | 'REJEITADA' | 'CANCELADA';
 
 export interface LimiteCartaoEtapa {
   readonly etapaId: string;
@@ -368,6 +375,23 @@ export interface CartaoObra {
   readonly solicitadoPorNome?: string;
   readonly solicitadoEm?: string;
   readonly confirmacoes?: ConfirmacoesCartaoObra;
+}
+
+export interface CartaoLiberacao {
+  readonly projetoId: string;
+  readonly etapaId: string;
+  readonly status: StatusLiberacaoCartao;
+  readonly limite: number;
+  readonly solicitadoPor: string;
+  readonly solicitadoPorNome: string;
+  readonly solicitadoEm: string;
+  readonly atualizadoEm: string;
+  readonly confirmadoPor?: string;
+  readonly confirmadoPorNome?: string;
+  readonly confirmadoEm?: string;
+  readonly rejeitadoPor?: string;
+  readonly rejeitadoPorNome?: string;
+  readonly rejeitadoEm?: string;
 }
 
 export interface CartaoObraBloqueio {

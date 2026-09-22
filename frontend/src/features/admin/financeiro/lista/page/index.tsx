@@ -218,8 +218,15 @@ export default function AdminFinanceiroListaPage(): ReactNode {
                   </span>
                 </td>
                 <td>
-                  <span className={cn("badge border", conta.statusCartao === "SOLICITADO" ? "badge-aprovado" : "badge-ajuste")}>
-                    {conta.statusCartao === "SOLICITADO" ? "Solicitado" : "Preparação"}
+                  <span className={cn(
+                    "badge border",
+                    conta.cartaoLiberacaoPendente === true
+                      ? "badge-ajuste"
+                      : conta.statusCartao === "SOLICITADO" ? "badge-aprovado" : "badge-ajuste",
+                  )}>
+                    {conta.cartaoLiberacaoPendente === true
+                      ? "Liberação pendente"
+                      : conta.statusCartao === "SOLICITADO" ? "Solicitado" : "Preparação"}
                   </span>
                 </td>
                 <td className="text-muted-foreground">{formatDate(conta.criadoEm)}</td>

@@ -1,18 +1,24 @@
 import type {
+  CartaoLiberacao,
   CartaoObra,
   CartaoObraBloqueio,
   EtapaObra,
   LimiteCartaoEtapa,
   SpeConta,
+  StatusEtapaObra,
   StatusProjeto,
 } from '../core/types/index.js';
+import type { EtapaCronogramaView } from '../obra/resumo.js';
 
 export const REGRAS_CARTAO_OBRA = {
   titularidade: 'SPE',
+  contaTitular: 'CNPJ_SPE',
   pagamentoFatura: 'INTEGRAL_AUTOMATICO',
   cashbackDestino: 'SPE',
-  receitaAtlas: 'COMISSAO_COMERCIAL',
+  receitaAtlas: 'PERCENTUAL_CAPTACAO',
+  cashbackNaoCompoeComissao: true,
   rotativo: false,
+  liberacao: 'ETAPA_VIGENTE',
 } as const;
 
 export function montarLimitesCartao(etapas: readonly EtapaObra[]): LimiteCartaoEtapa[] {
@@ -31,18 +37,63 @@ export function limiteTotalCartao(limites: readonly LimiteCartaoEtapa[]): number
   return limites.reduce((sum, linha) => sum + linha.limiteProposto, 0);
 }
 
+export function limitesCartaoIguais(
+  atuais: readonly LimiteCartaoEtapa[],
+  registrados: readonly LimiteCartaoEtapa[],
+): boolean {
+  if (atuais.length !== registrados.length) return false;
+  const mapa = new Map(registrados.map((linha) => [`${linha.etapaId}:${linha.limiteProposto}`, true]));
+  return atuais.every((linha) => mapa.has(`${linha.etapaId}:${linha.limiteProposto}`));
+}
+
+export function objetoEtapasCartaoMudou(
+  atuais: readonly LimiteCartaoEtapa[],
+  registrados: readonly LimiteCartaoEtapa[],
+): boolean {
+  if (atuais.length !== registrados.length) return true;
+  const ids = new Set(registrados.map((linha) => linha.etapaId));
+  return atuais.some((linha) => !ids.has(linha.etapaId));
+}
+
 export function cronogramaDesatualizado(
   cartao: CartaoObra | null,
   limitesAtuais: readonly LimiteCartaoEtapa[],
 ): boolean {
   if (cartao === null || cartao.status !== 'SOLICITADO') return false;
-  if (cartao.limites.length !== limitesAtuais.length) return true;
-  const atuais = new Map(limitesAtuais.map((linha) => [linha.etapaId, linha.limiteProposto]));
-  return cartao.limites.some((linha) => atuais.get(linha.etapaId) !== linha.limiteProposto);
+  return !limitesCartaoIguais(limitesAtuais, cartao.limites);
+}
+
+export function etapaVigenteCartao(views: readonly EtapaCronogramaView[]): EtapaCronogramaView | null {
+  return views.find((view) => podeLiberarStatusEtapa(view.statusExibicao)) ?? null;
+}
+
+export function podeLiberarStatusEtapa(status: StatusEtapaObra): boolean {
+  return status === 'EM_ANDAMENTO' || status === 'ATRASADA';
+}
+
+export function limiteVigenteCartao(
+  vigente: EtapaCronogramaView | null,
+  liberacoes: readonly CartaoLiberacao[],
+): number {
+  if (vigente === null) return 0;
+  const liberacao = liberacoes.find((item) => item.etapaId === vigente.etapa.etapaId && item.status === 'CONFIRMADA');
+  return liberacao?.limite ?? 0;
+}
+
+export function podeSolicitarLiberacaoCartao(
+  statusCartao: CartaoObra['status'] | undefined,
+  vigente: EtapaCronogramaView | null,
+  etapaId: string,
+  liberacoes: readonly CartaoLiberacao[],
+): boolean {
+  if (statusCartao !== 'SOLICITADO') return false;
+  if (vigente === null || vigente.etapa.etapaId !== etapaId) return false;
+  const atual = liberacoes.find((item) => item.etapaId === etapaId);
+  return atual === undefined || atual.status === 'REJEITADA';
 }
 
 export function bloqueiosRegistroCartao(bloqueios: readonly CartaoObraBloqueio[]): CartaoObraBloqueio[] {
-  return bloqueios.filter((item) => !item.codigo.startsWith('STARK_'));
+  return bloqueios.filter((item) => !item.codigo.startsWith('STARK_') && item.codigo !== 'SPE_CONTA_PROPRIA_PENDENTE');
 }
 
 export function podeRegistrarSolicitacaoCartao(
@@ -77,6 +128,10 @@ export function bloqueiosCartaoObra(input: {
   if (input.limites.length === 0) {
     items.push({ codigo: 'SEM_CRONOGRAMA', mensagem: 'Cadastre etapas no cronograma para calcular o limite.' });
   }
+  items.push({
+    codigo: 'SPE_CONTA_PROPRIA_PENDENTE',
+    mensagem: 'A SPE precisa de conta própria no CNPJ dela. Workspace Atlas não serve para o cartão.',
+  });
   if (!input.starkConfigurada) {
     items.push({ codigo: 'STARK_CONTA_NAO_HABILITADA', mensagem: 'A conta Stark ainda não está habilitada.' });
   }

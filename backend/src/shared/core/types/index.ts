@@ -42,6 +42,8 @@ export type {
   LimiteCartaoEtapa,
   ConfirmacoesCartaoObra,
   CartaoObra,
+  StatusLiberacaoCartao,
+  CartaoLiberacao,
   CartaoObraBloqueio,
 } from './domain.js';
 

@@ -343,4 +343,8 @@ export const solicitarCartaoObraSchema = z.object({
   cashbackNaSpe: z.literal(true, { errorMap: () => ({ message: 'Confirme que o cashback permanece na SPE' }) }),
 });
 
+export const solicitarLiberacaoCartaoSchema = z.object({
+  etapaId: z.string().min(1).max(80),
+});
+
 export { cnpjRegex, cpfRegex, isValidCnpjDigits, isValidCpfDigits };

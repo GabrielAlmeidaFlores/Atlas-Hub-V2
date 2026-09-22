@@ -2,15 +2,19 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarRange } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
-import type { CronogramaDetalhe } from "@/types";
+import { useAuthStore } from "@/stores/auth";
+import type { CartaoObraDetalhe, CronogramaDetalhe } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CronogramaPainel } from "@/components/shared/cronograma-painel";
+import { CartaoObraPainel } from "@/components/shared/cartao-obra-painel";
 
 export default function AdminCronogramaDetalhePage(): ReactNode {
   const { projetoId } = useParams<{ projetoId: string }>();
+  const user = useAuthStore((s) => s.user);
   const [data, setData] = useState<CronogramaDetalhe | null>(null);
+  const [cartao, setCartao] = useState<CartaoObraDetalhe | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,6 +22,11 @@ export default function AdminCronogramaDetalhePage(): ReactNode {
     if (projetoId === undefined) return;
     const r = await api.get<CronogramaDetalhe>(`/admin/cronograma/projetos/${projetoId}`);
     setData(r);
+    try {
+      setCartao(await api.get<CartaoObraDetalhe>(`/admin/financeiro/cartoes/${encodeURIComponent(projetoId)}`));
+    } catch {
+      setCartao(null);
+    }
     setError(null);
   }, [projetoId]);
 
@@ -59,7 +68,15 @@ export default function AdminCronogramaDetalhePage(): ReactNode {
           </Link>
         }
       />
-      <div className="page-content">
+      <div className="page-content space-y-6">
+        {cartao !== null && (
+          <CartaoObraPainel
+            data={cartao}
+            role="admin"
+            isMaster={user?.perfil === "ADMIN_MASTER"}
+            onReload={load}
+          />
+        )}
         <CronogramaPainel data={data} onReload={load} />
       </div>
     </div>

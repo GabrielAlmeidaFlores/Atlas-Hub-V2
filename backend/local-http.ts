@@ -24,6 +24,12 @@ import { handler as adminFinanceiroSolicitacaoRejeitar } from "./src/functions/a
 import { handler as adminFinanceiroSplitCriar } from "./src/functions/admin-financeiro-split-criar.js";
 import { handler as adminFinanceiroCartaoGet } from "./src/functions/admin-financeiro-cartao-get.js";
 import { handler as adminFinanceiroCartaoSolicitar } from "./src/functions/admin-financeiro-cartao-solicitar.js";
+import { handler as adminFinanceiroCartaoLiberacaoConfirmar } from "./src/functions/admin-financeiro-cartao-liberacao-confirmar.js";
+import { handler as adminFinanceiroCartaoLiberacaoRejeitar } from "./src/functions/admin-financeiro-cartao-liberacao-rejeitar.js";
+import { handler as cronogramaCartaoObter } from "./src/functions/cronograma-cartao-obter.js";
+import { handler as cronogramaCartaoLiberacaoSolicitar } from "./src/functions/cronograma-cartao-liberacao-solicitar.js";
+import { handler as notificacoesListar } from "./src/functions/notificacoes-listar.js";
+import { handler as notificacaoMarcarLida } from "./src/functions/notificacao-marcar-lida.js";
 import { handler as adminCaptacaoListar } from "./src/functions/admin-captacao-listar.js";
 import { handler as adminCaptacaoOferta } from "./src/functions/admin-captacao-oferta.js";
 
@@ -57,16 +63,22 @@ const routes: Route[] = [
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/solicitacoes\/([^/]+)\/rejeitar\/?$/, handler: adminFinanceiroSolicitacaoRejeitar, params: ["id"] },
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/solicitacoes\/?$/, handler: adminFinanceiroSolicitacaoCriar, params: [] },
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/split\/?$/, handler: adminFinanceiroSplitCriar, params: [] },
+  { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/cartoes\/([^/]+)\/liberacoes\/([^/]+)\/confirmar\/?$/, handler: adminFinanceiroCartaoLiberacaoConfirmar, params: ["projetoId", "etapaId"] },
+  { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/cartoes\/([^/]+)\/liberacoes\/([^/]+)\/rejeitar\/?$/, handler: adminFinanceiroCartaoLiberacaoRejeitar, params: ["projetoId", "etapaId"] },
   { method: "POST", match: /^\/(?:dev\/)?admin\/financeiro\/cartoes\/([^/]+)\/solicitar\/?$/, handler: adminFinanceiroCartaoSolicitar, params: ["projetoId"] },
   { method: "GET", match: /^\/(?:dev\/)?admin\/financeiro\/cartoes\/([^/]+)\/?$/, handler: adminFinanceiroCartaoGet, params: ["projetoId"] },
   { method: "GET", match: /^\/(?:dev\/)?admin\/captacao\/ofertas\/([^/]+)\/?$/, handler: adminCaptacaoOferta, params: ["ofertaId"] },
   { method: "GET", match: /^\/(?:dev\/)?admin\/captacao\/?$/, handler: adminCaptacaoListar, params: [] },
+  { method: "POST", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cartao\/liberacoes\/?$/, handler: cronogramaCartaoLiberacaoSolicitar, params: ["id"] },
+  { method: "GET", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cartao\/?$/, handler: cronogramaCartaoObter, params: ["id"] },
   { method: "POST", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/etapas\/?$/, handler: cronogramaEtapaCriar, params: ["id"] },
   { method: "PUT", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/etapas\/([^/]+)\/?$/, handler: cronogramaEtapaAtualizar, params: ["id", "etapaId"] },
   { method: "DELETE", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/etapas\/([^/]+)\/?$/, handler: cronogramaEtapaRemover, params: ["id", "etapaId"] },
   { method: "POST", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/lancamentos\/?$/, handler: cronogramaLancamentoCriar, params: ["id"] },
   { method: "PUT", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/lancamentos\/([^/]+)\/?$/, handler: cronogramaLancamentoAtualizar, params: ["id", "lancamentoId"] },
   { method: "GET", match: /^\/(?:dev\/)?projetos\/([^/]+)\/cronograma\/?$/, handler: cronogramaObter, params: ["id"] },
+  { method: "PUT", match: /^\/(?:dev\/)?notificacoes\/([^/]+)\/lida\/?$/, handler: notificacaoMarcarLida, params: ["id"] },
+  { method: "GET", match: /^\/(?:dev\/)?notificacoes\/?$/, handler: notificacoesListar, params: [] },
 ];
 
 function claimsFromAuthorization(header: string | undefined): Record<string, string> | undefined {

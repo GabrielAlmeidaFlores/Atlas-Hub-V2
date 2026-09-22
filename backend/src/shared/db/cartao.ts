@@ -1,6 +1,6 @@
-import { BatchGetCommand, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { BatchGetCommand, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { Tables } from '../core/tables.js';
-import type { CartaoObra } from '../core/types/index.js';
+import type { CartaoLiberacao, CartaoObra } from '../core/types/index.js';
 import { db } from './index.js';
 
 function compactItem(item: object): Record<string, unknown> {
@@ -40,4 +40,37 @@ export async function listCartoesByProjetos(projetoIds: readonly string[]): Prom
     }
   }
   return map;
+}
+
+export async function getCartaoLiberacao(projetoId: string, etapaId: string): Promise<CartaoLiberacao | null> {
+  const result = await db.send(new GetCommand({
+    TableName: Tables.SPE_CARTAO_LIBERACOES,
+    Key: { projetoId, etapaId },
+  }));
+  return (result.Item as CartaoLiberacao | undefined) ?? null;
+}
+
+export async function putCartaoLiberacao(item: CartaoLiberacao): Promise<void> {
+  await db.send(new PutCommand({
+    TableName: Tables.SPE_CARTAO_LIBERACOES,
+    Item: compactItem(item),
+  }));
+}
+
+export async function listCartaoLiberacoes(projetoId: string): Promise<CartaoLiberacao[]> {
+  const result = await db.send(new QueryCommand({
+    TableName: Tables.SPE_CARTAO_LIBERACOES,
+    KeyConditionExpression: 'projetoId = :p',
+    ExpressionAttributeValues: { ':p': projetoId },
+  }));
+  return (result.Items ?? []) as CartaoLiberacao[];
+}
+
+export async function projetosComLiberacaoPendente(projetoIds: readonly string[]): Promise<Set<string>> {
+  const pendentes = new Set<string>();
+  await Promise.all(projetoIds.map(async (projetoId) => {
+    const items = await listCartaoLiberacoes(projetoId);
+    if (items.some((item) => item.status === 'SOLICITADA')) pendentes.add(projetoId);
+  }));
+  return pendentes;
 }

@@ -52,6 +52,7 @@ provider:
     OBRA_ETAPAS_TABLE: AtlasObraEtapas-${self:provider.stage}
     OBRA_LANCAMENTOS_TABLE: AtlasObraLancamentos-${self:provider.stage}
     SPE_CARTOES_TABLE: AtlasSpeCartoes-${self:provider.stage}
+    SPE_CARTAO_LIBERACOES_TABLE: AtlasSpeCartaoLiberacoes-${self:provider.stage}
     STARK_ENVIRONMENT: ${env:STARK_ENVIRONMENT, 'sandbox'}
     STARK_ORGANIZATION_ID: ${env:STARK_ORGANIZATION_ID, ''}
     STARK_PRIVATE_KEY: ${env:STARK_PRIVATE_KEY, ''}
@@ -861,6 +862,34 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ApiGatewayAuthorizer
 
+  adminFinanceiroCartaoLiberacaoConfirmar:
+    handler: src/functions/admin-financeiro-cartao-liberacao-confirmar.handler
+    role: !GetAtt FinanceiroAdminLambdaRole.Arn
+    timeout: 15
+    description: "Confirms originator request to release current stage card limit"
+    events:
+      - http:
+          path: admin/financeiro/cartoes/{projetoId}/liberacoes/{etapaId}/confirmar
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminFinanceiroCartaoLiberacaoRejeitar:
+    handler: src/functions/admin-financeiro-cartao-liberacao-rejeitar.handler
+    role: !GetAtt FinanceiroAdminLambdaRole.Arn
+    timeout: 15
+    description: "Rejects originator request to release current stage card limit"
+    events:
+      - http:
+          path: admin/financeiro/cartoes/{projetoId}/liberacoes/{etapaId}/rejeitar
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
   publicoFinanceiroExtrato:
     handler: src/functions/publico-financeiro-extrato.handler
     role: !GetAtt PublicoFinanceiroLambdaRole.Arn
@@ -892,6 +921,34 @@ functions:
       - http:
           path: projetos/{id}/cronograma
           method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaCartaoObter:
+    handler: src/functions/cronograma-cartao-obter.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Gets SPE card limit and current stage release for originator"
+    events:
+      - http:
+          path: projetos/{id}/cartao
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  cronogramaCartaoLiberacaoSolicitar:
+    handler: src/functions/cronograma-cartao-liberacao-solicitar.handler
+    role: !GetAtt CronogramaIncorporadoraLambdaRole.Arn
+    timeout: 15
+    description: "Originator requests card limit release for the current stage"
+    events:
+      - http:
+          path: projetos/{id}/cartao/liberacoes
+          method: post
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
@@ -1130,6 +1187,8 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/*'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraEtapas-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeCartoes-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeCartaoLiberacoes-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
 
     FinanceiroWebhookLambdaRole:
       Type: AWS::IAM::Role
@@ -1201,10 +1260,14 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraEtapas-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasObraLancamentos-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeCartoes-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeCartaoLiberacoes-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasFinanceiroAuditoria-${self:provider.stage}'
                 - Effect: Allow
                   Action: [dynamodb:GetItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasSpeContas-${self:provider.stage}'
 
     CronogramaAdminLambdaRole:
       Type: AWS::IAM::Role
@@ -2448,6 +2511,22 @@ resources:
         KeySchema:
           - AttributeName: projetoId
             KeyType: HASH
+
+    AtlasSpeCartaoLiberacoesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasSpeCartaoLiberacoes-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: etapaId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: etapaId
+            KeyType: RANGE
 
     AtlasFinanceiroLedgerTable:
       Type: AWS::DynamoDB::Table

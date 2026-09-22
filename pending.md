@@ -72,10 +72,12 @@ Estas perguntas **bloqueiam** o portal do investidor no Atlas. Enquanto não hou
 
 ## 6. Cartão corporativo (preparação Atlas)
 
-- [x] **Proposta de limite por etapa** — orçado do cronograma, checklist jurídico, status na lista e registro interno no financeiro da SPE
+- [x] **Proposta de limite por etapa** — pedido único; valor atualiza com o cronograma (auditoria `CARTAO_LIMITE_ATUALIZADO`); não reabre curadoria
+- [x] **Liberação só da etapa em andamento** — incorporadora solicita, admin master confirma; teto vigente não é a soma das etapas
+- [x] **Comissão Atlas** — % fixo sobre o volume captado (8% Atlas / 3% parceiro no modelo fechado); cashback 1,5% é da SPE e não entra na comissão
+- [x] **Avisos à incorporadora** — pedido habilitado, liberação confirmada e recusada (in-app)
 - [ ] **Conta Stark** — KYC/organization aberta e issuing habilitado
-- [ ] **SPE como cliente Stark** — titular do cartão é a SPE, não workspace no CNPJ Atlas
+- [ ] **SPE como cliente Stark** — conta/onboarding no CNPJ da SPE; workspace Atlas não serve
 - [ ] **Aditivo contratual** — sem rotativo, fatura integral automática, garantia CDI
-- [ ] **Contrato comercial Atlas** — comissão/indicação; cashback 1,5% permanece na SPE
 - [ ] **NF / comprovante** por transação do cartão
 

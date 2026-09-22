@@ -175,7 +175,7 @@ export interface Notificacao {
   readonly userId: string;
   readonly criadoEm: string;
   readonly id: string;
-  readonly tipo: "PROJETO_SUBMETIDO" | "ANALISE_INICIADA" | "AJUSTE_SOLICITADO" | "REPROVADO" | "APROVADO" | "OFERTA_CRIADA";
+  readonly tipo: "PROJETO_SUBMETIDO" | "ANALISE_INICIADA" | "AJUSTE_SOLICITADO" | "REPROVADO" | "APROVADO" | "OFERTA_CRIADA" | "CARTAO_HABILITADO" | "CARTAO_LIBERACAO_CONFIRMADA" | "CARTAO_LIBERACAO_REJEITADA";
   readonly titulo: string;
   readonly mensagem: string;
   readonly lida: boolean;
@@ -229,6 +229,7 @@ export interface SpeConta {
   readonly criadoPor: string;
   readonly saldoCents?: number | null;
   readonly statusCartao?: "PREPARACAO" | "SOLICITADO";
+  readonly cartaoLiberacaoPendente?: boolean;
 }
 
 export interface ProjetoElegivel {
@@ -300,6 +301,7 @@ export interface FinanceiroAuditoriaEntry {
 }
 
 export type StatusCartaoObra = "PREPARACAO" | "SOLICITADO";
+export type StatusLiberacaoCartao = "SOLICITADA" | "CONFIRMADA" | "REJEITADA" | "CANCELADA";
 
 export interface LimiteCartaoEtapa {
   readonly etapaId: string;
@@ -307,6 +309,8 @@ export interface LimiteCartaoEtapa {
   readonly ordem: number;
   readonly valorOrcado: number;
   readonly limiteProposto: number;
+  readonly statusExibicao?: string;
+  readonly vigente?: boolean;
 }
 
 export interface ConfirmacoesCartaoObra {
@@ -316,13 +320,30 @@ export interface ConfirmacoesCartaoObra {
   readonly cashbackNaSpe: true;
 }
 
+export interface CartaoLiberacao {
+  readonly projetoId: string;
+  readonly etapaId: string;
+  readonly status: StatusLiberacaoCartao;
+  readonly limite: number;
+  readonly solicitadoPor: string;
+  readonly solicitadoPorNome: string;
+  readonly solicitadoEm: string;
+  readonly atualizadoEm: string;
+  readonly confirmadoPor?: string;
+  readonly confirmadoPorNome?: string;
+  readonly confirmadoEm?: string;
+  readonly rejeitadoPor?: string;
+  readonly rejeitadoPorNome?: string;
+  readonly rejeitadoEm?: string;
+}
+
 export interface CartaoObra {
   readonly projetoId: string;
   readonly status: StatusCartaoObra;
   readonly titularidade: "SPE";
   readonly pagamentoFatura: "INTEGRAL_AUTOMATICO";
   readonly cashbackDestino: "SPE";
-  readonly receitaAtlas: "COMISSAO_COMERCIAL";
+  readonly receitaAtlas: "COMISSAO_COMERCIAL" | "PERCENTUAL_CAPTACAO";
   readonly limites: readonly LimiteCartaoEtapa[];
   readonly criadoEm: string;
   readonly atualizadoEm: string;
@@ -345,18 +366,27 @@ export interface CartaoObraDetalhe {
   readonly emissaoDisponivel: boolean;
   readonly regras: {
     readonly titularidade: "SPE";
+    readonly contaTitular: "CNPJ_SPE";
     readonly pagamentoFatura: "INTEGRAL_AUTOMATICO";
     readonly cashbackDestino: "SPE";
-    readonly receitaAtlas: "COMISSAO_COMERCIAL";
+    readonly receitaAtlas: "PERCENTUAL_CAPTACAO";
+    readonly cashbackNaoCompoeComissao: true;
     readonly rotativo: false;
+    readonly liberacao: "ETAPA_VIGENTE";
   };
   readonly status: StatusCartaoObra;
   readonly cartao: CartaoObra | null;
   readonly limites: LimiteCartaoEtapa[];
   readonly limiteTotal: number;
+  readonly limiteVigente: number;
+  readonly etapaVigenteId?: string;
+  readonly etapaVigenteNome?: string;
   readonly limiteRegistrado?: number;
   readonly cronogramaDesatualizado: boolean;
+  readonly limiteRecalculado: boolean;
   readonly podeRegistrar: boolean;
+  readonly podeSolicitarLiberacao: boolean;
+  readonly liberacoes: CartaoLiberacao[];
   readonly bloqueios: CartaoObraBloqueio[];
   readonly bloqueiosRegistro: CartaoObraBloqueio[];
 }

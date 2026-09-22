@@ -20,6 +20,7 @@ import { Modal } from "@/components/ui/modal";
 import { formatCurrency, formatDateTime, parseMoneyInput } from "@/lib/utils";
 import { cn, formatCpfCnpj, isValidCpfCnpj } from "@/lib/utils";
 import { CurrencyInput } from "@/components/shared/currency-input";
+import { CartaoObraPainel } from "@/components/shared/cartao-obra-painel";
 
 const EXTRATO_COLS = [
   { label: "Data" },
@@ -43,12 +44,6 @@ const AUDIT_COLS = [
   { label: "Descrição" },
 ];
 
-const LIMITE_COLS = [
-  { label: "Etapa" },
-  { label: "Orçado", align: "right" as const },
-  { label: "Limite proposto", align: "right" as const },
-];
-
 const AUDIT_LABEL: Record<string, string> = {
   CONTA_CRIADA: "Conta aberta",
   SOLICITACAO_CRIADA: "Pix solicitado",
@@ -58,6 +53,11 @@ const AUDIT_LABEL: Record<string, string> = {
   TRANSFERENCIA_FALHOU: "Pix falhou",
   WEBHOOK_CONCILIADO: "Movimento conciliado",
   CARTAO_SOLICITADO: "Cartão solicitado",
+  CARTAO_LIMITE_ATUALIZADO: "Limite atualizado",
+  CARTAO_LIBERACAO_SOLICITADA: "Liberação pedida",
+  CARTAO_LIBERACAO_CONFIRMADA: "Liberação confirmada",
+  CARTAO_LIBERACAO_REJEITADA: "Liberação recusada",
+  CARTAO_LIBERACAO_CANCELADA: "Liberação cancelada",
 };
 
 const STATUS_LABEL: Record<SolicitacaoStatus, string> = {
@@ -368,77 +368,14 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
         </section>
 
         {cartao !== null && (
-          <section className="space-y-3">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold tracking-normal text-foreground">Cartão da obra</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Limite sugerido pelo orçado de cada etapa. Titular é a SPE; cashback fica na SPE; receita Atlas só por contrato comercial.
-                </p>
-              </div>
-              <span className={cn("badge border", cartao.status === "SOLICITADO" ? "badge-aprovado" : "badge-ajuste")}>
-                {cartao.status === "SOLICITADO" ? "Solicitação registrada" : "Preparação"}
-              </span>
-            </div>
-            <p className="alert-warn px-4 py-3 text-xs text-status-warning">
-              Emissão, garantia em CDI e cashback ainda não estão ligados. Esta tela só calcula o limite e registra o pedido interno.
-            </p>
-            <div className="kpi-strip grid-cols-1 sm:grid-cols-2">
-              <div className="card border-l-4 border-l-navy p-4">
-                <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Limite atual</p>
-                <p className="mt-2 text-lg font-semibold text-foreground">{formatCurrency(cartao.limiteTotal)}</p>
-              </div>
-              {cartao.limiteRegistrado !== undefined && (
-                <div className="card p-4">
-                  <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Limite no pedido</p>
-                  <p className="mt-2 text-lg font-semibold text-foreground">{formatCurrency(cartao.limiteRegistrado)}</p>
-                </div>
-              )}
-            </div>
-            <ul className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-              <li>Titular: SPE</li>
-              <li>Fatura: pagamento integral automático</li>
-              <li>Sem crédito rotativo</li>
-              <li>Cashback 1,5% para a SPE</li>
-            </ul>
-            <DataTable columns={LIMITE_COLS} total={cartao.limites.length} emptyMessage="Cadastre etapas no cronograma para calcular o limite.">
-              {cartao.limites.map((linha) => (
-                <tr key={linha.etapaId} className="table-row">
-                  <td className="text-foreground">{linha.nome}</td>
-                  <td className="text-right text-muted-foreground">{formatCurrency(linha.valorOrcado)}</td>
-                  <td className="text-right font-medium text-foreground">{formatCurrency(linha.limiteProposto)}</td>
-                </tr>
-              ))}
-            </DataTable>
-            {cartao.cronogramaDesatualizado && (
-              <p className="text-xs text-status-warning">
-                O cronograma mudou depois do pedido. O limite atual é {formatCurrency(cartao.limiteTotal)}; o pedido registrou {formatCurrency(cartao.limiteRegistrado ?? 0)}.
-              </p>
-            )}
-            {cartao.cartao?.solicitadoEm !== undefined && (
-              <p className="text-xs text-muted-foreground">
-                Pedido interno em {formatDateTime(cartao.cartao.solicitadoEm)}
-                {cartao.cartao.solicitadoPorNome !== undefined ? ` por ${cartao.cartao.solicitadoPorNome}` : ""}.
-              </p>
-            )}
-            {cartao.status === "PREPARACAO" && cartao.bloqueiosRegistro.length > 0 && (
-              <ul className="space-y-1 text-xs text-muted-foreground">
-                {cartao.bloqueiosRegistro.map((item) => (
-                  <li key={item.codigo}>{item.mensagem}</li>
-                ))}
-              </ul>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <Link to={`/admin/cronograma/${encodeURIComponent(projetoId)}`} className="btn btn-ghost btn-sm inline-flex">
-                Ver cronograma
-              </Link>
-              {isMaster && cartao.podeRegistrar && (
-                <button type="button" className="btn btn-secondary btn-sm rounded-[8px]" disabled={isSaving} onClick={() => setShowCartao(true)}>
-                  Registrar solicitação
-                </button>
-              )}
-            </div>
-          </section>
+          <CartaoObraPainel
+            data={cartao}
+            role="admin"
+            isMaster={isMaster}
+            cronogramaHref={`/admin/cronograma/${encodeURIComponent(projetoId)}`}
+            onReload={load}
+            onRegistrarPedido={() => setShowCartao(true)}
+          />
         )}
 
         <section className="space-y-3">
@@ -507,8 +444,8 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
       <Modal
         open={showCartao}
         onOpenChange={setShowCartao}
-        title="Registrar solicitação do cartão"
-        description="Confirma as regras jurídicas do cartão. Isso não emite o cartão nem liga a Stark."
+        title="Registrar pedido do cartão"
+        description="Abre o pedido interno. Não emite o cartão. A incorporadora pede depois a liberação de cada etapa em andamento."
       >
         <form onSubmit={(e) => void registrarCartao(e)} className="space-y-5">
           <div className="space-y-2 rounded-[8px] border border-border bg-muted/40 p-3">

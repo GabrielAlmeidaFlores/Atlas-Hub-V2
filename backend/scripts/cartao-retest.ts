@@ -2,12 +2,18 @@ import {
   bloqueiosCartaoObra,
   bloqueiosRegistroCartao,
   cronogramaDesatualizado,
+  etapaVigenteCartao,
   limiteTotalCartao,
+  limiteVigenteCartao,
   montarLimitesCartao,
+  objetoEtapasCartaoMudou,
+  podeLiberarStatusEtapa,
   podeRegistrarSolicitacaoCartao,
+  podeSolicitarLiberacaoCartao,
 } from '../src/shared/financeiro/cartao.js';
+import { montarCronograma } from '../src/shared/obra/resumo.js';
 import { solicitarCartaoObraSchema, validate, ValidationError } from '../src/shared/http/validators.js';
-import type { CartaoObra, EtapaObra } from '../src/shared/core/types/index.js';
+import type { CartaoLiberacao, CartaoObra, EtapaObra } from '../src/shared/core/types/index.js';
 
 const cases: Array<{ name: string; ok: boolean; detail: string }> = [];
 function check(name: string, ok: boolean, detail = ''): void {
@@ -37,7 +43,8 @@ const estrutura: EtapaObra = {
   ordem: 1,
   inicioPrevisto: '2026-10-21',
   fimPrevisto: '2026-11-30',
-  percentualExecucao: 0,
+  percentualExecucao: 40,
+  inicioReal: '2026-10-22',
   valorOrcado: 80_000,
   criadoEm: '2026-09-01T10:00:00.000Z',
   atualizadoEm: '2026-09-10T10:00:00.000Z',
@@ -66,6 +73,7 @@ eq('bloqueios Stark sempre presentes', bloqueios.map((b) => b.codigo).filter((c)
   'STARK_ISSUING_INDISPONIVEL',
 ]);
 eq('bloqueios de registro Atlas vazios quando elegível', bloqueiosRegistroCartao(bloqueios).map((b) => b.codigo), []);
+check('SPE conta própria aparece como pendência', bloqueios.some((b) => b.codigo === 'SPE_CONTA_PROPRIA_PENDENTE'), '');
 
 const cartao: CartaoObra = {
   projetoId: 'proj-3',
@@ -73,15 +81,47 @@ const cartao: CartaoObra = {
   titularidade: 'SPE',
   pagamentoFatura: 'INTEGRAL_AUTOMATICO',
   cashbackDestino: 'SPE',
-  receitaAtlas: 'COMISSAO_COMERCIAL',
+  receitaAtlas: 'PERCENTUAL_CAPTACAO',
   limites,
   criadoEm: '2026-09-01T10:00:00.000Z',
   atualizadoEm: '2026-09-01T10:00:00.000Z',
 };
 check('cronograma igual não marca desatualizado', !cronogramaDesatualizado(cartao, limites), '');
 check(
-  'cronograma mudou marca desatualizado',
+  'mudança de valor marca desatualizado',
   cronogramaDesatualizado(cartao, limites.map((l) => ({ ...l, limiteProposto: l.limiteProposto + 1 }))),
+  '',
+);
+check('mudança de valor não muda o objeto das etapas', !objetoEtapasCartaoMudou(limites.map((l) => ({ ...l, limiteProposto: l.limiteProposto + 1 })), limites), '');
+const primeira = limites[0];
+check(
+  'etapa nova muda o objeto do pedido',
+  primeira !== undefined && objetoEtapasCartaoMudou([...limites, { ...primeira, etapaId: 'nova' }], limites),
+  '',
+);
+
+const views = montarCronograma([fundacao, estrutura], []).etapas;
+const vigente = etapaVigenteCartao(views);
+eq('etapa vigente é a em andamento', vigente?.etapa.etapaId, 'etapa-estrutura');
+check('não libera etapa planejada', !podeSolicitarLiberacaoCartao('SOLICITADO', vigente, 'etapa-fund', []), '');
+check('libera etapa vigente sem pedido', podeSolicitarLiberacaoCartao('SOLICITADO', vigente, 'etapa-estrutura', []), '');
+check('status em andamento pode liberar', vigente !== null && podeLiberarStatusEtapa(vigente.statusExibicao), '');
+
+const confirmada: CartaoLiberacao = {
+  projetoId: 'proj-3',
+  etapaId: 'etapa-estrutura',
+  status: 'CONFIRMADA',
+  limite: 80_000,
+  solicitadoPor: 'inc',
+  solicitadoPorNome: 'Inc',
+  solicitadoEm: '2026-09-01T10:00:00.000Z',
+  atualizadoEm: '2026-09-01T10:00:00.000Z',
+};
+eq('teto vigente é só a etapa confirmada', limiteVigenteCartao(vigente, [confirmada]), 80_000);
+check('não pede de novo se já confirmada', !podeSolicitarLiberacaoCartao('SOLICITADO', vigente, 'etapa-estrutura', [confirmada]), '');
+check(
+  'repede se recusada',
+  podeSolicitarLiberacaoCartao('SOLICITADO', vigente, 'etapa-estrutura', [{ ...confirmada, status: 'REJEITADA' }]),
   '',
 );
 
