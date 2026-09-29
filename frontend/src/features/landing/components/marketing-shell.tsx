@@ -152,7 +152,7 @@ function MarketingFooter(): ReactNode {
         <div className="flex flex-col items-center text-center md:col-span-4 md:items-start md:text-left">
           <Logo size="lg" scheme="dark" className="origin-center scale-[1.35] md:origin-left md:scale-[1.5] lg:scale-[1.875]" />
           <p className="mt-4 max-w-xs text-[11px] leading-relaxed text-white/70 md:text-[12px]">
-            Crowdfunding imobiliário.
+            Conectando Capital ao Mercado Imobiliário.
             <br />
             Originação e curadoria de projetos.
           </p>
@@ -182,7 +182,7 @@ function MarketingFooter(): ReactNode {
               <Link to="/#central-duvidas" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Conteúdos
               </Link>
-              <a href="mailto:contato@atlashub.com.br" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
+              <a href="mailto:contato@atlascomp.com.br" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Contato
               </a>
             </div>
@@ -194,9 +194,6 @@ function MarketingFooter(): ReactNode {
               <Link to="/privacidade" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Privacidade
               </Link>
-              <a href="#" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
-                CVM Resolução 88
-              </a>
             </div>
           </div>
         </div>
@@ -205,17 +202,17 @@ function MarketingFooter(): ReactNode {
         <div className="lp-container px-4 text-[10px] font-medium leading-relaxed text-[#6C4C14] sm:text-[11px]">
           <div className="md:hidden">
             <p>
-              <strong className="font-bold">© 2026 Atlas Hub</strong> — Crowdfunding
+              <strong className="font-bold">© 2026 Atlas Hub</strong> — Conectando Capital
             </p>
             <p className="mt-1">
-              Imobiliário. <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83.
+              ao Mercado Imobiliário. <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83.
             </p>
             <p className="mt-1">
               <strong className="font-bold">Todos os direitos reservados.</strong>
             </p>
           </div>
           <span className="hidden md:inline">
-            <strong className="font-bold">© 2026 Atlas Hub</strong> — Crowdfunding Imobiliário.{" "}
+            <strong className="font-bold">© 2026 Atlas Hub</strong> — Conectando Capital ao Mercado Imobiliário.{" "}
             <strong className="font-bold">CNPJ:</strong> 68.693.823/0001-83.{" "}
             <strong className="font-bold">Todos os direitos reservados.</strong>
           </span>

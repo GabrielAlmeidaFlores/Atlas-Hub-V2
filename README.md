@@ -77,8 +77,8 @@ Deploy DEV/PRD pode ficar atrás do código local; valide ambiente após merge.
 
 | Perfil | E-mail | Senha |
 |---|---|---|
-| Admin master | `gabriel@atlashub.com.br` | `AtlasHub!Dev2026` |
-| Analista | `analista@atlashub.com.br` | `AtlasHub!Dev2026` |
+| Admin master | `gabriel@atlascomp.com.br` | `AtlasHub!Dev2026` |
+| Analista | `analista@atlascomp.com.br` | `AtlasHub!Dev2026` |
 | Incorporadora | `contato@horizonconstrutora.com.br` | `AtlasHub!Dev2026` |
 | Incorporadora | `projetos@verdeurbano.com.br` | `AtlasHub!Dev2026` |
 | Incorporadora | `admin@atlanticresidencial.com.br` | `AtlasHub!Dev2026` |

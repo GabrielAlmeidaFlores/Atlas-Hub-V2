@@ -32,7 +32,7 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactN
             <span className="text-gradient-gold">Capte com investidores.</span>
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-white/55">
-            Crowdfunding imobiliário regulado pela CVM Resolução 88.
+            Sob o guarda-chuva regulatório da Divify.
           </p>
 
           <div className="mt-8 grid grid-cols-3 gap-0 border border-white/10 bg-white/[0.04] backdrop-blur-sm">
@@ -50,7 +50,7 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactN
         </div>
 
         <p className="relative text-xs text-white/45">
-          © 2026 Atlas Hub - Crowdfunding Imobiliário. Todos os direitos reservados.
+          © 2026 Atlas Hub - Conectando Capital ao Mercado Imobiliário. Todos os direitos reservados.
         </p>
       </div>
 
