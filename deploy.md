@@ -130,7 +130,7 @@ O SES começa em modo sandbox — só envia para e-mails verificados.
 ### Verificar domínio (enquanto aguarda)
 ```bash
 aws ses verify-domain-identity \
-  --domain atlashub.com.br \
+  --domain atlascomp.com.br \
   --region sa-east-1
 ```
 Adicionar os registros DNS retornados no provedor de domínio.
@@ -143,7 +143,7 @@ Após ter um domínio registrado:
 
 1. AWS Console → Amplify → seu app → Domain management
 2. "Add domain"
-3. Inserir o domínio (ex: `atlashub.com.br`)
+3. Inserir o domínio (ex: `atlascomp.com.br`)
 4. Amplify gera registros CNAME — adicionar no DNS
 5. Aguardar propagação (até 24h)
 
@@ -158,7 +158,7 @@ export AWS_PROFILE=atlas-hub
 cd repository/atlas-hub-v2/backend
 
 POOL_ID="sa-east-1_XXXXXXXXX" \
-ADMIN_EMAIL="admin@atlashub.com.br" \
+ADMIN_EMAIL="admin@atlascomp.com.br" \
 ADMINS_TABLE="AtlasAdmins-prod" \
 REGION="sa-east-1" \
 npx tsx scripts/create-admin-master.ts

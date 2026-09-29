@@ -44,7 +44,7 @@ provider:
     ANALYTICS_ALERTS_TABLE: AtlasAnalyticsAlerts-${self:provider.stage}
     ANALYTICS_REPLAYS_TABLE: AtlasAnalyticsReplays-${self:provider.stage}
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
-    SES_FROM_EMAIL: noreply@atlashub.com.br
+    SES_FROM_EMAIL: noreply@atlascomp.com.br
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
 
   logRetentionInDays: 14
