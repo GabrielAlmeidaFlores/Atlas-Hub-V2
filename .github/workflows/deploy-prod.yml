@@ -25,10 +25,34 @@ jobs:
         working-directory: backend
         run: npm run build
 
+  deploy-infra:
+    name: Deploy infra (DynamoDB tables)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ vars.AWS_REGION }}
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci --legacy-peer-deps
+      - name: Deploy infra with Serverless Framework
+        working-directory: backend
+        run: npx serverless@3 deploy --config serverless-infra.yml --stage prod
+
   deploy-backend:
     name: Deploy backend
     runs-on: ubuntu-latest
-    needs: typecheck-backend
+    needs: [typecheck-backend, deploy-infra]
     outputs:
       api_url:      ${{ steps.cf.outputs.api_url }}
       user_pool_id: ${{ steps.cf.outputs.user_pool_id }}
