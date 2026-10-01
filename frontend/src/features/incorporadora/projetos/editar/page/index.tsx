@@ -154,6 +154,11 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
       return;
     }
+    const valorCaptar = parseMoneyInput(form.valorCaptar);
+    if (!Number.isFinite(valorCaptar) || valorCaptar > 15_000_000) {
+      addToast({ type: "error", title: "Valor a captar inválido", description: "Informe um valor de até R$15M (CVM 88)." });
+      return;
+    }
     setIsSaving(true);
     try {
       const viabilidade = formToViabilidade(viabilidadeForm);

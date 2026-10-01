@@ -94,30 +94,36 @@ export function ProjetoFotosField({
 }: ProjetoFotosFieldProps): ReactNode {
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<string[]>([]);
-  const [previewTick, setPreviewTick] = useState(0);
-  const previewsRef = useRef<Map<string, string>>(new Map());
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const previewsRef = useRef<Record<string, string>>({});
   const remaining = MAX_FOTOS - value.length;
 
   useEffect(() => {
-    const previews = previewsRef.current;
+    previewsRef.current = previews;
+  }, [previews]);
+
+  useEffect(() => {
     return () => {
-      for (const src of previews.values()) URL.revokeObjectURL(src);
-      previews.clear();
+      for (const src of Object.values(previewsRef.current)) URL.revokeObjectURL(src);
     };
   }, []);
 
   function rememberPreview(location: string, src: string): void {
-    const previous = previewsRef.current.get(location);
-    if (previous !== undefined && previous !== src) URL.revokeObjectURL(previous);
-    previewsRef.current.set(location, src);
-    setPreviewTick((n) => n + 1);
+    setPreviews((prev) => {
+      const previous = prev[location];
+      if (previous !== undefined && previous !== src) URL.revokeObjectURL(previous);
+      return { ...prev, [location]: src };
+    });
   }
 
   function forgetPreview(location: string): void {
-    const src = previewsRef.current.get(location);
-    if (src !== undefined) URL.revokeObjectURL(src);
-    previewsRef.current.delete(location);
-    setPreviewTick((n) => n + 1);
+    setPreviews((prev) => {
+      const src = prev[location];
+      if (src !== undefined) URL.revokeObjectURL(src);
+      const next = { ...prev };
+      delete next[location];
+      return next;
+    });
   }
 
   async function handleFiles(files: FileList | null): Promise<void> {
@@ -183,9 +189,9 @@ export function ProjetoFotosField({
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {value.map((url, index) => (
             <FotoThumb
-              key={`${url}-${String(index)}`}
+              key={url}
               location={url}
-              previewSrc={previewTick >= 0 ? previewsRef.current.get(url) : undefined}
+              previewSrc={previews[url]}
               disabled={busy || disabled}
               onRemove={() => {
                 forgetPreview(url);

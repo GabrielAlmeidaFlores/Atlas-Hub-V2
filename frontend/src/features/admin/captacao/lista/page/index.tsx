@@ -7,8 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatCurrency, formatDateTime, cn } from "@/lib/utils";
 
 const OFERTA_COLS = [
   { label: "Projeto" },

@@ -10,3 +10,8 @@ export async function openDocument(location: string): Promise<void> {
   const url = await resolveDocumentUrl(location);
   window.open(url, "_blank", "noopener,noreferrer");
 }
+
+export async function deleteDocumento(location: string): Promise<void> {
+  if (!location.includes("atlas-hub-documents-")) return;
+  await api.post("/documentos/delete", { location });
+}

@@ -13,8 +13,7 @@ interface AuthState {
   readonly pendingChallenge: { readonly type: "NEW_PASSWORD_REQUIRED" } | null;
 }
 
-const isCognitoConfigured =
-  !USE_LOCAL_MOCKS && VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIENT_ID !== "";
+const cognitoConfigured = VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIENT_ID !== "";
 
 function extractPerfil(groups: string[]): Perfil {
   if (groups.includes("ADMIN_MASTER")) return "ADMIN_MASTER";
@@ -49,7 +48,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   pendingChallenge: null,
 
   login: async (email, password) => {
-    if (!isCognitoConfigured) {
+    if (USE_LOCAL_MOCKS) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const normalizedEmail = email.trim().toLowerCase();
       const perfil = extractPerfilFromEmail(normalizedEmail);
@@ -60,8 +59,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
         pendingChallenge: null,
       });
-      console.log(`🎭 Mock login: ${normalizedEmail} como ${perfil}`);
       return;
+    }
+
+    if (!cognitoConfigured) {
+      throw new Error("Autenticação não configurada");
     }
 
     const { signIn, signOut, fetchAuthSession } = await import("@aws-amplify/auth");
@@ -120,9 +122,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   restoreSession: async () => {
-    if (!isCognitoConfigured) {
+    if (USE_LOCAL_MOCKS) {
       set({ isLoading: false });
-      console.log("🎭 Mock mode: sem sessão persistente");
       return;
     }
 

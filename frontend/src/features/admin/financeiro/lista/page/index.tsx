@@ -4,15 +4,14 @@ import { Landmark, ArrowRight, Wallet } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
-import type { FinanceiroContasResponse, ProjetoElegivel, SpeConta } from "@/types";
+import type { FinanceiroContasResponse, ProjetoElegivel } from "@/types";
 import { TESOURARIA_CONTA_ID } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
-import { formatCurrency, formatCnpj, formatDate, isValidCnpj } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatCurrency, formatCnpj, formatDate, isValidCnpj, cn } from "@/lib/utils";
 
 const COLUMNS = [
   { label: "Projeto" },
@@ -113,7 +112,7 @@ export default function AdminFinanceiroListaPage(): ReactNode {
     }
   }
 
-  const tesouraria: SpeConta | null = data.tesouraria;
+  const tesouraria = data.tesouraria;
   const elegiveis: ProjetoElegivel[] = data.elegiveis;
   const cnpjSpeDigits = form.cnpjSpe.replace(/\D/g, "");
   const cnpjSpeCompleto = cnpjSpeDigits.length === 14;

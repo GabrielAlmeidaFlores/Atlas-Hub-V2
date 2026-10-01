@@ -81,6 +81,9 @@ function buildCrumbs(pathname: string, leafOverride: string | undefined): Crumb[
     if (label === undefined && prev === "captacao") {
       label = leafOverride ?? "Oferta";
     }
+    if (label === undefined && prev === "financeiro") {
+      label = leafOverride ?? "Conta";
+    }
     if (label === undefined) {
       if (isLast && leafOverride !== undefined) label = leafOverride;
       else if (isId) label = "Detalhe";

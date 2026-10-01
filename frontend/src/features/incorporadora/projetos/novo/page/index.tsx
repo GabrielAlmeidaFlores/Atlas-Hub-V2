@@ -186,6 +186,12 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       setEtapa(4);
       return;
     }
+    const valorCaptar = parseMoneyInput(financeiros.valorCaptar);
+    if (!Number.isFinite(valorCaptar) || valorCaptar > 15_000_000) {
+      addToast({ type: "error", title: "Valor a captar inválido", description: "Informe um valor de até R$15M (CVM 88)." });
+      setEtapa(2);
+      return;
+    }
     const viabilidade = formToViabilidade(viabilidadeForm);
     setIsLoading(true);
     try {

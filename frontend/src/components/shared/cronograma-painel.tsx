@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { CalendarRange, Plus, Wallet } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { uploadProjetoDocumento } from "@/lib/upload";
+import { deleteDocumento } from "@/lib/documents";
 import { useToastStore } from "@/stores/toast";
 import type { CronogramaDetalhe, EtapaCronograma, LancamentoObra } from "@/types";
 import { StatCard } from "@/components/ui/stat-card";
@@ -149,6 +150,10 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
       addToast({ type: "error", title: "Percentual deve estar entre 0 e 100" });
       return;
     }
+    if (etapaForm.inicioPrevisto !== "" && etapaForm.fimPrevisto !== "" && etapaForm.inicioPrevisto > etapaForm.fimPrevisto) {
+      addToast({ type: "error", title: "Data de início posterior ao fim" });
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -213,13 +218,20 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
       if (comprovante !== null) {
         comprovanteUrl = await uploadProjetoDocumento(data.projeto.id, comprovante);
       }
-      await api.post(`/projetos/${data.projeto.id}/cronograma/lancamentos`, {
-        etapaId: gastoForm.etapaId,
-        descricao: gastoForm.descricao.trim(),
-        valor,
-        dataLancamento: gastoForm.dataLancamento,
-        ...(comprovanteUrl !== undefined ? { comprovanteUrl } : {}),
-      });
+      try {
+        await api.post(`/projetos/${data.projeto.id}/cronograma/lancamentos`, {
+          etapaId: gastoForm.etapaId,
+          descricao: gastoForm.descricao.trim(),
+          valor,
+          dataLancamento: gastoForm.dataLancamento,
+          ...(comprovanteUrl !== undefined ? { comprovanteUrl } : {}),
+        });
+      } catch (err) {
+        if (comprovanteUrl !== undefined) {
+          void deleteDocumento(comprovanteUrl).catch(() => undefined);
+        }
+        throw err;
+      }
       addToast({ type: "success", title: "Gasto registrado" });
       setGastoOpen(false);
       setComprovante(null);

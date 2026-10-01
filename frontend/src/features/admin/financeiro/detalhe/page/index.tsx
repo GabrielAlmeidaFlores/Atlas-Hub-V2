@@ -17,8 +17,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
-import { formatCurrency, formatDateTime, parseMoneyInput } from "@/lib/utils";
-import { cn, formatCpfCnpj, isValidCpfCnpj } from "@/lib/utils";
+import { formatCurrency, formatDateTime, parseMoneyInput, cn, formatCpfCnpj, isValidCpfCnpj } from "@/lib/utils";
 import { CurrencyInput } from "@/components/shared/currency-input";
 import { CartaoObraPainel } from "@/components/shared/cartao-obra-painel";
 
@@ -164,11 +163,16 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
 
   async function criarSolicitacao(e: FormEvent): Promise<void> {
     e.preventDefault();
+    const amountReais = parseMoneyInput(form.amountReais);
+    if (!Number.isFinite(amountReais) || amountReais <= 0) {
+      addToast({ type: "error", title: "Informe um valor maior que zero" });
+      return;
+    }
     setIsSaving(true);
     try {
       await api.post("/admin/financeiro/solicitacoes", {
         projetoId,
-        amountReais: parseMoneyInput(form.amountReais),
+        amountReais,
         description: form.description,
         pixKey: form.pixKey,
       });

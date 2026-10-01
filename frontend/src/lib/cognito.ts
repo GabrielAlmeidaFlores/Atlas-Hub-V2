@@ -3,7 +3,6 @@ import { USE_LOCAL_MOCKS, VITE_AWS_REGION, VITE_COGNITO_CLIENT_ID, VITE_COGNITO_
 
 export function configureAmplify(): void {
   if (USE_LOCAL_MOCKS || VITE_COGNITO_USER_POOL_ID === "" || VITE_COGNITO_CLIENT_ID === "") {
-    console.log("🎭 Modo Mock: Cognito não configurado, login aceita qualquer credencial");
     return;
   }
   Amplify.configure({
@@ -15,5 +14,4 @@ export function configureAmplify(): void {
       },
     },
   });
-  console.log("✅ Cognito configurado:", VITE_COGNITO_USER_POOL_ID);
 }

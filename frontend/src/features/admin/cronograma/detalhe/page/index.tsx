@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarRange } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
@@ -18,7 +18,7 @@ export default function AdminCronogramaDetalhePage(): ReactNode {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async (): Promise<void> => {
+  async function load(): Promise<void> {
     if (projetoId === undefined) return;
     const r = await api.get<CronogramaDetalhe>(`/admin/cronograma/projetos/${projetoId}`);
     setData(r);
@@ -28,7 +28,7 @@ export default function AdminCronogramaDetalhePage(): ReactNode {
       setCartao(null);
     }
     setError(null);
-  }, [projetoId]);
+  }
 
   useEffect(() => {
     void load()
@@ -36,7 +36,7 @@ export default function AdminCronogramaDetalhePage(): ReactNode {
         setError(getApiErrorMessage(err));
       })
       .finally(() => setIsLoading(false));
-  }, [load]);
+  }, [projetoId]);
 
   if (isLoading) return <SkeletonPage />;
   if (data === null) {

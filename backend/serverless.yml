@@ -393,6 +393,20 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ApiGatewayAuthorizer
 
+  documentoDelete:
+    handler: src/functions/documento-delete.handler
+    role: !GetAtt DocumentoDeleteLambdaRole.Arn
+    timeout: 10
+    description: "Deletes a project S3 document owned by the caller"
+    events:
+      - http:
+          path: documentos/delete
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
   # ── Notificações ───────────────────────────────────────────────────
 
   notificacoesListar:
@@ -1624,6 +1638,31 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                 - Effect: Allow
                   Action: [s3:GetObject]
+                  Resource:
+                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
+
+    DocumentoDeleteLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-docDelete-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [s3:DeleteObject]
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
 
