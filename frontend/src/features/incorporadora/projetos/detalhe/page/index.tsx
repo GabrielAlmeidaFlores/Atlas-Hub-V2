@@ -55,7 +55,14 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
             <ArrowLeft className="h-3 w-3" /> Dashboard
           </Link>
         }
-        action={<StatusBadge status={projeto.status} size="md" />}
+        action={
+          <div className="flex items-center gap-2">
+            <Link to={`/projetos/${projeto.id}/cronograma`} className="btn btn-outline btn-sm rounded-[8px]">
+              Cronograma
+            </Link>
+            <StatusBadge status={projeto.status} size="md" />
+          </div>
+        }
       />
 
       <div className="page-content space-y-6">

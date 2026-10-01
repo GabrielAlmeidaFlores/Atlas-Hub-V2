@@ -189,6 +189,31 @@ export default function AdminAnalyticsPage(): ReactNode {
 
   if (isLoading && dashboard === null) return <SkeletonPage />;
 
+  if (dashboard === null) {
+    return (
+      <div className="animate-in">
+        <PageHeader title="Analytics" description="Jornada LP → cadastro → curadoria" />
+        <div className="page-content">
+          <p className="text-sm text-muted-foreground">Não foi possível carregar os dados. Tente de novo em instantes.</p>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm mt-4"
+            onClick={() => {
+              setIsLoading(true);
+              void Promise.all([loadOverview(appliedFilters), loadFunnel(appliedFilters)])
+                .catch((err: unknown) => {
+                  addToast({ type: "error", title: "Erro ao carregar analytics", description: getApiErrorMessage(err) });
+                })
+                .finally(() => setIsLoading(false));
+            }}
+          >
+            Tentar de novo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const maxVisitors = Math.max(1, ...(dashboard?.visitorsByDay?.map((d) => d.visitors) ?? [1]));
   const maxFunnel = Math.max(1, ...(funnel?.steps?.map((s) => s.count) ?? [1]));
   const maxClick = Math.max(1, ...(heatmap?.clicks?.map((c) => c.count) ?? [1]));
