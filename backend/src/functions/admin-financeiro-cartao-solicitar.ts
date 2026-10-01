@@ -35,7 +35,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     ]);
 
     const limites = montarLimitesCartao(etapas);
-    if (!podeRegistrarSolicitacaoCartao(conta.tipo, projeto?.status, limites, existente?.status)) {
+    if (!podeRegistrarSolicitacaoCartao(conta.tipo, conta.status, projeto?.status, limites, existente?.status)) {
       return badRequest(event, 'Não é possível registrar a solicitação deste cartão agora');
     }
 

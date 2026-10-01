@@ -138,7 +138,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const inserted = await putCaptacaoEvento(stored);
 
-    if (inserted && normalized.ofertaId !== undefined && normalized.purchaseId !== undefined) {
+    if (normalized.ofertaId !== undefined && normalized.purchaseId !== undefined) {
       const compra: CaptacaoCompra = {
         ofertaId: normalized.ofertaId,
         purchaseId: normalized.purchaseId,

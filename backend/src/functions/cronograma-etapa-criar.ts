@@ -16,12 +16,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     await loadProjetoCronograma(event, projetoId, 'owner');
     const body = validate(criarEtapaObraSchema, JSON.parse(event.body ?? '{}'));
     const existing = await listEtapasByProjeto(projetoId);
+    const proximaOrdem = existing.reduce((max, item) => Math.max(max, item.ordem), 0) + 1;
     const now = new Date().toISOString();
     const etapa: EtapaObra = {
       projetoId,
       etapaId: uuidv4(),
       nome: body.nome,
-      ordem: existing.length + 1,
+      ordem: proximaOrdem,
       inicioPrevisto: body.inicioPrevisto,
       fimPrevisto: body.fimPrevisto,
       percentualExecucao: body.percentualExecucao ?? 0,

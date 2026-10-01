@@ -3,7 +3,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ok, unauthorized, forbidden, notFound, conflict, serverError } from '../shared/http/response.js';
 import { getUserId, getUserEmail, AuthError, ForbiddenError, requireAdminMaster } from '../shared/http/auth.js';
 import { createLogger } from '../shared/core/logger.js';
-import { getSolicitacao, updateSolicitacaoStatus, putFinanceiroAuditoria } from '../shared/db/financeiro.js';
+import { getSolicitacao, transitarSolicitacaoStatus, putFinanceiroAuditoria } from '../shared/db/financeiro.js';
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const log = createLogger('adminFinanceiroSolicitacaoRejeitar');
@@ -19,11 +19,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (solicitacao.status !== 'PENDENTE') return conflict(event, 'Solicitação já foi processada');
 
     const now = new Date().toISOString();
-    await updateSolicitacaoStatus(id, 'REJEITADA', {
-      aprovadoPor: userId,
-      aprovadoPorNome: userName,
-      aprovadoEm: now,
+    const rejeitada = await transitarSolicitacaoStatus(id, 'PENDENTE', 'REJEITADA', {
+      rejeitadoPor: userId,
+      rejeitadoPorNome: userName,
+      rejeitadoEm: now,
     });
+    if (!rejeitada) {
+      return conflict(event, 'Solicitação já foi processada');
+    }
     await putFinanceiroAuditoria({
       projetoId: solicitacao.projetoId,
       criadoEm: now,

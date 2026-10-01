@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { CartaoLiberacao, CartaoObra, EtapaObra, Projeto, SpeConta } from '../core/types/index.js';
 import { putFinanceiroAuditoria } from '../db/financeiro.js';
-import { listCartaoLiberacoes, putCartaoLiberacao, putCartaoObra } from '../db/cartao.js';
+import { getCartaoObra, listCartaoLiberacoes, putCartaoLiberacao, putCartaoObraSeInalterado } from '../db/cartao.js';
 import { montarCronograma } from '../obra/resumo.js';
 import { isStarkConfigured } from '../starkbank/index.js';
 import {
@@ -34,8 +34,16 @@ export async function sincronizarPedidoCartao(input: {
 
   const now = new Date().toISOString();
   const objetoMudou = objetoEtapasCartaoMudou(limites, cartao.limites);
+  const atualizadoEmAnterior = cartao.atualizadoEm;
   cartao = { ...cartao, limites, atualizadoEm: now };
-  await putCartaoObra(cartao);
+  const gravou = await putCartaoObraSeInalterado(cartao, atualizadoEmAnterior);
+  if (!gravou) {
+    return {
+      cartao: await getCartaoObra(cartao.projetoId),
+      liberacoes: await listCartaoLiberacoes(cartao.projetoId),
+      limiteRecalculado: false,
+    };
+  }
 
   const idsAtuais = new Set(limites.map((linha) => linha.etapaId));
   const orcadoPorEtapa = new Map(limites.map((linha) => [linha.etapaId, linha.limiteProposto]));
@@ -143,9 +151,8 @@ export function cartaoObraPayload(
     limiteVigente: limiteVigenteCartao(vigente, liberacoes),
     ...(vigente !== null ? { etapaVigenteId: vigente.etapa.etapaId, etapaVigenteNome: vigente.etapa.nome } : {}),
     ...(cartao !== null ? { limiteRegistrado: limiteTotalCartao(cartao.limites) } : {}),
-    cronogramaDesatualizado: false,
     limiteRecalculado,
-    podeRegistrar: podeRegistrarSolicitacaoCartao(conta.tipo, projeto?.status, limites, cartao?.status),
+    podeRegistrar: podeRegistrarSolicitacaoCartao(conta.tipo, conta.status, projeto?.status, limites, cartao?.status),
     podeSolicitarLiberacao: vigente !== null
       && podeSolicitarLiberacaoCartao(cartao?.status, vigente, vigente.etapa.etapaId, liberacoes),
     liberacoes,

@@ -55,14 +55,6 @@ export function objetoEtapasCartaoMudou(
   return atuais.some((linha) => !ids.has(linha.etapaId));
 }
 
-export function cronogramaDesatualizado(
-  cartao: CartaoObra | null,
-  limitesAtuais: readonly LimiteCartaoEtapa[],
-): boolean {
-  if (cartao === null || cartao.status !== 'SOLICITADO') return false;
-  return !limitesCartaoIguais(limitesAtuais, cartao.limites);
-}
-
 export function etapaVigenteCartao(views: readonly EtapaCronogramaView[]): EtapaCronogramaView | null {
   return views.find((view) => podeLiberarStatusEtapa(view.statusExibicao)) ?? null;
 }
@@ -89,7 +81,7 @@ export function podeSolicitarLiberacaoCartao(
   if (statusCartao !== 'SOLICITADO') return false;
   if (vigente === null || vigente.etapa.etapaId !== etapaId) return false;
   const atual = liberacoes.find((item) => item.etapaId === etapaId);
-  return atual === undefined || atual.status === 'REJEITADA';
+  return atual === undefined || atual.status === 'REJEITADA' || atual.status === 'CANCELADA';
 }
 
 export function bloqueiosRegistroCartao(bloqueios: readonly CartaoObraBloqueio[]): CartaoObraBloqueio[] {
@@ -98,11 +90,13 @@ export function bloqueiosRegistroCartao(bloqueios: readonly CartaoObraBloqueio[]
 
 export function podeRegistrarSolicitacaoCartao(
   contaTipo: SpeConta['tipo'],
+  contaStatus: SpeConta['status'],
   statusProjeto: StatusProjeto | undefined,
   limites: readonly LimiteCartaoEtapa[],
   statusCartao: CartaoObra['status'] | undefined,
 ): boolean {
   return contaTipo === 'SPE'
+    && contaStatus === 'ATIVA'
     && statusProjeto === 'OFERTA_CRIADA'
     && limites.length > 0
     && statusCartao !== 'SOLICITADO';

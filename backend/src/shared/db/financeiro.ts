@@ -5,6 +5,7 @@ import {
   ScanCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
+import type { UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
 import { Tables } from '../core/tables.js';
 import { TESOURARIA_CONTA_ID } from '../core/types/index.js';
 import type {
@@ -117,11 +118,18 @@ export async function getSolicitacao(id: string): Promise<FinanceiroSolicitacao 
   return (result.Item as FinanceiroSolicitacao | undefined) ?? null;
 }
 
-export async function updateSolicitacaoStatus(
+type SolicitacaoStatusExtra = Partial<Pick<
+  FinanceiroSolicitacao,
+  | 'aprovadoPor' | 'aprovadoPorNome' | 'aprovadoEm'
+  | 'rejeitadoPor' | 'rejeitadoPorNome' | 'rejeitadoEm'
+  | 'starkTransferId' | 'erro'
+>>;
+
+function solicitacaoStatusParams(
   id: string,
   status: SolicitacaoStatus,
-  extra: Partial<Pick<FinanceiroSolicitacao, 'aprovadoPor' | 'aprovadoPorNome' | 'aprovadoEm' | 'starkTransferId' | 'erro'>>,
-): Promise<void> {
+  extra: SolicitacaoStatusExtra,
+): UpdateCommandInput {
   const sets = ['#s = :s'];
   const names: Record<string, string> = { '#s': 'status' };
   const values: Record<string, unknown> = { ':s': status };
@@ -135,13 +143,39 @@ export async function updateSolicitacaoStatus(
     values[val] = v;
     idx += 1;
   }
-  await db.send(new UpdateCommand({
+  return {
     TableName: Tables.FINANCEIRO_SOLICITACOES,
     Key: { id },
     UpdateExpression: `SET ${sets.join(', ')}`,
     ExpressionAttributeNames: names,
     ExpressionAttributeValues: values,
-  }));
+  };
+}
+
+export async function updateSolicitacaoStatus(
+  id: string,
+  status: SolicitacaoStatus,
+  extra: SolicitacaoStatusExtra,
+): Promise<void> {
+  await db.send(new UpdateCommand(solicitacaoStatusParams(id, status, extra)));
+}
+
+export async function transitarSolicitacaoStatus(
+  id: string,
+  from: SolicitacaoStatus,
+  status: SolicitacaoStatus,
+  extra: SolicitacaoStatusExtra,
+): Promise<boolean> {
+  const params = solicitacaoStatusParams(id, status, extra);
+  params.ConditionExpression = '#s = :from';
+  params.ExpressionAttributeValues = { ...params.ExpressionAttributeValues, ':from': from };
+  try {
+    await db.send(new UpdateCommand(params));
+    return true;
+  } catch (err) {
+    if (err instanceof Error && err.name === 'ConditionalCheckFailedException') return false;
+    throw err;
+  }
 }
 
 export async function listSolicitacoesByProjeto(projetoId: string): Promise<FinanceiroSolicitacao[]> {

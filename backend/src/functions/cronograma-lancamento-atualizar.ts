@@ -22,10 +22,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     const current = await getLancamentoObra(projetoId, lancamentoId);
     if (current === null) return notFound(event, 'Lançamento não encontrado');
-    validate(atualizarLancamentoObraSchema, JSON.parse(event.body ?? '{}'));
+    const body = validate(atualizarLancamentoObraSchema, JSON.parse(event.body ?? '{}'));
+    if (current.status !== 'CONFIRMADO') {
+      return badRequest(event, 'INVALID_STATUS_TRANSITION');
+    }
     const lancamento: LancamentoObra = {
       ...current,
-      status: 'CANCELADO',
+      status: body.status,
       atualizadoEm: new Date().toISOString(),
     };
     await putLancamentoObra(lancamento);

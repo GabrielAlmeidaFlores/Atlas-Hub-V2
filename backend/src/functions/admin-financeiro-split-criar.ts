@@ -4,7 +4,8 @@ import { getUserId, AuthError, ForbiddenError, requireAdminMaster } from '../sha
 import { validate, ValidationError, isValidCnpjDigits, isValidCpfDigits } from '../shared/http/validators.js';
 import { createLogger } from '../shared/core/logger.js';
 import { getSpeConta } from '../shared/db/financeiro.js';
-import { createSplitReceiverPrep } from '../shared/starkbank/index.js';
+import { createSplitReceiverPrep, lookupPixKey, StarkNotConfiguredError, StarkOperationError } from '../shared/starkbank/index.js';
+import type { DestinoPix } from '../shared/core/types/index.js';
 import { z } from 'zod';
 
 const criarSplitSchema = z.object({
@@ -44,15 +45,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return badRequest(event, 'Conta não está ativa');
     }
 
-    const destino = {
-      name: body.name,
-      taxId: body.taxId.replace(/\D/g, ''),
-      ...(body.pixKey !== undefined ? { pixKey: body.pixKey } : {}),
-      bankCode: body.bankCode ?? '00000000',
-      branchCode: body.branchCode ?? '0001',
-      accountNumber: body.accountNumber ?? '0000000-0',
-      accountType: (body.accountType ?? 'checking') as 'checking' | 'savings' | 'salary' | 'payment',
-    };
+    let destino: DestinoPix;
+    if (body.pixKey !== undefined && body.pixKey.length > 0) {
+      destino = await lookupPixKey(body.pixKey, conta.workspaceId);
+    } else {
+      destino = {
+        name: body.name,
+        taxId: body.taxId.replace(/\D/g, ''),
+        bankCode: body.bankCode ?? '',
+        branchCode: body.branchCode ?? '',
+        accountNumber: body.accountNumber ?? '',
+        accountType: body.accountType ?? 'checking',
+      };
+    }
 
     const tags = [
       `projeto:${body.projetoId}`,
@@ -66,13 +71,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return created(event, {
       receiverId,
       projetoId: body.projetoId,
-      name: body.name,
+      name: destino.name,
       taxId: destino.taxId,
     });
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);
     if (err instanceof ValidationError) return badRequest(event, err.message);
+    if (err instanceof StarkNotConfiguredError || err instanceof StarkOperationError) {
+      return badRequest(event, err.message);
+    }
     log.error('Unexpected error', err);
     return serverError(event, err);
   }

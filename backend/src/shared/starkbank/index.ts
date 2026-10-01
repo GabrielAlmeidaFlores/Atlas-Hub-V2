@@ -179,19 +179,27 @@ export async function createWorkspace(params: {
 }): Promise<{ workspace: StarkWorkspace; pixKey?: string }> {
   requireConfigured();
   const sdk = loadSdk();
+  const withPix = async (workspace: StarkWorkspace) => {
+    const pixKey = await firstPixKey(orgUser(workspace.id));
+    return pixKey !== undefined ? { workspace, pixKey } : { workspace };
+  };
   const existing = await findWorkspaceByUsername(params.username);
-  if (existing !== null) {
-    const pixKey = await firstPixKey(orgUser(existing.id));
-    return pixKey !== undefined ? { workspace: existing, pixKey } : { workspace: existing };
-  }
+  if (existing !== null) return withPix(existing);
   try {
     const workspace = await sdk.workspace.create(
       { username: params.username, name: params.name },
       { user: orgUser() },
     );
-    const pixKey = await firstPixKey(orgUser(workspace.id));
-    return pixKey !== undefined ? { workspace, pixKey } : { workspace };
+    return await withPix(workspace);
   } catch (err) {
+    const raced = await findWorkspaceByUsername(params.username).catch(() => null);
+    if (raced !== null) {
+      try {
+        return await withPix(raced);
+      } catch (pixErr) {
+        wrapStarkError(pixErr);
+      }
+    }
     wrapStarkError(err);
   }
 }

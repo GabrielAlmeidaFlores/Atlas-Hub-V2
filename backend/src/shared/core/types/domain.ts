@@ -269,6 +269,9 @@ export interface FinanceiroSolicitacao {
   readonly aprovadoPor?: string;
   readonly aprovadoPorNome?: string;
   readonly aprovadoEm?: string;
+  readonly rejeitadoPor?: string;
+  readonly rejeitadoPorNome?: string;
+  readonly rejeitadoEm?: string;
   readonly starkTransferId?: string;
   readonly erro?: string;
 }

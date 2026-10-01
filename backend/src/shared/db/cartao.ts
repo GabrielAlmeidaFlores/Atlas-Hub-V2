@@ -22,6 +22,21 @@ export async function putCartaoObra(item: CartaoObra): Promise<void> {
   }));
 }
 
+export async function putCartaoObraSeInalterado(item: CartaoObra, atualizadoEm: string | undefined): Promise<boolean> {
+  try {
+    await db.send(new PutCommand({
+      TableName: Tables.SPE_CARTOES,
+      Item: compactItem(item),
+      ConditionExpression: atualizadoEm === undefined ? 'attribute_not_exists(atualizadoEm)' : 'atualizadoEm = :esperado',
+      ...(atualizadoEm !== undefined ? { ExpressionAttributeValues: { ':esperado': atualizadoEm } } : {}),
+    }));
+    return true;
+  } catch (err) {
+    if (err instanceof Error && err.name === 'ConditionalCheckFailedException') return false;
+    throw err;
+  }
+}
+
 export async function listCartoesByProjetos(projetoIds: readonly string[]): Promise<Map<string, CartaoObra>> {
   const map = new Map<string, CartaoObra>();
   const unique = [...new Set(projetoIds)].filter((id) => id.length > 0);

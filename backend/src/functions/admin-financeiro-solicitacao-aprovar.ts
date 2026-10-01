@@ -6,6 +6,7 @@ import { createLogger } from '../shared/core/logger.js';
 import {
   getSolicitacao,
   updateSolicitacaoStatus,
+  transitarSolicitacaoStatus,
   putFinanceiroAuditoria,
   upsertLedgerEntry,
 } from '../shared/db/financeiro.js';
@@ -31,11 +32,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
 
     const now = new Date().toISOString();
-    await updateSolicitacaoStatus(id, 'APROVADA', {
+    const aprovada = await transitarSolicitacaoStatus(id, 'PENDENTE', 'APROVADA', {
       aprovadoPor: userId,
       aprovadoPorNome: userName,
       aprovadoEm: now,
     });
+    if (!aprovada) {
+      return conflict(event, 'Solicitação já foi processada');
+    }
     await putFinanceiroAuditoria({
       projetoId: solicitacao.projetoId,
       criadoEm: now,
@@ -48,41 +52,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       workspaceId: solicitacao.workspaceId,
     });
 
+    let transfer: Awaited<ReturnType<typeof createWorkspaceTransfer>>;
     try {
-      const transfer = await createWorkspaceTransfer(
+      transfer = await createWorkspaceTransfer(
         solicitacao.workspaceId,
         solicitacao.destino,
         solicitacao.amount,
         solicitacao.description,
         id,
       );
-      const executedAt = new Date().toISOString();
-      await updateSolicitacaoStatus(id, 'EXECUTADA', { starkTransferId: transfer.id });
-      await upsertLedgerEntry({
-        projetoId: solicitacao.projetoId,
-        starkId: transfer.id,
-        workspaceId: solicitacao.workspaceId,
-        tipo: 'TRANSFER',
-        amount: -Math.abs(solicitacao.amount),
-        description: solicitacao.description,
-        criadoEm: executedAt,
-        conciliado: true,
-        source: 'sync',
-        tags: [`solicitacao:${id}`],
-      });
-      await putFinanceiroAuditoria({
-        projetoId: solicitacao.projetoId,
-        criadoEm: executedAt,
-        id: uuidv4(),
-        acao: 'TRANSFERENCIA_EXECUTADA',
-        userId,
-        userName,
-        descricao: `Pix executado (${transfer.id})`,
-        solicitacaoId: id,
-        workspaceId: solicitacao.workspaceId,
-      });
-      log.info('Payment executed', { id, transferId: transfer.id });
-      return ok(event, { id, status: 'EXECUTADA', starkTransferId: transfer.id });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Falha ao executar Pix';
       await updateSolicitacaoStatus(id, 'FALHOU', { erro: message });
@@ -102,6 +80,34 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
       throw err;
     }
+
+    const executedAt = new Date().toISOString();
+    await updateSolicitacaoStatus(id, 'EXECUTADA', { starkTransferId: transfer.id });
+    await upsertLedgerEntry({
+      projetoId: solicitacao.projetoId,
+      starkId: transfer.id,
+      workspaceId: solicitacao.workspaceId,
+      tipo: 'TRANSFER',
+      amount: -Math.abs(solicitacao.amount),
+      description: solicitacao.description,
+      criadoEm: executedAt,
+      conciliado: true,
+      source: 'sync',
+      tags: [`solicitacao:${id}`],
+    });
+    await putFinanceiroAuditoria({
+      projetoId: solicitacao.projetoId,
+      criadoEm: executedAt,
+      id: uuidv4(),
+      acao: 'TRANSFERENCIA_EXECUTADA',
+      userId,
+      userName,
+      descricao: `Pix executado (${transfer.id})`,
+      solicitacaoId: id,
+      workspaceId: solicitacao.workspaceId,
+    });
+    log.info('Payment executed', { id, transferId: transfer.id });
+    return ok(event, { id, status: 'EXECUTADA', starkTransferId: transfer.id });
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);

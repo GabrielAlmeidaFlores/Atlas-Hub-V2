@@ -24,8 +24,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     if (isStarkConfigured()) {
       try {
+        const registrados = await listLedgerByProjeto(projetoId, 1000);
+        const tagsRegistradas = new Set<string>();
+        for (const entry of registrados) {
+          for (const tag of entry.tags ?? []) {
+            if (tag.startsWith('solicitacao:')) tagsRegistradas.add(tag);
+          }
+        }
         const txs = await listWorkspaceTransactions(conta.workspaceId, 80);
         await Promise.all(txs.map(async (tx) => {
+          if ((tx.tags ?? []).some((tag) => tagsRegistradas.has(tag))) return;
           const entry: FinanceiroLedgerEntry = {
             projetoId,
             starkId: tx.id,

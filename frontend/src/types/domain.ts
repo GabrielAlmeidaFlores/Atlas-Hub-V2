@@ -284,6 +284,9 @@ export interface FinanceiroSolicitacao {
   readonly aprovadoPor?: string;
   readonly aprovadoPorNome?: string;
   readonly aprovadoEm?: string;
+  readonly rejeitadoPor?: string;
+  readonly rejeitadoPorNome?: string;
+  readonly rejeitadoEm?: string;
   readonly starkTransferId?: string;
   readonly erro?: string;
 }
@@ -382,7 +385,6 @@ export interface CartaoObraDetalhe {
   readonly etapaVigenteId?: string;
   readonly etapaVigenteNome?: string;
   readonly limiteRegistrado?: number;
-  readonly cronogramaDesatualizado: boolean;
   readonly limiteRecalculado: boolean;
   readonly podeRegistrar: boolean;
   readonly podeSolicitarLiberacao: boolean;

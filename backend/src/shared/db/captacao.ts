@@ -1,4 +1,5 @@
 import { GetCommand, PutCommand, QueryCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import type { PutCommandInput } from '@aws-sdk/lib-dynamodb';
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { Tables } from '../core/tables.js';
 import type { CaptacaoCompra, CaptacaoEvento } from '../core/types/index.js';
@@ -84,34 +85,48 @@ export async function getCaptacaoCompra(ofertaId: string, purchaseId: string): P
   const result = await db.send(new GetCommand({
     TableName: Tables.CAPTACAO_COMPRAS,
     Key: { ofertaId, purchaseId },
+    ConsistentRead: true,
   }));
   return (result.Item as CaptacaoCompra | undefined) ?? null;
 }
 
 export async function upsertCaptacaoCompra(incoming: CaptacaoCompra): Promise<CaptacaoCompra> {
-  const existing = await getCaptacaoCompra(incoming.ofertaId, incoming.purchaseId);
-  if (existing !== null && compraStatusRank(existing.status) > compraStatusRank(incoming.status)) {
-    const merged = mergeCompra(existing, {
-      atualizadoEm: incoming.atualizadoEm,
-      ...(existing.investorId === undefined && incoming.investorId !== undefined ? { investorId: incoming.investorId } : {}),
-      ...(existing.amountCents === undefined && incoming.amountCents !== undefined ? { amountCents: incoming.amountCents } : {}),
-      ...(existing.projetoId === undefined && incoming.projetoId !== undefined ? { projetoId: incoming.projetoId } : {}),
-      ...(existing.projetoNome === undefined && incoming.projetoNome !== undefined ? { projetoNome: incoming.projetoNome } : {}),
-    });
-    await db.send(new PutCommand({
+  for (let attempt = 0; ; attempt += 1) {
+    const existing = await getCaptacaoCompra(incoming.ofertaId, incoming.purchaseId);
+    const next = existing !== null && compraStatusRank(existing.status) > compraStatusRank(incoming.status)
+      ? mergeCompra(existing, {
+          atualizadoEm: incoming.atualizadoEm,
+          ...(existing.investorId === undefined && incoming.investorId !== undefined ? { investorId: incoming.investorId } : {}),
+          ...(existing.amountCents === undefined && incoming.amountCents !== undefined ? { amountCents: incoming.amountCents } : {}),
+          ...(existing.projetoId === undefined && incoming.projetoId !== undefined ? { projetoId: incoming.projetoId } : {}),
+          ...(existing.projetoNome === undefined && incoming.projetoNome !== undefined ? { projetoNome: incoming.projetoNome } : {}),
+        })
+      : existing === null
+        ? incoming
+        : mergeCompra(existing, { ...incoming, recebidoEm: existing.recebidoEm });
+
+    const params: PutCommandInput = {
       TableName: Tables.CAPTACAO_COMPRAS,
-      Item: compactItem(merged),
-    }));
-    return merged;
+      Item: compactItem(next),
+      ...(existing === null
+        ? { ConditionExpression: 'attribute_not_exists(ofertaId)' }
+        : {
+            ConditionExpression: '#u = :atualizadoAtual',
+            ExpressionAttributeNames: { '#u': 'atualizadoEm' },
+            ExpressionAttributeValues: { ':atualizadoAtual': existing.atualizadoEm },
+          }),
+    };
+    try {
+      await db.send(new PutCommand(params));
+      return next;
+    } catch (err) {
+      if (err instanceof ConditionalCheckFailedException && attempt < 4) {
+        await new Promise((resolve) => setTimeout(resolve, 20 * (attempt + 1)));
+        continue;
+      }
+      throw err;
+    }
   }
-  const next = existing === null
-    ? incoming
-    : mergeCompra(existing, { ...incoming, recebidoEm: existing.recebidoEm });
-  await db.send(new PutCommand({
-    TableName: Tables.CAPTACAO_COMPRAS,
-    Item: compactItem(next),
-  }));
-  return next;
 }
 
 export async function listCaptacaoCompras(): Promise<CaptacaoCompra[]> {
