@@ -71,13 +71,13 @@ function MarketingNavbar(): ReactNode {
             to="/cadastro"
             className="inline-flex h-[32px] w-auto items-center justify-center whitespace-nowrap rounded-[4px] bg-[#D2A047] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-90"
           >
-            Apresentar projeto
+            Apresentar meu projeto
           </Link>
           <Link
             to="/para-investidores"
             className="inline-flex h-[32px] w-[120px] items-center justify-center rounded-[4px] bg-[#076C07] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-95"
           >
-            Investidor
+            Quero Investir
           </Link>
         </div>
 
@@ -124,14 +124,14 @@ function MarketingNavbar(): ReactNode {
               onClick={() => setOpen(false)}
               className="inline-flex h-11 items-center justify-center rounded-[4px] bg-[#D2A047] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              Apresentar projeto
+              Apresentar meu projeto
             </Link>
             <Link
               to="/para-investidores"
               onClick={() => setOpen(false)}
               className="inline-flex h-11 items-center justify-center rounded-[4px] bg-[#076C07] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-95"
             >
-              Investidor
+              Quero Investir
             </Link>
           </div>
           {hasWhatsappSupport() && (

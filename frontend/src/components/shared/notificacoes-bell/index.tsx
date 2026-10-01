@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Bell, CheckCheck } from "lucide-react";
 import { useNotificacoesStore } from "@/stores/notificacoes";
 import { cn, timeAgo } from "@/lib/utils";
+import { destinoNotificacao } from "@/lib/notificacoes";
 
 const PREVIEW_LIMIT = 7;
 
@@ -115,8 +116,11 @@ export function NotificacoesBell(): ReactNode {
                   </p>
                 ) : (
                   <ul className="divide-y divide-border">
-                    {preview.map((notif) => (
+                    {preview.map((notif) => {
+                      const destino = destinoNotificacao(notif);
+                      return (
                       <li key={notif.criadoEm}>
+                        {destino === undefined ? (
                         <button
                           type="button"
                           onClick={() => {
@@ -135,8 +139,30 @@ export function NotificacoesBell(): ReactNode {
                           </p>
                           <p className="mt-1.5 text-[11px] text-muted-foreground">{timeAgo(notif.criadoEm)}</p>
                         </button>
+                        ) : (
+                        <Link
+                          to={destino}
+                          onClick={() => {
+                            setOpen(false);
+                            if (!notif.lida) void marcarLida(notif.criadoEm);
+                          }}
+                          className={cn(
+                            "block w-full px-4 py-3 text-left transition-colors hover:bg-muted/60",
+                            !notif.lida && "bg-navy-50/60",
+                          )}
+                        >
+                          <p className={cn("text-sm text-foreground", !notif.lida ? "font-semibold" : "font-medium")}>
+                            {notif.titulo}
+                          </p>
+                          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                            {notif.mensagem}
+                          </p>
+                          <p className="mt-1.5 text-[11px] text-muted-foreground">{timeAgo(notif.criadoEm)}</p>
+                        </Link>
+                        )}
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 )}
               </div>

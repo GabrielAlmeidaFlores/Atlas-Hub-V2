@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { AuthUser, Perfil } from "@/types";
+import { USE_LOCAL_MOCKS, VITE_COGNITO_USER_POOL_ID, VITE_COGNITO_CLIENT_ID } from "@/lib/env";
 
 interface AuthState {
   readonly user: AuthUser | null;
@@ -12,9 +13,18 @@ interface AuthState {
   readonly pendingChallenge: { readonly type: "NEW_PASSWORD_REQUIRED" } | null;
 }
 
+const cognitoConfigured = VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIENT_ID !== "";
+
 function extractPerfil(groups: string[]): Perfil {
   if (groups.includes("ADMIN_MASTER")) return "ADMIN_MASTER";
   if (groups.includes("ANALISTA")) return "ANALISTA";
+  return "INCORPORADORA";
+}
+
+function extractPerfilFromEmail(email: string): Perfil {
+  const lower = email.toLowerCase();
+  if (lower.includes("master") || lower.includes("admin@atlashub")) return "ADMIN_MASTER";
+  if (lower.includes("analista") || lower.includes("@atlashub")) return "ANALISTA";
   return "INCORPORADORA";
 }
 
@@ -38,6 +48,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   pendingChallenge: null,
 
   login: async (email, password) => {
+    if (USE_LOCAL_MOCKS) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const normalizedEmail = email.trim().toLowerCase();
+      const perfil = extractPerfilFromEmail(normalizedEmail);
+      const mockId = `mock-${Math.random().toString(36).slice(2, 11)}`;
+      set({
+        user: { id: mockId, email: normalizedEmail, perfil },
+        isAuthenticated: true,
+        isLoading: false,
+        pendingChallenge: null,
+      });
+      return;
+    }
+
+    if (!cognitoConfigured) {
+      throw new Error("Autenticação não configurada");
+    }
+
     const { signIn, signOut, fetchAuthSession } = await import("@aws-amplify/auth");
     try {
       await signOut({ global: false });
@@ -94,6 +122,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   restoreSession: async () => {
+    if (USE_LOCAL_MOCKS) {
+      set({ isLoading: false });
+      return;
+    }
+
     try {
       const { fetchAuthSession } = await import("@aws-amplify/auth");
       const session = await fetchAuthSession();

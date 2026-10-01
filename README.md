@@ -27,6 +27,7 @@ Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos Plano A **não** s�
 | Upload S3 (presign PUT) + download (presign GET) | Implementado |
 | Equipe no wizard/editar (mín. 1 membro) | Implementado |
 | Calculadora de viabilidade (`projeto.viabilidade`) + barra de progresso | Implementado |
+| Cronograma da obra (etapas, orçado × realizado, lançamentos) | Implementado |
 | Curadoria: fila, scorecard, notas, ajuste/reprovar/aprovar | Implementado |
 | Checklist pré-aprovação (UI + validação no `POST .../aprovar`) | Implementado |
 | Admin usuários (`/admin/usuarios`) + senha temporária na resposta | Implementado |
@@ -274,6 +275,30 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Detalhe | Dados cadastrais, documentos, histórico declarado, todos os projetos com status/nota/decisão |
 | Resumo | Contagens: submetidos / aprovados / reprovados / publicados |
 
+#### 3.7 Financeiro (pós-sucesso)
+
+| Funcionalidade | Descrição |
+|---|---|
+| Tesouraria Atlas | Workspace operacional da organization Atlas |
+| Conta SPE por projeto | Um workspace isolado por oferta publicada (`OFERTA_CRIADA`); CNPJ da SPE é metadado |
+| Saldo e extrato | Saldo ao vivo + ledger conciliado (API + webhook) |
+| Pix com dupla aprovação | Admin master solicita; outro master aprova e dispara a transferência |
+| Split | Criação de beneficiários para dividir recebíveis (`POST /admin/financeiro/split` + UI no detalhe da conta) |
+| Extrato público | API autenticada por token para consulta por investidor/integração (`GET /publico/financeiro/projetos/:projetoId/extrato`) |
+| Auditoria | Trilha de abertura de conta, solicitações, aprovações e conciliação |
+| Fora desta fase | Escrow da oferta, portal investidor, cartão CDI |
+
+#### 3.8 Captação (admin)
+
+| Funcionalidade | Descrição |
+|---|---|
+| Webhook Divify | `POST /webhooks/divify` — `UserActiveEvent`, `InvestorCreatedEvent`, `PurchaseApprovedEvent`, `PurchaseExpiredEvent`, oferta encerrada (`FINISHED_SUCCESS` / `FINISHED_UNSUCCESS`) |
+| Enrich API | Com `DIVIFY_API_*`, completa valor/status via `GET /balance/offer/{offerId}/purchase/{id}/detailed` |
+| Progresso por oferta | Soma compras `APPROVED`/`COMPLETED`, investidores com `offerId`, status de encerramento |
+| Tela Captação | Lista ofertas publicadas, valores, eventos recentes. Sem cadastro de investidor no Atlas |
+
+Aportes ficam na SmartEscrow da Divify. Sucesso → CNPJ emissor (sem Atlas). Insucesso → devolução automática. Split de rendimentos é automático na Divify.
+
 ---
 
 ### 4. API backend (endpoints)
@@ -325,6 +350,24 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | `GET` | `/admin/dashboard/metricas` | Métricas do dashboard |
 | `GET` / `POST` | `/admin/usuarios` | Listar / criar admin |
 | `PUT` | `/admin/usuarios/{id}/desativar` | Desativar admin |
+| `GET` / `POST` | `/admin/financeiro/contas` | Listar / abrir tesouraria ou conta SPE |
+| `GET` | `/admin/financeiro/contas/{projetoId}` | Detalhe + saldo |
+| `GET` | `/admin/financeiro/contas/{projetoId}/extrato` | Extrato conciliado |
+| `GET` | `/admin/financeiro/contas/{projetoId}/movimentos` | Solicitações + auditoria |
+| `POST` | `/admin/financeiro/solicitacoes` | Criar pedido de Pix (master) |
+| `POST` | `/admin/financeiro/solicitacoes/{id}/aprovar` | Segundo master executa Pix |
+| `POST` | `/admin/financeiro/solicitacoes/{id}/rejeitar` | Rejeitar pedido |
+| `POST` | `/webhooks/starkbank` | Webhook assinado (conciliação) |
+| `GET` | `/admin/captacao` | Ofertas + eventos de captação |
+| `GET` | `/admin/captacao/ofertas/{ofertaId}` | Compras e eventos de uma oferta |
+| `POST` | `/webhooks/divify` | Webhook da plataforma (secret no header) |
+| `GET` | `/projetos/{id}/cronograma` | Cronograma físico + financeiro (incorporadora) |
+| `POST` | `/projetos/{id}/cronograma/etapas` | Cadastrar etapa |
+| `PUT` / `DELETE` | `/projetos/{id}/cronograma/etapas/{etapaId}` | Atualizar / excluir etapa |
+| `POST` | `/projetos/{id}/cronograma/lancamentos` | Lançar gasto (`APROVADO` / `OFERTA_CRIADA`) |
+| `PUT` | `/projetos/{id}/cronograma/lancamentos/{lancamentoId}` | Cancelar lançamento (`{ status: CANCELADO }`) |
+| `GET` | `/admin/cronograma` | Lista de obras com desvios |
+| `GET` | `/admin/cronograma/projetos/{projetoId}` | Detalhe (somente leitura) |
 
 Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no DynamoDB após signup.
 
@@ -345,12 +388,30 @@ Trigger Cognito: `onIncorporadoraSignup` — cria registro da incorporadora no D
 
 ### 6. Integração white-label (MVP)
 
-No MVP a integração é **operacional/manual**, não via API:
+No MVP a **criação da oferta** continua **manual** no painel da plataforma:
 
 1. Analista aprova no Atlas Hub  
 2. Cria a oferta no painel da plataforma (pública ou privada, SCP/Nota Comercial, spread 10%)  
 3. Registra ID + link no Atlas Hub → `OFERTA_CRIADA`  
 4. Incorporadora recebe o link para compartilhar com investidores  
+5. A plataforma dispara webhooks de captação; o admin acompanha o progresso em **Captação**
+
+Auth do webhook: header `X-Webhook-Secret` (ou `Authorization: Bearer`) igual a `DIVIFY_WEBHOOK_SECRET`. Opcional: `x-tenant-id` conferido com `DIVIFY_TENANT_ID` se este estiver preenchido.
+
+Payload aceito (campos flexíveis; `data`/`payload` aninhados também):
+
+```json
+{
+  "event": "purchase.approved",
+  "offerId": "offer-001",
+  "purchaseId": "buy-001",
+  "investorId": "inv-001",
+  "amount": 10000,
+  "status": "APPROVED"
+}
+```
+
+Eventos reconhecidos: `investor.created` / `investidor criado`, `purchase.approved` / `compra aprovada`, `purchase.expired` / `compra expirada`.
 
 Fora deste repo (já na experiência Atlas Hub): vitrine, KYC, investimento PIX, escrow, tokenização, mercado secundário, triggers CVM.
 
