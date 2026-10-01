@@ -118,13 +118,13 @@ async function run(): Promise<void> {
   console.log(`Seeding DEV (${stage}) — pool ${poolId}`);
 
   const adminId = await ensureCognitoUser({
-    email: 'gabriel@atlashub.com.br',
+    email: 'gabriel@atlascomp.com.br',
     group: 'ADMIN_MASTER',
   });
   await put(T.admins, {
     id: adminId,
     nome: 'Gabriel Flores',
-    email: 'gabriel@atlashub.com.br',
+    email: 'gabriel@atlascomp.com.br',
     perfil: 'ADMIN_MASTER',
     ativo: true,
     criadoPor: 'seed',
@@ -132,13 +132,13 @@ async function run(): Promise<void> {
   });
 
   const analistaId = await ensureCognitoUser({
-    email: 'analista@atlashub.com.br',
+    email: 'analista@atlascomp.com.br',
     group: 'ANALISTA',
   });
   await put(T.admins, {
     id: analistaId,
     nome: 'Ana Curadora',
-    email: 'analista@atlashub.com.br',
+    email: 'analista@atlascomp.com.br',
     perfil: 'ANALISTA',
     ativo: true,
     criadoPor: adminId,
@@ -546,8 +546,8 @@ async function run(): Promise<void> {
   console.log('✓ Seed DEV concluído');
   console.log('');
   console.log('Logins (senha para todos):', password);
-  console.log('  Admin master : gabriel@atlashub.com.br');
-  console.log('  Analista     : analista@atlashub.com.br');
+  console.log('  Admin master : gabriel@atlascomp.com.br');
+  console.log('  Analista     : analista@atlascomp.com.br');
   console.log('  Incorporadoras:');
   for (const inc of incorporadoras) {
     console.log(`    - ${inc.email} (${inc.razaoSocial})`);

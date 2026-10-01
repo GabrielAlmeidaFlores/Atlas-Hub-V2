@@ -60,10 +60,10 @@ export function CvmBanner({
             </svg>
             <div className="w-full min-w-0 flex-1 text-center sm:pr-8 sm:text-left">
               <p className="text-[10px] font-semibold uppercase tracking-[0.42em] text-[#D2A047] sm:text-[11px] sm:tracking-[0.48em]">
-                Crowdfunding Imobiliário
+                Conectando Capital ao Mercado Imobiliário
               </p>
               <h2 className="mt-1.5 text-xl font-extrabold uppercase leading-tight tracking-[0.04em] text-white sm:text-2xl lg:text-[1.75rem]">
-                Conforme Resolução CVM 88
+                Sob o guarda-chuva regulatório da Divify
               </h2>
               <p className="mt-2.5 text-[0.74375rem] leading-relaxed text-white sm:text-[0.796875rem]">
                 Os projetos são estruturados em conformidade com a Resolução CVM 88, através da parceria estratégica com a Divify, plataforma regulada pela Comissão de Valores Mobiliários.

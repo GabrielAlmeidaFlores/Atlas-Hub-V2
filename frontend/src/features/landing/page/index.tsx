@@ -1,4 +1,4 @@
-import { type ReactNode, Fragment, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   ArrowRight,
@@ -34,13 +34,6 @@ function ScrollToHash(): ReactNode {
 }
 
 function Hero(): ReactNode {
-  const kpiItems = [
-    { value: "CVM 88", label: "Conforme Resolução 88" },
-    { value: "00", label: "Projetos avaliados" },
-    { value: "00", label: "Captados" },
-    { value: "00", label: "Incorporadoras parceiras" },
-  ] as const;
-
   return (
     <>
       <section className="relative overflow-visible bg-gradient-to-b from-[#D1D1D6] via-[#E7E7EA] via-40% to-white to-65% px-4 pb-0 pt-5 sm:px-6 lg:px-8" data-analytics-section="hero">
@@ -117,30 +110,6 @@ function Hero(): ReactNode {
           </div>
         </div>
       </section>
-
-      <div className="relative z-30 -mt-8 px-4 pb-5 pt-0 sm:-mt-[75px] sm:px-6 lg:px-8">
-        <div className="lp-container">
-          <div
-            className="mx-auto flex w-full max-w-[82%] flex-col overflow-hidden rounded-[14px] bg-[linear-gradient(180deg,#E1C683_0%,#D2A047_100%)] py-1 text-[#6C4C14] shadow-[0_18px_28px_rgba(10,19,33,0.12),inset_0_1px_0_rgba(255,255,255,0.18)] sm:max-w-[77%] sm:flex sm:h-[136px] sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:bg-[linear-gradient(90deg,#D2A047_0%,#E1C683_100%)] sm:px-5 sm:py-0"
-          >
-            {kpiItems.map(({ value, label }, index) => (
-              <Fragment key={label}>
-                {index > 0 && (
-                  <div className="flex justify-center sm:hidden" aria-hidden>
-                    <div className="h-px w-[42%] bg-[#6C4C14]/30" />
-                  </div>
-                )}
-                <div className="px-4 py-5 text-center sm:flex-1 sm:px-3 sm:py-0">
-                  <p className="text-[28px] font-bold leading-none tracking-[-0.06em] sm:text-[32px]">{value}</p>
-                  <p className="mt-2 text-[0.65rem] font-black uppercase tracking-[0.14em] text-[#6C4C14] sm:mt-2 sm:text-[0.73rem] sm:tracking-[0.18em]">
-                    {label}
-                  </p>
-                </div>
-              </Fragment>
-            ))}
-          </div>
-        </div>
-      </div>
     </>
   );
 }
@@ -163,7 +132,7 @@ function Ecossistema(): ReactNode {
       image: "/incorporadora.png",
       mobileImage: "/incorporadora-mobile.png",
       description:
-        "Análise em até 96 horas. Captação de recursos sem financiamento bancário.",
+        "Análise em até 5 dias úteis. Captação de recursos sem financiamento bancário.",
       href: "/para-incorporadoras",
       action: "Apresentar meu projeto",
       color: "#192145",

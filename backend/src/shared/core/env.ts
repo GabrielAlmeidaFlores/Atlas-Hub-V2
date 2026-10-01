@@ -47,5 +47,5 @@ export const DOCUMENTS_BUCKET = process.env['DOCUMENTS_BUCKET'] ?? 'atlas-hub-do
 export const USER_POOL_ID = process.env['USER_POOL_ID'] ?? '';
 export const USER_POOL_CLIENT_ID = process.env['USER_POOL_CLIENT_ID'] ?? '';
 
-export const SES_FROM_EMAIL = process.env['SES_FROM_EMAIL'] ?? 'noreply@atlashub.com.br';
+export const SES_FROM_EMAIL = process.env['SES_FROM_EMAIL'] ?? 'noreply@atlascomp.com.br';
 export const CORS_ORIGINS = process.env['CORS_ORIGINS'] ?? '*';
