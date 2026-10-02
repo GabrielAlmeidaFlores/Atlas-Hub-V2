@@ -17,10 +17,10 @@ function fill(template: string, vars: Record<string, string>): string {
 
 function ctaBlock(cta?: { readonly label: string; readonly url: string }): string {
   if (cta === undefined) return '';
-  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 4px">
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:30px 0 0">
          <tr>
-           <td style="background:#1B2B5E;border-radius:6px">
-             <a href="${cta.url}" target="_blank" style="display:inline-block;padding:13px 28px;font-family:Poppins,Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;letter-spacing:.2px;color:#ffffff;text-decoration:none">${cta.label}</a>
+           <td style="background:#D2A047;border-radius:8px">
+             <a href="${cta.url}" target="_blank" style="display:inline-block;padding:14px 30px;font-family:Roboto,Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;color:#ffffff;text-decoration:none">${cta.label}</a>
            </td>
          </tr>
        </table>`;
@@ -35,6 +35,7 @@ function renderEmail(
   return fill(base, {
     ...vars,
     title,
+    preheader: title,
     content: fill(contentTpl, vars),
     ctaBlock: ctaBlock(cta),
     logoUrl: LOGO_URL,
