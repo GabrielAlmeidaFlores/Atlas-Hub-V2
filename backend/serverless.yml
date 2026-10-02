@@ -229,7 +229,7 @@ functions:
     handler: src/functions/analytics-alerts-evaluate.handler
     role: !GetAtt AnalyticsAdminLambdaRole.Arn
     timeout: 30
-    description: "Evaluates analytics alert rules and emails admins via SES"
+    description: "Evaluates analytics alert rules and emails admins"
     events:
       - schedule: rate(1 hour)
 

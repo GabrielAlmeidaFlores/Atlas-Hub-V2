@@ -23,7 +23,7 @@ Regras obrigatórias para qualquer agente ou humano alterando este repositório.
 | Pasta | Responsabilidade |
 |---|---|
 | `frontend/` | React 18 + Vite + Amplify + Cognito |
-| `backend/` | Serverless Framework + Lambda + DynamoDB + S3 + SES |
+| `backend/` | Serverless Framework + Lambda + DynamoDB + S3 + Resend |
 | `docs/` | Escopo e referências de produto (não inventar features) |
 | `.github/workflows/` | Deploy DEV/PRD |
 
