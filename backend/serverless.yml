@@ -1423,12 +1423,6 @@ resources:
                 AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
               Action: 'kms:*'
               Resource: '*'
-            - Sid: LambdaDecrypt
-              Effect: Allow
-              Principal:
-                AWS: !GetAtt OnLoginLambdaRole.Arn
-              Action: [kms:Decrypt, kms:DescribeKey]
-              Resource: '*'
 
     AdminCuradoriaLambdaRole:
       Type: AWS::IAM::Role
