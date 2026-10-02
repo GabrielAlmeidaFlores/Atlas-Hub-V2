@@ -245,7 +245,9 @@ functions:
     handler: src/functions/on-login.handler
     role: !GetAtt OnLoginLambdaRole.Arn
     timeout: 10
-    description: "Sends a new-access notification email on login"
+    description: "Sends auth emails (new access and verification codes)"
+    environment:
+      COGNITO_EMAIL_KEY_ID: !Ref CognitoEmailKey
 
   # ── Incorporadora — Perfil ─────────────────────────────────────────
 
@@ -1403,6 +1405,30 @@ resources:
                 - Effect: Allow
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [kms:Decrypt, kms:DescribeKey]
+                  Resource: !GetAtt CognitoEmailKey.Arn
+
+    CognitoEmailKey:
+      Type: AWS::KMS::Key
+      Properties:
+        Description: Chave para o custom email sender do Cognito
+        EnableKeyRotation: true
+        KeyPolicy:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: EnableIam
+              Effect: Allow
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+              Action: 'kms:*'
+              Resource: '*'
+            - Sid: LambdaDecrypt
+              Effect: Allow
+              Principal:
+                AWS: !GetAtt OnLoginLambdaRole.Arn
+              Action: [kms:Decrypt, kms:DescribeKey]
+              Resource: '*'
 
     AdminCuradoriaLambdaRole:
       Type: AWS::IAM::Role
@@ -1618,6 +1644,10 @@ resources:
         LambdaConfig:
           PostConfirmation: !GetAtt OnIncorporadoraSignupLambdaFunction.Arn
           PostAuthentication: !GetAtt OnLoginLambdaFunction.Arn
+          KMSKeyID: !GetAtt CognitoEmailKey.Arn
+          CustomEmailSender:
+            LambdaArn: !GetAtt OnLoginLambdaFunction.Arn
+            LambdaVersion: V1_0
         Schema:
           - Name: email
             Required: true

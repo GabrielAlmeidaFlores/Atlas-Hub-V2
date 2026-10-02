@@ -49,4 +49,5 @@ export const USER_POOL_ID = process.env['USER_POOL_ID'] ?? '';
 export const RESEND_API_KEY = process.env['RESEND_API_KEY'] ?? '';
 export const EMAIL_FROM = process.env['EMAIL_FROM'] ?? 'noreply@atlascomp.com.br';
 export const APP_URL = process.env['APP_URL'] ?? 'https://master.d3vqf6k21x668r.amplifyapp.com';
+export const COGNITO_EMAIL_KEY_ID = process.env['COGNITO_EMAIL_KEY_ID'] ?? '';
 export const CORS_ORIGINS = process.env['CORS_ORIGINS'] ?? '*';

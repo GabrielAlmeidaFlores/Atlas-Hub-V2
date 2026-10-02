@@ -7,6 +7,7 @@ import reprovadoTpl from './templates/reprovado.html';
 import aprovadoTpl from './templates/aprovado.html';
 import ofertaTpl from './templates/oferta-criada.html';
 import novoAcessoTpl from './templates/novo-acesso.html';
+import codigoTpl from './templates/codigo.html';
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 const LOGO_URL = `${APP_URL}/atlas-logo.png`;
@@ -150,5 +151,13 @@ export function emailNovoAcesso(to: string, quando: string, dispositivo: string)
       label: 'Fui eu, tudo certo',
       url: `${APP_URL}/dashboard`,
     }),
+  });
+}
+
+export function emailCodigo(to: string, codigo: string, opts: { readonly titulo: string; readonly texto: string }): Promise<void> {
+  return sendEmail({
+    to,
+    subject: `${opts.titulo} · Atlas Hub`,
+    htmlBody: renderEmail(codigoTpl, opts.titulo, { codigo, texto: opts.texto }),
   });
 }
