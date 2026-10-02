@@ -355,6 +355,7 @@ function Parceiros(): ReactNode {
   const logos = [
     { src: "/divify.svg", alt: "Divify", className: "h-14 w-auto max-w-[13rem] object-contain sm:h-[3.3rem] sm:max-w-[11.4rem]" },
     { src: "/advogados.svg", alt: "Wilson & Pinheiro Advogados", className: "h-20 w-auto max-w-[16rem] object-contain sm:h-[4.8rem] sm:max-w-[11.4rem]" },
+    { src: "/starkbank.svg", alt: "Stark Bank", className: "h-7 w-auto max-w-[13rem] object-contain sm:h-8 sm:max-w-[12rem]" },
     { src: "/swiss.svg", alt: "Swiss Capital", className: "h-16 w-auto max-w-[12rem] object-contain sm:h-[5.4rem] sm:max-w-[8.4rem]" },
   ];
 
