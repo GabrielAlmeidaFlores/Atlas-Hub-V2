@@ -11,8 +11,10 @@
     "logs:health": "serverless logs -f health --tail"
   },
   "dependencies": {
+    "@aws-crypto/client-node": "^5.0.2",
     "@aws-sdk/client-cognito-identity-provider": "^3.600.0",
     "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/client-kms": "^3.1146.0",
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/lib-dynamodb": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
