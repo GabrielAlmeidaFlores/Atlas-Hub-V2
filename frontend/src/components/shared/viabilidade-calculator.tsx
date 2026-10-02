@@ -8,7 +8,6 @@ export interface ViabilidadeFormState {
   custoObra: string;
   precoMedioUnidade: string;
   prazoMeses: string;
-  taxaDescontoInvestidor: string;
   valorTerreno: string;
   unidadesPermuta: string;
 }
@@ -18,7 +17,6 @@ export const VIABILIDADE_FORM_EMPTY: ViabilidadeFormState = {
   custoObra: "",
   precoMedioUnidade: "",
   prazoMeses: "",
-  taxaDescontoInvestidor: "",
   valorTerreno: "",
   unidadesPermuta: "",
 };
@@ -31,7 +29,6 @@ export function viabilidadeToForm(v: ViabilidadeProjeto | undefined): Viabilidad
     custoObra: formatMoneyFromNumber(i.custoObra),
     precoMedioUnidade: formatMoneyFromNumber(i.precoMedioUnidade),
     prazoMeses: String(i.prazoMeses),
-    taxaDescontoInvestidor: i.taxaDescontoInvestidor !== undefined ? String(i.taxaDescontoInvestidor) : "",
     valorTerreno: i.valorTerreno !== undefined ? formatMoneyFromNumber(i.valorTerreno) : "",
     unidadesPermuta: i.unidadesPermuta !== undefined ? String(i.unidadesPermuta) : "",
   };
@@ -50,9 +47,6 @@ export function formToViabilidade(form: ViabilidadeFormState): ViabilidadeProjet
     custoObra,
     precoMedioUnidade,
     prazoMeses,
-    ...(form.taxaDescontoInvestidor !== "" && Number.isFinite(parseFloat(form.taxaDescontoInvestidor))
-      ? { taxaDescontoInvestidor: parseFloat(form.taxaDescontoInvestidor) }
-      : {}),
     ...(form.valorTerreno !== "" && Number.isFinite(parseMoneyInput(form.valorTerreno))
       ? { valorTerreno: parseMoneyInput(form.valorTerreno) }
       : {}),
@@ -90,7 +84,7 @@ export function ViabilidadeCalculator({ value, onChange, readOnly = false }: Pro
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="form-group">
-          <label className="form-label">Nº de unidades</label>
+          <label className="form-label">Nº total de unidades</label>
           <input type="number" min={1} className="input-base" value={value.unidades} onChange={set("unidades")} disabled={readOnly} />
         </div>
         <div className="form-group">
@@ -106,15 +100,11 @@ export function ViabilidadeCalculator({ value, onChange, readOnly = false }: Pro
           <input type="number" min={1} max={120} className="input-base" value={value.prazoMeses} onChange={set("prazoMeses")} disabled={readOnly} />
         </div>
         <div className="form-group">
-          <label className="form-label">Taxa desconto investidor (% a.a., opcional)</label>
-          <input type="number" min={0} max={100} step={0.1} className="input-base" value={value.taxaDescontoInvestidor} onChange={set("taxaDescontoInvestidor")} disabled={readOnly} />
-        </div>
-        <div className="form-group">
           <label className="form-label">Valor do terreno (R$, opcional)</label>
           <CurrencyInput value={value.valorTerreno} onValueChange={(v) => onChange({ ...value, valorTerreno: v })} disabled={readOnly} />
         </div>
         <div className="form-group sm:col-span-2">
-          <label className="form-label">Unidades em permuta (opcional)</label>
+          <label className="form-label">Unidades não vendidas (permuta/incorporador)</label>
           <input type="number" min={0} className="input-base" value={value.unidadesPermuta} onChange={set("unidadesPermuta")} disabled={readOnly} />
         </div>
       </div>

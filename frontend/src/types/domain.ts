@@ -128,7 +128,6 @@ export interface ViabilidadeInputs {
   readonly custoObra: number;
   readonly precoMedioUnidade: number;
   readonly prazoMeses: number;
-  readonly taxaDescontoInvestidor?: number;
   readonly valorTerreno?: number;
   readonly unidadesPermuta?: number;
 }
