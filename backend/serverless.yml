@@ -64,6 +64,7 @@ provider:
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
     RESEND_API_KEY: ${env:RESEND_API_KEY, ''}
     EMAIL_FROM: ${env:EMAIL_FROM, 'noreply@atlascomp.com.br'}
+    APP_URL: ${env:APP_URL, 'https://master.d3vqf6k21x668r.amplifyapp.com'}
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
 
   logRetentionInDays: 14
