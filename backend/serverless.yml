@@ -241,7 +241,7 @@ functions:
 
   incorporadoraGetPerfil:
     handler: src/functions/incorporadora-get-perfil.handler
-    role: !GetAtt IncorporadoraGetPerfilLambdaRole.Arn
+    role: !GetAtt IncorporadoraLambdaRole.Arn
     timeout: 10
     description: "Returns the authenticated incorporadora's profile"
     events:
@@ -255,7 +255,7 @@ functions:
 
   incorporadoraPutPerfil:
     handler: src/functions/incorporadora-put-perfil.handler
-    role: !GetAtt IncorporadoraPutPerfilLambdaRole.Arn
+    role: !GetAtt IncorporadoraLambdaRole.Arn
     timeout: 10
     description: "Updates the authenticated incorporadora's profile"
     events:
@@ -269,7 +269,7 @@ functions:
 
   incorporadoraDocumentoPresign:
     handler: src/functions/incorporadora-documento-presign.handler
-    role: !GetAtt IncorporadoraDocumentoPresignLambdaRole.Arn
+    role: !GetAtt IncorporadoraLambdaRole.Arn
     timeout: 10
     description: "Generates a pre-signed S3 URL for incorporadora document upload"
     events:
@@ -285,7 +285,7 @@ functions:
 
   projetoCriar:
     handler: src/functions/projeto-criar.handler
-    role: !GetAtt ProjetoCriarLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Creates a new project draft"
     events:
@@ -299,7 +299,7 @@ functions:
 
   projetosListar:
     handler: src/functions/projetos-listar.handler
-    role: !GetAtt ProjetosListarLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Lists all projects for the authenticated incorporadora"
     events:
@@ -313,7 +313,7 @@ functions:
 
   projetoGet:
     handler: src/functions/projeto-get.handler
-    role: !GetAtt ProjetoGetLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Returns a single project by ID"
     events:
@@ -327,7 +327,7 @@ functions:
 
   projetoAtualizar:
     handler: src/functions/projeto-atualizar.handler
-    role: !GetAtt ProjetoAtualizarLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Updates a project draft (RASCUNHO, AJUSTE_SOLICITADO or REPROVADO)"
     events:
@@ -341,7 +341,7 @@ functions:
 
   projetoSubmeter:
     handler: src/functions/projeto-submeter.handler
-    role: !GetAtt ProjetoSubmeterLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Submits a project for curation review"
     events:
@@ -355,7 +355,7 @@ functions:
 
   projetoResubmeter:
     handler: src/functions/projeto-resubmeter.handler
-    role: !GetAtt ProjetoResubmeterLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Resubmits a project after adjustment or rejection"
     events:
@@ -369,7 +369,7 @@ functions:
 
   projetoDocumentoPresign:
     handler: src/functions/projeto-documento-presign.handler
-    role: !GetAtt ProjetoDocumentoPresignLambdaRole.Arn
+    role: !GetAtt ProjetoLambdaRole.Arn
     timeout: 10
     description: "Generates a pre-signed S3 URL for project document upload"
     events:
@@ -383,7 +383,7 @@ functions:
 
   documentoDownloadPresign:
     handler: src/functions/documento-download-presign.handler
-    role: !GetAtt DocumentoDownloadPresignLambdaRole.Arn
+    role: !GetAtt DocumentoLambdaRole.Arn
     timeout: 10
     description: "Generates a pre-signed S3 GET URL for document download"
     events:
@@ -397,7 +397,7 @@ functions:
 
   documentoDelete:
     handler: src/functions/documento-delete.handler
-    role: !GetAtt DocumentoDeleteLambdaRole.Arn
+    role: !GetAtt DocumentoLambdaRole.Arn
     timeout: 10
     description: "Deletes a project S3 document owned by the caller"
     events:
@@ -413,7 +413,7 @@ functions:
 
   notificacoesListar:
     handler: src/functions/notificacoes-listar.handler
-    role: !GetAtt NotificacoesListarLambdaRole.Arn
+    role: !GetAtt NotificacoesLambdaRole.Arn
     timeout: 10
     description: "Lists notifications for the authenticated user"
     events:
@@ -427,7 +427,7 @@ functions:
 
   notificacaoMarcarLida:
     handler: src/functions/notificacao-marcar-lida.handler
-    role: !GetAtt NotificacaoMarcarLidaLambdaRole.Arn
+    role: !GetAtt NotificacoesLambdaRole.Arn
     timeout: 10
     description: "Marks a notification as read"
     events:
@@ -443,7 +443,7 @@ functions:
 
   adminCuradoriaListar:
     handler: src/functions/admin-curadoria-listar.handler
-    role: !GetAtt AdminCuradoriaListarLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Lists projects in the curation queue (admin only)"
     events:
@@ -457,7 +457,7 @@ functions:
 
   adminCuradoriaIniciar:
     handler: src/functions/admin-curadoria-iniciar.handler
-    role: !GetAtt AdminCuradoriaIniciarLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Assigns a project to the analyst and starts the review"
     events:
@@ -471,7 +471,7 @@ functions:
 
   adminCuradoriaGet:
     handler: src/functions/admin-curadoria-get.handler
-    role: !GetAtt AdminCuradoriaGetLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Returns full project details + scorecard history for admin review"
     events:
@@ -485,7 +485,7 @@ functions:
 
   adminCuradoriaScorecard:
     handler: src/functions/admin-curadoria-scorecard.handler
-    role: !GetAtt AdminCuradoriaScorecardLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Saves scorecard draft without changing project status"
     events:
@@ -499,7 +499,7 @@ functions:
 
   adminCuradoriaAjuste:
     handler: src/functions/admin-curadoria-ajuste.handler
-    role: !GetAtt AdminCuradoriaAjusteLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Requests adjustments from the incorporadora"
     events:
@@ -513,7 +513,7 @@ functions:
 
   adminCuradoriaReprovar:
     handler: src/functions/admin-curadoria-reprovar.handler
-    role: !GetAtt AdminCuradoriaReprovarLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Rejects a project with a justification"
     events:
@@ -527,7 +527,7 @@ functions:
 
   adminCuradoriaAprovar:
     handler: src/functions/admin-curadoria-aprovar.handler
-    role: !GetAtt AdminCuradoriaAprovarLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Approves a project after curation"
     events:
@@ -541,7 +541,7 @@ functions:
 
   adminCuradoriaConfirmarPublicacao:
     handler: src/functions/admin-curadoria-confirmar-publicacao.handler
-    role: !GetAtt AdminCuradoriaConfirmarPublicacaoLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Registers the offer ID and confirms publication"
     events:
@@ -555,7 +555,7 @@ functions:
 
   adminCuradoriaNota:
     handler: src/functions/admin-curadoria-nota.handler
-    role: !GetAtt AdminCuradoriaNotaLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Adds an internal private note to a project"
     events:
@@ -569,7 +569,7 @@ functions:
 
   adminCuradoriaReatribuir:
     handler: src/functions/admin-curadoria-reatribuir.handler
-    role: !GetAtt AdminCuradoriaReatribuirLambdaRole.Arn
+    role: !GetAtt AdminCuradoriaLambdaRole.Arn
     timeout: 10
     description: "Reassigns a project to a different analyst (admin master only)"
     events:
@@ -585,7 +585,7 @@ functions:
 
   adminHistoricoListar:
     handler: src/functions/admin-historico-listar.handler
-    role: !GetAtt AdminHistoricoListarLambdaRole.Arn
+    role: !GetAtt AdminLambdaRole.Arn
     timeout: 10
     description: "Lists decided projects (approved and rejected)"
     events:
@@ -599,7 +599,7 @@ functions:
 
   adminIncorporadorasListar:
     handler: src/functions/admin-incorporadoras-listar.handler
-    role: !GetAtt AdminIncorporadorasListarLambdaRole.Arn
+    role: !GetAtt AdminLambdaRole.Arn
     timeout: 10
     description: "Lists all registered incorporadoras"
     events:
@@ -613,7 +613,7 @@ functions:
 
   adminIncorporadoraGet:
     handler: src/functions/admin-incorporadora-get.handler
-    role: !GetAtt AdminIncorporadoraGetLambdaRole.Arn
+    role: !GetAtt AdminLambdaRole.Arn
     timeout: 10
     description: "Returns full incorporadora profile + project history"
     events:
@@ -627,7 +627,7 @@ functions:
 
   adminDashboardMetricas:
     handler: src/functions/admin-dashboard-metricas.handler
-    role: !GetAtt AdminDashboardMetricasLambdaRole.Arn
+    role: !GetAtt AdminLambdaRole.Arn
     timeout: 10
     description: "Returns funnel metrics for the admin dashboard"
     events:
@@ -641,7 +641,7 @@ functions:
 
   adminUsuariosListar:
     handler: src/functions/admin-usuarios-listar.handler
-    role: !GetAtt AdminUsuariosListarLambdaRole.Arn
+    role: !GetAtt AdminUsuarioLambdaRole.Arn
     timeout: 10
     description: "Lists all admin users (admin master only)"
     events:
@@ -655,7 +655,7 @@ functions:
 
   adminUsuarioCriar:
     handler: src/functions/admin-usuario-criar.handler
-    role: !GetAtt AdminUsuarioCriarLambdaRole.Arn
+    role: !GetAtt AdminUsuarioLambdaRole.Arn
     timeout: 15
     description: "Creates a new analyst account (admin master only)"
     environment:
@@ -671,7 +671,7 @@ functions:
 
   adminUsuarioDesativar:
     handler: src/functions/admin-usuario-desativar.handler
-    role: !GetAtt AdminUsuarioDesativarLambdaRole.Arn
+    role: !GetAtt AdminUsuarioLambdaRole.Arn
     timeout: 10
     description: "Deactivates an analyst account (admin master only)"
     environment:
@@ -1380,10 +1380,10 @@ resources:
                   Action: [cognito-idp:AdminAddUserToGroup]
                   Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
-    IncorporadoraGetPerfilLambdaRole:
+    AdminCuradoriaLambdaRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: atlas-incorporadoraGetPerfil-${self:provider.stage}
+        RoleName: atlas-adminCuradoria-${self:provider.stage}
         AssumeRolePolicyDocument:
           Statement:
             - Effect: Allow
@@ -1397,102 +1397,33 @@ resources:
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
                 - Effect: Allow
-                  Action: [dynamodb:GetItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
-
-    IncorporadoraPutPerfilLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-incorporadoraPutPerfil-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
-
-    IncorporadoraDocumentoPresignLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-incorporadoraDocPresign-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [s3:PutObject]
-                  Resource:
-                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/incorporadoras/*'
-
-    ProjetoCriarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-projetoCriar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
+                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-
-    ProjetosListarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-projetosListar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                 - Effect: Allow
                   Action: [dynamodb:Query]
                   Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/incorporadoraId-criadoEm-index'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/status-criadoEm-index'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotas-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [dynamodb:PutItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotas-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [ses:SendEmail]
+                  Resource: '*'
 
-    ProjetoGetLambdaRole:
+
+    ProjetoLambdaRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: atlas-projetoGet-${self:provider.stage}
+        RoleName: atlas-projeto-${self:provider.stage}
         AssumeRolePolicyDocument:
           Statement:
             - Effect: Allow
@@ -1506,59 +1437,14 @@ resources:
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
                 - Effect: Allow
-                  Action: [dynamodb:GetItem]
+                  Action: [dynamodb:GetItem, dynamodb:UpdateItem, dynamodb:PutItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                 - Effect: Allow
                   Action: [dynamodb:Query]
                   Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/incorporadoraId-criadoEm-index'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-
-    ProjetoAtualizarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-projetoAtualizar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-
-    ProjetoSubmeterLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-projetoSubmeter-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                 - Effect: Allow
                   Action: [dynamodb:PutItem]
                   Resource:
@@ -1568,60 +1454,61 @@ resources:
                   Action: [ses:SendEmail, ses:SendTemplatedEmail]
                   Resource: '*'
 
-    ProjetoResubmeterLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-projetoResubmeter-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-
-    ProjetoDocumentoPresignLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-projetoDocPresign-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                 - Effect: Allow
                   Action: [s3:PutObject]
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/projetos/*'
 
-    DocumentoDownloadPresignLambdaRole:
+    AdminUsuarioLambdaRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: atlas-docDownloadPresign-${self:provider.stage}
+        RoleName: atlas-adminUsuario-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:Scan, dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup, cognito-idp:AdminDisableUser]
+                  Resource:
+                    - !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
+
+    NotificacoesLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-notificacoes-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:Query, dynamodb:UpdateItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
+
+    DocumentoLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-documento-${self:provider.stage}
         AssumeRolePolicyDocument:
           Statement:
             - Effect: Allow
@@ -1639,14 +1526,14 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
                 - Effect: Allow
-                  Action: [s3:GetObject]
+                  Action: [s3:GetObject, s3:DeleteObject]
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
 
-    DocumentoDeleteLambdaRole:
+    IncorporadoraLambdaRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: atlas-docDelete-${self:provider.stage}
+        RoleName: atlas-incorporadora-${self:provider.stage}
         AssumeRolePolicyDocument:
           Statement:
             - Effect: Allow
@@ -1660,60 +1547,18 @@ resources:
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
                 - Effect: Allow
-                  Action: [dynamodb:GetItem]
+                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
                   Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                 - Effect: Allow
-                  Action: [s3:DeleteObject]
+                  Action: [s3:PutObject]
                   Resource:
-                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
+                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/incorporadoras/*'
 
-    NotificacoesListarLambdaRole:
+    AdminLambdaRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: atlas-notificacoesListar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:Query]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-
-    NotificacaoMarcarLidaLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-notificacaoMarcarLida-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-
-    AdminCuradoriaListarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaListar-${self:provider.stage}
+        RoleName: atlas-admin-${self:provider.stage}
         AssumeRolePolicyDocument:
           Statement:
             - Effect: Allow
@@ -1730,416 +1575,11 @@ resources:
                   Action: [dynamodb:Query]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/status-criadoEm-index'
-
-    AdminCuradoriaIniciarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaIniciar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
-
-    AdminCuradoriaGetLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaGet-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:Query]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotas-${self:provider.stage}'
-
-    AdminCuradoriaScorecardLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaScorecard-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
-
-    AdminCuradoriaAjusteLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaAjuste-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
-
-    AdminCuradoriaReprovarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaReprovar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
-
-    AdminCuradoriaAprovarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaAprovar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasScorecard-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
-
-    AdminCuradoriaConfirmarPublicacaoLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaConfirmar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
-
-    AdminCuradoriaNotaLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaNota-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotas-${self:provider.stage}'
-
-    AdminCuradoriaReatribuirLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminCuradoriaReatribuir-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
-
-    AdminHistoricoListarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminHistoricoListar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:Query]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/status-criadoEm-index'
-
-    AdminIncorporadorasListarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminIncorporadorasListar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:Scan]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
-
-    AdminIncorporadoraGetLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminIncorporadoraGet-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [dynamodb:Query]
-                  Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/incorporadoraId-criadoEm-index'
-
-    AdminDashboardMetricasLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminDashboardMetricas-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
                 - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:Query]
+                  Action: [dynamodb:Scan, dynamodb:GetItem]
                   Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}/index/status-criadoEm-index'
-
-    AdminUsuariosListarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminUsuariosListar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:Scan]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
-
-    AdminUsuarioCriarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminUsuarioCriar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:PutItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup]
-                  Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
-
-    AdminUsuarioDesativarLambdaRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: atlas-adminUsuarioDesativar-${self:provider.stage}
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal: { Service: lambda.amazonaws.com }
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: Policy
-            PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
-                  Resource: arn:aws:logs:*:*:*
-                - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
-                  Resource:
-                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [cognito-idp:AdminDisableUser]
-                  Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
-
-    # ── Cognito ────────────────────────────────────────────────────────
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
 
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
