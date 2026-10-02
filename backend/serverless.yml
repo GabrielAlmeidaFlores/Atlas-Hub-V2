@@ -62,7 +62,8 @@ provider:
     DIVIFY_API_BASE_URL: ${env:DIVIFY_API_BASE_URL, ''}
     DIVIFY_API_TOKEN: ${env:DIVIFY_API_TOKEN, ''}
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
-    SES_FROM_EMAIL: noreply@atlascomp.com.br
+    RESEND_API_KEY: ${env:RESEND_API_KEY, ''}
+    EMAIL_FROM: ${env:EMAIL_FROM, 'noreply@atlascomp.com.br'}
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
 
   logRetentionInDays: 14
@@ -1170,9 +1171,6 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsReplays-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
 
     FinanceiroAdminLambdaRole:
       Type: AWS::IAM::Role
@@ -1415,9 +1413,6 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotas-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
 
 
     ProjetoLambdaRole:
@@ -1450,9 +1445,6 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail, ses:SendTemplatedEmail]
-                  Resource: '*'
 
                 - Effect: Allow
                   Action: [s3:PutObject]

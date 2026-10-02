@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ok, unauthorized, forbidden, badRequest, notFound, serverError } from '../shared/http/response.js';
 import { getUserId, AuthError, ForbiddenError, requireAdmin, getUserEmail } from '../shared/http/auth.js';
 import { validate, aprovarSchema, ValidationError } from '../shared/http/validators.js';
-import { getProjeto, updateProjeto, putScorecard, putAuditoria, putNotificacao } from '../shared/db/index.js';
+import { getProjeto, updateProjeto, putScorecard, putAuditoria, putNotificacao, getIncorporadora } from '../shared/db/index.js';
 import { emailAprovado } from '../shared/email/index.js';
 import { createLogger } from '../shared/core/logger.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -73,7 +73,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     await putAuditoria(auditoria);
     await putNotificacao(notificacao);
 
-    try { await emailAprovado('', projeto.nome); } catch { void 0; }
+    const incorporadora = await getIncorporadora(projeto.incorporadoraId);
+    if (incorporadora !== null && incorporadora.email.length > 0) {
+      try { await emailAprovado(incorporadora.email, projeto.nome); } catch { void 0; }
+    }
 
     log.info('Project approved', { projetoId: id, analistaId, notaGeral });
     return ok(event, { status: 'APROVADO', notaGeral });
