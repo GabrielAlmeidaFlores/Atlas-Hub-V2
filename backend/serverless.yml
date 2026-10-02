@@ -67,6 +67,7 @@ provider:
 
   logRetentionInDays: 14
 
+
 functions:
 
   # ── Health ─────────────────────────────────────────────────────────
@@ -2220,6 +2221,483 @@ resources:
         RestApiId: !Ref ApiGatewayRestApi
         ProviderARNs:
           - !GetAtt CognitoUserPool.Arn
+
+    # ── DynamoDB Tables ────────────────────────────────────────────────
+
+    AtlasIncorporadorasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasIncorporadoras-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: cnpj
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: cnpj-index
+            KeySchema:
+              - AttributeName: cnpj
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: email-index
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    AtlasAdminsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAdmins-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: email-index
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    AtlasProjetosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasProjetos-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: incorporadoraId
+            AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: criadoEm
+            AttributeType: S
+          - AttributeName: analistaId
+            AttributeType: S
+          - AttributeName: ofertaId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: incorporadoraId-criadoEm-index
+            KeySchema:
+              - AttributeName: incorporadoraId
+                KeyType: HASH
+              - AttributeName: criadoEm
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: status-criadoEm-index
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+              - AttributeName: criadoEm
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: analistaId-status-index
+            KeySchema:
+              - AttributeName: analistaId
+                KeyType: HASH
+              - AttributeName: status
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: ofertaId-index
+            KeySchema:
+              - AttributeName: ofertaId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    AtlasScorecardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasScorecard-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: revisao
+            AttributeType: N
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: revisao
+            KeyType: RANGE
+
+    AtlasNotificacoesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasNotificacoes-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: criadoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: criadoEm
+            KeyType: RANGE
+
+    AtlasAuditoriaTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAuditoria-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: criadoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: criadoEm
+            KeyType: RANGE
+
+    AtlasNotasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasNotas-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: criadoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: criadoEm
+            KeyType: RANGE
+
+    AtlasAnalyticsEventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsEvents-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: dayKey
+            AttributeType: S
+          - AttributeName: ts
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: eventName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: dayKey-ts-index
+            KeySchema:
+              - AttributeName: dayKey
+                KeyType: HASH
+              - AttributeName: ts
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: userId-ts-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: ts
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: eventName-ts-index
+            KeySchema:
+              - AttributeName: eventName
+                KeyType: HASH
+              - AttributeName: ts
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasAnalyticsSessionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsSessions-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: sessionId
+            AttributeType: S
+          - AttributeName: anonymousId
+            AttributeType: S
+          - AttributeName: startedAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sessionId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: anonymousId-startedAt-index
+            KeySchema:
+              - AttributeName: anonymousId
+                KeyType: HASH
+              - AttributeName: startedAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasAnalyticsDailyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsDaily-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: dayKey
+            AttributeType: S
+          - AttributeName: metricKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: dayKey
+            KeyType: HASH
+          - AttributeName: metricKey
+            KeyType: RANGE
+
+    AtlasAnalyticsHeatmapsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsHeatmaps-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: pageKey
+            AttributeType: S
+          - AttributeName: cellKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pageKey
+            KeyType: HASH
+          - AttributeName: cellKey
+            KeyType: RANGE
+
+    AtlasAnalyticsAlertsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsAlerts-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+
+    AtlasAnalyticsReplaysTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasAnalyticsReplays-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+
+    AtlasSpeContasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasSpeContas-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: workspaceId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: workspaceId-index
+            KeySchema:
+              - AttributeName: workspaceId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    AtlasSpeCartoesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasSpeCartoes-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+
+    AtlasSpeCartaoLiberacoesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasSpeCartaoLiberacoes-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: etapaId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: etapaId
+            KeyType: RANGE
+
+    AtlasFinanceiroLedgerTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasFinanceiroLedger-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: starkId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: starkId
+            KeyType: RANGE
+
+    AtlasFinanceiroSolicitacoesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasFinanceiroSolicitacoes-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: solicitadoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: projetoId-solicitadoEm-index
+            KeySchema:
+              - AttributeName: projetoId
+                KeyType: HASH
+              - AttributeName: solicitadoEm
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasFinanceiroAuditoriaTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasFinanceiroAuditoria-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: criadoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: criadoEm
+            KeyType: RANGE
+
+    AtlasCaptacaoEventosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasCaptacaoEventos-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: ofertaId
+            AttributeType: S
+          - AttributeName: recebidoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ofertaId-recebidoEm-index
+            KeySchema:
+              - AttributeName: ofertaId
+                KeyType: HASH
+              - AttributeName: recebidoEm
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasCaptacaoComprasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasCaptacaoCompras-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: ofertaId
+            AttributeType: S
+          - AttributeName: purchaseId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ofertaId
+            KeyType: HASH
+          - AttributeName: purchaseId
+            KeyType: RANGE
+
+    AtlasObraEtapasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasObraEtapas-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: etapaId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: etapaId
+            KeyType: RANGE
+
+    AtlasObraLancamentosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasObraLancamentos-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: projetoId
+            AttributeType: S
+          - AttributeName: lancamentoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: projetoId
+            KeyType: HASH
+          - AttributeName: lancamentoId
+            KeyType: RANGE
 
     # ── S3 Bucket ──────────────────────────────────────────────────────
 
