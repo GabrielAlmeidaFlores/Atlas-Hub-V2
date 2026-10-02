@@ -1,6 +1,7 @@
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { CognitoIdentityProviderClient, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { putIncorporadora } from '../shared/db/index.js';
+import { emailBoasVindas } from '../shared/email/index.js';
 import { AWS_REGION } from '../shared/core/env.js';
 import { createLogger } from '../shared/core/logger.js';
 import type { Incorporadora } from '../shared/core/types/index.js';
@@ -46,6 +47,14 @@ export const handler = async (event: PostConfirmationTriggerEvent): Promise<Post
     Username: userId,
     GroupName: 'INCORPORADORA',
   }));
+
+  if (email.length > 0) {
+    try {
+      await emailBoasVindas(email, incorporadora.nomeResponsavel.length > 0 ? incorporadora.nomeResponsavel : incorporadora.razaoSocial);
+    } catch {
+      log.warn('Welcome email failed', { userId });
+    }
+  }
 
   log.info('Incorporadora record created and added to INCORPORADORA group', { userId });
 

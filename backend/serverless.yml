@@ -17,6 +17,8 @@ custom:
     external:
       - '@aws-sdk/*'
     packager: npm
+    loader:
+      '.html': text
 
   serverless-offline:
     httpPort: 3000
@@ -62,7 +64,9 @@ provider:
     DIVIFY_API_BASE_URL: ${env:DIVIFY_API_BASE_URL, ''}
     DIVIFY_API_TOKEN: ${env:DIVIFY_API_TOKEN, ''}
     DOCUMENTS_BUCKET: atlas-hub-documents-${self:provider.stage}
-    SES_FROM_EMAIL: noreply@atlascomp.com.br
+    RESEND_API_KEY: ${env:RESEND_API_KEY, ''}
+    EMAIL_FROM: ${env:EMAIL_FROM, 'noreply@atlascomp.com.br'}
+    APP_URL: ${env:APP_URL, 'https://master.d3vqf6k21x668r.amplifyapp.com'}
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
 
   logRetentionInDays: 14
@@ -225,7 +229,7 @@ functions:
     handler: src/functions/analytics-alerts-evaluate.handler
     role: !GetAtt AnalyticsAdminLambdaRole.Arn
     timeout: 30
-    description: "Evaluates analytics alert rules and emails admins via SES"
+    description: "Evaluates analytics alert rules and emails admins"
     events:
       - schedule: rate(1 hour)
 
@@ -236,6 +240,12 @@ functions:
     role: !GetAtt OnIncorporadoraSignupLambdaRole.Arn
     timeout: 10
     description: "Creates incorporadora record in DynamoDB after email confirmation"
+
+  onLogin:
+    handler: src/functions/on-login.handler
+    role: !GetAtt OnLoginLambdaRole.Arn
+    timeout: 10
+    description: "Sends a new-access notification email on login"
 
   # ── Incorporadora — Perfil ─────────────────────────────────────────
 
@@ -1170,9 +1180,6 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAnalyticsReplays-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
 
     FinanceiroAdminLambdaRole:
       Type: AWS::IAM::Role
@@ -1380,6 +1387,23 @@ resources:
                   Action: [cognito-idp:AdminAddUserToGroup]
                   Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
+    OnLoginLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-onLogin-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+
     AdminCuradoriaLambdaRole:
       Type: AWS::IAM::Role
       Properties:
@@ -1415,9 +1439,6 @@ resources:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotas-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail]
-                  Resource: '*'
 
 
     ProjetoLambdaRole:
@@ -1450,9 +1471,6 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAuditoria-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasNotificacoes-${self:provider.stage}'
-                - Effect: Allow
-                  Action: [ses:SendEmail, ses:SendTemplatedEmail]
-                  Resource: '*'
 
                 - Effect: Allow
                   Action: [s3:PutObject]
@@ -1599,6 +1617,7 @@ resources:
             RequireSymbols: false
         LambdaConfig:
           PostConfirmation: !GetAtt OnIncorporadoraSignupLambdaFunction.Arn
+          PostAuthentication: !GetAtt OnLoginLambdaFunction.Arn
         Schema:
           - Name: email
             Required: true
@@ -1609,6 +1628,14 @@ resources:
       Properties:
         Action: lambda:InvokeFunction
         FunctionName: !GetAtt OnIncorporadoraSignupLambdaFunction.Arn
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !GetAtt CognitoUserPool.Arn
+
+    CognitoLoginLambdaPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt OnLoginLambdaFunction.Arn
         Principal: cognito-idp.amazonaws.com
         SourceArn: !GetAtt CognitoUserPool.Arn
 

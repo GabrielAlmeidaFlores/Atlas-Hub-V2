@@ -45,7 +45,8 @@ export const STARK_PRIVATE_KEY = (process.env['STARK_PRIVATE_KEY'] ?? '').replac
 export const DOCUMENTS_BUCKET = process.env['DOCUMENTS_BUCKET'] ?? 'atlas-hub-documents-dev';
 
 export const USER_POOL_ID = process.env['USER_POOL_ID'] ?? '';
-export const USER_POOL_CLIENT_ID = process.env['USER_POOL_CLIENT_ID'] ?? '';
 
-export const SES_FROM_EMAIL = process.env['SES_FROM_EMAIL'] ?? 'noreply@atlascomp.com.br';
+export const RESEND_API_KEY = process.env['RESEND_API_KEY'] ?? '';
+export const EMAIL_FROM = process.env['EMAIL_FROM'] ?? 'noreply@atlascomp.com.br';
+export const APP_URL = process.env['APP_URL'] ?? 'https://master.d3vqf6k21x668r.amplifyapp.com';
 export const CORS_ORIGINS = process.env['CORS_ORIGINS'] ?? '*';

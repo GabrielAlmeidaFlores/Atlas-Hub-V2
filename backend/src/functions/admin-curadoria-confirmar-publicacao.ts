@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ok, unauthorized, forbidden, badRequest, notFound, serverError } from '../shared/http/response.js';
 import { getUserId, AuthError, ForbiddenError, requireAdmin, getUserEmail } from '../shared/http/auth.js';
 import { validate, confirmarPublicacaoSchema, ValidationError } from '../shared/http/validators.js';
-import { getProjeto, updateProjeto, putAuditoria, putNotificacao } from '../shared/db/index.js';
+import { getProjeto, updateProjeto, putAuditoria, putNotificacao, getIncorporadora } from '../shared/db/index.js';
 import { emailOfertaCriada } from '../shared/email/index.js';
 import { createLogger } from '../shared/core/logger.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -61,7 +61,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     await putAuditoria(auditoria);
     await putNotificacao(notificacao);
 
-    try { await emailOfertaCriada('', projeto.nome, body.ofertaLink); } catch { /* email non-blocking */ }
+    const incorporadora = await getIncorporadora(projeto.incorporadoraId);
+    if (incorporadora !== null && incorporadora.email.length > 0) {
+      try { await emailOfertaCriada(incorporadora.email, projeto.nome, body.ofertaLink); } catch { /* email non-blocking */ }
+    }
 
     log.info('Offer publication confirmed', { projetoId: id, ofertaId: body.ofertaId, analistaId });
     return ok(event, { status: 'OFERTA_CRIADA', ofertaId: body.ofertaId, ofertaLink: body.ofertaLink });

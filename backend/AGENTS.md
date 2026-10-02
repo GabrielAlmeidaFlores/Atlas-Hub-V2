@@ -2,7 +2,7 @@
 
 ## Stack
 
-Serverless Framework 3, Lambda Node 20, DynamoDB, S3, SES, Cognito, esbuild, Zod.
+Serverless Framework 3, Lambda Node 20, DynamoDB, S3, Resend, Cognito, esbuild, Zod.
 
 ## Obrigatório
 

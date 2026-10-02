@@ -9,7 +9,7 @@ Módulo nativo de analytics (LP + portal + admin). Sem Mixpanel/PostHog.
 - Identidade: cookie/localStorage `atlas_aid` → merge com `userId` após login
 - Session: `atlas_sid`
 - Segmentação admin: query `utm|device|os|browser|geo|userId` no dashboard/funnel
-- Alertas: cron horário avalia regras e envia SES aos admins ativos
+- Alertas: cron horário avalia regras e envia e-mail (Resend) aos admins ativos
 - Geo: SDK (timezone/idioma) + header `CloudFront-Viewer-Country` no collect
 - Merge anônimo→user: atualiza sessões e reescreve `userId` nos eventos recentes
 

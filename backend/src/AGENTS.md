@@ -13,7 +13,7 @@
 - `http/auth|response|validators` — borda HTTP
 - `db` — acesso DynamoDB
 - `storage` — presign S3
-- `email` — SES
+- `email` — Resend (templates em `.html`)
 
 ## Regras
 
