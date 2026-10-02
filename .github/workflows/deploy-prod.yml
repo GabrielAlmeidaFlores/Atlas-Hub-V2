@@ -52,6 +52,14 @@ jobs:
         run: npm ci --legacy-peer-deps
       - name: Deploy with Serverless Framework
         working-directory: backend
+        env:
+          STARK_ENVIRONMENT:     ${{ secrets.STARK_ENVIRONMENT }}
+          STARK_ORGANIZATION_ID: ${{ secrets.STARK_ORGANIZATION_ID }}
+          STARK_PRIVATE_KEY:     ${{ secrets.STARK_PRIVATE_KEY }}
+          DIVIFY_WEBHOOK_SECRET: ${{ secrets.DIVIFY_WEBHOOK_SECRET }}
+          DIVIFY_TENANT_ID:      ${{ secrets.DIVIFY_TENANT_ID }}
+          DIVIFY_API_BASE_URL:   ${{ secrets.DIVIFY_API_BASE_URL }}
+          DIVIFY_API_TOKEN:      ${{ secrets.DIVIFY_API_TOKEN }}
         run: npx serverless@3 deploy --stage prod
       - name: Read CloudFormation outputs
         id: cf

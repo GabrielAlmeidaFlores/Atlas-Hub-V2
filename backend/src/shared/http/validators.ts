@@ -112,7 +112,6 @@ export const atualizarProjetoSchema = z.object({
       custoObra: z.number().nonnegative(),
       precoMedioUnidade: z.number().positive(),
       prazoMeses: z.number().int().min(1).max(120),
-      taxaDescontoInvestidor: z.number().min(0).max(100).optional(),
       valorTerreno: z.number().nonnegative().optional(),
       unidadesPermuta: z.number().nonnegative().optional(),
     }),

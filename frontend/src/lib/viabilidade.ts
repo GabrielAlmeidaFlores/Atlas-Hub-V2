@@ -3,7 +3,6 @@ export interface ViabilidadeInputs {
   readonly custoObra: number;
   readonly precoMedioUnidade: number;
   readonly prazoMeses: number;
-  readonly taxaDescontoInvestidor?: number;
   readonly valorTerreno?: number;
   readonly unidadesPermuta?: number;
 }
@@ -32,12 +31,10 @@ export function calcularViabilidade(inputs: ViabilidadeInputs): ViabilidadeOutpu
   const unidadesPermuta = Math.max(0, inputs.unidadesPermuta ?? 0);
   const valorTerrenoInformado = Math.max(0, inputs.valorTerreno ?? 0);
 
-  const vgv = unidades * preco;
+  const unidadesVendidas = Math.max(0, unidades - unidadesPermuta);
+  const vgv = unidadesVendidas * preco;
   const custoPorUnidade = unidades > 0 ? custoObra / unidades : 0;
-  const custoTerrenoEstimado =
-    valorTerrenoInformado > 0
-      ? valorTerrenoInformado
-      : unidadesPermuta * preco;
+  const custoTerrenoEstimado = valorTerrenoInformado;
   const investimentoTotal = custoObra + custoTerrenoEstimado;
   const retornoLiquido = vgv - investimentoTotal;
   const roiPercent = investimentoTotal > 0 ? (retornoLiquido / investimentoTotal) * 100 : 0;
