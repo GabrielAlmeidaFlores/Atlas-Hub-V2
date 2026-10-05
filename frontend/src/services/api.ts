@@ -34,33 +34,69 @@ function throwApiError(errorCode: ApiErrorCode, message: string): never {
   throw new Error(`${API_ERROR_PREFIX}${String(errorCode)}::${message}`);
 }
 
+const COGNITO_MESSAGES: Record<string, string> = {
+  UsernameExistsException: "Este e-mail já está cadastrado. Faça login ou use outro e-mail.",
+  AliasExistsException: "Este e-mail já está em uso. Faça login ou use outro e-mail.",
+  UserNotFoundException: "Conta não encontrada para este e-mail.",
+  UserNotConfirmedException: "Confirme seu e-mail antes de entrar.",
+  NotAuthorizedException: "E-mail ou senha incorretos.",
+  InvalidPasswordException: "A senha deve ter no mínimo 8 caracteres e conter ao menos 1 número.",
+  InvalidParameterException: "Dados inválidos. Confira as informações e tente novamente.",
+  CodeMismatchException: "Código inválido. Confira o código e tente novamente.",
+  ExpiredCodeException: "Código expirado. Solicite um novo código.",
+  LimitExceededException: "Muitas tentativas. Aguarde um momento e tente de novo.",
+  TooManyRequestsException: "Muitas tentativas. Aguarde um momento e tente de novo.",
+  TooManyFailedAttemptsException: "Muitas tentativas incorretas. Aguarde um momento e tente novamente.",
+  PasswordResetRequiredException: "É preciso redefinir a senha antes de entrar.",
+  UserAlreadyAuthenticatedException: "Já existe uma sessão ativa. Atualize a página e tente novamente.",
+  CodeDeliveryFailureException: "Não foi possível enviar o código por e-mail. Tente novamente.",
+  UserLambdaValidationException: "Não foi possível concluir a operação. Tente novamente.",
+  UnexpectedLambdaException: "Não foi possível concluir a operação. Tente novamente.",
+  ResourceNotFoundException: "Recurso não encontrado. Tente novamente.",
+  ForbiddenException: "Você não tem permissão para esta ação.",
+  InternalErrorException: "Erro interno. Tente novamente em instantes.",
+  NetworkError: "Não foi possível conectar. Verifique sua internet e tente novamente.",
+  ServiceUnavailableException: "Serviço indisponível no momento. Tente novamente.",
+};
+
+const GENERIC_ERROR = "Não foi possível concluir a operação. Tente novamente.";
+
 export function getApiErrorMessage(err: unknown): string {
   if (!(err instanceof Error)) return "Erro interno. Tente novamente.";
   const msg = err.message;
+
   if (msg.startsWith(API_ERROR_PREFIX)) {
     const rest = msg.slice(API_ERROR_PREFIX.length);
     const separatorIndex = rest.indexOf("::");
-    if (separatorIndex === -1) return "Erro interno. Tente novamente.";
-    return rest.slice(separatorIndex + 2);
+    return separatorIndex === -1 ? "Erro interno. Tente novamente." : rest.slice(separatorIndex + 2);
   }
 
   const name = "name" in err && typeof err.name === "string" ? err.name : "";
-  if (name === "NotAuthorizedException" || msg.toLowerCase().includes("incorrect username or password")) {
+  const lower = msg.toLowerCase();
+
+  if (name !== "" && COGNITO_MESSAGES[name] !== undefined) return COGNITO_MESSAGES[name];
+
+  for (const [code, friendly] of Object.entries(COGNITO_MESSAGES)) {
+    if (lower.includes(code.toLowerCase())) return friendly;
+  }
+
+  if (lower.includes("failed to fetch") || lower.includes("network") || lower.includes("load failed") || lower.includes("timeout")) {
+    return "Não foi possível conectar. Verifique sua internet e tente novamente.";
+  }
+  if (lower.includes("incorrect username or password") || lower.includes("incorrect password")) {
     return "E-mail ou senha incorretos.";
   }
-  if (name === "UserNotConfirmedException") {
-    return "Confirme seu e-mail antes de entrar.";
-  }
-  if (name === "UserAlreadyAuthenticatedException" || msg.toLowerCase().includes("already a signed in user")) {
+  if (lower.includes("already a signed in user")) {
     return "Já existe uma sessão ativa. Atualize a página e tente novamente.";
   }
-  if (name === "LimitExceededException" || name === "TooManyRequestsException") {
-    return "Muitas tentativas. Aguarde um momento e tente de novo.";
+  if (lower.includes("password") && (lower.includes("conform") || lower.includes("requirements") || lower.includes("policy") || lower.includes("length"))) {
+    return COGNITO_MESSAGES["InvalidPasswordException"] ?? GENERIC_ERROR;
   }
-  if (msg.length > 0 && msg.length < 180 && !msg.includes("http")) {
+
+  if (/[áàâãéêíóôõúüç]/i.test(msg) || /\b(não|senha|conta|código|e-mail|tente|inválid|incorret)/i.test(msg)) {
     return msg;
   }
-  return "Erro interno. Tente novamente.";
+  return GENERIC_ERROR;
 }
 
 async function parseResponseBody(response: Response): Promise<unknown> {

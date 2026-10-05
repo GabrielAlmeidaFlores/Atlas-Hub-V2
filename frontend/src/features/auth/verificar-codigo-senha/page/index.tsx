@@ -2,6 +2,7 @@ import { useState, type ReactNode, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToastStore } from "@/stores/toast";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { getApiErrorMessage } from "@/services/api";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -68,7 +69,7 @@ export default function VerificarCodigoSenhaPage(): ReactNode {
         addToast({ type: "error", title: "Código inválido", description: "Confira o código do e-mail ou solicite um novo." });
         return;
       }
-      addToast({ type: "error", title: "Não foi possível validar", description: err instanceof Error ? err.message : "Tente novamente" });
+      addToast({ type: "error", title: "Não foi possível validar", description: getApiErrorMessage(err) });
     } finally {
       setIsLoading(false);
     }
