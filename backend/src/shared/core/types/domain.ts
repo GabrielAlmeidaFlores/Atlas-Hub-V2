@@ -20,7 +20,7 @@ export type StatusProjeto =
 
 export type ModeloInvestimento = 'VENDA' | 'RENDA' | 'MISTO';
 export type TipoOferta = 'PUBLICA' | 'PRIVADA';
-export type ModeloRetorno = 'SCP' | 'NOTA_COMERCIAL';
+export type ModeloRetorno = 'SCP';
 export type TipoImovel = 'RESIDENCIAL' | 'COMERCIAL' | 'MISTO';
 
 export interface Incorporadora {

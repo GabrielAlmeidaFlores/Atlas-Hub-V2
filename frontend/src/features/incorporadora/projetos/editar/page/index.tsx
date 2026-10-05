@@ -92,7 +92,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           prazoObra: p.prazoObra !== undefined ? String(p.prazoObra) : "",
           prazoRetorno: p.prazoRetorno !== undefined ? String(p.prazoRetorno) : "",
           rentabilidadeEstimada: p.rentabilidadeEstimada !== undefined ? String(p.rentabilidadeEstimada) : "",
-          modeloRetorno: p.modeloRetorno ?? "SCP",
+          modeloRetorno: "SCP",
           planoSaida: p.planoSaida ?? "",
           tipoOferta: p.tipoOferta ?? "PUBLICA",
         });
@@ -314,9 +314,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             </div>
             <div className="form-group">
               <label className="form-label">Modelo de retorno</label>
-              <select className="input-base" value={form.modeloRetorno} onChange={setField("modeloRetorno")}>
-                <option value="SCP">SCP</option>
-                <option value="NOTA_COMERCIAL">Nota Comercial</option>
+              <select className="input-base" value="SCP" onChange={setField("modeloRetorno")} disabled>
+                <option value="SCP">SCP — Sociedade em Conta de Participação</option>
               </select>
             </div>
           </div>
