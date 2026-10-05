@@ -24,7 +24,15 @@ import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
+import { WhatsappIcon } from "@/components/shared/whatsapp-cta";
 import type { ViabilidadeProjeto } from "@/types";
+
+const WHATSAPP_INVESTIR = "5515998483757";
+
+function whatsappInvestir(projeto: string): string {
+  const text = encodeURIComponent(`Olá! Tenho interesse em investir no projeto "${projeto}" (Atlas Hub).`);
+  return `https://wa.me/${WHATSAPP_INVESTIR}?text=${text}`;
+}
 
 interface Documentos {
   readonly matriculaUrl: string | null;
@@ -287,15 +295,16 @@ export default function InvestidorProjetoPage(): ReactNode {
               </div>
 
               <a
-                href={data.ofertaLink ?? "#"}
+                href={whatsappInvestir(data.nome)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-[4px] bg-gold text-sm font-bold text-white transition-colors hover:bg-gold-dark"
+                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[4px] bg-gold text-sm font-bold text-white transition-colors hover:bg-gold-dark"
               >
+                <WhatsappIcon className="h-4 w-4" />
                 Investir neste projeto
               </a>
               <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                Você será direcionado ao ambiente de investimento da Atlas Hub.
+                Você será direcionado ao atendimento da Atlas Hub no WhatsApp.
               </p>
             </div>
           </div>

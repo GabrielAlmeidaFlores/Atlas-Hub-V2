@@ -411,7 +411,6 @@ export const handlers = [
     limiteTotal: 0,
     limiteVigente: 0,
     limiteRecalculado: false,
-    podeRegistrar: false,
     podeSolicitarLiberacao: false,
     liberacoes: [],
     bloqueios: [],
