@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { AuthUser, Perfil } from "@/types";
 import { USE_LOCAL_MOCKS, VITE_COGNITO_USER_POOL_ID, VITE_COGNITO_CLIENT_ID } from "@/lib/env";
+import { extractPerfil } from "@/lib/perfil";
 
 interface AuthState {
   readonly user: AuthUser | null;
@@ -15,16 +16,11 @@ interface AuthState {
 
 const cognitoConfigured = VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIENT_ID !== "";
 
-function extractPerfil(groups: string[]): Perfil {
-  if (groups.includes("ADMIN_MASTER")) return "ADMIN_MASTER";
-  if (groups.includes("ANALISTA")) return "ANALISTA";
-  return "INCORPORADORA";
-}
-
 function extractPerfilFromEmail(email: string): Perfil {
   const lower = email.toLowerCase();
   if (lower.includes("master") || lower.includes("admin@atlashub")) return "ADMIN_MASTER";
   if (lower.includes("analista") || lower.includes("@atlashub")) return "ANALISTA";
+  if (lower.includes("invest")) return "INVESTIDOR";
   return "INCORPORADORA";
 }
 

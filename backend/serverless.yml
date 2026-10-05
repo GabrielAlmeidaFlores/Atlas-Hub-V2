@@ -106,7 +106,7 @@ functions:
     timeout: 10
     description: "Sends auth emails (new access and verification codes)"
     environment:
-      COGNITO_EMAIL_KEY_ID: !Ref CognitoEmailKey
+      COGNITO_EMAIL_KEY_ID: !GetAtt CognitoEmailKey.Arn
 
   # ── Incorporadora — Perfil ─────────────────────────────────────────
 
@@ -1486,6 +1486,13 @@ resources:
         GroupName: ADMIN_MASTER
         UserPoolId: !Ref CognitoUserPool
         Description: "Atlas Hub admin master — can manage users"
+
+    CognitoInvestidorGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: INVESTIDOR
+        UserPoolId: !Ref CognitoUserPool
+        Description: "Investidores — acesso à vitrine de projetos"
 
     CognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient

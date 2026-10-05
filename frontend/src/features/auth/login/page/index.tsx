@@ -5,9 +5,12 @@ import { useToastStore } from "@/stores/toast";
 import { getApiErrorMessage } from "@/services/api";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { homeForPerfil } from "@/lib/perfil";
 import { analytics } from "@/lib/analytics";
 
-export default function LoginPage(): ReactNode {
+type Audience = "incorporadora" | "investidor";
+
+export default function LoginPage({ audience = "incorporadora" }: { readonly audience?: Audience }): ReactNode {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -27,7 +30,7 @@ export default function LoginPage(): ReactNode {
       const user = useAuthStore.getState().user;
       if (user?.id !== undefined) analytics.identify(user.id);
       analytics.track("login");
-      navigate(user?.perfil === "INCORPORADORA" ? "/dashboard" : "/admin");
+      navigate(homeForPerfil(user?.perfil));
     } catch (err) {
       addToast({ type: "error", title: "Credenciais inválidas", description: getApiErrorMessage(err) });
     } finally {
@@ -43,7 +46,7 @@ export default function LoginPage(): ReactNode {
       const user = useAuthStore.getState().user;
       if (user?.id !== undefined) analytics.identify(user.id);
       analytics.track("login");
-      navigate(user?.perfil === "INCORPORADORA" ? "/dashboard" : "/admin");
+      navigate(homeForPerfil(user?.perfil));
     } catch (err) {
       addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
     } finally {
@@ -53,7 +56,7 @@ export default function LoginPage(): ReactNode {
 
   if (pendingChallenge?.type === "NEW_PASSWORD_REQUIRED") {
     return (
-      <AuthShell title="Defina sua senha" subtitle="Primeiro acesso — crie uma senha segura para continuar.">
+      <AuthShell audience={audience} title="Defina sua senha" subtitle="Primeiro acesso — crie uma senha segura para continuar.">
         <form onSubmit={(e) => void handleNewPass(e)} className="space-y-4">
           <div className="form-group">
             <label className="form-label">Nova senha</label>
@@ -87,7 +90,7 @@ export default function LoginPage(): ReactNode {
   }
 
   return (
-    <AuthShell title="Bem-vindo de volta" subtitle="Entre com suas credenciais para acessar a plataforma.">
+    <AuthShell audience={audience} title={audience === "investidor" ? "Acesse sua conta" : "Bem-vindo de volta"} subtitle={audience === "investidor" ? "Entre para ver os projetos disponíveis para investimento." : "Entre com suas credenciais para acessar a plataforma."}>
       <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
         <div className="form-group">
           <label className="form-label">E-mail</label>
@@ -140,10 +143,21 @@ export default function LoginPage(): ReactNode {
       </form>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Incorporadora sem conta?{" "}
-        <Link to="/cadastro" className="font-semibold text-navy hover:underline">
-          Criar conta
-        </Link>
+        {audience === "investidor" ? (
+          <>
+            Ainda não tem conta?{" "}
+            <Link to="/investir/cadastro" className="font-semibold text-navy hover:underline">
+              Criar conta de investidor
+            </Link>
+          </>
+        ) : (
+          <>
+            Incorporadora sem conta?{" "}
+            <Link to="/cadastro" className="font-semibold text-navy hover:underline">
+              Criar conta
+            </Link>
+          </>
+        )}
       </p>
     </AuthShell>
   );

@@ -3,13 +3,41 @@ import { Link } from "react-router-dom";
 import { Building2, TrendingUp, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 
+type Audience = "incorporadora" | "investidor";
+
 interface AuthShellProps {
   readonly children: ReactNode;
   readonly title: string;
   readonly subtitle: string;
+  readonly audience?: Audience;
 }
 
-export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactNode {
+const HERO = {
+  incorporadora: {
+    line1: "Construa sem banco.",
+    line2: "Capte com investidores.",
+    sub: "Sob o guarda-chuva regulatório da Divify.",
+    badges: [
+      { icon: Building2, label: "Incorporadoras" },
+      { icon: TrendingUp, label: "Rentabilidade" },
+      { icon: ShieldCheck, label: "CVM 88" },
+    ],
+  },
+  investidor: {
+    line1: "Invista em imóveis",
+    line2: "com curadoria.",
+    sub: "Projetos avaliados pela Atlas Hub, sob o guarda-chuva regulatório da Divify.",
+    badges: [
+      { icon: Building2, label: "Projetos curados" },
+      { icon: TrendingUp, label: "Rentabilidade" },
+      { icon: ShieldCheck, label: "CVM 88" },
+    ],
+  },
+} as const;
+
+export function AuthShell({ children, title, subtitle, audience = "incorporadora" }: AuthShellProps): ReactNode {
+  const hero = HERO[audience];
+
   return (
     <div className="relative flex min-h-screen bg-background">
       <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-navy-dark p-10 lg:flex xl:w-[40%]">
@@ -27,20 +55,14 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps): ReactN
 
         <div className="relative">
           <h2 className="text-3xl font-extrabold leading-tight text-white xl:text-4xl">
-            Construa sem banco.
+            {hero.line1}
             <br />
-            <span className="text-gradient-gold">Capte com investidores.</span>
+            <span className="text-gradient-gold">{hero.line2}</span>
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-white/55">
-            Sob o guarda-chuva regulatório da Divify.
-          </p>
+          <p className="mt-4 text-sm leading-relaxed text-white/55">{hero.sub}</p>
 
           <div className="mt-8 grid grid-cols-3 gap-0 border border-white/10 bg-white/[0.04] backdrop-blur-sm">
-            {[
-              { icon: Building2, label: "Incorporadoras" },
-              { icon: TrendingUp, label: "Rentabilidade" },
-              { icon: ShieldCheck, label: "CVM 88" },
-            ].map(({ icon: Icon, label }) => (
+            {hero.badges.map(({ icon: Icon, label }) => (
               <div key={label} className="border-r border-white/10 p-4 text-center last:border-r-0">
                 <Icon className="mx-auto mb-2 h-4 w-4 text-gold" />
                 <p className="text-[10px] font-bold uppercase tracking-wider text-white/45">{label}</p>

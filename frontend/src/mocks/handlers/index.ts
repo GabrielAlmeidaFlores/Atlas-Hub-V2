@@ -222,6 +222,8 @@ const mockMetricas: DashboardMetricas = {
 
 export const handlers = [
   http.get(`${BASE}/health`, () => HttpResponse.json({ status: "ok", timestamp: new Date().toISOString(), service: "atlas-hub-backend" })),
+  http.post(`${BASE}/analytics/collect`, () => HttpResponse.json({ accepted: 0 })),
+  http.post(`${BASE}/analytics/replay`, () => HttpResponse.json({ accepted: 0 })),
 
   http.get(`${BASE}/incorporadora/perfil`, () => HttpResponse.json(mockIncorporadora)),
   http.put(`${BASE}/incorporadora/perfil`, () => HttpResponse.json({ updated: true })),
@@ -230,6 +232,16 @@ export const handlers = [
   http.put("https://example.s3.amazonaws.com/upload*", () => new HttpResponse(null, { status: 200 })),
 
   http.get(`${BASE}/projetos`, () => HttpResponse.json({ items: mockProjetos, cursor: null, hasMore: false })),
+  http.get(`${BASE}/publico/projetos`, () => HttpResponse.json({
+    items: [
+      { id: "pub-1", nome: "Residencial Jardins", cidade: "São Paulo", estado: "SP", valorCaptar: 3000000, rentabilidadeEstimada: 22.5, status: "OFERTA_CRIADA", statusLabel: "Oferta Publicada", ofertaLink: null, imagemUrl: null, publicadoEm: "2026-06-17T00:00:00.000Z" },
+      { id: "pub-2", nome: "Vila Mariana Studios", cidade: "São Paulo", estado: "SP", valorCaptar: 1500000, rentabilidadeEstimada: 18, status: "OFERTA_CRIADA", statusLabel: "Oferta Publicada", ofertaLink: null, imagemUrl: null, publicadoEm: "2026-06-20T00:00:00.000Z" },
+      { id: "pub-3", nome: "Barracão Logístico Cajamar", cidade: "Cajamar", estado: "SP", valorCaptar: 4200000, rentabilidadeEstimada: 20, status: "OFERTA_CRIADA", statusLabel: "Oferta Publicada", ofertaLink: null, imagemUrl: null, publicadoEm: "2026-06-25T00:00:00.000Z" },
+    ],
+    total: 3,
+    limit: 12,
+    offset: 0,
+  })),
   http.post(`${BASE}/projetos`, () => HttpResponse.json({ id: `proj-${Date.now()}` }, { status: 201 })),
   http.get(`${BASE}/projetos/:id`, ({ params }) => {
     const projeto = mockProjetos.find((p) => p.id === params["id"]);

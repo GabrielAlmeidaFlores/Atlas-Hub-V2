@@ -1,6 +1,7 @@
 import React, { type ReactNode } from "react";
 import { createBrowserRouter, Navigate, RouterProvider, Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
+import { homeForPerfil } from "@/lib/perfil";
 
 const LandingPage          = React.lazy(() => import("@/features/landing/page"));
 const ParaIncorporadorasPage = React.lazy(() => import("@/features/landing/para-incorporadoras/page"));
@@ -13,6 +14,7 @@ const ConfirmarEmailPage   = React.lazy(() => import("@/features/auth/confirmar-
 const EsqueciSenhaPage     = React.lazy(() => import("@/features/auth/esqueci-senha/page"));
 const VerificarCodigoSenhaPage = React.lazy(() => import("@/features/auth/verificar-codigo-senha/page"));
 const RedefinirSenhaPage   = React.lazy(() => import("@/features/auth/redefinir-senha/page"));
+const CadastroInvestidorPage = React.lazy(() => import("@/features/auth/cadastro-investidor/page"));
 
 const IncorporadoraLayout          = React.lazy(() => import("@/app/layouts/incorporadora-layout"));
 const IncorporadoraDashboardPage   = React.lazy(() => import("@/features/incorporadora/dashboard/page"));
@@ -40,6 +42,9 @@ const AdminCaptacaoOfertaPage      = React.lazy(() => import("@/features/admin/c
 const AdminCronogramaListaPage     = React.lazy(() => import("@/features/admin/cronograma/lista/page"));
 const AdminCronogramaDetalhePage   = React.lazy(() => import("@/features/admin/cronograma/detalhe/page"));
 
+const InvestidorLayout       = React.lazy(() => import("@/app/layouts/investidor-layout"));
+const InvestidorProjetosPage = React.lazy(() => import("@/features/investidor/projetos/page"));
+
 function Spinner(): ReactNode {
   return (
     <div className="flex h-screen items-center justify-center bg-background">
@@ -60,6 +65,7 @@ function RouteError(): ReactNode {
 function CatchAllRedirect(): ReactNode {
   const { pathname } = useLocation();
   if (pathname.startsWith("/admin")) return <Navigate to="/admin" replace />;
+  if (pathname.startsWith("/investir")) return <Navigate to="/investir" replace />;
   if (
     pathname.startsWith("/dashboard")
     || (pathname.startsWith("/projetos/") && pathname !== "/projetos")
@@ -79,7 +85,7 @@ function RequireIncorporadora({ children }: { readonly children: ReactNode }): R
   const { isAuthenticated, user, isLoading } = useAuthStore();
   if (isLoading) return <Spinner />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (user?.perfil !== "INCORPORADORA") return <Navigate to="/admin" replace />;
+  if (user?.perfil !== "INCORPORADORA") return <Navigate to={homeForPerfil(user?.perfil)} replace />;
   return children;
 }
 
@@ -87,7 +93,15 @@ function RequireAdmin({ children }: { readonly children: ReactNode }): ReactNode
   const { isAuthenticated, user, isLoading } = useAuthStore();
   if (isLoading) return <Spinner />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (user?.perfil === "INCORPORADORA") return <Navigate to="/dashboard" replace />;
+  if (user?.perfil === "INCORPORADORA" || user?.perfil === "INVESTIDOR") return <Navigate to={homeForPerfil(user?.perfil)} replace />;
+  return children;
+}
+
+function RequireInvestidor({ children }: { readonly children: ReactNode }): ReactNode {
+  const { isAuthenticated, user, isLoading } = useAuthStore();
+  if (isLoading) return <Spinner />;
+  if (!isAuthenticated) return <Navigate to="/investir/login" replace />;
+  if (user?.perfil !== "INVESTIDOR") return <Navigate to={homeForPerfil(user?.perfil)} replace />;
   return children;
 }
 
@@ -104,6 +118,8 @@ const router = createBrowserRouter([
   { path: "/esqueci-senha",     element: withSuspense(<EsqueciSenhaPage />) },
   { path: "/verificar-codigo-senha", element: withSuspense(<VerificarCodigoSenhaPage />) },
   { path: "/redefinir-senha",   element: withSuspense(<RedefinirSenhaPage />) },
+  { path: "/investir/login",    element: withSuspense(<LoginPage audience="investidor" />) },
+  { path: "/investir/cadastro", element: withSuspense(<CadastroInvestidorPage />) },
 
   /* ── Portal Incorporadora ────────────────────────────── */
   {
@@ -120,6 +136,20 @@ const router = createBrowserRouter([
       { path: "/projetos/:id",        element: withSuspense(<IncorporadoraProjetoDetalhePage />) },
       { path: "/perfil",              element: withSuspense(<IncorporadoraPerfilPage />) },
       { path: "/notificacoes",        element: withSuspense(<IncorporadoraNotificacoesPage />) },
+    ],
+  },
+
+  /* ── Área do Investidor ──────────────────────────────── */
+  {
+    path: "/investir",
+    element: withSuspense(
+      <RequireInvestidor>
+        {withSuspense(<InvestidorLayout />)}
+      </RequireInvestidor>,
+    ),
+    children: [
+      { index: true, element: <Navigate to="/investir/projetos" replace /> },
+      { path: "projetos", element: withSuspense(<InvestidorProjetosPage />) },
     ],
   },
 

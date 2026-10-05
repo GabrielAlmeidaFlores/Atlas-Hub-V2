@@ -20,7 +20,27 @@ export const handler = async (event: PostConfirmationTriggerEvent): Promise<Post
   const poolId = event.userPoolId;
   const now = new Date().toISOString();
 
-  log.info('Incorporadora signup confirmed', { userId, email });
+  log.info('Signup confirmed', { userId, email });
+
+  if (meta(event, 'tipo') === 'investidor') {
+    await cognito.send(new AdminAddUserToGroupCommand({
+      UserPoolId: poolId,
+      Username: userId,
+      GroupName: 'INVESTIDOR',
+    }));
+
+    const nome = meta(event, 'nome');
+    if (email.length > 0) {
+      try {
+        await emailBoasVindas(email, nome.length > 0 ? nome : email);
+      } catch {
+        log.warn('Welcome email failed', { userId });
+      }
+    }
+
+    log.info('Investidor confirmed and added to INVESTIDOR group', { userId });
+    return event;
+  }
 
   const cnpj = meta(event, 'cnpj').replace(/\D/g, '');
   const cpfResponsavel = meta(event, 'cpfResponsavel').replace(/\D/g, '');
