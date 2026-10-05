@@ -11,14 +11,52 @@ import {
   Building,
   CalendarClock,
   Clock,
+  Users,
+  ScrollText,
+  ExternalLink,
+  Linkedin,
+  Calculator,
+  CreditCard,
+  Landmark,
 } from "lucide-react";
 import { api } from "@/services/api";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
+import type { ViabilidadeProjeto } from "@/types";
+
+interface Documentos {
+  readonly matriculaUrl: string | null;
+  readonly alvaraUrl: string | null;
+  readonly memorialUrl: string | null;
+  readonly plantaUrl: string | null;
+  readonly viabilidadeUrl: string | null;
+  readonly orcamentoUrl: string | null;
+  readonly projeto3dUrl: string | null;
+  readonly contratoSpeUrl: string | null;
+  readonly cndUrl: string | null;
+  readonly outrosUrls: string[];
+}
+
+interface MembroEquipe {
+  readonly nome: string;
+  readonly cargo: string;
+  readonly bio: string;
+  readonly fotoUrl: string | null;
+  readonly linkedin: string | null;
+}
+
+interface IncorporadoraResumo {
+  readonly razaoSocial: string;
+  readonly descricao: string | null;
+  readonly site: string | null;
+  readonly endereco: string | null;
+}
 
 interface ProjetoDetalhe {
   readonly id: string;
+  readonly status: string;
   readonly nome: string;
   readonly modelo: string;
   readonly tipoImovel: string;
@@ -36,7 +74,17 @@ interface ProjetoDetalhe {
   readonly prazoRetorno: number | null;
   readonly modeloRetorno: string | null;
   readonly planoSaida: string | null;
+  readonly parcelado: boolean;
+  readonly numParcelas: number | null;
+  readonly percentualEntrada: number | null;
+  readonly documentos: Documentos;
+  readonly viabilidade: ViabilidadeProjeto | null;
+  readonly equipe: MembroEquipe[];
+  readonly incorporadora: IncorporadoraResumo | null;
+  readonly analistaNome: string | null;
   readonly ofertaLink: string | null;
+  readonly criadoEm: string;
+  readonly aprovadoEm: string | null;
   readonly statusLabel: string;
   readonly publicadoEm: string;
 }
@@ -63,20 +111,33 @@ const MODELO_RETORNO: Record<string, string> = {
   NOTA_COMERCIAL: "Nota comercial",
 };
 
+const DOC_LABELS: readonly (readonly [keyof Documentos, string])[] = [
+  ["matriculaUrl", "Matrícula do imóvel"],
+  ["alvaraUrl", "Alvará"],
+  ["memorialUrl", "Memorial descritivo"],
+  ["plantaUrl", "Planta"],
+  ["viabilidadeUrl", "Estudo de viabilidade"],
+  ["orcamentoUrl", "Orçamento de obra"],
+  ["projeto3dUrl", "Projeto 3D"],
+  ["contratoSpeUrl", "Contrato SPE"],
+  ["cndUrl", "CND"],
+];
+
 function mes(meses: number | null): string {
   if (meses === null) return "—";
   return `${meses} ${meses === 1 ? "mês" : "meses"}`;
 }
 
-function Fact({
-  icon: Icon,
-  label,
-  value,
-}: {
-  readonly icon: typeof Wallet;
-  readonly label: string;
-  readonly value: string;
-}): ReactNode {
+function formatData(iso: string | null): string {
+  if (iso === null || iso === "") return "—";
+  try {
+    return new Date(iso).toLocaleDateString("pt-BR");
+  } catch {
+    return "—";
+  }
+}
+
+function Fact({ icon: Icon, label, value }: { readonly icon: typeof Wallet; readonly label: string; readonly value: string }): ReactNode {
   return (
     <div className="rounded-[8px] border border-border bg-card p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
@@ -85,6 +146,20 @@ function Fact({
       </div>
       <p className="mt-2 text-sm font-bold text-foreground">{value}</p>
     </div>
+  );
+}
+
+function InfoCard({ icon: Icon, title, children }: { readonly icon: typeof Wallet; readonly title: string; readonly children: ReactNode }): ReactNode {
+  return (
+    <section className="rounded-[12px] border border-border bg-card p-6">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[6px] bg-navy-50">
+          <Icon className="h-4 w-4 text-navy" strokeWidth={1.75} />
+        </span>
+        <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">{title}</h2>
+      </div>
+      <div className="mt-4">{children}</div>
+    </section>
   );
 }
 
@@ -169,6 +244,18 @@ export default function InvestidorProjetoPage(): ReactNode {
                   ))}
                 </div>
               )}
+
+              {data.videoUrl !== null && (
+                <a
+                  href={data.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-navy hover:underline"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Assistir ao vídeo do projeto
+                </a>
+              )}
             </div>
 
             <div className="flex flex-col">
@@ -221,21 +308,123 @@ export default function InvestidorProjetoPage(): ReactNode {
             <Fact icon={CalendarClock} label="Prazo de retorno" value={mes(data.prazoRetorno)} />
             <Fact icon={Building} label="Tipo de imóvel" value={TIPO_IMOVEL[data.tipoImovel] ?? data.tipoImovel} />
             <Fact icon={FileText} label="Retorno" value={data.modeloRetorno !== null ? MODELO_RETORNO[data.modeloRetorno] ?? data.modeloRetorno : "—"} />
-            <Fact icon={MapPin} label="Tipo de oferta" value={data.tipoOferta !== null ? TIPO_OFERTA[data.tipoOferta] ?? data.tipoOferta : "—"} />
+            <Fact icon={Landmark} label="Tipo de oferta" value={data.tipoOferta !== null ? TIPO_OFERTA[data.tipoOferta] ?? data.tipoOferta : "—"} />
+            {data.parcelado && <Fact icon={CreditCard} label="Entrada" value={data.percentualEntrada !== null ? `${data.percentualEntrada}%` : "—"} />}
+            {data.parcelado && <Fact icon={CreditCard} label="Parcelas" value={data.numParcelas !== null ? `${data.numParcelas}x` : "—"} />}
+            <Fact icon={CalendarClock} label="Publicado em" value={formatData(data.publicadoEm)} />
+            <Fact icon={CalendarClock} label="Criado em" value={formatData(data.criadoEm)} />
           </div>
 
-          {data.descricao.length > 0 && (
-            <section className="mt-10">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">Sobre o projeto</h2>
-              <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{data.descricao}</p>
-            </section>
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {data.descricao.length > 0 && (
+              <InfoCard icon={ScrollText} title="Sobre o projeto">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{data.descricao}</p>
+              </InfoCard>
+            )}
+            {data.planoSaida !== null && data.planoSaida.length > 0 && (
+              <InfoCard icon={TrendingUp} title="Plano de saída">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{data.planoSaida}</p>
+              </InfoCard>
+            )}
+          </div>
+
+          {data.viabilidade !== null && (
+            <div className="mt-6">
+              <InfoCard icon={Calculator} title="Viabilidade do projeto">
+                <ViabilidadeReadOnly data={data.viabilidade} />
+              </InfoCard>
+            </div>
           )}
 
-          {data.planoSaida !== null && data.planoSaida.length > 0 && (
-            <section className="mt-8">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">Plano de saída</h2>
-              <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{data.planoSaida}</p>
-            </section>
+          {data.equipe.length > 0 && (
+            <div className="mt-6">
+              <InfoCard icon={Users} title="Equipe do projeto">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {data.equipe.map((m) => (
+                    <div key={`${m.nome}-${m.cargo}`} className="flex gap-3 rounded-[8px] border border-border p-4">
+                      {m.fotoUrl !== null ? (
+                        <img src={m.fotoUrl} alt="" className="h-12 w-12 shrink-0 rounded-[8px] object-cover" />
+                      ) : (
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] bg-navy-50 text-base font-bold text-navy">
+                          {m.nome.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-foreground">{m.nome}</p>
+                        <p className="text-xs font-medium text-muted-foreground">{m.cargo}</p>
+                        {m.bio.length > 0 && <p className="mt-1.5 text-xs leading-snug text-muted-foreground">{m.bio}</p>}
+                        {m.linkedin !== null && m.linkedin.length > 0 && (
+                          <a href={m.linkedin} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-navy hover:underline">
+                            <Linkedin className="h-3.5 w-3.5" />
+                            LinkedIn
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </InfoCard>
+            </div>
+          )}
+
+          {(() => {
+            const docs = DOC_LABELS
+              .map(([key, label]) => ({ label, url: data.documentos[key] as string | null }))
+              .filter((d): d is { label: string; url: string } => d.url !== null && d.url !== "");
+            const outros = data.documentos.outrosUrls.map((url, i) => ({ label: `Documento adicional ${String(i + 1)}`, url }));
+            const todos = [...docs, ...outros];
+            if (todos.length === 0) return null;
+            return (
+              <div className="mt-6">
+                <InfoCard icon={FileText} title="Documentação">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {todos.map((d) => (
+                      <a
+                        key={d.url}
+                        href={d.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between gap-3 rounded-[8px] border border-border bg-card px-4 py-3 text-left transition-colors hover:border-gold/40 hover:bg-muted"
+                      >
+                        <span className="flex min-w-0 items-center gap-3">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] bg-navy-50">
+                            <FileText className="h-4 w-4 text-navy" strokeWidth={1.75} />
+                          </span>
+                          <span className="truncate text-sm font-medium text-foreground">{d.label}</span>
+                        </span>
+                        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-gold" />
+                      </a>
+                    ))}
+                  </div>
+                </InfoCard>
+              </div>
+            );
+          })()}
+
+          {data.incorporadora !== null && (
+            <div className="mt-6">
+              <InfoCard icon={Building2} title="Incorporadora">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-bold text-foreground">{data.incorporadora.razaoSocial}</p>
+                  {data.incorporadora.descricao !== null && data.incorporadora.descricao.length > 0 && (
+                    <p className="text-sm leading-relaxed text-muted-foreground">{data.incorporadora.descricao}</p>
+                  )}
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
+                    {data.incorporadora.endereco !== null && data.incorporadora.endereco.length > 0 && (
+                      <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-gold" />{data.incorporadora.endereco}</span>
+                    )}
+                    {data.incorporadora.site !== null && data.incorporadora.site.length > 0 && (
+                      <a href={data.incorporadora.site} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-navy hover:underline">
+                        <ExternalLink className="h-3.5 w-3.5" />Site
+                      </a>
+                    )}
+                    {data.analistaNome !== null && data.analistaNome.length > 0 && (
+                      <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-gold" />Curadoria: {data.analistaNome}</span>
+                    )}
+                  </div>
+                </div>
+              </InfoCard>
+            </div>
           )}
         </div>
       )}

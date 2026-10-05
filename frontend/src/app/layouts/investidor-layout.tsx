@@ -28,7 +28,7 @@ export default function InvestidorLayout(): ReactNode {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-gradient-to-r from-navy-dark via-navy to-navy-dark">
         <div className="mx-auto flex h-[4.25rem] w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <Link to="/investir" aria-label="Atlas Hub — área do investidor" className="shrink-0">
-            <Logo size="md" scheme="dark" showIcon />
+            <Logo size="md" scheme="dark" />
           </Link>
 
           <nav className="flex items-center gap-1" aria-label="Área do investidor">

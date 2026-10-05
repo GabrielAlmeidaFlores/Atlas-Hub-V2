@@ -44,7 +44,7 @@ export function Logo({
 }: LogoProps): ReactNode {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
-      {showIcon && (
+      {showIcon && !showWordmark && (
         <img
           src="/atlas-icon.png"
           alt="Atlas Hub"

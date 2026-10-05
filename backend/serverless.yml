@@ -1017,6 +1017,7 @@ resources:
                   Action: [dynamodb:GetItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                 - Effect: Allow
                   Action: [s3:GetObject]
                   Resource:
