@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const perfil = extractPerfilFromEmail(normalizedEmail);
       const mockId = `mock-${Math.random().toString(36).slice(2, 11)}`;
       set({
-        user: { id: mockId, email: normalizedEmail, perfil },
+        user: { id: mockId, email: normalizedEmail, nome: normalizedEmail.split("@")[0] ?? "", perfil },
         isAuthenticated: true,
         isLoading: false,
         pendingChallenge: null,
@@ -85,7 +85,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const normalizedEmail = email.trim().toLowerCase();
 
     set({
-      user: { id: session.tokens?.idToken?.payload["sub"] as string ?? "", email: normalizedEmail, perfil },
+      user: { id: session.tokens?.idToken?.payload["sub"] as string ?? "", email: normalizedEmail, nome: (session.tokens?.idToken?.payload["name"] as string | undefined) ?? "", perfil },
       isAuthenticated: true,
       isLoading: false,
       pendingChallenge: null,
@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const groups = extractGroupsFromToken(idToken);
     const perfil = extractPerfil(groups);
     set({
-      user: { id: session.tokens?.idToken?.payload["sub"] as string ?? "", email, perfil },
+      user: { id: session.tokens?.idToken?.payload["sub"] as string ?? "", email, nome: (session.tokens?.idToken?.payload["name"] as string | undefined) ?? "", perfil },
       isAuthenticated: true,
       isLoading: false,
       pendingChallenge: null,
@@ -135,7 +135,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const sub = (session.tokens.idToken.payload["sub"] as string | undefined) ?? "";
       const groups = extractGroupsFromToken(idToken);
       const perfil = extractPerfil(groups);
-      set({ user: { id: sub, email, perfil }, isAuthenticated: true, isLoading: false });
+      const nome = (session.tokens.idToken.payload["name"] as string | undefined) ?? "";
+      set({ user: { id: sub, email, nome, perfil }, isAuthenticated: true, isLoading: false });
       if (sub !== "") {
         void import("@/lib/analytics").then(({ analytics }) => { analytics.identify(sub); });
       }

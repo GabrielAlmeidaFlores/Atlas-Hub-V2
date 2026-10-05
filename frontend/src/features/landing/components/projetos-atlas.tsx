@@ -93,9 +93,11 @@ function ProjetoCard({
           )}
         </div>
 
-        <span className={cn("lp-project-cta mt-3 w-full", ctaClassName)}>
-          {ctaLabel}
-        </span>
+        <div className="mt-auto pt-3 w-full">
+          <span className={cn("lp-project-cta w-full", ctaClassName)}>
+            {ctaLabel}
+          </span>
+        </div>
       </div>
     </>
   );

@@ -26,6 +26,7 @@ export type TipoImovel = "RESIDENCIAL" | "COMERCIAL" | "MISTO";
 export interface AuthUser {
   readonly id: string;
   readonly email: string;
+  readonly nome?: string;
   readonly perfil: Perfil;
 }
 
