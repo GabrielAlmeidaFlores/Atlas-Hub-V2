@@ -7,7 +7,7 @@ export type ApiErrorCode =
   | "INVALID_STATUS_TRANSITION"
   | "INTERNAL_ERROR";
 
-export type Perfil = "INCORPORADORA" | "ANALISTA" | "ADMIN_MASTER";
+export type Perfil = "INCORPORADORA" | "INVESTIDOR" | "ANALISTA" | "ADMIN_MASTER";
 
 export type StatusProjeto =
   | "RASCUNHO"
@@ -26,6 +26,7 @@ export type TipoImovel = "RESIDENCIAL" | "COMERCIAL" | "MISTO";
 export interface AuthUser {
   readonly id: string;
   readonly email: string;
+  readonly nome?: string;
   readonly perfil: Perfil;
 }
 

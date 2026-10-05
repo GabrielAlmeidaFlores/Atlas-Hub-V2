@@ -65,8 +65,8 @@ export const handler = async (
       try {
         const code = await decryptCode(codeEvent.request.code);
         await emailCodigo(to, code, config);
-      } catch {
-        log.warn('Code email failed', { trigger: event.triggerSource });
+      } catch (err) {
+        log.warn('Code email failed', { trigger: event.triggerSource, keyId: COGNITO_EMAIL_KEY_ID, err: err instanceof Error ? `${err.name}: ${err.message}` : String(err) });
       }
     }
     return event;

@@ -36,18 +36,26 @@ const db      = DynamoDBDocumentClient.from(new DynamoDBClient({ region }));
 async function run(): Promise<void> {
   console.log(`Criando admin master: ${email}`);
 
-  const result = await cognito.send(new AdminCreateUserCommand({
-    UserPoolId: poolId,
-    Username: email,
-    UserAttributes: [
-      { Name: 'email',          Value: email },
-      { Name: 'email_verified', Value: 'true' },
-    ],
-    TemporaryPassword: tempPwd,
-    MessageAction: 'SUPPRESS',
-  }));
-
-  const userId = result.User?.Username ?? '';
+  let userId = '';
+  try {
+    const result = await cognito.send(new AdminCreateUserCommand({
+      UserPoolId: poolId,
+      Username: email,
+      UserAttributes: [
+        { Name: 'email',          Value: email },
+        { Name: 'email_verified', Value: 'true' },
+      ],
+      TemporaryPassword: tempPwd,
+      MessageAction: 'SUPPRESS',
+    }));
+    userId = result.User?.Username ?? '';
+  } catch (err) {
+    if (err instanceof Error && err.name === 'UsernameExistsException') {
+      console.log(`• Admin master já existe (${email}) — nada a fazer.`);
+      return;
+    }
+    throw err;
+  }
 
   await cognito.send(new AdminAddUserToGroupCommand({
     UserPoolId: poolId,

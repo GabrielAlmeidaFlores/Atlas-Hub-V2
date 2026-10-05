@@ -92,6 +92,17 @@ functions:
           method: get
           cors: true
 
+  publicoProjetoDetalhe:
+    handler: src/functions/publico-projeto-detalhe.handler
+    role: !GetAtt PublicoProjetoDetalheLambdaRole.Arn
+    timeout: 10
+    description: "Public project detail for the investor vitrine"
+    events:
+      - http:
+          path: publico/projetos/{id}
+          method: get
+          cors: true
+
   # ── Cognito Triggers ───────────────────────────────────────────────
 
   onIncorporadoraSignup:
@@ -106,7 +117,7 @@ functions:
     timeout: 10
     description: "Sends auth emails (new access and verification codes)"
     environment:
-      COGNITO_EMAIL_KEY_ID: !Ref CognitoEmailKey
+      COGNITO_EMAIL_KEY_ID: !GetAtt CognitoEmailKey.Arn
 
   # ── Incorporadora — Perfil ─────────────────────────────────────────
 
@@ -986,6 +997,32 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
 
+    PublicoProjetoDetalheLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-publicoProjetoDetalhe-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasProjetos-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
+                - Effect: Allow
+                  Action: [s3:GetObject]
+                  Resource:
+                    - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/*'
+
     FinanceiroAdminLambdaRole:
       Type: AWS::IAM::Role
       Properties:
@@ -1486,6 +1523,13 @@ resources:
         GroupName: ADMIN_MASTER
         UserPoolId: !Ref CognitoUserPool
         Description: "Atlas Hub admin master — can manage users"
+
+    CognitoInvestidorGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: INVESTIDOR
+        UserPoolId: !Ref CognitoUserPool
+        Description: "Investidores — acesso à vitrine de projetos"
 
     CognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient

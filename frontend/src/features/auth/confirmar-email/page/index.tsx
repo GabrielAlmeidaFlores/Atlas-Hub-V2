@@ -46,6 +46,15 @@ export default function ConfirmarEmailPage(): ReactNode {
   const [done, setDone] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
   const navigate = useNavigate();
+  const [isInvestidor] = useState<boolean>(() => {
+    try {
+      const raw = sessionStorage.getItem("atlas.pendingCadastro");
+      return raw !== null && (JSON.parse(raw) as { tipo?: string }).tipo === "investidor";
+    } catch {
+      return false;
+    }
+  });
+  const loginPath = isInvestidor ? "/investir/login" : "/login";
 
   async function handleConfirm(e: FormEvent): Promise<void> {
     e.preventDefault();
@@ -114,7 +123,7 @@ export default function ConfirmarEmailPage(): ReactNode {
             <CheckCircle className="h-6 w-6 text-status-success" />
           </div>
           <p className="text-xs text-muted-foreground">Agora você pode fazer login na plataforma.</p>
-          <button type="button" onClick={() => navigate("/login")} className="btn btn-navy mt-6 w-full">
+          <button type="button" onClick={() => navigate(loginPath)} className="btn btn-navy mt-6 w-full">
             Ir para o login
           </button>
         </div>
