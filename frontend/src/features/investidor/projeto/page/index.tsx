@@ -116,7 +116,6 @@ const TIPO_OFERTA: Record<string, string> = {
 
 const MODELO_RETORNO: Record<string, string> = {
   SCP: "SCP — Sociedade em Conta de Participação",
-  NOTA_COMERCIAL: "Nota comercial",
 };
 
 const DOC_LABELS: readonly (readonly [keyof Documentos, string])[] = [

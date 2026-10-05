@@ -81,7 +81,7 @@ export const atualizarProjetoSchema = z.object({
   prazoObra: z.number().int().min(1).max(120).optional(),
   prazoRetorno: z.number().int().min(1).max(120).optional(),
   rentabilidadeEstimada: z.number().min(0).max(100).optional(),
-  modeloRetorno: z.enum(['SCP', 'NOTA_COMERCIAL']).optional(),
+  modeloRetorno: z.literal('SCP').optional(),
   planoSaida: z.string().max(2000).optional(),
   tipoOferta: z.enum(['PUBLICA', 'PRIVADA']).optional(),
   parcelado: z.boolean().optional(),

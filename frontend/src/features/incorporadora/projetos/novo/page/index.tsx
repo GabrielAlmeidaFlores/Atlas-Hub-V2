@@ -334,9 +334,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                 <Field label="Prazo de Retorno (meses)"><input type="number" className="input-base" placeholder="24" min={1} max={120} value={financeiros.prazoRetorno} onChange={fin("prazoRetorno")} required /></Field>
                 <Field label="Rentabilidade Estimada (% a.a.)"><input type="number" className="input-base" placeholder="20" min={0} max={100} step={0.1} value={financeiros.rentabilidadeEstimada} onChange={fin("rentabilidadeEstimada")} required /></Field>
                 <Field label="Modelo de Retorno">
-                  <select className="input-base" value={financeiros.modeloRetorno} onChange={fin("modeloRetorno")}>
-                    <option value="SCP">SCP — Participação nos Lucros</option>
-                    <option value="NOTA_COMERCIAL">Nota Comercial — Dívida</option>
+                  <select className="input-base" value="SCP" onChange={fin("modeloRetorno")} disabled>
+                    <option value="SCP">SCP — Sociedade em Conta de Participação</option>
                   </select>
                 </Field>
               </div>
