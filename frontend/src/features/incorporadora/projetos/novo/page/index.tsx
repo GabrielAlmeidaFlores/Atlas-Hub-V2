@@ -159,7 +159,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
-      addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) !== "Erro interno. Tente novamente." ? getApiErrorMessage(err) : (err instanceof Error ? err.message : "Tente novamente.") });
+      addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) });
     } finally {
       setUploadingKey(null);
     }
@@ -303,7 +303,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                     addToast({ type: "success", title: "Foto enviada" });
                     return location;
                   } catch (err) {
-                    const message = err instanceof Error ? err.message : getApiErrorMessage(err);
+                    const message = getApiErrorMessage(err);
                     addToast({
                       type: "error",
                       title: "Falha no upload",

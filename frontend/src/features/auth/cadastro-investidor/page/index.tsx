@@ -4,6 +4,7 @@ import { useToastStore } from "@/stores/toast";
 import { Mail, User, Eye, EyeOff } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { cn } from "@/lib/utils";
+import { getApiErrorMessage } from "@/services/api";
 import { analytics } from "@/lib/analytics";
 
 interface FormData {
@@ -34,8 +35,9 @@ export default function CadastroInvestidorPage(): ReactNode {
 
   const nomeValido = form.nome.trim().length >= 3;
   const senhaCurta = form.senha.length > 0 && form.senha.length < 8;
+  const senhaSemNumero = form.senha.length > 0 && !/[0-9]/.test(form.senha);
   const senhasDiferentes = form.confirmarSenha.length > 0 && form.senha !== form.confirmarSenha;
-  const senhaValida = form.senha.length >= 8 && form.senha === form.confirmarSenha;
+  const senhaValida = form.senha.length >= 8 && /[0-9]/.test(form.senha) && form.senha === form.confirmarSenha;
 
   async function handleSubmit(e: FormEvent): Promise<void> {
     e.preventDefault();
@@ -45,6 +47,10 @@ export default function CadastroInvestidorPage(): ReactNode {
     }
     if (form.senha.length < 8) {
       addToast({ type: "error", title: "Senha deve ter no mínimo 8 caracteres" });
+      return;
+    }
+    if (!/[0-9]/.test(form.senha)) {
+      addToast({ type: "error", title: "A senha deve conter ao menos 1 número" });
       return;
     }
     if (form.senha !== form.confirmarSenha) {
@@ -65,7 +71,7 @@ export default function CadastroInvestidorPage(): ReactNode {
       addToast({ type: "success", title: "Conta criada!", description: "Verifique seu e-mail para confirmar." });
       navigate(`/confirmar-email?email=${encodeURIComponent(email)}`, { state: { email } });
     } catch (err) {
-      addToast({ type: "error", title: "Erro no cadastro", description: err instanceof Error ? err.message : "Tente novamente" });
+      addToast({ type: "error", title: "Erro no cadastro", description: getApiErrorMessage(err) });
     } finally {
       setIsLoading(false);
     }
@@ -97,8 +103,8 @@ export default function CadastroInvestidorPage(): ReactNode {
           <div className="relative">
             <input
               type={showPwd ? "text" : "password"}
-              className={cn("field pr-10", senhaCurta && "field-error")}
-              placeholder="Mínimo 8 caracteres"
+              className={cn("field pr-10", (senhaCurta || senhaSemNumero) && "field-error")}
+              placeholder="Mínimo 8 caracteres, com 1 número"
               value={form.senha}
               onChange={f("senha")}
               required
@@ -108,7 +114,7 @@ export default function CadastroInvestidorPage(): ReactNode {
               {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          {senhaCurta && <p className="form-error">A senha deve ter no mínimo 8 caracteres</p>}
+          {(senhaCurta || senhaSemNumero) && <p className="form-error">Use no mínimo 8 caracteres e ao menos 1 número</p>}
         </div>
         <div className="form-group">
           <label className="form-label">Confirmar senha</label>

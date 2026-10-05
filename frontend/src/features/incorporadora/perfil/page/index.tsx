@@ -152,7 +152,7 @@ export default function IncorporadoraPerfilPage(): ReactNode {
       addToast({
         type: "error",
         title: "Falha no upload",
-        description: err instanceof Error ? err.message : getApiErrorMessage(err),
+        description: getApiErrorMessage(err),
       });
     } finally {
       setUploadingKey(null);

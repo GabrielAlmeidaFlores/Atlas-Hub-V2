@@ -119,7 +119,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       addToast({
         type: "error",
         title: "Falha no upload",
-        description: err instanceof Error ? err.message : getApiErrorMessage(err),
+        description: getApiErrorMessage(err),
       });
     } finally {
       setUploadingKey(null);
@@ -278,7 +278,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
                 addToast({
                   type: "error",
                   title: "Falha no upload",
-                  description: err instanceof Error ? err.message : getApiErrorMessage(err),
+                  description: getApiErrorMessage(err),
                 });
                 throw err;
               }

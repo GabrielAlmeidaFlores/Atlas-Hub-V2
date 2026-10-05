@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation, useSearchParams } from "react-router-do
 import { CheckCircle } from "lucide-react";
 import { useToastStore } from "@/stores/toast";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { getApiErrorMessage } from "@/services/api";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -26,7 +27,7 @@ function confirmErrorMessage(err: unknown): string {
   if (message.includes("PostConfirmation") || message.includes("secondary index")) {
     return "Falha ao criar o perfil da incorporadora. Tente confirmar novamente em instantes.";
   }
-  return message || "Tente novamente";
+  return getApiErrorMessage(err);
 }
 
 export default function ConfirmarEmailPage(): ReactNode {

@@ -4,6 +4,7 @@ import { useToastStore } from "@/stores/toast";
 import { Eye, EyeOff } from "lucide-react";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { cn } from "@/lib/utils";
+import { getApiErrorMessage } from "@/services/api";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -57,7 +58,7 @@ export default function RedefinirSenhaPage(): ReactNode {
         navigate(`/verificar-codigo-senha?email=${encodeURIComponent(email)}`);
         return;
       }
-      addToast({ type: "error", title: "Erro", description: message });
+      addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
     } finally {
       setIsLoading(false);
     }
