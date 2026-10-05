@@ -457,7 +457,7 @@ export const handlers = [
     eventos: [],
   })),
 
-  http.get(`${BASE}/admin/analytics/dashboard`, () => {
+  http.get(`${BASE}/analytics/admin/dashboard`, () => {
     const days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setUTCDate(d.getUTCDate() - (6 - i));
@@ -509,7 +509,7 @@ export const handlers = [
       recentSessions: [],
     });
   }),
-  http.get(`${BASE}/admin/analytics/funnel`, () => HttpResponse.json({
+  http.get(`${BASE}/analytics/admin/funnel`, () => HttpResponse.json({
     days: 7,
     steps: [
       { eventName: "page_view", label: "Visitou a LP", count: 210, conversionFromPrev: 100, dropOff: 0, avgMsBetween: null },
@@ -519,7 +519,7 @@ export const handlers = [
       { eventName: "project_submitted", label: "Submeteu projeto", count: 3, conversionFromPrev: 33, dropOff: 67, avgMsBetween: 86400000 },
     ],
   })),
-  http.get(`${BASE}/admin/analytics/heatmap`, () => HttpResponse.json({
+  http.get(`${BASE}/analytics/admin/heatmap`, () => HttpResponse.json({
     path: "/",
     day: new Date().toISOString().slice(0, 10),
     pageKey: "/",
@@ -534,8 +534,8 @@ export const handlers = [
       { band: "100", count: 6 },
     ],
   })),
-  http.get(`${BASE}/admin/analytics/alerts`, () => HttpResponse.json({ items: [] })),
-  http.post(`${BASE}/admin/analytics/alerts`, () => HttpResponse.json({
+  http.get(`${BASE}/analytics/admin/alerts`, () => HttpResponse.json({ items: [] })),
+  http.post(`${BASE}/analytics/admin/alerts`, () => HttpResponse.json({
     id: "alert-mock",
     name: "Alerta mock",
     rule: "conversion_drop",
@@ -544,12 +544,12 @@ export const handlers = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }, { status: 201 })),
-  http.get(`${BASE}/admin/analytics/export`, () => HttpResponse.json({
+  http.get(`${BASE}/analytics/admin/export`, () => HttpResponse.json({
     filename: "analytics-mock.csv",
     csv: "day,event,count\n2026-09-17,page_view,12\n",
     rowCount: 1,
   })),
-  http.get(`${BASE}/admin/analytics/users/:userId`, ({ params }) => HttpResponse.json({
+  http.get(`${BASE}/analytics/admin/users/:userId`, ({ params }) => HttpResponse.json({
     profile: {
       userId: params["userId"],
       nome: "Usuário mock",

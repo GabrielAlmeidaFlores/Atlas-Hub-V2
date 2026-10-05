@@ -94,23 +94,23 @@ export default function AdminAnalyticsPage(): ReactNode {
   const [busy, setBusy] = useState(false);
 
   async function loadOverview(next = appliedFilters): Promise<void> {
-    const data = await api.get<AnalyticsDashboard>(`/admin/analytics/dashboard?${segmentQuery(next)}`);
+    const data = await api.get<AnalyticsDashboard>(`/analytics/admin/dashboard?${segmentQuery(next)}`);
     setDashboard(data);
   }
 
   async function loadFunnel(next = appliedFilters): Promise<void> {
-    const data = await api.get<AnalyticsFunnel>(`/admin/analytics/funnel?${segmentQuery(next)}`);
+    const data = await api.get<AnalyticsFunnel>(`/analytics/admin/funnel?${segmentQuery(next)}`);
     setFunnel(data);
   }
 
   async function loadHeatmap(): Promise<void> {
     const qs = new URLSearchParams({ path: heatPath, day: heatDay });
-    const data = await api.get<AnalyticsHeatmap>(`/admin/analytics/heatmap?${qs.toString()}`);
+    const data = await api.get<AnalyticsHeatmap>(`/analytics/admin/heatmap?${qs.toString()}`);
     setHeatmap(data);
   }
 
   async function loadAlerts(): Promise<void> {
-    const data = await api.get<{ items: AnalyticsAlert[] }>("/admin/analytics/alerts");
+    const data = await api.get<{ items: AnalyticsAlert[] }>("/analytics/admin/alerts");
     setAlerts(data.items);
   }
 
@@ -150,7 +150,7 @@ export default function AdminAnalyticsPage(): ReactNode {
     e.preventDefault();
     setBusy(true);
     try {
-      await api.post("/admin/analytics/alerts", {
+      await api.post("/analytics/admin/alerts", {
         name: alertForm.name,
         rule: alertForm.rule,
         threshold: alertForm.threshold,
@@ -171,7 +171,7 @@ export default function AdminAnalyticsPage(): ReactNode {
     try {
       const qs = new URLSearchParams({ type: "events", day: exportDay });
       if (filters.userId !== "") qs.set("userId", filters.userId);
-      const data = await api.get<{ filename: string; csv: string; rowCount: number }>(`/admin/analytics/export?${qs.toString()}`);
+      const data = await api.get<{ filename: string; csv: string; rowCount: number }>(`/analytics/admin/export?${qs.toString()}`);
       const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

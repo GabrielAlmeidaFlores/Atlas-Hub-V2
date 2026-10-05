@@ -1,9 +1,9 @@
-name: Deploy — Prod
+name: Deploy — Dev
 
 on:
   push:
     branches:
-      - master
+      - develop
 
 jobs:
 
@@ -52,20 +52,25 @@ jobs:
         run: npm ci --legacy-peer-deps
       - name: Load app secrets from AWS Secrets Manager
         run: |
-          aws secretsmanager get-secret-value \
-            --secret-id atlas-hub/prod \
-            --query SecretString --output text --region "${{ vars.AWS_REGION }}" \
-            | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
+          if aws secretsmanager describe-secret --secret-id atlas-hub/dev --region "${{ vars.AWS_REGION }}" >/dev/null 2>&1; then
+            aws secretsmanager get-secret-value \
+              --secret-id atlas-hub/dev \
+              --query SecretString --output text --region "${{ vars.AWS_REGION }}" \
+              | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
+            echo "✓ secrets de atlas-hub/dev carregados"
+          else
+            echo "• atlas-hub/dev não existe — usando defaults do serverless.yml"
+          fi
       - name: Deploy with Serverless Framework
         working-directory: backend
-        run: npx serverless@3 deploy --stage prod
+        run: npx serverless@3 deploy --stage dev
       - name: Deploy analytics with Serverless Framework
         working-directory: backend
-        run: npx serverless@3 deploy --config serverless-analytics.yml --stage prod
+        run: npx serverless@3 deploy --config serverless-analytics.yml --stage dev
       - name: Read CloudFormation outputs
         id: cf
         run: |
-          STACK="atlas-hub-backend-prod"
+          STACK="atlas-hub-backend-dev"
           REGION="${{ vars.AWS_REGION }}"
           get_output() {
             aws cloudformation describe-stacks \
@@ -78,7 +83,7 @@ jobs:
             --logical-resource-id ApiGatewayRestApi \
             --query 'StackResourceDetail.PhysicalResourceId' \
             --output text --region "$REGION")
-          echo "api_url=https://${API_ID}.execute-api.${REGION}.amazonaws.com/prod" >> $GITHUB_OUTPUT
+          echo "api_url=https://${API_ID}.execute-api.${REGION}.amazonaws.com/dev" >> $GITHUB_OUTPUT
           echo "user_pool_id=$(get_output UserPoolId)"                               >> $GITHUB_OUTPUT
           echo "client_id=$(get_output UserPoolClientId)"                            >> $GITHUB_OUTPUT
 
@@ -95,7 +100,7 @@ jobs:
           aws-region:            ${{ vars.AWS_REGION }}
       - name: DynamoDB — check all tables
         run: |
-          STAGE=prod
+          STAGE=dev
           REGION="${{ vars.AWS_REGION }}"
           FAIL=0
           for TABLE in AtlasIncorporadoras AtlasAdmins AtlasProjetos AtlasScorecard AtlasNotificacoes AtlasAuditoria AtlasNotas; do
@@ -109,8 +114,8 @@ jobs:
           exit $FAIL
       - name: S3 — check documents bucket
         run: |
-          aws s3api head-bucket --bucket "atlas-hub-documents-prod" --region "${{ vars.AWS_REGION }}" && \
-            echo "✓ atlas-hub-documents-prod: exists" || { echo "✗ bucket not found"; exit 1; }
+          aws s3api head-bucket --bucket "atlas-hub-documents-dev" --region "${{ vars.AWS_REGION }}" && \
+            echo "✓ atlas-hub-documents-dev: exists" || { echo "✗ bucket not found"; exit 1; }
       - name: Cognito — check User Pool
         run: |
           POOL_ID="${{ needs.deploy-backend.outputs.user_pool_id }}"
@@ -119,7 +124,7 @@ jobs:
           [ "$ID" = "$POOL_ID" ] && echo "✓ User Pool: accessible" || { echo "✗ $ID"; exit 1; }
       - name: Lambda — check all functions
         run: |
-          STACK="atlas-hub-backend-prod"
+          STACK="atlas-hub-backend-dev"
           REGION="${{ vars.AWS_REGION }}"
           FAIL=0
           FUNCTIONS=$(aws cloudformation list-stack-resources \
@@ -167,7 +172,7 @@ jobs:
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist-master
+          name: frontend-dist-develop
           path: frontend/dist
           retention-days: 1
 
@@ -184,10 +189,10 @@ jobs:
           aws-region:            ${{ vars.AWS_REGION }}
       - name: Ensure Amplify branch exists
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
-          BRANCH="master"
+          BRANCH="dev"
           BRANCH_EXISTS=$(aws amplify get-branch \
             --app-id "$APP_ID" --branch-name "$BRANCH" \
             --region "$REGION" \
@@ -204,7 +209,7 @@ jobs:
           fi
       - name: Allow static video assets in Amplify SPA rewrite
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
           python3 <<'PY'
@@ -247,7 +252,7 @@ jobs:
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
-          name: frontend-dist-master
+          name: frontend-dist-develop
           path: dist
       - name: Create zip
         run: |
@@ -256,11 +261,11 @@ jobs:
       - name: Create Amplify deployment
         id: amplify
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
           DEPLOY=$(aws amplify create-deployment \
-            --app-id "$APP_ID" --branch-name "master" \
+            --app-id "$APP_ID" --branch-name "dev" \
             --region "$REGION" --output json)
           echo "job_id=$(echo "$DEPLOY"     | python3 -c "import sys,json; print(json.load(sys.stdin)['jobId'])")"     >> $GITHUB_OUTPUT
           echo "upload_url=$(echo "$DEPLOY" | python3 -c "import sys,json; print(json.load(sys.stdin)['zipUploadUrl'])")" >> $GITHUB_OUTPUT
@@ -272,21 +277,21 @@ jobs:
             "${{ steps.amplify.outputs.upload_url }}"
       - name: Start deployment
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
           aws amplify start-deployment \
-            --app-id "$APP_ID" --branch-name "master" \
+            --app-id "$APP_ID" --branch-name "dev" \
             --job-id "${{ steps.amplify.outputs.job_id }}" \
             --region "$REGION"
       - name: Wait for completion
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
           for i in $(seq 1 30); do
             STATUS=$(aws amplify get-job \
-              --app-id "$APP_ID" --branch-name "master" \
+              --app-id "$APP_ID" --branch-name "dev" \
               --job-id "${{ steps.amplify.outputs.job_id }}" \
               --region "$REGION" --output json \
               | python3 -c "import sys,json; print(json.load(sys.stdin)['job']['summary']['status'])")
@@ -297,7 +302,6 @@ jobs:
           done
           echo "✗ Timeout"; exit 1
 
-  # ── Criar admin master no primeiro deploy ─────────────────────
   create-admin-master:
     name: Create admin master user
     runs-on: ubuntu-latest
@@ -336,6 +340,6 @@ jobs:
           POOL_ID: ${{ needs.deploy-backend.outputs.user_pool_id }}
           ADMIN_EMAIL: ${{ vars.ADMIN_MASTER_EMAIL }}
           REGION: ${{ vars.AWS_REGION }}
-          ADMINS_TABLE: AtlasAdmins-prod
+          ADMINS_TABLE: AtlasAdmins-dev
         working-directory: backend
         run: npx tsx scripts/create-admin-master.ts
