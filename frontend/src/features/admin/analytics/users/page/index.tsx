@@ -23,7 +23,7 @@ export default function AdminAnalyticsUserPage(): ReactNode {
     if (eventFilter !== "") qs.set("event", eventFilter);
     const suffix = qs.toString() !== "" ? `?${qs.toString()}` : "";
     void api
-      .get<AnalyticsUserProfile>(`/admin/analytics/users/${userId}${suffix}`)
+      .get<AnalyticsUserProfile>(`/analytics/admin/users/${userId}${suffix}`)
       .then(setData)
       .catch((err: unknown) => {
         addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
