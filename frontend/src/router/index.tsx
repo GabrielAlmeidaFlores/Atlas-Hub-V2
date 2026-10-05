@@ -44,6 +44,7 @@ const AdminCronogramaDetalhePage   = React.lazy(() => import("@/features/admin/c
 
 const InvestidorLayout       = React.lazy(() => import("@/app/layouts/investidor-layout"));
 const InvestidorProjetosPage = React.lazy(() => import("@/features/investidor/projetos/page"));
+const InvestidorProjetoPage  = React.lazy(() => import("@/features/investidor/projeto/page"));
 const InvestidorPerfilPage   = React.lazy(() => import("@/features/investidor/perfil/page"));
 const InvestidorSenhaPage    = React.lazy(() => import("@/features/investidor/senha/page"));
 
@@ -152,6 +153,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/investir/projetos" replace /> },
       { path: "projetos", element: withSuspense(<InvestidorProjetosPage />) },
+      { path: "projetos/:id", element: withSuspense(<InvestidorProjetoPage />) },
       { path: "perfil", element: withSuspense(<InvestidorPerfilPage />) },
       { path: "senha", element: withSuspense(<InvestidorSenhaPage />) },
     ],

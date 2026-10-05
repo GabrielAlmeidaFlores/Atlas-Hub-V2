@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { MapPin, TrendingUp, Building2 } from "lucide-react";
 import { api } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
@@ -8,7 +9,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ProjetoPublico } from "@/features/landing/components/projetos-atlas";
 
 function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNode {
-  const href = projeto.ofertaLink;
   const content = (
     <>
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
@@ -52,27 +52,21 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
 
         <div className="mt-auto pt-4">
           <span className="inline-flex h-10 w-full items-center justify-center rounded-[4px] bg-gold text-sm font-bold text-white transition-colors group-hover:bg-gold-dark">
-            Investir
+            Ver projeto
           </span>
         </div>
       </div>
     </>
   );
 
-  const base = "group flex h-full flex-col overflow-hidden rounded-[12px] border bg-card transition-all duration-200";
-  if (href !== null && href.length > 0) {
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`${base} border-border hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-[0_12px_28px_rgba(27,43,94,0.1)]`}
-      >
-        {content}
-      </a>
-    );
-  }
-  return <div className={`${base} border-border opacity-90`}>{content}</div>;
+  return (
+    <Link
+      to={`/investir/projetos/${projeto.id}`}
+      className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-[0_12px_28px_rgba(27,43,94,0.1)]"
+    >
+      {content}
+    </Link>
+  );
 }
 
 export default function InvestidorProjetosPage(): ReactNode {
