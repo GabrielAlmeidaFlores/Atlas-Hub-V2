@@ -1,17 +1,152 @@
-import { z } from 'zod';
+import { z, type ZodIssue } from 'zod';
+
+export interface ValidationField {
+  readonly field: string;
+  readonly message: string;
+}
 
 export class ValidationError extends Error {
-  constructor(message: string) {
-    super(message);
+  readonly fields: readonly ValidationField[];
+  constructor(fields: readonly ValidationField[]) {
+    super(fields[0]?.message ?? 'Dados inválidos');
     this.name = 'ValidationError';
+    this.fields = fields;
   }
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  nome: 'Nome',
+  name: 'Nome',
+  razaoSocial: 'Razão social',
+  cnpj: 'CNPJ',
+  cpf: 'CPF',
+  cpfResponsavel: 'CPF do responsável',
+  nomeResponsavel: 'Nome do responsável',
+  cargoResponsavel: 'Cargo do responsável',
+  email: 'E-mail',
+  telefone: 'Telefone',
+  cidade: 'Cidade',
+  estado: 'Estado',
+  endereco: 'Endereço',
+  descricao: 'Descrição',
+  description: 'Descrição',
+  fotosUrls: 'Fotos',
+  videoUrl: 'Vídeo',
+  modelo: 'Modelo',
+  tipoImovel: 'Tipo de imóvel',
+  valorTotal: 'Valor total',
+  valorCaptar: 'Valor a captar',
+  valorTerreno: 'Valor do terreno',
+  prazoObra: 'Prazo de obra',
+  prazoRetorno: 'Prazo de retorno',
+  prazoMeses: 'Prazo',
+  rentabilidadeEstimada: 'Rentabilidade estimada',
+  modeloRetorno: 'Modelo de retorno',
+  tipoOferta: 'Tipo de oferta',
+  parcelado: 'Parcelamento',
+  numParcelas: 'Número de parcelas',
+  percentualEntrada: 'Percentual de entrada',
+  documentos: 'Documentos',
+  equipe: 'Equipe',
+  viabilidade: 'Viabilidade',
+  justificativa: 'Justificativa',
+  observacao: 'Observação',
+  status: 'Status',
+  senha: 'Senha',
+  novaSenha: 'Nova senha',
+  pixKey: 'Chave Pix',
+  quantia: 'Valor',
+  quantidade: 'Quantidade',
+  amount: 'Valor',
+  amountReais: 'Valor',
+  valor: 'Valor',
+  titulo: 'Título',
+  mensagem: 'Mensagem',
+  texto: 'Texto',
+  motivo: 'Motivo',
+  limite: 'Limite',
+  comissao: 'Comissão',
+  percentual: 'Percentual',
+  ofertaId: 'Oferta',
+  ofertaLink: 'Link da oferta',
+  etapaId: 'Etapa',
+  lancamentoId: 'Lançamento',
+  projetoId: 'Projeto',
+  contaId: 'Conta',
+  data: 'Data',
+  mes: 'Mês',
+  unidades: 'Unidades',
+  unidadesPermuta: 'Unidades de permuta',
+  custoObra: 'Custo de obra',
+  precoMedioUnidade: 'Preço médio da unidade',
+  taxId: 'CPF/CNPJ',
+  bankCode: 'Banco',
+  branchCode: 'Agência',
+  accountNumber: 'Conta',
+  accountType: 'Tipo de conta',
+  localizacaoNota: 'Nota de localização',
+  financeiraNota: 'Nota financeira',
+  documentacaoNota: 'Nota de documentação',
+  equipeNota: 'Nota de equipe',
+  riscoNota: 'Nota de risco',
+  notaGeral: 'Nota geral',
+  parecer: 'Parecer',
+};
+
+const ZOD_DEFAULT_MESSAGE = /^(String must|Number must|Array must|Invalid|Required|Expected|Unrecognized|Too small|Too big)/i;
+
+function humanize(key: string): string {
+  if (key.length === 0) return 'Campo';
+  const spaced = key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim();
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
+function fieldLabel(issue: ZodIssue): string {
+  const segs = issue.path.filter((seg): seg is string => typeof seg === 'string');
+  const raw = segs.length > 0 ? String(segs[segs.length - 1]) : '';
+  return FIELD_LABELS[raw] ?? humanize(raw);
+}
+
+function friendlyIssue(issue: ZodIssue): string {
+  if (issue.message.length > 0 && !ZOD_DEFAULT_MESSAGE.test(issue.message)) return issue.message;
+
+  const label = fieldLabel(issue);
+
+  if (issue.code === 'too_small') {
+    const exact = issue.exact === true;
+    const inclusive = issue.inclusive !== false;
+    const min = String(issue.minimum);
+    if (issue.type === 'string') return `${label} deve ter ${exact ? 'exatamente' : inclusive ? 'ao menos' : 'mais de'} ${min} caractere(s)`;
+    if (issue.type === 'array') return `${label} precisa de ${exact ? 'exatamente' : inclusive ? 'ao menos' : 'mais de'} ${min} item(ns)`;
+    return `${label} deve ser ${exact ? 'igual a' : inclusive ? 'no mínimo' : 'maior que'} ${min}`;
+  }
+  if (issue.code === 'too_big') {
+    const exact = issue.exact === true;
+    const inclusive = issue.inclusive !== false;
+    const max = String(issue.maximum);
+    if (issue.type === 'string') return `${label} deve ter ${exact ? 'exatamente' : inclusive ? 'no máximo' : 'menos de'} ${max} caractere(s)`;
+    if (issue.type === 'array') return `${label} deve ter ${exact ? 'exatamente' : inclusive ? 'no máximo' : 'menos de'} ${max} item(ns)`;
+    return `${label} deve ser ${exact ? 'igual a' : inclusive ? 'no máximo' : 'menor que'} ${max}`;
+  }
+  if (issue.code === 'invalid_type') {
+    return issue.received === 'undefined' ? `${label} é obrigatório` : `${label} está em um formato inválido`;
+  }
+  if (issue.code === 'invalid_string') {
+    if (issue.validation === 'url') return `${label} deve ser um link válido`;
+    if (issue.validation === 'email') return `${label} deve ser um e-mail válido`;
+    return `${label} está em um formato inválido`;
+  }
+  return `${label} inválido`;
 }
 
 export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);
   if (!result.success) {
-    const message = result.error.errors.map((e) => e.message).join('; ');
-    throw new ValidationError(message);
+    const fields = result.error.issues.map((issue) => ({
+      field: issue.path.map(String).join('.'),
+      message: friendlyIssue(issue),
+    }));
+    throw new ValidationError(fields);
   }
   return result.data;
 }
@@ -55,25 +190,25 @@ export const perfilSchema = z.object({
 });
 
 export const criarProjetoSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter ao menos 3 caracteres').max(200),
-  modelo: z.enum(['VENDA', 'RENDA', 'MISTO']),
-  tipoImovel: z.enum(['RESIDENCIAL', 'COMERCIAL', 'MISTO']),
-  cidade: z.string().min(2).max(100),
-  estado: z.string().length(2, 'Use a sigla do estado com 2 letras'),
-  endereco: z.string().min(5).max(300),
-  descricao: z.string().min(200, 'Descrição deve ter ao menos 200 caracteres').max(5000),
+  nome: z.string().max(200).default(''),
+  modelo: z.enum(['VENDA', 'RENDA', 'MISTO']).default('VENDA'),
+  tipoImovel: z.enum(['RESIDENCIAL', 'COMERCIAL', 'MISTO']).default('RESIDENCIAL'),
+  cidade: z.string().max(100).default(''),
+  estado: z.string().max(2).default(''),
+  endereco: z.string().max(300).default(''),
+  descricao: z.string().max(5000).default(''),
   fotosUrls: z.array(z.string().url()).max(10).optional(),
   videoUrl: z.string().url('URL do YouTube inválida').optional().or(z.literal('')),
 });
 
 export const atualizarProjetoSchema = z.object({
-  nome: z.string().min(3).max(200).optional(),
+  nome: z.string().max(200).optional(),
   modelo: z.enum(['VENDA', 'RENDA', 'MISTO']).optional(),
   tipoImovel: z.enum(['RESIDENCIAL', 'COMERCIAL', 'MISTO']).optional(),
-  cidade: z.string().min(2).max(100).optional(),
-  estado: z.string().length(2).optional(),
-  endereco: z.string().min(5).max(300).optional(),
-  descricao: z.string().min(200).max(5000).optional(),
+  cidade: z.string().max(100).optional(),
+  estado: z.string().max(2).optional(),
+  endereco: z.string().max(300).optional(),
+  descricao: z.string().max(5000).optional(),
   fotosUrls: z.array(z.string().url()).max(10).optional(),
   videoUrl: z.string().url().optional().or(z.literal('')),
   valorTotal: z.number().positive().optional(),
@@ -82,7 +217,6 @@ export const atualizarProjetoSchema = z.object({
   prazoRetorno: z.number().int().min(1).max(120).optional(),
   rentabilidadeEstimada: z.number().min(0).max(100).optional(),
   modeloRetorno: z.literal('SCP').optional(),
-  planoSaida: z.string().max(2000).optional(),
   tipoOferta: z.enum(['PUBLICA', 'PRIVADA']).optional(),
   parcelado: z.boolean().optional(),
   numParcelas: z.number().int().min(2).max(120).optional(),

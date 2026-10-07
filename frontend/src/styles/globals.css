@@ -267,6 +267,8 @@
   .form-label { @apply text-[12px] font-medium tracking-normal text-muted-foreground; }
   .form-hint { @apply text-xs text-muted-foreground; }
   .form-error { @apply text-xs font-medium text-destructive; }
+  .form-group-error :is(input, select, textarea) { border-color: var(--destructive); }
+  .form-group-error :is(input, select, textarea):focus { box-shadow: 0 0 0 2px rgb(220 38 38 / 0.15); }
 
   .empty-state {
     @apply flex flex-col items-center justify-center border border-border bg-card px-8 py-24 text-center;

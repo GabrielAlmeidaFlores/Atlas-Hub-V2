@@ -119,7 +119,6 @@ export interface Projeto {
   readonly prazoRetorno?: number;
   readonly rentabilidadeEstimada?: number;
   readonly modeloRetorno?: ModeloRetorno;
-  readonly planoSaida?: string;
   readonly tipoOferta?: TipoOferta;
   readonly parcelado?: boolean;
   readonly numParcelas?: number;

@@ -24,7 +24,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (current === null) return notFound(event, 'Lançamento não encontrado');
     const body = validate(atualizarLancamentoObraSchema, JSON.parse(event.body ?? '{}'));
     if (current.status !== 'CONFIRMADO') {
-      return badRequest(event, 'INVALID_STATUS_TRANSITION');
+      return badRequest(event, 'Só é possível cancelar um gasto confirmado', 'INVALID_STATUS_TRANSITION');
     }
     const lancamento: LancamentoObra = {
       ...current,
@@ -38,7 +38,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof CronogramaNotFoundError) return notFound(event, err.message);
     if (err instanceof ForbiddenError) return forbidden(event);
-    if (err instanceof ValidationError) return badRequest(event, err.message);
+    if (err instanceof ValidationError) return badRequest(event, err.message, 'VALIDATION_ERROR', err.fields);
     if (err instanceof SyntaxError) return badRequest(event, 'JSON inválido');
     log.error('Unexpected error', err);
     return serverError(event, err);

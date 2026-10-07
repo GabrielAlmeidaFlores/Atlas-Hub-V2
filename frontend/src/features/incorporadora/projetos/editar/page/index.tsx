@@ -24,15 +24,15 @@ import { CurrencyInput } from "@/components/shared/currency-input";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
-const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; required: boolean }[] = [
-  { key: "matriculaUrl", label: "Matrícula do Terreno", required: true },
-  { key: "alvaraUrl", label: "Alvará de Construção", required: true },
-  { key: "memorialUrl", label: "Memorial Descritivo", required: true },
-  { key: "plantaUrl", label: "Planta do Empreendimento", required: true },
-  { key: "viabilidadeUrl", label: "Estudo de Viabilidade", required: true },
-  { key: "orcamentoUrl", label: "Orçamento de Obra", required: false },
-  { key: "projeto3dUrl", label: "Projeto 3D", required: false },
-  { key: "contratoSpeUrl", label: "Contrato Social SPE", required: false },
+const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string }[] = [
+  { key: "matriculaUrl", label: "Matrícula do Terreno" },
+  { key: "alvaraUrl", label: "Alvará de Construção" },
+  { key: "memorialUrl", label: "Memorial Descritivo" },
+  { key: "plantaUrl", label: "Planta do Empreendimento" },
+  { key: "viabilidadeUrl", label: "Estudo de Viabilidade" },
+  { key: "orcamentoUrl", label: "Orçamento de Obra" },
+  { key: "projeto3dUrl", label: "Projeto 3D" },
+  { key: "contratoSpeUrl", label: "Contrato Social SPE" },
 ];
 
 function fileLabel(url: string): string {
@@ -67,9 +67,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     prazoObra: "",
     prazoRetorno: "",
     rentabilidadeEstimada: "",
-    modeloRetorno: "SCP",
-    planoSaida: "",
-    tipoOferta: "PUBLICA",
   });
 
   useEffect(() => {
@@ -92,9 +89,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           prazoObra: p.prazoObra !== undefined ? String(p.prazoObra) : "",
           prazoRetorno: p.prazoRetorno !== undefined ? String(p.prazoRetorno) : "",
           rentabilidadeEstimada: p.rentabilidadeEstimada !== undefined ? String(p.rentabilidadeEstimada) : "",
-          modeloRetorno: "SCP",
-          planoSaida: p.planoSaida ?? "",
-          tipoOferta: p.tipoOferta ?? "PUBLICA",
         });
       })
       .finally(() => setIsLoading(false));
@@ -145,13 +139,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   async function handleSubmit(e: FormEvent): Promise<void> {
     e.preventDefault();
     if (id === undefined || projeto === null) return;
-    const missing = DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === ""));
-    if (missing.length > 0) {
-      addToast({ type: "error", title: "Documentos obrigatórios", description: `Envie: ${missing.map((m) => m.label).join(", ")}` });
-      return;
-    }
     if (equipe.length === 0) {
-      addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
+      addToast({ type: "error", title: "Equipe incompleta", description: "Inclua pelo menos um responsável pelo projeto." });
       return;
     }
     const valorCaptar = parseMoneyInput(form.valorCaptar);
@@ -173,9 +162,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         prazoObra: parseInt(form.prazoObra, 10),
         prazoRetorno: parseInt(form.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(form.rentabilidadeEstimada),
-        modeloRetorno: form.modeloRetorno,
-        planoSaida: form.planoSaida,
-        tipoOferta: form.tipoOferta,
+        modeloRetorno: "SCP",
+        tipoOferta: "PUBLICA",
         documentos,
         fotosUrls,
         equipe,
@@ -263,8 +251,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             <input className="input-base" value={form.endereco} onChange={setField("endereco")} required />
           </div>
           <div className="form-group">
-            <label className="form-label">Descrição</label>
-            <textarea className="input-base min-h-[100px] resize-y" rows={4} value={form.descricao} onChange={setField("descricao")} required />
+            <label className="form-label">Descrição (opcional)</label>
+            <textarea className="input-base min-h-[100px] resize-y" rows={4} value={form.descricao} onChange={setField("descricao")} />
           </div>
           <ProjetoFotosField
             value={fotosUrls}
@@ -312,23 +300,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
               <label className="form-label">Rentabilidade (% a.a.)</label>
               <input type="number" min={0} step={0.1} className="input-base" value={form.rentabilidadeEstimada} onChange={setField("rentabilidadeEstimada")} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Modelo de retorno</label>
-              <select className="input-base" value="SCP" onChange={setField("modeloRetorno")} disabled>
-                <option value="SCP">SCP — Sociedade em Conta de Participação</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Tipo de oferta</label>
-            <select className="input-base" value={form.tipoOferta} onChange={setField("tipoOferta")}>
-              <option value="PUBLICA">Pública</option>
-              <option value="PRIVADA">Privada</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Plano de saída</label>
-            <textarea className="input-base resize-none" rows={3} value={form.planoSaida} onChange={setField("planoSaida")} required />
           </div>
           <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
         </div>
@@ -341,7 +312,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         <div className="card space-y-4 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Documentos</h2>
           <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB</p>
-          {DOC_FIELDS.map(({ key, label, required }) => {
+          {DOC_FIELDS.map(({ key, label }) => {
             const url = documentos[key];
             const done = typeof url === "string" && url !== "";
             const busy = uploadingKey === key;
@@ -349,7 +320,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
               <div key={key} className="flex items-center justify-between rounded-[8px] border border-border px-4 py-3.5">
                 <div className="min-w-0 pr-3">
                   <p className="text-sm font-medium text-foreground">
-                    {label}{required && <span className="text-status-danger"> *</span>}
+                    {label}
                   </p>
                   {done && (
                     <a href={url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-navy hover:underline">
@@ -391,9 +362,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             prazoObra: form.prazoObra !== "" ? parseInt(form.prazoObra, 10) : undefined,
             prazoRetorno: form.prazoRetorno !== "" ? parseInt(form.prazoRetorno, 10) : undefined,
             rentabilidadeEstimada: form.rentabilidadeEstimada !== "" ? parseFloat(form.rentabilidadeEstimada) : undefined,
-            modeloRetorno: form.modeloRetorno as Projeto["modeloRetorno"],
-            planoSaida: form.planoSaida,
-            tipoOferta: form.tipoOferta as Projeto["tipoOferta"],
+            modeloRetorno: "SCP" as Projeto["modeloRetorno"],
+            tipoOferta: "PUBLICA" as Projeto["tipoOferta"],
             documentos,
             equipe,
             viabilidade: formToViabilidade(viabilidadeForm) ?? undefined,

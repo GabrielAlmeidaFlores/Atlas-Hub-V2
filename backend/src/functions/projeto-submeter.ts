@@ -8,8 +8,7 @@ import { createLogger } from '../shared/core/logger.js';
 import { v4 as uuidv4 } from 'uuid';
 import type { AuditoriaEntry, Notificacao } from '../shared/core/types/index.js';
 
-const DOCS_OBRIGATORIOS = ['matriculaUrl', 'alvaraUrl', 'memorialUrl', 'plantaUrl', 'viabilidadeUrl'] as const;
-const CAMPOS_FINANCEIROS = ['valorTotal', 'valorCaptar', 'prazoObra', 'prazoRetorno', 'rentabilidadeEstimada', 'modeloRetorno', 'planoSaida', 'tipoOferta'] as const;
+const CAMPOS_FINANCEIROS = ['valorTotal', 'valorCaptar', 'prazoObra', 'prazoRetorno', 'rentabilidadeEstimada', 'modeloRetorno', 'tipoOferta'] as const;
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const log = createLogger('projetoSubmeter');
@@ -28,18 +27,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return badRequest(event, 'Projeto não pode ser submetido no status atual', 'INVALID_STATUS_TRANSITION');
     }
 
+    if (projeto.nome.trim().length < 3) {
+      return badRequest(event, 'Preencha o nome do projeto antes de submeter');
+    }
+    if (projeto.cidade.trim().length < 2 || projeto.estado.trim().length !== 2 || projeto.endereco.trim().length < 5) {
+      return badRequest(event, 'Preencha a localização e o endereço do projeto antes de submeter');
+    }
+
     for (const campo of CAMPOS_FINANCEIROS) {
       if (projeto[campo] === undefined) {
         return badRequest(event, `Campo obrigatório ausente: ${campo}`);
-      }
-    }
-
-    if (projeto.documentos === undefined) {
-      return badRequest(event, 'Documentos obrigatórios não foram enviados');
-    }
-    for (const doc of DOCS_OBRIGATORIOS) {
-      if (projeto.documentos[doc] === undefined) {
-        return badRequest(event, `Documento obrigatório ausente: ${doc}`);
       }
     }
 

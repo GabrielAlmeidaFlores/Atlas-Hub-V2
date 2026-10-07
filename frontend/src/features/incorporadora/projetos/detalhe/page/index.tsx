@@ -143,16 +143,14 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
                       {projeto.modeloRetorno !== undefined && <div><p className="text-muted-foreground">Modelo de Retorno</p><p className="mt-1 font-medium">{projeto.modeloRetorno}</p></div>}
                       {projeto.tipoOferta !== undefined && <div><p className="text-muted-foreground">Tipo de Oferta</p><p className="mt-1 font-medium">{projeto.tipoOferta}</p></div>}
                     </div>
-                    <div className="divider" />
-                    <div>
-                      <p className="mb-2 text-xs font-medium text-muted-foreground">Descrição do Projeto</p>
-                      <p className="text-sm leading-relaxed text-foreground">{projeto.descricao}</p>
-                    </div>
-                    {projeto.planoSaida !== undefined && (
-                      <div>
-                        <p className="mb-2 text-xs font-medium text-muted-foreground">Plano de Saída dos Investidores</p>
-                        <p className="text-sm leading-relaxed text-foreground">{projeto.planoSaida}</p>
-                      </div>
+                    {projeto.descricao.length > 0 && (
+                      <>
+                        <div className="divider" />
+                        <div>
+                          <p className="mb-2 text-xs font-medium text-muted-foreground">Descrição do Projeto</p>
+                          <p className="text-sm leading-relaxed text-foreground">{projeto.descricao}</p>
+                        </div>
+                      </>
                     )}
                     {projeto.viabilidade !== undefined && (
                       <div className="rounded-[8px] border border-border p-5">

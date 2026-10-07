@@ -1,15 +1,7 @@
 import type { ReactNode } from "react";
-import type { DocumentosProjeto, Projeto } from "@/types";
+import type { Projeto } from "@/types";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-
-const DOCS_OBRIGATORIOS: (keyof DocumentosProjeto)[] = [
-  "matriculaUrl",
-  "alvaraUrl",
-  "memorialUrl",
-  "plantaUrl",
-  "viabilidadeUrl",
-];
 
 export interface ProgressItem {
   readonly id: string;
@@ -17,8 +9,7 @@ export interface ProgressItem {
   readonly done: boolean;
 }
 
-export function getProjetoProgressItems(projeto: Pick<Projeto, "descricao" | "valorCaptar" | "valorTotal" | "prazoObra" | "prazoRetorno" | "rentabilidadeEstimada" | "modeloRetorno" | "planoSaida" | "tipoOferta" | "documentos" | "equipe" | "viabilidade">): ProgressItem[] {
-  const docs = projeto.documentos ?? {};
+export function getProjetoProgressItems(projeto: Pick<Projeto, "nome" | "descricao" | "valorCaptar" | "valorTotal" | "prazoObra" | "prazoRetorno" | "rentabilidadeEstimada" | "modeloRetorno" | "tipoOferta" | "documentos" | "equipe" | "viabilidade">): ProgressItem[] {
   const financeiroOk =
     projeto.valorCaptar !== undefined &&
     projeto.valorTotal !== undefined &&
@@ -26,18 +17,12 @@ export function getProjetoProgressItems(projeto: Pick<Projeto, "descricao" | "va
     projeto.prazoRetorno !== undefined &&
     projeto.rentabilidadeEstimada !== undefined &&
     projeto.modeloRetorno !== undefined &&
-    (projeto.planoSaida?.length ?? 0) > 0 &&
     projeto.tipoOferta !== undefined;
 
   return [
-    { id: "dados", label: "Dados gerais", done: (projeto.descricao?.length ?? 0) >= 200 },
+    { id: "dados", label: "Dados gerais", done: projeto.nome.trim().length >= 3 },
     { id: "financeiro", label: "Dados financeiros", done: financeiroOk },
     { id: "viabilidade", label: "Calculadora de viabilidade", done: projeto.viabilidade !== undefined },
-    ...DOCS_OBRIGATORIOS.map((key) => ({
-      id: key,
-      label: `Doc: ${key.replace(/Url$/, "")}`,
-      done: typeof docs[key] === "string" && (docs[key] as string).length > 0,
-    })),
     { id: "equipe", label: "Equipe (mín. 1)", done: (projeto.equipe?.length ?? 0) >= 1 },
   ];
 }
