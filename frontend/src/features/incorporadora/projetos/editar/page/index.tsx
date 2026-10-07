@@ -24,15 +24,15 @@ import { CurrencyInput } from "@/components/shared/currency-input";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
 
-const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; required: boolean }[] = [
-  { key: "matriculaUrl", label: "Matrícula do Terreno", required: true },
-  { key: "alvaraUrl", label: "Alvará de Construção", required: true },
-  { key: "memorialUrl", label: "Memorial Descritivo", required: true },
-  { key: "plantaUrl", label: "Planta do Empreendimento", required: true },
-  { key: "viabilidadeUrl", label: "Estudo de Viabilidade", required: true },
-  { key: "orcamentoUrl", label: "Orçamento de Obra", required: false },
-  { key: "projeto3dUrl", label: "Projeto 3D", required: false },
-  { key: "contratoSpeUrl", label: "Contrato Social SPE", required: false },
+const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string }[] = [
+  { key: "matriculaUrl", label: "Matrícula do Terreno" },
+  { key: "alvaraUrl", label: "Alvará de Construção" },
+  { key: "memorialUrl", label: "Memorial Descritivo" },
+  { key: "plantaUrl", label: "Planta do Empreendimento" },
+  { key: "viabilidadeUrl", label: "Estudo de Viabilidade" },
+  { key: "orcamentoUrl", label: "Orçamento de Obra" },
+  { key: "projeto3dUrl", label: "Projeto 3D" },
+  { key: "contratoSpeUrl", label: "Contrato Social SPE" },
 ];
 
 function fileLabel(url: string): string {
@@ -139,11 +139,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   async function handleSubmit(e: FormEvent): Promise<void> {
     e.preventDefault();
     if (id === undefined || projeto === null) return;
-    const missing = DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === ""));
-    if (missing.length > 0) {
-      addToast({ type: "error", title: "Faltam documentos", description: `Anexe os documentos obrigatórios: ${missing.map((m) => m.label).join(", ")}` });
-      return;
-    }
     if (equipe.length === 0) {
       addToast({ type: "error", title: "Equipe incompleta", description: "Inclua pelo menos um responsável pelo projeto." });
       return;
@@ -256,8 +251,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             <input className="input-base" value={form.endereco} onChange={setField("endereco")} required />
           </div>
           <div className="form-group">
-            <label className="form-label">Descrição</label>
-            <textarea className="input-base min-h-[100px] resize-y" rows={4} value={form.descricao} onChange={setField("descricao")} required />
+            <label className="form-label">Descrição (opcional)</label>
+            <textarea className="input-base min-h-[100px] resize-y" rows={4} value={form.descricao} onChange={setField("descricao")} />
           </div>
           <ProjetoFotosField
             value={fotosUrls}
@@ -317,7 +312,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         <div className="card space-y-4 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Documentos</h2>
           <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB</p>
-          {DOC_FIELDS.map(({ key, label, required }) => {
+          {DOC_FIELDS.map(({ key, label }) => {
             const url = documentos[key];
             const done = typeof url === "string" && url !== "";
             const busy = uploadingKey === key;
@@ -325,7 +320,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
               <div key={key} className="flex items-center justify-between rounded-[8px] border border-border px-4 py-3.5">
                 <div className="min-w-0 pr-3">
                   <p className="text-sm font-medium text-foreground">
-                    {label}{required && <span className="text-status-danger"> *</span>}
+                    {label}
                   </p>
                   {done && (
                     <a href={url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-navy hover:underline">

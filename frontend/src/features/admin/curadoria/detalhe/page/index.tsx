@@ -291,10 +291,12 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                       <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>
                     ))}
                     <div className="col-span-2"><dt className="text-muted-foreground">Endereço</dt><dd className="mt-0.5 font-medium flex items-center gap-1"><MapPin className="h-3 w-3 text-muted-foreground" />{projeto.endereco}</dd></div>
-                    <div className="col-span-2 mt-2">
-                      <dt className="mb-1.5 text-muted-foreground">Descrição</dt>
-                      <dd className="text-foreground leading-relaxed">{projeto.descricao}</dd>
-                    </div>
+                    {projeto.descricao.length > 0 && (
+                      <div className="col-span-2 mt-2">
+                        <dt className="mb-1.5 text-muted-foreground">Descrição</dt>
+                        <dd className="text-foreground leading-relaxed">{projeto.descricao}</dd>
+                      </div>
+                    )}
                   </dl>
                 )}
 

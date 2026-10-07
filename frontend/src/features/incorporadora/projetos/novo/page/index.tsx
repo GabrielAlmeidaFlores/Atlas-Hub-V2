@@ -30,15 +30,15 @@ const ETAPAS = [
   { num: 5 as Etapa, label: "Revisão", icon: Eye },
 ];
 
-const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; required: boolean; hint: string }[] = [
-  { key: "matriculaUrl", label: "Matrícula do Terreno", required: true, hint: "Certidão atualizada (máx 90 dias)" },
-  { key: "alvaraUrl", label: "Alvará de Construção", required: true, hint: "Ou protocolo de aprovação" },
-  { key: "memorialUrl", label: "Memorial Descritivo", required: true, hint: "" },
-  { key: "plantaUrl", label: "Planta do Empreendimento", required: true, hint: "" },
-  { key: "viabilidadeUrl", label: "Estudo de Viabilidade Financeira", required: true, hint: "Assinado por responsável técnico" },
-  { key: "orcamentoUrl", label: "Planilha de Orçamento de Obra", required: false, hint: "Recomendado — assinada por engenheiro" },
-  { key: "projeto3dUrl", label: "Projeto 3D / Renderizações", required: false, hint: "Facilita a venda da oferta" },
-  { key: "contratoSpeUrl", label: "Contrato Social da SPE", required: false, hint: "Se já constituída" },
+const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; hint: string }[] = [
+  { key: "matriculaUrl", label: "Matrícula do Terreno", hint: "Certidão atualizada (máx 90 dias)" },
+  { key: "alvaraUrl", label: "Alvará de Construção", hint: "Ou protocolo de aprovação" },
+  { key: "memorialUrl", label: "Memorial Descritivo", hint: "" },
+  { key: "plantaUrl", label: "Planta do Empreendimento", hint: "" },
+  { key: "viabilidadeUrl", label: "Estudo de Viabilidade Financeira", hint: "Assinado por responsável técnico" },
+  { key: "orcamentoUrl", label: "Planilha de Orçamento de Obra", hint: "Assinada por engenheiro" },
+  { key: "projeto3dUrl", label: "Projeto 3D / Renderizações", hint: "Facilita a venda da oferta" },
+  { key: "contratoSpeUrl", label: "Contrato Social da SPE", hint: "Se já constituída" },
 ];
 
 interface DadosGerais {
@@ -216,7 +216,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       if (gerais.cidade.trim().length < 2) erros["cidade"] = "Cidade deve ter ao menos 2 caractere(s)";
       if (gerais.estado.trim().length !== 2) erros["estado"] = "Use a sigla do estado com 2 letras";
       if (gerais.endereco.trim().length < 5) erros["endereco"] = "Endereço deve ter ao menos 5 caractere(s)";
-      if (gerais.descricao.trim().length < 200) erros["descricao"] = "Descrição deve ter ao menos 200 caracteres";
       if (Object.keys(erros).length > 0) {
         setFieldErrors(erros);
         addToast({ type: "error", title: "Revise os campos destacados", description: "Preencha os dados do projeto para continuar." });
@@ -230,12 +229,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
   async function submeter(): Promise<void> {
     if (projetoId === null) return;
-    const missing = DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === ""));
-    if (missing.length > 0) {
-      addToast({ type: "error", title: "Faltam documentos", description: `Anexe os documentos obrigatórios: ${missing.map((m) => m.label).join(", ")}` });
-      setEtapa(3);
-      return;
-    }
     if (equipe.length === 0) {
       addToast({ type: "error", title: "Equipe incompleta", description: "Inclua pelo menos um responsável pelo projeto." });
       setEtapa(4);
@@ -275,7 +268,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const progress = Math.round(((etapa - 1) / 4) * 100);
 
   const progressItems: ProgressItem[] = [
-    { id: "dados", label: "Dados gerais", done: gerais.nome.length >= 3 && gerais.descricao.length >= 200 },
+    { id: "dados", label: "Dados gerais", done: gerais.nome.length >= 3 },
     {
       id: "financeiro",
       label: "Dados financeiros",
@@ -283,11 +276,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         && financeiros.prazoRetorno !== "" && financeiros.rentabilidadeEstimada !== "",
     },
     { id: "viabilidade", label: "Calculadora de viabilidade", done: formToViabilidade(viabilidadeForm) !== null },
-    ...DOC_FIELDS.filter((d) => d.required).map((d) => ({
-      id: d.key,
-      label: d.label,
-      done: typeof documentos[d.key] === "string" && documentos[d.key] !== "",
-    })),
     { id: "equipe", label: "Equipe (mín. 1)", done: equipe.length >= 1 },
   ];
 
@@ -350,8 +338,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                 <Field label="Estado (sigla)" error={fieldErrors.estado}><input className="input-base" placeholder="SP" maxLength={2} value={gerais.estado} onChange={g("estado")} required /></Field>
               </div>
               <Field label="Endereço do Terreno" error={fieldErrors.endereco}><input className="input-base" placeholder="Rua, número, bairro" value={gerais.endereco} onChange={g("endereco")} required /></Field>
-              <Field label="Descrição do Projeto" hint={`${gerais.descricao.length}/200 caracteres mínimos`} error={fieldErrors.descricao}>
-                <textarea className="input-base min-h-[100px] resize-y" placeholder="Descreva o empreendimento em detalhes..." rows={4} value={gerais.descricao} onChange={g("descricao")} required />
+              <Field label="Descrição do Projeto (opcional)" hint={`${gerais.descricao.length} caracteres · recomendamos detalhar o empreendimento`} error={fieldErrors.descricao}>
+                <textarea className="input-base min-h-[100px] resize-y" placeholder="Descreva o empreendimento em detalhes (opcional)..." rows={4} value={gerais.descricao} onChange={g("descricao")} />
               </Field>
               <Field label="Vídeo de Apresentação (opcional)" hint="Link do YouTube" error={fieldErrors.videoUrl}>
                 <input className="input-base" placeholder="https://youtube.com/watch?v=..." value={gerais.videoUrl} onChange={g("videoUrl")} />
@@ -402,7 +390,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                 PDF, JPG ou PNG · máx. 50 MB. Os arquivos são enviados com segurança para o armazenamento Atlas.
               </p>
               <div className="space-y-2">
-                {DOC_FIELDS.map(({ key, label, required, hint }) => {
+                {DOC_FIELDS.map(({ key, label, hint }) => {
                   const url = documentos[key];
                   const done = typeof url === "string" && url !== "";
                   const busy = uploadingKey === key;
@@ -410,9 +398,9 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                     <div key={key} className="flex items-center justify-between border border-border px-4 py-3">
                       <div className="min-w-0 pr-3">
                         <p className="text-sm font-medium text-foreground">
-                          {label}{required && <span className="text-status-danger"> *</span>}
+                          {label}
                         </p>
-                        <p className="text-xs text-muted-foreground">{required ? "Obrigatório" : "Opcional"}{hint !== "" ? ` · ${hint}` : ""}</p>
+                        <p className="text-xs text-muted-foreground">{hint !== "" ? `Opcional · ${hint}` : "Opcional"}</p>
                         {done && (
                           <a href={url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-navy hover:underline">
                             {fileLabel(url)}
@@ -478,10 +466,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                     {DOC_FIELDS.filter((d) => typeof documentos[d.key] === "string" && documentos[d.key] !== "").length}
                     {" / "}
                     {DOC_FIELDS.length} enviados
-                    {" · "}
-                    {DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === "")).length === 0
-                      ? "documentos obrigatórios em dia"
-                      : "faltam documentos obrigatórios"}
                   </p>
                 </div>
               </div>
