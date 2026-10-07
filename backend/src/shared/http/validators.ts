@@ -14,7 +14,7 @@ export class ValidationError extends Error {
   }
 }
 
-const FIELD_LABELS: Record<string, string> = {
+export const FIELD_LABELS: Record<string, string> = {
   nome: 'Nome',
   name: 'Nome',
   razaoSocial: 'Razão social',

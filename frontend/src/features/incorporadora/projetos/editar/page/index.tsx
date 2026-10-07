@@ -22,7 +22,7 @@ import { EquipeEditor } from "@/components/shared/equipe-editor";
 import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
 import { CurrencyInput } from "@/components/shared/currency-input";
 
-const EDITABLE: StatusProjeto[] = ["RASCUNHO", "AJUSTE_SOLICITADO", "REPROVADO"];
+const EDITABLE: StatusProjeto[] = ["RASCUNHO", "SUBMETIDO", "EM_ANALISE", "AJUSTE_SOLICITADO", "REPROVADO"];
 
 const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string }[] = [
   { key: "matriculaUrl", label: "Matrícula do Terreno" },
@@ -173,11 +173,12 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       if (projeto.status === "RASCUNHO") {
         await api.post(`/projetos/${id}/submeter`, {});
         analytics.track("project_submitted", { projectId: id });
-      } else {
+      } else if (projeto.status === "AJUSTE_SOLICITADO" || projeto.status === "REPROVADO") {
         await api.post(`/projetos/${id}/resubmeter`, {});
         analytics.track("project_resubmitted", { projectId: id });
       }
-      addToast({ type: "success", title: "Projeto enviado para análise" });
+      const emAnalise = projeto.status === "SUBMETIDO" || projeto.status === "EM_ANALISE";
+      addToast({ type: "success", title: emAnalise ? "Alterações salvas" : "Projeto enviado para análise" });
       navigate(`/projetos/${id}`);
     } catch (err) {
       addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) });
@@ -349,7 +350,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         <div className="flex justify-end gap-3">
           <Link to={`/projetos/${id}`} className="btn btn-secondary">Cancelar</Link>
           <button type="submit" disabled={isSaving} className="btn btn-primary">
-            {isSaving ? "Enviando…" : projeto.status === "RASCUNHO" ? "Salvar e submeter" : "Salvar e resubmeter"}
+            {isSaving ? "Salvando…" : projeto.status === "RASCUNHO" ? "Salvar e submeter" : projeto.status === "SUBMETIDO" || projeto.status === "EM_ANALISE" ? "Salvar alterações" : "Salvar e resubmeter"}
           </button>
         </div>
         </div>

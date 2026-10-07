@@ -5,7 +5,7 @@ import {
   FileText, Users, BarChart3, History,
 } from "lucide-react";
 import { api } from "@/services/api";
-import type { Projeto, AuditoriaEntry } from "@/types";
+import type { Projeto, AuditoriaEntry, StatusProjeto } from "@/types";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
@@ -23,6 +23,8 @@ const TABS: { key: Tab; label: string; icon: typeof FileText }[] = [
   { key: "equipe", label: "Equipe", icon: Users },
   { key: "historico", label: "Histórico", icon: History },
 ];
+
+const EDITAVEIS: StatusProjeto[] = ["RASCUNHO", "SUBMETIDO", "EM_ANALISE", "AJUSTE_SOLICITADO", "REPROVADO"];
 
 export default function IncorporadoraProjetoDetalhePage(): ReactNode {
   const { id } = useParams<{ id: string }>();
@@ -57,6 +59,11 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
         }
         action={
           <div className="flex items-center gap-2">
+            {EDITAVEIS.includes(projeto.status) && (
+              <Link to={`/projetos/${projeto.id}/editar`} className="btn btn-primary btn-sm rounded-[8px]">
+                Editar
+              </Link>
+            )}
             <Link to={`/projetos/${projeto.id}/cronograma`} className="btn btn-outline btn-sm rounded-[8px]">
               Cronograma
             </Link>

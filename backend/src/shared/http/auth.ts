@@ -26,6 +26,11 @@ export function getUserEmail(event: APIGatewayProxyEvent): string {
   return email ?? '';
 }
 
+export function getUserName(event: APIGatewayProxyEvent): string {
+  const name = event.requestContext.authorizer?.['claims']?.['name'] as string | undefined;
+  return name !== undefined && name.trim().length > 0 ? name.trim() : 'Incorporadora';
+}
+
 export function getUserGroups(event: APIGatewayProxyEvent): string[] {
   const groups = event.requestContext.authorizer?.['claims']?.['cognito:groups'] as string | undefined;
   if (groups === undefined || groups === '') return [];
