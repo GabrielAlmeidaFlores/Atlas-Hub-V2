@@ -30,8 +30,46 @@ function extractMessage(body: unknown, fallback: string): string {
   return fallback;
 }
 
-function throwApiError(errorCode: ApiErrorCode, message: string): never {
-  throw new Error(`${API_ERROR_PREFIX}${String(errorCode)}::${message}`);
+export interface ApiFieldError {
+  readonly field: string;
+  readonly message: string;
+}
+
+export class ApiRequestError extends Error {
+  readonly code: ApiErrorCode;
+  readonly fields: readonly ApiFieldError[];
+  constructor(code: ApiErrorCode, message: string, fields: readonly ApiFieldError[] = []) {
+    super(`${API_ERROR_PREFIX}${String(code)}::${message}`);
+    this.name = "ApiRequestError";
+    this.code = code;
+    this.fields = fields;
+  }
+}
+
+function extractFields(body: unknown): ApiFieldError[] {
+  if (body === null || typeof body !== "object" || !("fields" in body)) return [];
+  const raw = (body as { fields?: unknown }).fields;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((entry): entry is { field: unknown; message: unknown } => entry !== null && typeof entry === "object")
+    .map((entry) => ({
+      field: String((entry as { field?: unknown }).field ?? ""),
+      message: String((entry as { message?: unknown }).message ?? ""),
+    }))
+    .filter((entry) => entry.field.length > 0 && entry.message.length > 0);
+}
+
+export function getApiErrorFields(err: unknown): Record<string, string> {
+  if (!(err instanceof ApiRequestError)) return {};
+  const map: Record<string, string> = {};
+  for (const entry of err.fields) {
+    if (map[entry.field] === undefined) map[entry.field] = entry.message;
+  }
+  return map;
+}
+
+function throwApiError(errorCode: ApiErrorCode, message: string, fields: readonly ApiFieldError[] = []): never {
+  throw new ApiRequestError(errorCode, message, fields);
 }
 
 const COGNITO_MESSAGES: Record<string, string> = {
@@ -135,7 +173,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
         analytics.track("api_error", { code: extractCode(raw), route: path, status: response.status });
       });
     }
-    throwApiError(extractCode(raw), extractMessage(raw, response.statusText));
+    throwApiError(extractCode(raw), extractMessage(raw, response.statusText), extractFields(raw));
   }
 
   const responseBody = await parseResponseBody(response);

@@ -173,7 +173,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     log.info('Analytics batch collected', { count: records.length, sessionId: body.sessionId });
     return ok(event, { accepted: records.length });
   } catch (err) {
-    if (err instanceof ValidationError) return badRequest(event, err.message);
+    if (err instanceof ValidationError) return badRequest(event, err.message, 'VALIDATION_ERROR', err.fields);
     log.error('Unexpected error', err);
     return serverError(event, err);
   }

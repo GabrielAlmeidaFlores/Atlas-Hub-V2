@@ -21,13 +21,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       incorporadoraId: userId,
       status: 'RASCUNHO',
       revisao: 1,
-      nome: body.nome,
-      modelo: body.modelo,
-      tipoImovel: body.tipoImovel,
-      cidade: body.cidade,
-      estado: body.estado,
-      endereco: body.endereco,
-      descricao: body.descricao,
+      nome: body.nome ?? '',
+      modelo: body.modelo ?? 'VENDA',
+      tipoImovel: body.tipoImovel ?? 'RESIDENCIAL',
+      cidade: body.cidade ?? '',
+      estado: body.estado ?? '',
+      endereco: body.endereco ?? '',
+      descricao: body.descricao ?? '',
       ...(body.fotosUrls !== undefined && body.fotosUrls.length > 0 && { fotosUrls: body.fotosUrls }),
       ...(body.videoUrl !== undefined && body.videoUrl !== '' && { videoUrl: body.videoUrl }),
       criadoEm: now,
@@ -51,7 +51,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);
-    if (err instanceof ValidationError) return badRequest(event, err.message);
+    if (err instanceof ValidationError) return badRequest(event, err.message, 'VALIDATION_ERROR', err.fields);
     log.error('Unexpected error', err);
     return serverError(event, err);
   }

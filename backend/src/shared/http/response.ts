@@ -57,8 +57,12 @@ export function badRequest(
   event: APIGatewayProxyEvent,
   message: string,
   code: ApiErrorCode = 'VALIDATION_ERROR',
+  fields?: readonly { readonly field: string; readonly message: string }[],
 ): APIGatewayProxyResult {
-  return build(400, { code, error: 'Bad Request', message }, event);
+  const body = fields !== undefined && fields.length > 0
+    ? { code, error: 'Bad Request', message, fields }
+    : { code, error: 'Bad Request', message };
+  return build(400, body, event);
 }
 
 export function notFound(

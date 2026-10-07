@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { AuditoriaEntry, Notificacao } from '../shared/core/types/index.js';
 
 const DOCS_OBRIGATORIOS = ['matriculaUrl', 'alvaraUrl', 'memorialUrl', 'plantaUrl', 'viabilidadeUrl'] as const;
-const CAMPOS_FINANCEIROS = ['valorTotal', 'valorCaptar', 'prazoObra', 'prazoRetorno', 'rentabilidadeEstimada', 'modeloRetorno', 'planoSaida', 'tipoOferta'] as const;
+const CAMPOS_FINANCEIROS = ['valorTotal', 'valorCaptar', 'prazoObra', 'prazoRetorno', 'rentabilidadeEstimada', 'modeloRetorno', 'tipoOferta'] as const;
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const log = createLogger('projetoSubmeter');
@@ -26,6 +26,16 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (projeto.incorporadoraId !== userId) return forbidden(event);
     if (projeto.status !== 'RASCUNHO' && projeto.status !== 'AJUSTE_SOLICITADO' && projeto.status !== 'REPROVADO') {
       return badRequest(event, 'Projeto não pode ser submetido no status atual', 'INVALID_STATUS_TRANSITION');
+    }
+
+    if (projeto.nome.trim().length < 3) {
+      return badRequest(event, 'Preencha o nome do projeto antes de submeter');
+    }
+    if (projeto.cidade.trim().length < 2 || projeto.estado.trim().length !== 2 || projeto.endereco.trim().length < 5) {
+      return badRequest(event, 'Preencha a localização e o endereço do projeto antes de submeter');
+    }
+    if (projeto.descricao.trim().length < 200) {
+      return badRequest(event, 'A descrição do projeto precisa de pelo menos 200 caracteres antes de submeter');
     }
 
     for (const campo of CAMPOS_FINANCEIROS) {

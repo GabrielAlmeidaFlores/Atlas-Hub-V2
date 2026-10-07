@@ -17,7 +17,7 @@ export interface ProgressItem {
   readonly done: boolean;
 }
 
-export function getProjetoProgressItems(projeto: Pick<Projeto, "descricao" | "valorCaptar" | "valorTotal" | "prazoObra" | "prazoRetorno" | "rentabilidadeEstimada" | "modeloRetorno" | "planoSaida" | "tipoOferta" | "documentos" | "equipe" | "viabilidade">): ProgressItem[] {
+export function getProjetoProgressItems(projeto: Pick<Projeto, "descricao" | "valorCaptar" | "valorTotal" | "prazoObra" | "prazoRetorno" | "rentabilidadeEstimada" | "modeloRetorno" | "tipoOferta" | "documentos" | "equipe" | "viabilidade">): ProgressItem[] {
   const docs = projeto.documentos ?? {};
   const financeiroOk =
     projeto.valorCaptar !== undefined &&
@@ -26,7 +26,6 @@ export function getProjetoProgressItems(projeto: Pick<Projeto, "descricao" | "va
     projeto.prazoRetorno !== undefined &&
     projeto.rentabilidadeEstimada !== undefined &&
     projeto.modeloRetorno !== undefined &&
-    (projeto.planoSaida?.length ?? 0) > 0 &&
     projeto.tipoOferta !== undefined;
 
   return [

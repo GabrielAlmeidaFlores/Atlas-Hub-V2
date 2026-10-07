@@ -311,12 +311,6 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                     ].map(([k, v]) => (
                       <div key={k}><dt className="text-muted-foreground">{k}</dt><dd className="mt-0.5 font-medium">{v}</dd></div>
                     ))}
-                    {projeto.planoSaida !== undefined && (
-                      <div className="col-span-2">
-                        <dt className="text-muted-foreground">Plano de Saída</dt>
-                        <dd className="mt-0.5 text-foreground">{projeto.planoSaida}</dd>
-                      </div>
-                    )}
                   </dl>
                   {projeto.viabilidade !== undefined ? (
                     <div className="border border-border p-4">

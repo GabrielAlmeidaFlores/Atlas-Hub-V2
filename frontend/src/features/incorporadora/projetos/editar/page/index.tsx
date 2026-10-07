@@ -67,9 +67,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     prazoObra: "",
     prazoRetorno: "",
     rentabilidadeEstimada: "",
-    modeloRetorno: "SCP",
-    planoSaida: "",
-    tipoOferta: "PUBLICA",
   });
 
   useEffect(() => {
@@ -92,9 +89,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
           prazoObra: p.prazoObra !== undefined ? String(p.prazoObra) : "",
           prazoRetorno: p.prazoRetorno !== undefined ? String(p.prazoRetorno) : "",
           rentabilidadeEstimada: p.rentabilidadeEstimada !== undefined ? String(p.rentabilidadeEstimada) : "",
-          modeloRetorno: "SCP",
-          planoSaida: p.planoSaida ?? "",
-          tipoOferta: p.tipoOferta ?? "PUBLICA",
         });
       })
       .finally(() => setIsLoading(false));
@@ -147,11 +141,11 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     if (id === undefined || projeto === null) return;
     const missing = DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === ""));
     if (missing.length > 0) {
-      addToast({ type: "error", title: "Documentos obrigatórios", description: `Envie: ${missing.map((m) => m.label).join(", ")}` });
+      addToast({ type: "error", title: "Faltam documentos", description: `Anexe os documentos obrigatórios: ${missing.map((m) => m.label).join(", ")}` });
       return;
     }
     if (equipe.length === 0) {
-      addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
+      addToast({ type: "error", title: "Equipe incompleta", description: "Inclua pelo menos um responsável pelo projeto." });
       return;
     }
     const valorCaptar = parseMoneyInput(form.valorCaptar);
@@ -173,9 +167,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         prazoObra: parseInt(form.prazoObra, 10),
         prazoRetorno: parseInt(form.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(form.rentabilidadeEstimada),
-        modeloRetorno: form.modeloRetorno,
-        planoSaida: form.planoSaida,
-        tipoOferta: form.tipoOferta,
+        modeloRetorno: "SCP",
+        tipoOferta: "PUBLICA",
         documentos,
         fotosUrls,
         equipe,
@@ -312,23 +305,6 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
               <label className="form-label">Rentabilidade (% a.a.)</label>
               <input type="number" min={0} step={0.1} className="input-base" value={form.rentabilidadeEstimada} onChange={setField("rentabilidadeEstimada")} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Modelo de retorno</label>
-              <select className="input-base" value="SCP" onChange={setField("modeloRetorno")} disabled>
-                <option value="SCP">SCP — Sociedade em Conta de Participação</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Tipo de oferta</label>
-            <select className="input-base" value={form.tipoOferta} onChange={setField("tipoOferta")}>
-              <option value="PUBLICA">Pública</option>
-              <option value="PRIVADA">Privada</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Plano de saída</label>
-            <textarea className="input-base resize-none" rows={3} value={form.planoSaida} onChange={setField("planoSaida")} required />
           </div>
           <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
         </div>
@@ -391,9 +367,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             prazoObra: form.prazoObra !== "" ? parseInt(form.prazoObra, 10) : undefined,
             prazoRetorno: form.prazoRetorno !== "" ? parseInt(form.prazoRetorno, 10) : undefined,
             rentabilidadeEstimada: form.rentabilidadeEstimada !== "" ? parseFloat(form.rentabilidadeEstimada) : undefined,
-            modeloRetorno: form.modeloRetorno as Projeto["modeloRetorno"],
-            planoSaida: form.planoSaida,
-            tipoOferta: form.tipoOferta as Projeto["tipoOferta"],
+            modeloRetorno: "SCP" as Projeto["modeloRetorno"],
+            tipoOferta: "PUBLICA" as Projeto["tipoOferta"],
             documentos,
             equipe,
             viabilidade: formToViabilidade(viabilidadeForm) ?? undefined,

@@ -81,7 +81,6 @@ interface ProjetoDetalhe {
   readonly prazoObra: number | null;
   readonly prazoRetorno: number | null;
   readonly modeloRetorno: string | null;
-  readonly planoSaida: string | null;
   readonly parcelado: boolean;
   readonly numParcelas: number | null;
   readonly percentualEntrada: number | null;
@@ -327,11 +326,6 @@ export default function InvestidorProjetoPage(): ReactNode {
             {data.descricao.length > 0 && (
               <InfoCard icon={ScrollText} title="Sobre o projeto">
                 <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{data.descricao}</p>
-              </InfoCard>
-            )}
-            {data.planoSaida !== null && data.planoSaida.length > 0 && (
-              <InfoCard icon={TrendingUp} title="Plano de saída">
-                <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{data.planoSaida}</p>
               </InfoCard>
             )}
           </div>

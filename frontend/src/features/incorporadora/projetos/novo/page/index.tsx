@@ -1,7 +1,8 @@
 import { useState, type ReactNode, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
-import { api, getApiErrorMessage } from "@/services/api";
+import { api, getApiErrorMessage, getApiErrorFields } from "@/services/api";
+import { buscarCep, formatCep } from "@/lib/cep";
 import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
 import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
@@ -42,25 +43,25 @@ const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; required: boole
 
 interface DadosGerais {
   nome: string; modelo: string; tipoImovel: string;
-  cidade: string; estado: string; endereco: string;
+  cep: string; cidade: string; estado: string; endereco: string;
   descricao: string; videoUrl: string;
 }
 
 interface DadosFinanceiros {
   valorTotal: string; valorCaptar: string; prazoObra: string;
   prazoRetorno: string; rentabilidadeEstimada: string;
-  modeloRetorno: string; planoSaida: string; tipoOferta: string;
 }
 
-const g0: DadosGerais = { nome: "", modelo: "VENDA", tipoImovel: "RESIDENCIAL", cidade: "", estado: "", endereco: "", descricao: "", videoUrl: "" };
-const f0: DadosFinanceiros = { valorTotal: "", valorCaptar: "", prazoObra: "", prazoRetorno: "", rentabilidadeEstimada: "", modeloRetorno: "SCP", planoSaida: "", tipoOferta: "PUBLICA" };
+const g0: DadosGerais = { nome: "", modelo: "VENDA", tipoImovel: "RESIDENCIAL", cep: "", cidade: "", estado: "", endereco: "", descricao: "", videoUrl: "" };
+const f0: DadosFinanceiros = { valorTotal: "", valorCaptar: "", prazoObra: "", prazoRetorno: "", rentabilidadeEstimada: "" };
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }): ReactNode {
+function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: ReactNode }): ReactNode {
+  const hasError = error !== undefined && error !== "";
   return (
-    <div className="form-group">
+    <div className={cn("form-group", hasError && "form-group-error")}>
       <label className="form-label">{label}</label>
       {children}
-      {hint !== undefined && <p className="form-hint">{hint}</p>}
+      {hasError ? <p className="form-error">{error}</p> : hint !== undefined && <p className="form-hint">{hint}</p>}
     </div>
   );
 }
@@ -88,14 +89,69 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [isLoading, setIsLoading] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
   const navigate = useNavigate();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [buscandoCep, setBuscandoCep] = useState(false);
+  const [cepErro, setCepErro] = useState<string | undefined>(undefined);
+
+  const FIELD_STEP: Record<string, Etapa> = {
+    nome: 1, modelo: 1, tipoImovel: 1, cidade: 1, estado: 1, endereco: 1, descricao: 1, videoUrl: 1,
+    valorTotal: 2, valorCaptar: 2, prazoObra: 2, prazoRetorno: 2, rentabilidadeEstimada: 2,
+    documentos: 3, equipe: 4,
+  };
+
+  function limparErro(field: string): void {
+    setFieldErrors((prev) => {
+      if (prev[field] === undefined) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function aplicarErros(err: unknown): void {
+    const fields = getApiErrorFields(err);
+    const keys = Object.keys(fields);
+    if (keys.length === 0) return;
+    setFieldErrors(fields);
+    const step = FIELD_STEP[(keys[0] ?? "").split(".")[0] ?? ""];
+    if (step !== undefined) setEtapa(step);
+  }
 
   function g(field: keyof DadosGerais) {
-    return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       setGerais((p) => ({ ...p, [field]: e.target.value }));
+      limparErro(field);
+    };
+  }
+
+  async function onCepChange(e: ChangeEvent<HTMLInputElement>): Promise<void> {
+    const value = formatCep(e.target.value);
+    setGerais((p) => ({ ...p, cep: value }));
+    setCepErro(undefined);
+    if (value.replace(/\D/g, "").length !== 8) return;
+    setBuscandoCep(true);
+    try {
+      const r = await buscarCep(value);
+      setGerais((p) => ({
+        ...p,
+        endereco: r.endereco.length > 0 ? r.endereco : p.endereco,
+        cidade: r.cidade.length > 0 ? r.cidade : p.cidade,
+        estado: r.estado.length > 0 ? r.estado : p.estado,
+      }));
+      limparErro("endereco");
+      limparErro("cidade");
+      limparErro("estado");
+    } catch (err) {
+      setCepErro(err instanceof Error ? err.message : "Não foi possível buscar o CEP.");
+    } finally {
+      setBuscandoCep(false);
+    }
   }
   function fin(field: keyof DadosFinanceiros) {
-    return (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    return (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
       setFinanceiros((p) => ({ ...p, [field]: e.target.value }));
+      limparErro(field);
+    };
   }
 
   async function salvarRascunho(): Promise<string> {
@@ -120,18 +176,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   }
 
   async function handleFotoUpload(file: File): Promise<string> {
-    if (
-      projetoId === null
-      && (
-        gerais.nome.length < 3
-        || gerais.cidade.length < 2
-        || gerais.estado.length !== 2
-        || gerais.endereco.length < 5
-        || gerais.descricao.length < 200
-      )
-    ) {
-      throw new Error("Preencha nome, localização e descrição (mín. 200 caracteres) antes de enviar fotos.");
-    }
     const id = await salvarRascunho();
     return uploadProjetoFoto(id, file);
   }
@@ -167,8 +211,19 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
 
   async function avancar(): Promise<void> {
     if (etapa === 1) {
+      const erros: Record<string, string> = {};
+      if (gerais.nome.trim().length < 3) erros["nome"] = "Nome deve ter ao menos 3 caracteres";
+      if (gerais.cidade.trim().length < 2) erros["cidade"] = "Cidade deve ter ao menos 2 caractere(s)";
+      if (gerais.estado.trim().length !== 2) erros["estado"] = "Use a sigla do estado com 2 letras";
+      if (gerais.endereco.trim().length < 5) erros["endereco"] = "Endereço deve ter ao menos 5 caractere(s)";
+      if (gerais.descricao.trim().length < 200) erros["descricao"] = "Descrição deve ter ao menos 200 caracteres";
+      if (Object.keys(erros).length > 0) {
+        setFieldErrors(erros);
+        addToast({ type: "error", title: "Revise os campos destacados", description: "Preencha os dados do projeto para continuar." });
+        return;
+      }
       setIsLoading(true);
-      try { await salvarRascunho(); } catch (err) { addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) }); return; } finally { setIsLoading(false); }
+      try { await salvarRascunho(); } catch (err) { addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) }); aplicarErros(err); return; } finally { setIsLoading(false); }
     }
     if (etapa < 5) setEtapa((p) => (p + 1) as Etapa);
   }
@@ -177,12 +232,12 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     if (projetoId === null) return;
     const missing = DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === ""));
     if (missing.length > 0) {
-      addToast({ type: "error", title: "Documentos obrigatórios", description: `Envie: ${missing.map((m) => m.label).join(", ")}` });
+      addToast({ type: "error", title: "Faltam documentos", description: `Anexe os documentos obrigatórios: ${missing.map((m) => m.label).join(", ")}` });
       setEtapa(3);
       return;
     }
     if (equipe.length === 0) {
-      addToast({ type: "error", title: "Equipe incompleta", description: "Adicione ao menos um membro da equipe." });
+      addToast({ type: "error", title: "Equipe incompleta", description: "Inclua pelo menos um responsável pelo projeto." });
       setEtapa(4);
       return;
     }
@@ -199,7 +254,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         valorTotal: parseMoneyInput(financeiros.valorTotal), valorCaptar: parseMoneyInput(financeiros.valorCaptar),
         prazoObra: parseInt(financeiros.prazoObra, 10), prazoRetorno: parseInt(financeiros.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
-        modeloRetorno: financeiros.modeloRetorno, planoSaida: financeiros.planoSaida, tipoOferta: financeiros.tipoOferta,
+        modeloRetorno: "SCP", tipoOferta: "PUBLICA",
         documentos,
         fotosUrls,
         equipe,
@@ -211,6 +266,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       navigate("/dashboard");
     } catch (err) {
       addToast({ type: "error", title: "Erro ao submeter", description: getApiErrorMessage(err) });
+      aplicarErros(err);
     } finally {
       setIsLoading(false);
     }
@@ -224,7 +280,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       id: "financeiro",
       label: "Dados financeiros",
       done: financeiros.valorTotal !== "" && financeiros.valorCaptar !== "" && financeiros.prazoObra !== ""
-        && financeiros.prazoRetorno !== "" && financeiros.rentabilidadeEstimada !== "" && financeiros.planoSaida !== "",
+        && financeiros.prazoRetorno !== "" && financeiros.rentabilidadeEstimada !== "",
     },
     { id: "viabilidade", label: "Calculadora de viabilidade", done: formToViabilidade(viabilidadeForm) !== null },
     ...DOC_FIELDS.filter((d) => d.required).map((d) => ({
@@ -266,16 +322,16 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
           {etapa === 1 && (
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Dados do Projeto</h2>
-              <Field label="Nome do Projeto"><input className="input-base" placeholder="Ex: Residencial Park View" value={gerais.nome} onChange={g("nome")} required /></Field>
+              <Field label="Nome do Projeto" error={fieldErrors.nome}><input className="input-base" placeholder="Ex: Residencial Park View" value={gerais.nome} onChange={g("nome")} required /></Field>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Modelo de Investimento">
+                <Field label="Modelo de Investimento" error={fieldErrors.modelo}>
                   <select className="input-base" value={gerais.modelo} onChange={g("modelo")}>
                     <option value="VENDA">Construção para Venda</option>
                     <option value="RENDA">Construção para Renda</option>
                     <option value="MISTO">Modelo Misto</option>
                   </select>
                 </Field>
-                <Field label="Tipo de Imóvel">
+                <Field label="Tipo de Imóvel" error={fieldErrors.tipoImovel}>
                   <select className="input-base" value={gerais.tipoImovel} onChange={g("tipoImovel")}>
                     <option value="RESIDENCIAL">Residencial</option>
                     <option value="COMERCIAL">Comercial</option>
@@ -283,15 +339,21 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   </select>
                 </Field>
               </div>
+              <Field label="CEP" hint="Preenchemos o endereço automaticamente" error={cepErro}>
+                <div className="relative">
+                  <input className="input-base pr-10" placeholder="00000-000" inputMode="numeric" maxLength={9} value={gerais.cep} onChange={(e) => void onCepChange(e)} />
+                  {buscandoCep && <span className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin rounded-full border-2 border-navy-200 border-t-navy" />}
+                </div>
+              </Field>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Cidade"><input className="input-base" placeholder="São Paulo" value={gerais.cidade} onChange={g("cidade")} required /></Field>
-                <Field label="Estado (sigla)"><input className="input-base" placeholder="SP" maxLength={2} value={gerais.estado} onChange={g("estado")} required /></Field>
+                <Field label="Cidade" error={fieldErrors.cidade}><input className="input-base" placeholder="São Paulo" value={gerais.cidade} onChange={g("cidade")} required /></Field>
+                <Field label="Estado (sigla)" error={fieldErrors.estado}><input className="input-base" placeholder="SP" maxLength={2} value={gerais.estado} onChange={g("estado")} required /></Field>
               </div>
-              <Field label="Endereço do Terreno"><input className="input-base" placeholder="Rua, número, bairro" value={gerais.endereco} onChange={g("endereco")} required /></Field>
-              <Field label="Descrição do Projeto" hint={`${gerais.descricao.length}/200 caracteres mínimos`}>
+              <Field label="Endereço do Terreno" error={fieldErrors.endereco}><input className="input-base" placeholder="Rua, número, bairro" value={gerais.endereco} onChange={g("endereco")} required /></Field>
+              <Field label="Descrição do Projeto" hint={`${gerais.descricao.length}/200 caracteres mínimos`} error={fieldErrors.descricao}>
                 <textarea className="input-base min-h-[100px] resize-y" placeholder="Descreva o empreendimento em detalhes..." rows={4} value={gerais.descricao} onChange={g("descricao")} required />
               </Field>
-              <Field label="Vídeo de Apresentação (opcional)" hint="Link do YouTube">
+              <Field label="Vídeo de Apresentação (opcional)" hint="Link do YouTube" error={fieldErrors.videoUrl}>
                 <input className="input-base" placeholder="https://youtube.com/watch?v=..." value={gerais.videoUrl} onChange={g("videoUrl")} />
               </Field>
               <ProjetoFotosField
@@ -316,11 +378,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   void handleFotosChange(urls);
                 }}
               />
-              {projetoId === null && gerais.descricao.length < 200 && (
-                <p className="text-xs text-muted-foreground">
-                  Complete a descrição (mín. 200 caracteres) para liberar o envio das fotos.
-                </p>
-              )}
             </div>
           )}
 
@@ -328,26 +385,12 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Dados Financeiros</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Valor Total do Projeto (R$)"><CurrencyInput placeholder="0" value={financeiros.valorTotal} onValueChange={(v) => setFinanceiros((p) => ({ ...p, valorTotal: v }))} required /></Field>
-                <Field label="Valor a Captar (R$)" hint="Máx. R$15M (CVM 88)"><CurrencyInput placeholder="0" value={financeiros.valorCaptar} onValueChange={(v) => setFinanceiros((p) => ({ ...p, valorCaptar: v }))} required /></Field>
-                <Field label="Prazo de Obra (meses)"><input type="number" className="input-base" placeholder="12" min={1} max={120} value={financeiros.prazoObra} onChange={fin("prazoObra")} required /></Field>
-                <Field label="Prazo de Retorno (meses)"><input type="number" className="input-base" placeholder="24" min={1} max={120} value={financeiros.prazoRetorno} onChange={fin("prazoRetorno")} required /></Field>
-                <Field label="Rentabilidade Estimada (% a.a.)"><input type="number" className="input-base" placeholder="20" min={0} max={100} step={0.1} value={financeiros.rentabilidadeEstimada} onChange={fin("rentabilidadeEstimada")} required /></Field>
-                <Field label="Modelo de Retorno">
-                  <select className="input-base" value="SCP" onChange={fin("modeloRetorno")} disabled>
-                    <option value="SCP">SCP — Sociedade em Conta de Participação</option>
-                  </select>
-                </Field>
+                <Field label="Valor Total do Projeto (R$)" error={fieldErrors.valorTotal}><CurrencyInput placeholder="0" value={financeiros.valorTotal} onValueChange={(v) => { setFinanceiros((p) => ({ ...p, valorTotal: v })); limparErro("valorTotal"); }} required /></Field>
+                <Field label="Valor a Captar (R$)" hint="Máx. R$15M (CVM 88)" error={fieldErrors.valorCaptar}><CurrencyInput placeholder="0" value={financeiros.valorCaptar} onValueChange={(v) => { setFinanceiros((p) => ({ ...p, valorCaptar: v })); limparErro("valorCaptar"); }} required /></Field>
+                <Field label="Prazo de Obra (meses)" error={fieldErrors.prazoObra}><input type="number" className="input-base" placeholder="12" min={1} max={120} value={financeiros.prazoObra} onChange={fin("prazoObra")} required /></Field>
+                <Field label="Prazo de Retorno (meses)" error={fieldErrors.prazoRetorno}><input type="number" className="input-base" placeholder="24" min={1} max={120} value={financeiros.prazoRetorno} onChange={fin("prazoRetorno")} required /></Field>
+                <Field label="Rentabilidade Estimada (% a.a.)" error={fieldErrors.rentabilidadeEstimada}><input type="number" className="input-base" placeholder="20" min={0} max={100} step={0.1} value={financeiros.rentabilidadeEstimada} onChange={fin("rentabilidadeEstimada")} required /></Field>
               </div>
-              <Field label="Tipo de Oferta">
-                <select className="input-base" value={financeiros.tipoOferta} onChange={fin("tipoOferta")}>
-                  <option value="PUBLICA">Pública (CVM 88 — ilimitado de investidores)</option>
-                  <option value="PRIVADA">Privada (Club Deal — até 15 investidores)</option>
-                </select>
-              </Field>
-              <Field label="Plano de Saída dos Investidores" hint="Como e quando os investidores receberão o retorno">
-                <textarea className="input-base resize-none" rows={3} placeholder="Ex: Após a venda das unidades, lucro distribuído proporcionalmente às cotas..." value={financeiros.planoSaida} onChange={fin("planoSaida")} required />
-              </Field>
               <ViabilidadeCalculator value={viabilidadeForm} onChange={setViabilidadeForm} />
             </div>
           )}
@@ -427,8 +470,6 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                   <dl className="grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-muted-foreground">A Captar</dt><dd className="font-semibold text-navy">{financeiros.valorCaptar !== "" && Number.isFinite(parseMoneyInput(financeiros.valorCaptar)) ? formatCurrency(parseMoneyInput(financeiros.valorCaptar)) : "—"}</dd></div>
                     <div><dt className="text-muted-foreground">Rentabilidade</dt><dd className="font-medium text-status-success">{financeiros.rentabilidadeEstimada !== "" ? `${financeiros.rentabilidadeEstimada}% a.a.` : "—"}</dd></div>
-                    <div><dt className="text-muted-foreground">Modelo</dt><dd className="font-medium">{financeiros.modeloRetorno}</dd></div>
-                    <div><dt className="text-muted-foreground">Oferta</dt><dd className="font-medium">{financeiros.tipoOferta}</dd></div>
                   </dl>
                 </div>
                 <div className="bg-muted p-4">
@@ -439,8 +480,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                     {DOC_FIELDS.length} enviados
                     {" · "}
                     {DOC_FIELDS.filter((d) => d.required && (documentos[d.key] === undefined || documentos[d.key] === "")).length === 0
-                      ? "obrigatórios ok"
-                      : "faltam obrigatórios"}
+                      ? "documentos obrigatórios em dia"
+                      : "faltam documentos obrigatórios"}
                   </p>
                 </div>
               </div>

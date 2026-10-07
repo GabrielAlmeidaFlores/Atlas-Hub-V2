@@ -77,7 +77,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);
-    if (err instanceof ValidationError) return badRequest(event, err.message);
+    if (err instanceof ValidationError) return badRequest(event, err.message, 'VALIDATION_ERROR', err.fields);
     if (err instanceof StarkNotConfiguredError || err instanceof StarkOperationError) {
       return badRequest(event, err.message);
     }

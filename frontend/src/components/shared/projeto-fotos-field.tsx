@@ -96,6 +96,7 @@ export function ProjetoFotosField({
   const [pending, setPending] = useState<string[]>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const previewsRef = useRef<Record<string, string>>({});
+  const inputRef = useRef<HTMLInputElement>(null);
   const remaining = MAX_FOTOS - value.length;
 
   useEffect(() => {
@@ -168,22 +169,22 @@ export function ProjetoFotosField({
             JPG ou PNG · máx. 10 MB · até {String(MAX_FOTOS)} fotos · {String(value.length)}/{String(MAX_FOTOS)}
           </p>
         </div>
-        <label
-          className={cn(
-            "btn btn-secondary btn-sm cursor-pointer shrink-0",
-            (busy || disabled || remaining <= 0) && "pointer-events-none opacity-50",
-          )}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy || disabled || remaining <= 0}
+          className={cn("btn btn-secondary btn-sm shrink-0", (busy || disabled || remaining <= 0) && "opacity-50")}
         >
           {busy ? "Enviando…" : "Adicionar fotos"}
-          <input
-            type="file"
-            className="sr-only"
-            accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-            multiple
-            disabled={busy || disabled || remaining <= 0}
-            onChange={onInputChange}
-          />
-        </label>
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          className="sr-only"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+          multiple
+          onChange={onInputChange}
+        />
       </div>
       {(value.length > 0 || pending.length > 0) && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">

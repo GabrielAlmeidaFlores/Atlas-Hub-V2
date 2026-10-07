@@ -88,7 +88,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       prazoObra: projeto.prazoObra ?? null,
       prazoRetorno: projeto.prazoRetorno ?? null,
       modeloRetorno: projeto.modeloRetorno ?? null,
-      planoSaida: projeto.planoSaida ?? null,
       parcelado: projeto.parcelado ?? false,
       numParcelas: projeto.numParcelas ?? null,
       percentualEntrada: projeto.percentualEntrada ?? null,
