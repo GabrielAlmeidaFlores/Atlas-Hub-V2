@@ -60,7 +60,7 @@ function FotoThumb({
   const showImage = src !== null && !failed;
 
   return (
-    <div className="group relative aspect-[4/3] overflow-hidden border border-border bg-muted">
+    <div className="group relative isolate aspect-[4/3] overflow-hidden border border-border bg-muted">
       {showImage ? (
         <img
           src={src}
