@@ -249,6 +249,22 @@ jobs:
             --app-id "$APP_ID" \
             --region "$REGION" \
             --custom-rules file:///tmp/amplify-rules.json
+      - name: Set Amplify cache-control headers
+        env:
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
+          REGION: ${{ vars.AWS_REGION }}
+        run: |
+          printf '%s\n' \
+            "customHeaders:" \
+            "  - pattern: '**/*'" \
+            "    headers:" \
+            "      - key: Cache-Control" \
+            "        value: 'public, max-age=0, must-revalidate'" \
+            > /tmp/amplify-headers.yml
+          aws amplify update-app \
+            --app-id "$APP_ID" \
+            --region "$REGION" \
+            --custom-headers file:///tmp/amplify-headers.yml
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
