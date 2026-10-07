@@ -252,7 +252,7 @@ jobs:
           aws amplify update-app \
             --app-id "$APP_ID" \
             --region "$REGION" \
-            --custom-headers file://customHttp.yml
+            --custom-headers file://${{ github.workspace }}/customHttp.yml
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
