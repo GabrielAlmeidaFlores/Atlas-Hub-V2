@@ -150,6 +150,12 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
 
   const { projeto } = data;
 
+  const timeline = [
+    ...data.historico.map((e) => ({ em: e.criadoEm, titulo: e.descricao, autor: e.userName, detalhe: undefined as string | undefined })),
+    ...data.notas.map((n) => ({ em: n.criadoEm, titulo: "Nota interna", autor: n.analistaNome, detalhe: n.texto })),
+    ...data.scorecards.map((s) => ({ em: s.atualizadoEm, titulo: `Avaliação — revisão ${String(s.revisao)}`, autor: s.analistaNome, detalhe: s.parecer ?? s.decisao ?? undefined })),
+  ].sort((a, b) => b.em.localeCompare(a.em));
+
   return (
     <div className="animate-in">
       <PageHeader
@@ -379,12 +385,16 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
 
                 {tab === "historico" && (
                   <ol className="animate-in space-y-3">
-                    {data.historico.length === 0
+                    {timeline.length === 0
                       ? <p className="py-6 text-center text-sm text-muted-foreground">Sem histórico</p>
-                      : data.historico.map((e) => (
-                          <li key={e.criadoEm} className="flex gap-3 pb-3 border-b border-border last:border-0">
+                      : timeline.map((e) => (
+                          <li key={e.em + e.titulo} className="flex gap-3 pb-3 border-b border-border last:border-0">
                             <div className="mt-2 h-2 w-2 shrink-0   bg-navy" />
-                            <div><p className="text-sm font-medium text-foreground">{e.descricao}</p><p className="mt-0.5 text-xs text-muted-foreground">{e.userName} · {formatDateTime(e.criadoEm)}</p></div>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{e.titulo}</p>
+                              {e.detalhe !== undefined && <p className="mt-0.5 text-sm text-muted-foreground">{e.detalhe}</p>}
+                              <p className="mt-0.5 text-xs text-muted-foreground">{e.autor} · {formatDateTime(e.em)}</p>
+                            </div>
                           </li>
                         ))
                     }

@@ -470,7 +470,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                 </div>
               </div>
               <div className="alert alert-warn text-sm text-status-warning">
-                Após submissão, os campos ficarão bloqueados para edição até a conclusão da análise.
+                Você poderá continuar editando o projeto enquanto ele estiver em análise. Toda alteração fica registrada no histórico.
               </div>
             </div>
           )}
