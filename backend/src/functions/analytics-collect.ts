@@ -119,14 +119,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       if (item.eventName === 'heatmap_click') {
         const x = Number(item.props?.['xNorm'] ?? 0);
         const y = Number(item.props?.['yNorm'] ?? 0);
-        const path = String(ctx?.path ?? item.props?.['path'] ?? '/');
-        const cellX = Math.min(19, Math.max(0, Math.floor(x * 20)));
-        const cellY = Math.min(29, Math.max(0, Math.floor(y * 30)));
+        const path = String(ctx?.path ?? item.props?.['path'] ?? '/').split('?')[0] || '/';
+        const cellX = Math.min(99, Math.max(0, Math.floor(x * 100)));
+        const cellY = Math.min(199, Math.max(0, Math.floor(y * 200)));
         const hk = `${path}#${day}||click:${String(cellX)}:${String(cellY)}`;
         heat.set(hk, (heat.get(hk) ?? 0) + 1);
       }
       if (item.eventName === 'heatmap_scroll' || item.eventName.startsWith('scroll_')) {
-        const path = String(ctx?.path ?? '/');
+        const path = String(ctx?.path ?? '/').split('?')[0] || '/';
         const band = String(item.props?.['band'] ?? item.eventName.replace('scroll_', ''));
         const hk = `${path}#${day}||scroll:${band}`;
         heat.set(hk, (heat.get(hk) ?? 0) + 1);
