@@ -45,8 +45,9 @@ export interface AnalyticsFunnel {
 
 export interface AnalyticsHeatmap {
   path: string;
-  day: string;
-  pageKey: string;
+  from: string;
+  to: string;
+  days: number;
   clicks: { x: number; y: number; count: number }[];
   scrolls: { band: string; count: number }[];
 }
