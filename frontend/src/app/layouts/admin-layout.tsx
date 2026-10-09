@@ -18,14 +18,14 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
   }
 
   const navItems = [
-    { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+    { to: "/admin", label: "Visão geral", icon: LayoutDashboard, end: true },
     { to: "/admin/curadoria", label: "Fila de Curadoria", icon: ClipboardList, end: false },
     { to: "/admin/historico", label: "Histórico", icon: History, end: false },
     { to: "/admin/financeiro", label: "Financeiro", icon: Landmark, end: false },
     { to: "/admin/cronograma", label: "Cronograma", icon: CalendarRange, end: false },
     { to: "/admin/captacao", label: "Captação", icon: CircleDollarSign, end: false },
     { to: "/admin/incorporadoras", label: "Incorporadoras", icon: Building2, end: false },
-    { to: "/admin/analytics", label: "Analytics", icon: BarChart3, end: false },
+    { to: "/admin/analytics", label: "Uso da plataforma", icon: BarChart3, end: false },
     ...(user?.perfil === "ADMIN_MASTER"
       ? [{ to: "/admin/usuarios", label: "Usuários", icon: Users, end: false }]
       : []),

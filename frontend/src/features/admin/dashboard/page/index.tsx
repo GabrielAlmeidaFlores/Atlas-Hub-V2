@@ -41,7 +41,7 @@ export default function AdminDashboardPage(): ReactNode {
   return (
     <div className="animate-in">
       <PageHeader
-        title="Dashboard"
+        title="Visão geral"
         description="Visão geral da plataforma Atlas Hub"
         action={
           <Link to="/admin/curadoria" className="btn btn-primary btn-sm rounded-[8px]">

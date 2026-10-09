@@ -16,6 +16,7 @@ import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
 import { DocumentLink } from "@/components/shared/document-link";
+import { HelpHint } from "@/components/ui/help-hint";
 
 interface CuradoriaDetalhe {
   projeto: Projeto;
@@ -238,7 +239,10 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
         {projeto.status === "EM_ANALISE" && (
           <div className="card p-5 sm:p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">Scorecard</h3>
+              <h3 className="flex items-center gap-1.5 font-semibold text-foreground">
+                Scorecard
+                <HelpHint content="Notas de 1 a 10 por critério. A nota geral é a média ponderada pelos pesos. Não existe nota mínima — a decisão é sempre do analista." />
+              </h3>
               {notaGeral !== null && (
                 <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-navy text-sm font-bold text-white">
                   {String(notaGeral)}
@@ -246,10 +250,13 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
               )}
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-              {CRITERIOS.map(({ key, label, peso }) => (
+              {CRITERIOS.map(({ key, label, peso, desc }) => (
                 <div key={key}>
                   <div className="mb-1 flex items-center justify-between gap-2">
-                    <p className="text-xs font-medium text-foreground">{label}</p>
+                    <p className="flex items-center gap-1 text-xs font-medium text-foreground">
+                      {label}
+                      <HelpHint content={desc} />
+                    </p>
                     <span className="text-[10px] text-muted-foreground">{peso}</span>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -450,11 +457,11 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
               <p className="text-xs font-semibold text-foreground">Checklist pré-aprovação</p>
               <p className="text-xs text-muted-foreground">Confirme antes de aprovar (obrigatório).</p>
               {([
-                { key: "patrimonioAfetacao" as const, label: "Patrimônio de afetação (cláusula no contrato)" },
-                { key: "seguroObra" as const, label: "Seguro de obra (apólice antes da oferta)" },
-                { key: "speScp" as const, label: "SPE/SCP constituída ou em processo" },
-                { key: "elegibilidadeCvm" as const, label: "Elegibilidade CVM 88 (receita ≤ R$40M / até R$80M)" },
-              ]).map(({ key, label }) => (
+                { key: "patrimonioAfetacao" as const, label: "Patrimônio de afetação (cláusula no contrato)", hint: "O patrimônio do projeto fica separado do resto da empresa incorporadora. Precisa estar previsto no contrato." },
+                { key: "seguroObra" as const, label: "Seguro de obra (apólice antes da oferta)", hint: "Apólice que cobre a retomada da obra se a incorporadora não concluir. Exigida antes da oferta ir ao ar." },
+                { key: "speScp" as const, label: "SPE/SCP constituída ou em processo", hint: "A empresa criada especificamente para este projeto. Precisa estar constituída (ou em processo) para virar emissora da oferta." },
+                { key: "elegibilidadeCvm" as const, label: "Elegibilidade CVM 88 (receita ≤ R$40M / até R$80M)", hint: "A incorporadora pode captar pela regra da CVM 88 se faturou até R$ 40 milhões no ano (até R$ 80 milhões em casos específicos)." },
+              ]).map(({ key, label, hint }) => (
                 <label key={key} className="flex cursor-pointer items-start gap-2 text-xs text-foreground">
                   <input
                     type="checkbox"
@@ -462,7 +469,10 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                     checked={checklist[key]}
                     onChange={(e) => setChecklist((p) => ({ ...p, [key]: e.target.checked }))}
                   />
-                  <span>{label}</span>
+                  <span className="inline-flex items-center gap-1">
+                    {label}
+                    <HelpHint content={hint} />
+                  </span>
                 </label>
               ))}
             </div>
