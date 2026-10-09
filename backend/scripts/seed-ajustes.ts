@@ -18,10 +18,12 @@ const db = DynamoDBDocumentClient.from(new DynamoDBClient({ region }));
 
 const daysAgo = (d: number): string => new Date(Date.now() - d * 86_400_000).toISOString();
 
-interface Ajuste {
+type Decisao = 'AJUSTE_SOLICITADO' | 'REPROVADO';
+
+interface SeedProjeto {
   readonly id: string;
   readonly nome: string;
-  readonly modelo: 'VENDA' | 'RENDA';
+  readonly modelo: 'VENDA' | 'RENDA' | 'MISTO';
   readonly tipoImovel: 'RESIDENCIAL' | 'COMERCIAL' | 'MISTO';
   readonly cidade: string;
   readonly estado: string;
@@ -32,11 +34,12 @@ interface Ajuste {
   readonly rentabilidade: number;
   readonly prazoObra: number;
   readonly prazoRetorno: number;
-  readonly textoAjuste: string;
+  readonly status: Decisao;
+  readonly texto: string;
   readonly dias: number;
 }
 
-const AJUSTES: readonly Ajuste[] = [
+const PROJETOS: readonly SeedProjeto[] = [
   {
     id: 'inc-proj-matriz-prime',
     nome: 'Edifício Matriz Prime',
@@ -52,7 +55,8 @@ const AJUSTES: readonly Ajuste[] = [
     rentabilidade: 16.4,
     prazoObra: 30,
     prazoRetorno: 48,
-    textoAjuste:
+    status: 'AJUSTE_SOLICITADO',
+    texto:
       'A certidão da matrícula está vencida (emitida há mais de 90 dias) e falta a CND estadual. Anexe os documentos atualizados para seguirmos com a aprovação.',
     dias: 3,
   },
@@ -71,7 +75,8 @@ const AJUSTES: readonly Ajuste[] = [
     rentabilidade: 14.8,
     prazoObra: 24,
     prazoRetorno: 36,
-    textoAjuste:
+    status: 'AJUSTE_SOLICITADO',
+    texto:
       'A planilha de orçamento de obra está incompleta: faltam os custos de fundação e de infraestrutura. Complemente o orçamento com esses itens e reenvie.',
     dias: 5,
   },
@@ -90,9 +95,30 @@ const AJUSTES: readonly Ajuste[] = [
     rentabilidade: 15.7,
     prazoObra: 28,
     prazoRetorno: 42,
-    textoAjuste:
+    status: 'AJUSTE_SOLICITADO',
+    texto:
       'A viabilidade financeira está inconsistente com o cronograma apresentado (a margem projetada não fecha com o prazo de obra). Revise os números e reenvie o estudo.',
     dias: 8,
+  },
+  {
+    id: 'inc-proj-vista-serra',
+    nome: 'Residencial Vista da Serra',
+    modelo: 'VENDA',
+    tipoImovel: 'RESIDENCIAL',
+    cidade: 'Campos do Jordão',
+    estado: 'SP',
+    endereco: 'Estrada do Horto, 3200 — Alto da Boa Vista',
+    descricao:
+      'Empreendimento residencial de alto padrão em Campos do Jordão, com 40 unidades e vista para a serra. Projeto entregue sem o estudo de viabilidade assinado por responsável técnico e com a matrícula do terreno desatualizada.',
+    valorCaptar: 4_400_000,
+    valorTotal: 12_900_000,
+    rentabilidade: 13.2,
+    prazoObra: 26,
+    prazoRetorno: 40,
+    status: 'REPROVADO',
+    texto:
+      'Projeto reprovado: viabilidade financeira inconsistente com o cronograma e documentação incompleta (CND estadual ausente e matrícula desatualizada).',
+    dias: 11,
   },
 ];
 
@@ -110,18 +136,19 @@ async function run(): Promise<void> {
   const analistaId = String(analista?.['id'] ?? 'seed-analista');
   const analistaNome = String(analista?.['nome'] ?? 'Ana Curadora');
 
-  console.log(`Seed ajustes — stage=${stage} incorporadoraId=${incorporadoraId}`);
+  console.log(`Seed projetos — stage=${stage} incorporadoraId=${incorporadoraId}`);
 
-  for (const a of AJUSTES) {
+  for (const a of PROJETOS) {
     const criadoEm = daysAgo(a.dias + 6);
     const submetidoEm = daysAgo(a.dias + 4);
     const inicioAnaliseEm = daysAgo(a.dias + 1);
-    const ajusteEm = daysAgo(a.dias);
+    const decisaoEm = daysAgo(a.dias);
+    const isReprovado = a.status === 'REPROVADO';
 
     await put(T.projetos, {
       id: a.id,
       incorporadoraId,
-      status: 'AJUSTE_SOLICITADO',
+      status: a.status,
       revisao: 2,
       nome: a.nome,
       modelo: a.modelo,
@@ -142,12 +169,12 @@ async function run(): Promise<void> {
       fotosUrls: [],
       equipe: base['equipe'],
       viabilidade: base['viabilidade'],
-      textoAjuste: a.textoAjuste,
       analistaId,
       analistaNome,
       submetidoEm,
       criadoEm,
-      atualizadoEm: ajusteEm,
+      atualizadoEm: decisaoEm,
+      ...(isReprovado ? { justificativaReprovacao: a.texto, reprovadoEm: decisaoEm } : { textoAjuste: a.texto }),
     });
 
     await put(T.auditoria, {
@@ -181,22 +208,22 @@ async function run(): Promise<void> {
     });
     await put(T.auditoria, {
       projetoId: a.id,
-      criadoEm: ajusteEm,
-      acao: 'AJUSTE_SOLICITADO',
+      criadoEm: decisaoEm,
+      acao: a.status,
       userId: analistaId,
       userName: analistaNome,
-      descricao: 'Ajuste solicitado ao incorporador',
+      descricao: isReprovado ? 'Projeto reprovado na curadoria' : 'Ajuste solicitado ao incorporador',
       statusAnterior: 'EM_ANALISE',
-      statusNovo: 'AJUSTE_SOLICITADO',
+      statusNovo: a.status,
     });
 
     await put(T.notificacoes, {
       userId: incorporadoraId,
-      criadoEm: ajusteEm,
+      criadoEm: decisaoEm,
       id: randomUUID(),
-      tipo: 'AJUSTE_SOLICITADO',
-      titulo: `Ajuste solicitado: ${a.nome}`,
-      mensagem: a.textoAjuste,
+      tipo: a.status,
+      titulo: isReprovado ? `Projeto reprovado: ${a.nome}` : `Ajuste solicitado: ${a.nome}`,
+      mensagem: a.texto,
       lida: false,
       projetoId: a.id,
       projetoNome: a.nome,
@@ -209,28 +236,28 @@ async function run(): Promise<void> {
       analistaNome,
       localizacaoNota: 8,
       localizacaoComentario: 'Boa localização e demanda regional consistente.',
-      financeiraNota: 6,
-      financeiraComentario: 'Números precisam de revisão antes da decisão final.',
-      documentacaoNota: 5,
-      documentacaoComentario: 'Documentação pendente de atualização.',
+      financeiraNota: isReprovado ? 4 : 6,
+      financeiraComentario: isReprovado ? 'Orçamento inconsistente com o cronograma.' : 'Números precisam de revisão antes da decisão final.',
+      documentacaoNota: isReprovado ? 4 : 5,
+      documentacaoComentario: isReprovado ? 'Documentação incompleta e desatualizada.' : 'Documentação pendente de atualização.',
       equipeNota: 8,
       equipeComentario: 'Equipe com experiência comprovada.',
       riscoNota: 7,
       riscoComentario: 'Risco de execução moderado.',
-      notaGeral: 6.7,
-      parecer: a.textoAjuste,
-      decisao: 'AJUSTE_SOLICITADO',
-      criadoEm: ajusteEm,
-      atualizadoEm: ajusteEm,
+      notaGeral: isReprovado ? 5.8 : 6.7,
+      parecer: a.texto,
+      decisao: a.status,
+      criadoEm: decisaoEm,
+      atualizadoEm: decisaoEm,
     });
 
-    console.log(`  ✓ ${a.nome} (AJUSTE_SOLICITADO)`);
+    console.log(`  ✓ ${a.nome} (${a.status})`);
   }
 
-  console.log(`\n✓ ${String(AJUSTES.length)} projetos em AJUSTE_SOLICITADO criados para ${incorporadoraId}`);
+  console.log(`\n✓ ${String(PROJETOS.length)} projetos criados para ${incorporadoraId}`);
 }
 
 void run().catch((err) => {
-  console.error('Erro no seed de ajustes:', err);
+  console.error('Erro no seed:', err);
   process.exit(1);
 });
