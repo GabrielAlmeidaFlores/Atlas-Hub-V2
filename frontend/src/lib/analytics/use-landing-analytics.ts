@@ -6,6 +6,7 @@ const SECTION_SELECTOR = "[data-analytics-section]";
 export function useLandingAnalytics(enabled = true): void {
   useEffect(() => {
     if (!enabled) return;
+    if (new URLSearchParams(window.location.search).has("__preview")) return;
 
     analytics.page();
     analytics.track("hero_view");

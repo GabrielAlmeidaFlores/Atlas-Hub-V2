@@ -234,6 +234,7 @@ export const analytics = {
   },
   track(eventName: string, props?: AnalyticsProps, context?: Partial<AnalyticsContext>): void {
     if (typeof window === "undefined") return;
+    if (new URLSearchParams(window.location.search).has("__preview")) return;
     loadQueue();
     queue.push({
       eventName,

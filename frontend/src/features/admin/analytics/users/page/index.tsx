@@ -33,7 +33,7 @@ export default function AdminAnalyticsUserPage(): ReactNode {
 
   if (isLoading && data === null) return <SkeletonPage />;
   if (data === null) {
-    return <div className="p-8 text-center text-muted-foreground">Usuário sem dados analíticos</div>;
+    return <div className="p-8 text-center text-muted-foreground">Usuário sem dados de uso</div>;
   }
 
   const { profile, indicators, device, timeline } = data;
@@ -42,10 +42,10 @@ export default function AdminAnalyticsUserPage(): ReactNode {
     <div className="animate-in">
       <PageHeader
         title={profile.nome ?? profile.email ?? profile.userId}
-        description="Jornada LP → portal → curadoria"
+        description="Jornada: landing page → portal → curadoria"
         action={
           <Link to="/admin/analytics" className="btn btn-outline btn-sm inline-flex items-center gap-2">
-            <ArrowLeft className="h-3.5 w-3.5" /> Analytics
+            <ArrowLeft className="h-3.5 w-3.5" /> Uso da plataforma
           </Link>
         }
       />
@@ -66,23 +66,23 @@ export default function AdminAnalyticsUserPage(): ReactNode {
             <p><span className="text-muted-foreground">Logins:</span> {indicators.logins}</p>
             <p><span className="text-muted-foreground">Dias ativos:</span> {indicators.activeDays}</p>
             <p><span className="text-muted-foreground">Projetos criados:</span> {indicators.projectsCreated}</p>
-            <p><span className="text-muted-foreground">Uploads:</span> {indicators.uploads}</p>
+            <p><span className="text-muted-foreground">Envios:</span> {indicators.uploads}</p>
             <p><span className="text-muted-foreground">Submissões:</span> {indicators.submissions}</p>
-            <p><span className="text-muted-foreground">Evt/sessão:</span> {indicators.avgEventsPerSession}</p>
+            <p><span className="text-muted-foreground">Eventos por sessão:</span> {indicators.avgEventsPerSession}</p>
           </div>
           <div className="card space-y-2 p-5 text-sm">
             <h3 className="font-semibold text-foreground">Dispositivo recente</h3>
-            <p><span className="text-muted-foreground">Device:</span> {device.device ?? "—"}</p>
-            <p><span className="text-muted-foreground">Browser:</span> {device.browser ?? "—"}</p>
-            <p><span className="text-muted-foreground">SO:</span> {device.os ?? "—"}</p>
+            <p><span className="text-muted-foreground">Dispositivo:</span> {device.device ?? "—"}</p>
+            <p><span className="text-muted-foreground">Navegador:</span> {device.browser ?? "—"}</p>
+            <p><span className="text-muted-foreground">Sistema:</span> {device.os ?? "—"}</p>
             <p><span className="text-muted-foreground">Tela:</span> {device.screen ?? "—"}</p>
-            <p><span className="text-muted-foreground">Geo:</span> {[device.city, device.region, device.country].filter(Boolean).join(", ") || "—"}</p>
+            <p><span className="text-muted-foreground">Local:</span> {[device.city, device.region, device.country].filter(Boolean).join(", ") || "—"}</p>
           </div>
         </div>
 
         <div className="card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-sm font-semibold text-foreground">Timeline</h3>
+            <h3 className="text-sm font-semibold text-foreground">Linha do tempo</h3>
             <input
               className="field max-w-xs"
               placeholder="Filtrar evento (ex: login)"

@@ -53,7 +53,7 @@ const LABELS: Record<string, string> = {
   cronograma: "Cronograma",
   incorporadoras: "Incorporadoras",
   usuarios: "Usuários",
-  analytics: "Analytics",
+  analytics: "Uso da plataforma",
   users: "Usuários",
 };
 
@@ -72,7 +72,7 @@ function buildCrumbs(pathname: string, leafOverride: string | undefined): Crumb[
     const isId = /^[0-9a-f-]{8,}$/i.test(part) || (/^\d+$/.test(part) && part.length > 3);
 
     if (part === "admin") {
-      if (isLast) crumbs.push({ label: "Dashboard" });
+      if (isLast) crumbs.push({ label: "Visão geral" });
       continue;
     }
 

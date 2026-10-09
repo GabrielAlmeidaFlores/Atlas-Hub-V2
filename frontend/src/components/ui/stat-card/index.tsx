@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { HelpHint } from "../help-hint";
 
 type Accent = "navy" | "success" | "warning" | "danger" | "info" | "neutral";
 
@@ -13,6 +14,7 @@ interface StatCardProps {
   readonly accent?: Accent;
   readonly trend?: { value: number; label: string };
   readonly sublabel?: string;
+  readonly hint?: string;
   readonly className?: string;
 }
 
@@ -31,6 +33,7 @@ export function StatCard({
   icon: Icon,
   accent = "neutral",
   sublabel,
+  hint,
   className,
 }: StatCardProps): ReactNode {
   return (
@@ -43,7 +46,10 @@ export function StatCard({
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="text-[11px] font-medium leading-tight tracking-normal text-muted-foreground">{label}</span>
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium leading-tight tracking-normal text-muted-foreground">
+          {label}
+          {hint !== undefined && <HelpHint content={hint} />}
+        </span>
         {Icon !== undefined && <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />}
       </div>
       <span className="text-2xl font-bold leading-none tracking-tight text-foreground">{value}</span>

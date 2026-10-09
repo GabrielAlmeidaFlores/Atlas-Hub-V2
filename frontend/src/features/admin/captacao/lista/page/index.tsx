@@ -1,12 +1,14 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CircleDollarSign } from "lucide-react";
+import { ArrowRight, CircleDollarSign, ShoppingCart, Layers } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import type { CaptacaoEvento, CaptacaoListaResponse, CaptacaoOfertaResumo } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
+import { StatCard } from "@/components/ui/stat-card";
+import { HelpHint } from "@/components/ui/help-hint";
 import { formatCurrency, formatDateTime, cn } from "@/lib/utils";
 
 const OFERTA_COLS = [
@@ -119,21 +121,9 @@ export default function AdminCaptacaoListaPage(): ReactNode {
         )}
 
         <div className="kpi-strip grid-cols-1 sm:grid-cols-3">
-          <div className="card border-l-4 border-l-navy p-4">
-            <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Captado (aprovado)</p>
-            <p className="mt-2 text-lg font-semibold text-foreground">{centsToReais(totalCaptado)}</p>
-          </div>
-          <div className="card p-4">
-            <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Compras aprovadas</p>
-            <p className="mt-2 text-lg font-semibold text-foreground">{totalCompras}</p>
-          </div>
-          <div className="card p-4">
-            <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Ofertas</p>
-            <p className="mt-2 text-lg font-semibold text-foreground">{data.ofertas.length}</p>
-            {semVinculo > 0 && (
-              <p className="mt-1 text-xs text-status-warning">{semVinculo} sem projeto no Atlas</p>
-            )}
-          </div>
+          <StatCard label="Captado (aprovado)" value={centsToReais(totalCaptado)} icon={CircleDollarSign} accent="navy" hint="Soma das compras aprovadas nas ofertas publicadas, em reais." />
+          <StatCard label="Compras aprovadas" value={totalCompras} icon={ShoppingCart} accent="info" hint="Quantidade de compras de cotas aprovadas pelos investidores." />
+          <StatCard label="Ofertas" value={data.ofertas.length} icon={Layers} accent="neutral" sublabel={semVinculo > 0 ? `${String(semVinculo)} sem projeto no Atlas` : undefined} hint="Ofertas em captação ou já encerradas." />
         </div>
 
         {data.ofertas.length === 0 ? (
@@ -191,7 +181,10 @@ export default function AdminCaptacaoListaPage(): ReactNode {
         )}
 
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold tracking-normal text-foreground">Eventos recentes</h2>
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold tracking-normal text-foreground">
+            Eventos recentes
+            <HelpHint content="Cada movimentação recebida da plataforma de investimento (webhook), em ordem de chegada." />
+          </h2>
           <DataTable columns={EVENTO_COLS} total={data.eventos.length} emptyMessage="Nenhum evento recebido ainda.">
             {data.eventos.map((evento: CaptacaoEvento) => (
               <tr key={evento.id} className="table-row">

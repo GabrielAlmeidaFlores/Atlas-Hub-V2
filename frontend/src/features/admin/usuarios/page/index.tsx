@@ -83,7 +83,7 @@ export default function AdminUsuariosPage(): ReactNode {
     <div className="animate-in">
       <PageHeader
         title="Usuários admin"
-        description={`${String(items.length)} usuário${items.length !== 1 ? "s" : ""}`}
+        description={`${String(items.length)} usuário${items.length !== 1 ? "s" : ""} — analistas e admin masters da equipe Atlas`}
         action={
           <button type="button" className="btn btn-primary btn-sm rounded-[8px]" onClick={() => setShowForm(true)}>
             <UserPlus className="h-4 w-4" />
