@@ -67,6 +67,12 @@ function formatMs(ms: number | null): string {
   return `${String(Math.round(ms / 3_600_000))}h`;
 }
 
+function isoDaysAgo(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString().slice(0, 10);
+}
+
 function BreakdownList({ title, hint, items }: { readonly title: string; readonly hint?: string; readonly items: { key: string; count: number }[] }): ReactNode {
   const max = Math.max(1, ...items.map((i) => i.count));
   const total = items.reduce((sum, i) => sum + i.count, 0);
@@ -146,7 +152,8 @@ export default function AdminAnalyticsPage(): ReactNode {
   const [alerts, setAlerts] = useState<AnalyticsAlert[]>([]);
   const [heatPath, setHeatPath] = useState("/");
   const [heatDevice, setHeatDevice] = useState<"desktop" | "mobile">("desktop");
-  const [heatDay, setHeatDay] = useState(new Date().toISOString().slice(0, 10));
+  const [heatFrom, setHeatFrom] = useState(isoDaysAgo(6));
+  const [heatTo, setHeatTo] = useState(isoDaysAgo(0));
   const [exportDay, setExportDay] = useState(new Date().toISOString().slice(0, 10));
   const [alertForm, setAlertForm] = useState({ name: "", rule: "conversion_drop", threshold: 20 });
   const [appliedFilters, setAppliedFilters] = useState<AnalyticsFilters>(EMPTY_FILTERS);
@@ -164,7 +171,7 @@ export default function AdminAnalyticsPage(): ReactNode {
   }
 
   async function loadHeatmap(): Promise<void> {
-    const qs = new URLSearchParams({ path: heatPath, day: heatDay });
+    const qs = new URLSearchParams({ path: heatPath, from: heatFrom, to: heatTo });
     const data = await api.get<AnalyticsHeatmap>(`/analytics/admin/heatmap?${qs.toString()}`);
     setHeatmap(data);
   }
@@ -186,7 +193,7 @@ export default function AdminAnalyticsPage(): ReactNode {
   useEffect(() => {
     if (tab === "heatmap") void loadHeatmap().catch(() => undefined);
     if (tab === "alerts") void loadAlerts().catch(() => undefined);
-  }, [tab, heatPath, heatDay]);
+  }, [tab, heatPath, heatFrom, heatTo]);
 
   function applyFilters(): void {
     setAppliedFilters({ ...filters });
@@ -503,8 +510,24 @@ export default function AdminAnalyticsPage(): ReactNode {
                   </select>
                 </label>
                 <label className="form-group mb-0">
-                  <span className="form-label">Dia</span>
-                  <input type="date" className="field max-w-[11rem]" value={heatDay} onChange={(e) => setHeatDay(e.target.value)} />
+                  <span className="form-label">De</span>
+                  <input
+                    type="date"
+                    className="field max-w-[11rem]"
+                    value={heatFrom}
+                    max={heatTo}
+                    onChange={(e) => setHeatFrom(e.target.value)}
+                  />
+                </label>
+                <label className="form-group mb-0">
+                  <span className="form-label">Até</span>
+                  <input
+                    type="date"
+                    className="field max-w-[11rem]"
+                    value={heatTo}
+                    min={heatFrom}
+                    onChange={(e) => setHeatTo(e.target.value)}
+                  />
                 </label>
                 <div className="form-group mb-0">
                   <span className="form-label">Tipo de acesso</span>
@@ -534,7 +557,7 @@ export default function AdminAnalyticsPage(): ReactNode {
 
             {(heatmap?.clicks.length ?? 0) === 0 && (heatmap?.scrolls.length ?? 0) === 0 && (
               <div className="card p-4 text-sm text-muted-foreground">
-                Nenhum dado de mapa de calor para {heatPath} no dia selecionado. Tente outro dia ou outra tela.
+                Nenhum dado de mapa de calor para {heatPath} no período selecionado. Ajuste o intervalo ou troque de tela.
               </div>
             )}
 
