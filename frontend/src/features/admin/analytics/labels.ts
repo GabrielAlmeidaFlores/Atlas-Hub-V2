@@ -37,19 +37,33 @@ const EVENT_LABELS: Record<string, string> = {
   api_error: "Erro na API",
 };
 
-const ALERT_RULE_LABELS: Record<string, string> = {
-  conversion_drop: "Queda de conversão",
-  bounce_high: "Rejeição alta",
-  traffic_drop: "Queda de acessos",
-  form_error: "Erro de formulário",
-  api_error: "Erro na API",
-  traffic_spike: "Pico de tráfego",
-};
+export interface AlertRuleMeta {
+  readonly rule: string;
+  readonly label: string;
+  readonly unit: string;
+  readonly desc: string;
+  readonly defaultValue: number;
+}
+
+export const ALERT_RULES: readonly AlertRuleMeta[] = [
+  { rule: "conversion_drop", label: "Queda de conversão", unit: "pontos percentuais", desc: "Dispara se a conversão cair X pontos percentuais em relação a ontem.", defaultValue: 5 },
+  { rule: "bounce_high", label: "Rejeição alta", unit: "%", desc: "Dispara se a taxa de rejeição de hoje atingir X% ou mais.", defaultValue: 60 },
+  { rule: "traffic_drop", label: "Queda de acessos", unit: "%", desc: "Dispara se os acessos caírem X% em relação a ontem.", defaultValue: 30 },
+  { rule: "traffic_spike", label: "Pico de tráfego", unit: "%", desc: "Dispara se os acessos subirem X% em relação a ontem.", defaultValue: 50 },
+  { rule: "form_error", label: "Erros de formulário", unit: "ocorrências no dia", desc: "Dispara se houver X ou mais erros de formulário no dia.", defaultValue: 5 },
+  { rule: "api_error", label: "Erros na API", unit: "ocorrências no dia", desc: "Dispara se houver X ou mais erros de API no dia.", defaultValue: 5 },
+];
 
 export function eventLabel(eventName: string): string {
   return EVENT_LABELS[eventName] ?? eventName;
 }
 
-export function alertRuleLabel(rule: string): string {
-  return ALERT_RULE_LABELS[rule] ?? rule;
+export function alertRuleMeta(rule: string): AlertRuleMeta | null {
+  return ALERT_RULES.find((r) => r.rule === rule) ?? null;
+}
+
+export function descreverAlerta(rule: string, threshold: number): string {
+  const meta = alertRuleMeta(rule);
+  if (meta === null) return `Regra ${rule} ≥ ${String(threshold)}`;
+  return `Dispara quando ${meta.label.toLowerCase()} atinge ${String(threshold)} ${meta.unit}.`;
 }

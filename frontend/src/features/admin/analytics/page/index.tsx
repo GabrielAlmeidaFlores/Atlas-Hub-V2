@@ -18,7 +18,7 @@ import type {
   AnalyticsFunnel,
   AnalyticsHeatmap,
 } from "../types";
-import { eventLabel, alertRuleLabel } from "../labels";
+import { ALERT_RULES, eventLabel, descreverAlerta } from "../labels";
 import { HeatmapPreview } from "../components/heatmap-preview";
 
 type Tab = "overview" | "funnel" | "heatmap" | "alerts" | "export";
@@ -155,7 +155,7 @@ export default function AdminAnalyticsPage(): ReactNode {
   const [heatFrom, setHeatFrom] = useState(isoDaysAgo(6));
   const [heatTo, setHeatTo] = useState(isoDaysAgo(0));
   const [exportDay, setExportDay] = useState(new Date().toISOString().slice(0, 10));
-  const [alertForm, setAlertForm] = useState({ name: "", rule: "conversion_drop", threshold: 20 });
+  const [alertForm, setAlertForm] = useState({ name: "", rule: "conversion_drop", threshold: 5 });
   const [appliedFilters, setAppliedFilters] = useState<AnalyticsFilters>(EMPTY_FILTERS);
   const [isLoading, setIsLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -223,9 +223,36 @@ export default function AdminAnalyticsPage(): ReactNode {
         threshold: alertForm.threshold,
         active: true,
       });
-      setAlertForm({ name: "", rule: "conversion_drop", threshold: 20 });
+      setAlertForm({ name: "", rule: "conversion_drop", threshold: 5 });
       await loadAlerts();
       addToast({ type: "success", title: "Alerta criado" });
+    } catch (err) {
+      addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleAlert(alert: AnalyticsAlert): Promise<void> {
+    setBusy(true);
+    try {
+      await api.put(`/analytics/admin/alerts/${alert.id}`, { active: !alert.active });
+      await loadAlerts();
+      addToast({ type: "success", title: alert.active ? "Alerta desativado" : "Alerta ativado" });
+    } catch (err) {
+      addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeAlert(alert: AnalyticsAlert): Promise<void> {
+    if (!confirm(`Excluir o alerta "${alert.name}"? Esta ação não pode ser desfeita.`)) return;
+    setBusy(true);
+    try {
+      await api.delete(`/analytics/admin/alerts/${alert.id}`);
+      await loadAlerts();
+      addToast({ type: "success", title: "Alerta removido" });
     } catch (err) {
       addToast({ type: "error", title: "Erro", description: getApiErrorMessage(err) });
     } finally {
@@ -284,6 +311,7 @@ export default function AdminAnalyticsPage(): ReactNode {
   const maxVisitors = Math.max(1, ...(dashboard?.visitorsByDay?.map((d) => d.visitors) ?? [1]));
   const maxFunnel = Math.max(1, ...(funnel?.steps?.map((s) => s.count) ?? [1]));
   const periodLabel = appliedFilters.days === 1 ? "hoje" : `${String(appliedFilters.days)} dias`;
+  const alertRuleAtual = ALERT_RULES.find((r) => r.rule === alertForm.rule) ?? null;
 
   return (
     <div className="animate-in">
@@ -578,41 +606,73 @@ export default function AdminAnalyticsPage(): ReactNode {
 
         {tab === "alerts" && (
           <div className="grid gap-4 lg:grid-cols-2">
-            <form className="card space-y-3 p-5" onSubmit={(e) => void createAlert(e)}>
-              <h3 className="text-sm font-semibold text-foreground">Novo alerta</h3>
-              <input className="field" required value={alertForm.name} onChange={(e) => setAlertForm((p) => ({ ...p, name: e.target.value }))} placeholder="Nome do alerta" />
-              <select className="field" value={alertForm.rule} onChange={(e) => setAlertForm((p) => ({ ...p, rule: e.target.value }))}>
-                <option value="conversion_drop">Queda de conversão</option>
-                <option value="bounce_high">Rejeição alta</option>
-                <option value="traffic_drop">Queda de acessos</option>
-                <option value="form_error">Erro de formulário</option>
-                <option value="api_error">Erro na API</option>
-                <option value="traffic_spike">Pico de tráfego</option>
-              </select>
-              <input
-                type="number"
-                className="field"
-                min={0}
-                max={1000}
-                value={alertForm.threshold}
-                onChange={(e) => setAlertForm((p) => ({ ...p, threshold: Number(e.target.value) }))}
-              />
+            <form className="card space-y-4 p-5" onSubmit={(e) => void createAlert(e)}>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Novo alerta</h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  A plataforma avalia os alertas automaticamente de hora em hora e envia um e-mail para os admins quando a condição é atingida (no máximo um aviso por dia por alerta).
+                </p>
+              </div>
+              <label className="form-group mb-0">
+                <span className="form-label">Nome do alerta</span>
+                <input className="field" required value={alertForm.name} onChange={(e) => setAlertForm((p) => ({ ...p, name: e.target.value }))} placeholder="Ex: Conversão caiu no fim de semana" />
+              </label>
+              <label className="form-group mb-0">
+                <span className="form-label">O que monitorar</span>
+                <select
+                  className="field"
+                  value={alertForm.rule}
+                  onChange={(e) => {
+                    const rule = e.target.value;
+                    const padrao = ALERT_RULES.find((r) => r.rule === rule)?.defaultValue;
+                    setAlertForm((p) => ({ ...p, rule, ...(padrao !== undefined ? { threshold: padrao } : {}) }));
+                  }}
+                >
+                  {ALERT_RULES.map((r) => <option key={r.rule} value={r.rule}>{r.label}</option>)}
+                </select>
+                {alertRuleAtual !== null && <p className="form-hint">{alertRuleAtual.desc}</p>}
+              </label>
+              <label className="form-group mb-0">
+                <span className="form-label">Limiar {alertRuleAtual !== null && <span className="font-normal text-muted-foreground">({alertRuleAtual.unit})</span>}</span>
+                <input type="number" className="field" min={0} max={1000} required value={alertForm.threshold} onChange={(e) => setAlertForm((p) => ({ ...p, threshold: Number(e.target.value) }))} />
+                <p className="form-hint">{descreverAlerta(alertForm.rule, alertForm.threshold)}</p>
+              </label>
               <button type="submit" disabled={busy} className="btn btn-primary">Criar alerta</button>
             </form>
             <div className="card p-5">
               <h3 className="mb-3 text-sm font-semibold text-foreground">Alertas configurados</h3>
-              <ul className="space-y-3">
-                {alerts.map((a) => (
-                  <li key={a.id} className="border border-border p-3 text-sm">
-                    <p className="font-medium text-foreground">{a.name}</p>
-                    <p className="text-muted-foreground">{`${alertRuleLabel(a.rule)} · limiar ${String(a.threshold)} · ${a.active ? "ativo" : "inativo"}`}</p>
-                    {a.lastTriggeredAt !== undefined && (
-                      <p className="text-xs text-muted-foreground">{`Último disparo: ${formatDateTime(a.lastTriggeredAt)}`}</p>
-                    )}
-                  </li>
-                ))}
-                {alerts.length === 0 && <p className="text-sm text-muted-foreground">Nenhum alerta ainda. Avaliação automática a cada hora via SES.</p>}
-              </ul>
+              {alerts.length === 0 ? (
+                <p className="text-sm leading-relaxed text-muted-foreground">Nenhum alerta ainda. Crie um ao lado para ser avisado por e-mail quando a conversão, o tráfego ou os erros saírem do normal.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {alerts.map((a) => (
+                    <li key={a.id} className={cn("rounded-[8px] border border-border p-3.5", !a.active && "opacity-60")}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
+                            {a.name}
+                            <span className={cn("rounded-[4px] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide", a.active ? "bg-status-success-subtle text-status-success" : "bg-muted text-muted-foreground")}>
+                              {a.active ? "Ativo" : "Inativo"}
+                            </span>
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">{descreverAlerta(a.rule, a.threshold)}</p>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            {a.lastTriggeredAt !== undefined ? `Último disparo: ${formatDateTime(a.lastTriggeredAt)}` : "Nunca disparou"}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => void toggleAlert(a)}>
+                            {a.active ? "Desativar" : "Ativar"}
+                          </button>
+                          <button type="button" className="btn btn-outline btn-sm text-status-danger" disabled={busy} onClick={() => void removeAlert(a)}>
+                            Excluir
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         )}
