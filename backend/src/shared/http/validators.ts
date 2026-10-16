@@ -417,6 +417,20 @@ export const analyticsAlertSchema = z.object({
   active: z.boolean().default(true),
 });
 
+export const analyticsAlertUpdateSchema = z.object({
+  name: z.string().min(3).max(120).optional(),
+  rule: z.enum([
+    'conversion_drop',
+    'bounce_high',
+    'traffic_drop',
+    'form_error',
+    'api_error',
+    'traffic_spike',
+  ]).optional(),
+  threshold: z.number().min(0).max(1000).optional(),
+  active: z.boolean().optional(),
+});
+
 export const criarContaFinanceiroSchema = z.discriminatedUnion('tipo', [
   z.object({
     tipo: z.literal('TESOURARIA'),

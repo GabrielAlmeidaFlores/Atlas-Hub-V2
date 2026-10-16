@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import {
   BatchWriteCommand,
+  DeleteCommand,
   GetCommand,
   PutCommand,
   QueryCommand,
@@ -214,6 +215,15 @@ export async function listAlerts(): Promise<AnalyticsAlertRecord[]> {
 
 export async function putAlert(alert: AnalyticsAlertRecord): Promise<void> {
   await db.send(new PutCommand({ TableName: Tables.ANALYTICS_ALERTS, Item: alert }));
+}
+
+export async function getAlert(id: string): Promise<AnalyticsAlertRecord | null> {
+  const result = await db.send(new GetCommand({ TableName: Tables.ANALYTICS_ALERTS, Key: { id } }));
+  return (result.Item as AnalyticsAlertRecord | undefined) ?? null;
+}
+
+export async function deleteAlert(id: string): Promise<void> {
+  await db.send(new DeleteCommand({ TableName: Tables.ANALYTICS_ALERTS, Key: { id } }));
 }
 
 export async function putReplayMeta(meta: AnalyticsReplayMeta): Promise<void> {
