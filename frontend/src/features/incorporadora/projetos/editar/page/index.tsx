@@ -3,13 +3,15 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
+import { empresaDocsComFallback, fetchCatalogo, obrigatoriosFaltando } from "@/lib/documentos-catalogo";
 import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
-import type { DocumentosProjeto, MembroEquipe, Projeto, StatusProjeto } from "@/types";
+import type { DocumentoArquivo, DocumentoCatalogoItem, Incorporadora, MembroEquipe, Projeto, StatusProjeto } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSpinner } from "@/components/ui/spinner";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { cn, parseMoneyInput, formatMoneyFromNumber } from "@/lib/utils";
+import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
+import { parseMoneyInput, formatMoneyFromNumber } from "@/lib/utils";
 import {
   ViabilidadeCalculator,
   formToViabilidade,
@@ -24,26 +26,6 @@ import { CurrencyInput } from "@/components/shared/currency-input";
 
 const EDITABLE: StatusProjeto[] = ["RASCUNHO", "SUBMETIDO", "EM_ANALISE", "AJUSTE_SOLICITADO", "REPROVADO"];
 
-const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string }[] = [
-  { key: "matriculaUrl", label: "Matrícula do Terreno" },
-  { key: "alvaraUrl", label: "Alvará de Construção" },
-  { key: "memorialUrl", label: "Memorial Descritivo" },
-  { key: "plantaUrl", label: "Planta do Empreendimento" },
-  { key: "viabilidadeUrl", label: "Estudo de Viabilidade" },
-  { key: "orcamentoUrl", label: "Orçamento de Obra" },
-  { key: "projeto3dUrl", label: "Projeto 3D" },
-  { key: "contratoSpeUrl", label: "Contrato Social SPE" },
-];
-
-function fileLabel(url: string): string {
-  try {
-    const parts = url.split("/");
-    return decodeURIComponent(parts[parts.length - 1] ?? "arquivo");
-  } catch {
-    return "arquivo enviado";
-  }
-}
-
 export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -52,7 +34,10 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
-  const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [catalogoProjeto, setCatalogoProjeto] = useState<DocumentoCatalogoItem[]>([]);
+  const [catalogoEmpresa, setCatalogoEmpresa] = useState<DocumentoCatalogoItem[]>([]);
+  const [empresaDocs, setEmpresaDocs] = useState<Record<string, DocumentoArquivo>>({});
+  const [documentosChecklist, setDocumentosChecklist] = useState<Record<string, DocumentoArquivo>>({});
   const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
@@ -74,7 +59,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     void api.get<Projeto>(`/projetos/${id}`)
       .then((p) => {
         setProjeto(p);
-        setDocumentos(p.documentos ?? {});
+        setDocumentosChecklist(p.documentosChecklist ?? {});
         setFotosUrls([...(p.fotosUrls ?? [])]);
         setEquipe([...(p.equipe ?? [])]);
         setViabilidadeForm(viabilidadeToForm(p.viabilidade));
@@ -94,29 +79,65 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       .finally(() => setIsLoading(false));
   }, [id]);
 
+  useEffect(() => {
+    void fetchCatalogo("PROJETO").then(setCatalogoProjeto).catch(() => undefined);
+    void fetchCatalogo("EMPRESA").then(setCatalogoEmpresa).catch(() => undefined);
+    void api.get<Incorporadora>("/incorporadora/perfil")
+      .then((d) => setEmpresaDocs(empresaDocsComFallback(d)))
+      .catch(() => undefined);
+  }, []);
+
   function setField(field: keyof typeof form) {
     return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setForm((p) => ({ ...p, [field]: e.target.value }));
   }
 
-  async function handleDocUpload(key: keyof DocumentosProjeto, file: File | undefined): Promise<void> {
-    if (file === undefined || id === undefined) return;
+  async function persistChecklist(next: Record<string, DocumentoArquivo>): Promise<void> {
+    if (id === undefined) return;
+    await api.put(`/projetos/${id}`, { documentosChecklist: next });
+  }
+
+  async function handleDocUpload(key: string, file: File): Promise<void> {
+    if (id === undefined) return;
     setUploadingKey(key);
     try {
       const location = await uploadProjetoDocumento(id, file);
-      const next = { ...documentos, [key]: location };
-      setDocumentos(next);
-      await api.put(`/projetos/${id}`, { documentos: next });
+      const next: Record<string, DocumentoArquivo> = {
+        ...documentosChecklist,
+        [key]: { ...(documentosChecklist[key] ?? {}), url: location },
+      };
+      setDocumentosChecklist(next);
+      await persistChecklist(next);
       analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
-      addToast({
-        type: "error",
-        title: "Falha no upload",
-        description: getApiErrorMessage(err),
-      });
+      addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) });
     } finally {
       setUploadingKey(null);
+    }
+  }
+
+  async function handleDocEmitidoEm(key: string, emitidoEm: string): Promise<void> {
+    const atual = documentosChecklist[key];
+    if (atual === undefined) return;
+    const next: Record<string, DocumentoArquivo> = { ...documentosChecklist, [key]: { ...atual, emitidoEm } };
+    setDocumentosChecklist(next);
+    try {
+      await persistChecklist(next);
+    } catch (err) {
+      addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) });
+    }
+  }
+
+  async function handleDocRemove(key: string): Promise<void> {
+    const next = { ...documentosChecklist };
+    delete next[key];
+    setDocumentosChecklist(next);
+    try {
+      await persistChecklist(next);
+      addToast({ type: "success", title: "Documento removido" });
+    } catch (err) {
+      addToast({ type: "error", title: "Erro ao remover", description: getApiErrorMessage(err) });
     }
   }
 
@@ -143,6 +164,16 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       addToast({ type: "error", title: "Equipe incompleta", description: "Inclua pelo menos um responsável pelo projeto." });
       return;
     }
+    const faltandoEmpresa = obrigatoriosFaltando(catalogoEmpresa, empresaDocs);
+    if (faltandoEmpresa.length > 0) {
+      addToast({ type: "error", title: "Documentos da empresa pendentes", description: "Conclua os documentos da empresa em Perfil › Empresa antes de submeter o projeto." });
+      return;
+    }
+    const faltando = obrigatoriosFaltando(catalogoProjeto, documentosChecklist);
+    if (faltando.length > 0) {
+      addToast({ type: "error", title: "Documentos obrigatórios pendentes", description: `Faltam ${String(faltando.length)} documento(s) do projeto.` });
+      return;
+    }
     const valorCaptar = parseMoneyInput(form.valorCaptar);
     if (!Number.isFinite(valorCaptar) || valorCaptar > 15_000_000) {
       addToast({ type: "error", title: "Valor a captar inválido", description: "Informe um valor de até R$15M (CVM 88)." });
@@ -164,7 +195,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         rentabilidadeEstimada: parseFloat(form.rentabilidadeEstimada),
         modeloRetorno: "SCP",
         tipoOferta: "PUBLICA",
-        documentos,
+        documentosChecklist,
         fotosUrls,
         equipe,
         ...(viabilidade !== null && { viabilidade }),
@@ -312,39 +343,15 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
 
         <div className="card space-y-4 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Documentos</h2>
-          <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB</p>
-          {DOC_FIELDS.map(({ key, label }) => {
-            const url = documentos[key];
-            const done = typeof url === "string" && url !== "";
-            const busy = uploadingKey === key;
-            return (
-              <div key={key} className="flex items-center justify-between rounded-[8px] border border-border px-4 py-3.5">
-                <div className="min-w-0 pr-3">
-                  <p className="text-sm font-medium text-foreground">
-                    {label}
-                  </p>
-                  {done && (
-                    <a href={url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-navy hover:underline">
-                      {fileLabel(url)}
-                    </a>
-                  )}
-                </div>
-                <label className={cn("btn btn-secondary btn-sm cursor-pointer shrink-0", busy && "pointer-events-none opacity-50")}>
-                  {busy ? "Enviando…" : done ? "Trocar" : "Upload"}
-                  <input
-                    type="file"
-                    className="sr-only"
-                    accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-                    disabled={busy || isSaving}
-                    onChange={(ev) => {
-                      void handleDocUpload(key, ev.target.files?.[0]);
-                      ev.target.value = "";
-                    }}
-                  />
-                </label>
-              </div>
-            );
-          })}
+          <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB. Itens obrigatórios são exigidos para submeter.</p>
+          <DocumentosChecklist
+            items={catalogoProjeto}
+            valores={documentosChecklist}
+            onUpload={handleDocUpload}
+            onSetEmitidoEm={handleDocEmitidoEm}
+            onRemove={handleDocRemove}
+            uploadingKey={uploadingKey}
+          />
         </div>
 
         <div className="flex justify-end gap-3">
@@ -365,9 +372,11 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
             rentabilidadeEstimada: form.rentabilidadeEstimada !== "" ? parseFloat(form.rentabilidadeEstimada) : undefined,
             modeloRetorno: "SCP" as Projeto["modeloRetorno"],
             tipoOferta: "PUBLICA" as Projeto["tipoOferta"],
-            documentos,
+            documentosChecklist,
             equipe,
             viabilidade: formToViabilidade(viabilidadeForm) ?? undefined,
+          }, {
+            documentosOk: catalogoProjeto.length > 0 && obrigatoriosFaltando(catalogoProjeto, documentosChecklist).length === 0,
           })} />
         </div>
         </div>

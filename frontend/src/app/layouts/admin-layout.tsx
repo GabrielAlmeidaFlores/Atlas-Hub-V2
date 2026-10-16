@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, BarChart3, Landmark, CircleDollarSign, CalendarRange } from "lucide-react";
+import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, BarChart3, Landmark, CircleDollarSign, CalendarRange, FileText } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { Logo } from "@/components/shared/logo";
 import { AppBreadcrumb } from "@/components/shared/app-breadcrumb";
@@ -27,7 +27,10 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
     { to: "/admin/incorporadoras", label: "Incorporadoras", icon: Building2, end: false },
     { to: "/admin/analytics", label: "Uso da plataforma", icon: BarChart3, end: false },
     ...(user?.perfil === "ADMIN_MASTER"
-      ? [{ to: "/admin/usuarios", label: "Usuários", icon: Users, end: false }]
+      ? [
+          { to: "/admin/documentos", label: "Documentos", icon: FileText, end: false },
+          { to: "/admin/usuarios", label: "Usuários", icon: Users, end: false },
+        ]
       : []),
   ] as const;
 

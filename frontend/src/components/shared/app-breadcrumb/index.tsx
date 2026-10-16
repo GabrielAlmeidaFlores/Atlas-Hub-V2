@@ -53,6 +53,7 @@ const LABELS: Record<string, string> = {
   cronograma: "Cronograma",
   incorporadoras: "Incorporadoras",
   usuarios: "Usuários",
+  documentos: "Documentos",
   analytics: "Uso da plataforma",
   users: "Usuários",
 };

@@ -33,6 +33,7 @@ const AdminHistoricoPage           = React.lazy(() => import("@/features/admin/h
 const AdminIncorporadorasListaPage = React.lazy(() => import("@/features/admin/incorporadoras/lista/page"));
 const AdminIncorporadoraDetalhePage = React.lazy(() => import("@/features/admin/incorporadoras/detalhe/page"));
 const AdminUsuariosPage            = React.lazy(() => import("@/features/admin/usuarios/page"));
+const AdminDocumentosPage          = React.lazy(() => import("@/features/admin/documentos/page"));
 const AdminAnalyticsPage           = React.lazy(() => import("@/features/admin/analytics/page"));
 const AdminAnalyticsUserPage       = React.lazy(() => import("@/features/admin/analytics/users/page"));
 const AdminFinanceiroListaPage     = React.lazy(() => import("@/features/admin/financeiro/lista/page"));
@@ -176,6 +177,7 @@ const router = createBrowserRouter([
       { path: "incorporadoras/:id",  element: withSuspense(<AdminIncorporadoraDetalhePage />) },
       { path: "analytics",           element: withSuspense(<AdminAnalyticsPage />), errorElement: <RouteError /> },
       { path: "analytics/users/:userId", element: withSuspense(<AdminAnalyticsUserPage />), errorElement: <RouteError /> },
+      { path: "documentos",          element: withSuspense(<AdminDocumentosPage />), errorElement: <RouteError /> },
       { path: "usuarios",            element: withSuspense(<AdminUsuariosPage />) },
       { path: "financeiro",          element: withSuspense(<AdminFinanceiroListaPage />), errorElement: <RouteError /> },
       { path: "financeiro/:projetoId", element: withSuspense(<AdminFinanceiroDetalhePage />), errorElement: <RouteError /> },

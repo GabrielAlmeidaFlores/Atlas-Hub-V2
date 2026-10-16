@@ -9,7 +9,10 @@ export interface ProgressItem {
   readonly done: boolean;
 }
 
-export function getProjetoProgressItems(projeto: Pick<Projeto, "nome" | "descricao" | "valorCaptar" | "valorTotal" | "prazoObra" | "prazoRetorno" | "rentabilidadeEstimada" | "modeloRetorno" | "tipoOferta" | "documentos" | "equipe" | "viabilidade">): ProgressItem[] {
+export function getProjetoProgressItems(
+  projeto: Pick<Projeto, "nome" | "descricao" | "valorCaptar" | "valorTotal" | "prazoObra" | "prazoRetorno" | "rentabilidadeEstimada" | "modeloRetorno" | "tipoOferta" | "documentosChecklist" | "equipe" | "viabilidade">,
+  options?: { readonly documentosOk?: boolean },
+): ProgressItem[] {
   const financeiroOk =
     projeto.valorCaptar !== undefined &&
     projeto.valorTotal !== undefined &&
@@ -23,6 +26,7 @@ export function getProjetoProgressItems(projeto: Pick<Projeto, "nome" | "descric
     { id: "dados", label: "Dados gerais", done: projeto.nome.trim().length >= 3 },
     { id: "financeiro", label: "Dados financeiros", done: financeiroOk },
     { id: "viabilidade", label: "Calculadora de viabilidade", done: projeto.viabilidade !== undefined },
+    { id: "documentos", label: "Documentos", done: options?.documentosOk ?? Object.keys(projeto.documentosChecklist ?? {}).length > 0 },
     { id: "equipe", label: "Equipe (mín. 1)", done: (projeto.equipe?.length ?? 0) >= 1 },
   ];
 }
