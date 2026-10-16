@@ -180,6 +180,13 @@ function isValidCpfDigits(value: string): boolean {
   return nums[10] === d2;
 }
 
+export const documentoArquivoSchema = z.object({
+  url: z.string().url('URL inválida'),
+  emitidoEm: z.string().max(40).optional(),
+});
+
+export const documentosMapSchema = z.record(documentoArquivoSchema);
+
 export const perfilSchema = z.object({
   endereco: z.string().max(500).optional(),
   site: z.string().url('URL inválida').optional().or(z.literal('')),
@@ -187,6 +194,7 @@ export const perfilSchema = z.object({
   historicoAnterior: z.string().max(2000).optional(),
   contratoSocialUrl: z.string().url().optional(),
   comprovanteCnpjUrl: z.string().url().optional(),
+  documentosEmpresa: documentosMapSchema.optional(),
 });
 
 export const criarProjetoSchema = z.object({
@@ -240,6 +248,7 @@ export const atualizarProjetoSchema = z.object({
     cndUrl: z.string().url().optional(),
     outrosUrls: z.array(z.string().url()).max(10).optional(),
   }).optional(),
+  documentosChecklist: documentosMapSchema.optional(),
   viabilidade: z.object({
     inputs: z.object({
       unidades: z.number().positive(),
@@ -337,6 +346,29 @@ export const criarUsuarioAdminSchema = z.object({
   nome: z.string().min(2).max(200),
   email: z.string().email('E-mail inválido'),
   perfil: z.enum(['ANALISTA', 'ADMIN_MASTER']),
+});
+
+export const documentoCatalogoCriarSchema = z.object({
+  key: z.string().min(3).max(80).regex(/^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+$/, 'Use o formato escopo.chave (ex.: empresa.contratoSocial)'),
+  categoria: z.enum(['EPROJ', 'SOCIO_ADMIN', 'PROPRIETARIO', 'IMOVEL']),
+  scope: z.enum(['EMPRESA', 'PROJETO']),
+  label: z.string().min(2).max(300),
+  obrigatorio: z.boolean().default(false),
+  condicional: z.string().max(300).optional(),
+  validadeDias: z.number().int().min(1).max(3650).optional(),
+  ordem: z.number().int().min(0).max(9999).default(0),
+  ativo: z.boolean().default(true),
+});
+
+export const documentoCatalogoAtualizarSchema = z.object({
+  categoria: z.enum(['EPROJ', 'SOCIO_ADMIN', 'PROPRIETARIO', 'IMOVEL']).optional(),
+  scope: z.enum(['EMPRESA', 'PROJETO']).optional(),
+  label: z.string().min(2).max(300).optional(),
+  obrigatorio: z.boolean().optional(),
+  condicional: z.string().max(300).nullable().optional(),
+  validadeDias: z.number().int().min(1).max(3650).nullable().optional(),
+  ordem: z.number().int().min(0).max(9999).optional(),
+  ativo: z.boolean().optional(),
 });
 
 const analyticsContextSchema = z.object({

@@ -2,6 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ok, unauthorized, forbidden, badRequest, notFound, serverError } from '../shared/http/response.js';
 import { getUserId, AuthError, ForbiddenError, requirePerfil } from '../shared/http/auth.js';
 import { getProjeto, updateProjeto, putAuditoria } from '../shared/db/index.js';
+import { documentosFaltando } from '../shared/documentos/validar.js';
 import { createLogger } from '../shared/core/logger.js';
 import type { AuditoriaEntry } from '../shared/core/types/index.js';
 
@@ -19,6 +20,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (projeto.incorporadoraId !== userId) return forbidden(event);
     if (projeto.status !== 'AJUSTE_SOLICITADO' && projeto.status !== 'REPROVADO') {
       return badRequest(event, 'Projeto não pode ser resubmetido no status atual', 'INVALID_STATUS_TRANSITION');
+    }
+
+    const faltando = await documentosFaltando(projeto);
+    if (faltando.length > 0) {
+      return badRequest(event, 'Documentos obrigatórios pendentes', 'VALIDATION_ERROR', faltando);
     }
 
     const now = new Date().toISOString();

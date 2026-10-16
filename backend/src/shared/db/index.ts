@@ -228,29 +228,37 @@ export async function listProjetosPublicados(
   limit = 5,
   offset = 0,
 ): Promise<{ items: Projeto[]; total: number }> {
-  const result = await db.send(new QueryCommand({
-    TableName: Tables.PROJETOS,
-    IndexName: 'status-criadoEm-index',
-    KeyConditionExpression: '#s = :s',
-    ExpressionAttributeNames: { '#s': 'status' },
-    ExpressionAttributeValues: { ':s': 'OFERTA_CRIADA' },
-    ScanIndexForward: false,
-    Limit: 100,
-  }));
-  const items = (result.Items ?? []) as Projeto[];
+  const porStatus = await Promise.all(
+    (['OFERTA_CRIADA', 'APROVADO'] as const).map(async (status) => {
+      const result = await db.send(new QueryCommand({
+        TableName: Tables.PROJETOS,
+        IndexName: 'status-criadoEm-index',
+        KeyConditionExpression: '#s = :s',
+        ExpressionAttributeNames: { '#s': 'status' },
+        ExpressionAttributeValues: { ':s': status },
+        ScanIndexForward: false,
+        Limit: 100,
+      }));
+      return (result.Items ?? []) as Projeto[];
+    }),
+  );
+  const items = porStatus.flat();
   const publishedAt = (p: Projeto): string =>
     p.ofertaConfirmadaEm ?? p.aprovadoEm ?? p.atualizadoEm ?? p.criadoEm;
+  const linkValido = (link: string | undefined): boolean => {
+    if (link === undefined || link.trim() === '') return false;
+    try {
+      const url = new URL(link);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
   const isPublicavel = (p: Projeto): boolean => {
     if (p.nome.trim().length < 3) return false;
     if (p.cidade.trim().length < 2) return false;
     if (p.estado.trim().length !== 2) return false;
-    if (p.ofertaLink === undefined || p.ofertaLink.trim() === '') return false;
-    try {
-      const url = new URL(p.ofertaLink);
-      if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
-    } catch {
-      return false;
-    }
+    if (p.status === 'OFERTA_CRIADA') return linkValido(p.ofertaLink);
     return true;
   };
   const published = [...items]

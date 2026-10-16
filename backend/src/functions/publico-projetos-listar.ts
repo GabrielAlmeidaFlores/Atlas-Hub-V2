@@ -36,7 +36,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         valorCaptar: p.valorCaptar ?? null,
         rentabilidadeEstimada: p.rentabilidadeEstimada ?? null,
         status: p.status,
-        statusLabel: 'Oferta Publicada',
+        statusLabel: p.status === 'APROVADO' ? 'Captação em breve' : 'Oferta Publicada',
         ofertaLink: p.ofertaLink ?? null,
         imagemUrl: await resolveImagemUrl(p.fotosUrls?.[0]),
         publicadoEm: publishedAt(p),

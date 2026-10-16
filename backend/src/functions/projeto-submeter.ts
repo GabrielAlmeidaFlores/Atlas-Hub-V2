@@ -3,6 +3,7 @@ import { ok, unauthorized, forbidden, badRequest, notFound, serverError } from '
 import { getUserId, AuthError, ForbiddenError, requirePerfil } from '../shared/http/auth.js';
 import { getProjeto, updateProjeto, putAuditoria, putNotificacao } from '../shared/db/index.js';
 import { emailProjetoSubmetido } from '../shared/email/index.js';
+import { documentosFaltando } from '../shared/documentos/validar.js';
 import { getUserEmail } from '../shared/http/auth.js';
 import { createLogger } from '../shared/core/logger.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,6 +43,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     if (projeto.equipe === undefined || projeto.equipe.length === 0) {
       return badRequest(event, 'Ao menos um membro da equipe deve ser cadastrado');
+    }
+
+    const faltando = await documentosFaltando(projeto);
+    if (faltando.length > 0) {
+      return badRequest(event, 'Documentos obrigatórios pendentes', 'VALIDATION_ERROR', faltando);
     }
 
     const now = new Date().toISOString();
