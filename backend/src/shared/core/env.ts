@@ -14,6 +14,7 @@ export const SCORECARD_TABLE = process.env['SCORECARD_TABLE'] ?? 'AtlasScorecard
 export const NOTIFICACOES_TABLE = process.env['NOTIFICACOES_TABLE'] ?? 'AtlasNotificacoes-dev';
 export const AUDITORIA_TABLE = process.env['AUDITORIA_TABLE'] ?? 'AtlasAuditoria-dev';
 export const NOTAS_TABLE = process.env['NOTAS_TABLE'] ?? 'AtlasNotas-dev';
+export const DOCUMENTOS_CATALOGO_TABLE = process.env['DOCUMENTOS_CATALOGO_TABLE'] ?? 'AtlasDocumentoCatalogo-dev';
 
 export const ANALYTICS_EVENTS_TABLE = process.env['ANALYTICS_EVENTS_TABLE'] ?? 'AtlasAnalyticsEvents-dev';
 export const ANALYTICS_SESSIONS_TABLE = process.env['ANALYTICS_SESSIONS_TABLE'] ?? 'AtlasAnalyticsSessions-dev';

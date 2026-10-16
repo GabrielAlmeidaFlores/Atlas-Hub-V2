@@ -93,9 +93,14 @@ function ProjetoCard({
           )}
         </div>
 
-        <div className="mt-auto pt-3 w-full">
+        <div className="mt-auto flex flex-col gap-2 pt-3 w-full">
+          {href === null && projeto.statusLabel.length > 0 && (
+            <span className="inline-flex w-fit items-center rounded-[4px] bg-navy px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              {projeto.statusLabel}
+            </span>
+          )}
           <span className={cn("lp-project-cta w-full", ctaClassName)}>
-            {ctaLabel}
+            {href !== null && href.length > 0 ? ctaLabel : "Em breve"}
           </span>
         </div>
       </div>

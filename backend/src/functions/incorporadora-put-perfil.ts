@@ -20,6 +20,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (body.historicoAnterior !== undefined) patch['historicoAnterior'] = body.historicoAnterior;
     if (body.contratoSocialUrl !== undefined) patch['contratoSocialUrl'] = body.contratoSocialUrl;
     if (body.comprovanteCnpjUrl !== undefined) patch['comprovanteCnpjUrl'] = body.comprovanteCnpjUrl;
+    if (body.documentosEmpresa !== undefined) patch['documentosEmpresa'] = body.documentosEmpresa;
     await updateIncorporadora(userId, patch as Partial<Omit<Incorporadora, 'id' | 'cnpj' | 'email' | 'criadoEm'>>);
     log.info('Perfil updated', { userId });
     return ok(event, { updated: true });

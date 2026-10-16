@@ -23,6 +23,28 @@ export type TipoOferta = "PUBLICA" | "PRIVADA";
 export type ModeloRetorno = "SCP";
 export type TipoImovel = "RESIDENCIAL" | "COMERCIAL" | "MISTO";
 
+export type DocumentoScope = "EMPRESA" | "PROJETO";
+export type DocumentoCategoria = "EPROJ" | "SOCIO_ADMIN" | "PROPRIETARIO" | "IMOVEL";
+
+export interface DocumentoArquivo {
+  readonly url: string;
+  readonly emitidoEm?: string;
+}
+
+export interface DocumentoCatalogoItem {
+  readonly key: string;
+  readonly categoria: DocumentoCategoria;
+  readonly scope: DocumentoScope;
+  readonly label: string;
+  readonly obrigatorio: boolean;
+  readonly condicional?: string;
+  readonly validadeDias?: number;
+  readonly ordem: number;
+  readonly ativo: boolean;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+}
+
 export interface AuthUser {
   readonly id: string;
   readonly email: string;
@@ -48,6 +70,7 @@ export interface Incorporadora {
   readonly historicoAnterior?: string;
   readonly contratoSocialUrl?: string;
   readonly comprovanteCnpjUrl?: string;
+  readonly documentosEmpresa?: Record<string, DocumentoArquivo>;
 }
 
 export interface Admin {
@@ -106,6 +129,7 @@ export interface Projeto {
   readonly numParcelas?: number;
   readonly percentualEntrada?: number;
   readonly documentos?: DocumentosProjeto;
+  readonly documentosChecklist?: Record<string, DocumentoArquivo>;
   readonly viabilidade?: ViabilidadeProjeto;
   readonly equipe?: MembroEquipe[];
   readonly analistaId?: string;

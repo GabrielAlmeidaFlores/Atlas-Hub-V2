@@ -1,14 +1,16 @@
-import { useState, type ReactNode, type ChangeEvent } from "react";
+import { useEffect, useState, type ReactNode, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
 import { api, getApiErrorMessage, getApiErrorFields } from "@/services/api";
 import { buscarCep, formatCep } from "@/lib/cep";
 import { uploadProjetoDocumento, uploadProjetoFoto } from "@/lib/upload";
+import { empresaDocsComFallback, fetchCatalogo, obrigatoriosFaltando } from "@/lib/documentos-catalogo";
 import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
+import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
 import { cn, parseMoneyInput, formatCurrency } from "@/lib/utils";
-import type { DocumentosProjeto, MembroEquipe } from "@/types";
+import type { DocumentoArquivo, DocumentoCatalogoItem, Incorporadora, MembroEquipe } from "@/types";
 import {
   ViabilidadeCalculator,
   formToViabilidade,
@@ -28,17 +30,6 @@ const ETAPAS = [
   { num: 3 as Etapa, label: "Documentos", icon: FileText },
   { num: 4 as Etapa, label: "Equipe", icon: Users },
   { num: 5 as Etapa, label: "Revisão", icon: Eye },
-];
-
-const DOC_FIELDS: { key: keyof DocumentosProjeto; label: string; hint: string }[] = [
-  { key: "matriculaUrl", label: "Matrícula do Terreno", hint: "Certidão atualizada (máx 90 dias)" },
-  { key: "alvaraUrl", label: "Alvará de Construção", hint: "Ou protocolo de aprovação" },
-  { key: "memorialUrl", label: "Memorial Descritivo", hint: "" },
-  { key: "plantaUrl", label: "Planta do Empreendimento", hint: "" },
-  { key: "viabilidadeUrl", label: "Estudo de Viabilidade Financeira", hint: "Assinado por responsável técnico" },
-  { key: "orcamentoUrl", label: "Planilha de Orçamento de Obra", hint: "Assinada por engenheiro" },
-  { key: "projeto3dUrl", label: "Projeto 3D / Renderizações", hint: "Facilita a venda da oferta" },
-  { key: "contratoSpeUrl", label: "Contrato Social da SPE", hint: "Se já constituída" },
 ];
 
 interface DadosGerais {
@@ -66,21 +57,14 @@ function Field({ label, hint, error, children }: { label: string; hint?: string;
   );
 }
 
-function fileLabel(url: string | undefined): string {
-  if (url === undefined || url === "") return "";
-  try {
-    const parts = url.split("/");
-    return decodeURIComponent(parts[parts.length - 1] ?? "arquivo");
-  } catch {
-    return "arquivo enviado";
-  }
-}
-
 export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [etapa, setEtapa] = useState<Etapa>(1);
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
-  const [documentos, setDocumentos] = useState<DocumentosProjeto>({});
+  const [catalogoProjeto, setCatalogoProjeto] = useState<DocumentoCatalogoItem[]>([]);
+  const [catalogoEmpresa, setCatalogoEmpresa] = useState<DocumentoCatalogoItem[]>([]);
+  const [empresaDocs, setEmpresaDocs] = useState<Record<string, DocumentoArquivo>>({});
+  const [documentosChecklist, setDocumentosChecklist] = useState<Record<string, DocumentoArquivo>>({});
   const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
   const [viabilidadeForm, setViabilidadeForm] = useState<ViabilidadeFormState>(VIABILIDADE_FORM_EMPTY);
@@ -93,10 +77,18 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [cepErro, setCepErro] = useState<string | undefined>(undefined);
 
+  useEffect(() => {
+    void fetchCatalogo("PROJETO").then(setCatalogoProjeto).catch(() => undefined);
+    void fetchCatalogo("EMPRESA").then(setCatalogoEmpresa).catch(() => undefined);
+    void api.get<Incorporadora>("/incorporadora/perfil")
+      .then((d) => setEmpresaDocs(empresaDocsComFallback(d)))
+      .catch(() => undefined);
+  }, []);
+
   const FIELD_STEP: Record<string, Etapa> = {
     nome: 1, modelo: 1, tipoImovel: 1, cidade: 1, estado: 1, endereco: 1, descricao: 1, videoUrl: 1,
     valorTotal: 2, valorCaptar: 2, prazoObra: 2, prazoRetorno: 2, rentabilidadeEstimada: 2,
-    documentos: 3, equipe: 4,
+    documentosChecklist: 3, equipe: 4,
   };
 
   function limparErro(field: string): void {
@@ -167,8 +159,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     return r.id;
   }
 
-  async function persistDocumentos(id: string, docs: DocumentosProjeto): Promise<void> {
-    await api.put(`/projetos/${id}`, { documentos: docs });
+  async function persistChecklist(id: string, docs: Record<string, DocumentoArquivo>): Promise<void> {
+    await api.put(`/projetos/${id}`, { documentosChecklist: docs });
   }
 
   async function persistFotos(id: string, urls: string[]): Promise<void> {
@@ -191,21 +183,49 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     }
   }
 
-  async function handleDocUpload(key: keyof DocumentosProjeto, file: File | undefined): Promise<void> {
-    if (file === undefined) return;
+  async function handleDocUpload(key: string, file: File): Promise<void> {
     setUploadingKey(key);
     try {
       const id = await salvarRascunho();
       const location = await uploadProjetoDocumento(id, file);
-      const next = { ...documentos, [key]: location };
-      setDocumentos(next);
-      await persistDocumentos(id, next);
+      const next: Record<string, DocumentoArquivo> = {
+        ...documentosChecklist,
+        [key]: { ...(documentosChecklist[key] ?? {}), url: location },
+      };
+      setDocumentosChecklist(next);
+      await persistChecklist(id, next);
       analytics.track("project_doc_uploaded", { projectId: id, doc: key });
       addToast({ type: "success", title: "Documento enviado" });
     } catch (err) {
       addToast({ type: "error", title: "Falha no upload", description: getApiErrorMessage(err) });
     } finally {
       setUploadingKey(null);
+    }
+  }
+
+  async function handleDocEmitidoEm(key: string, emitidoEm: string): Promise<void> {
+    const atual = documentosChecklist[key];
+    if (atual === undefined) return;
+    const next: Record<string, DocumentoArquivo> = { ...documentosChecklist, [key]: { ...atual, emitidoEm } };
+    setDocumentosChecklist(next);
+    try {
+      const id = projetoId ?? await salvarRascunho();
+      await persistChecklist(id, next);
+    } catch (err) {
+      addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) });
+    }
+  }
+
+  async function handleDocRemove(key: string): Promise<void> {
+    const next = { ...documentosChecklist };
+    delete next[key];
+    setDocumentosChecklist(next);
+    try {
+      const id = projetoId ?? await salvarRascunho();
+      await persistChecklist(id, next);
+      addToast({ type: "success", title: "Documento removido" });
+    } catch (err) {
+      addToast({ type: "error", title: "Erro ao remover", description: getApiErrorMessage(err) });
     }
   }
 
@@ -234,6 +254,25 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       setEtapa(4);
       return;
     }
+    const faltandoEmpresa = obrigatoriosFaltando(catalogoEmpresa, empresaDocs);
+    if (faltandoEmpresa.length > 0) {
+      addToast({
+        type: "error",
+        title: "Documentos da empresa pendentes",
+        description: "Conclua os documentos da empresa em Perfil › Empresa antes de submeter o projeto.",
+      });
+      return;
+    }
+    const faltando = obrigatoriosFaltando(catalogoProjeto, documentosChecklist);
+    if (faltando.length > 0) {
+      addToast({
+        type: "error",
+        title: "Documentos obrigatórios pendentes",
+        description: `Faltam ${String(faltando.length)} documento(s) do projeto.`,
+      });
+      setEtapa(3);
+      return;
+    }
     const valorCaptar = parseMoneyInput(financeiros.valorCaptar);
     if (!Number.isFinite(valorCaptar) || valorCaptar > 15_000_000) {
       addToast({ type: "error", title: "Valor a captar inválido", description: "Informe um valor de até R$15M (CVM 88)." });
@@ -248,7 +287,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         prazoObra: parseInt(financeiros.prazoObra, 10), prazoRetorno: parseInt(financeiros.prazoRetorno, 10),
         rentabilidadeEstimada: parseFloat(financeiros.rentabilidadeEstimada),
         modeloRetorno: "SCP", tipoOferta: "PUBLICA",
-        documentos,
+        documentosChecklist,
         fotosUrls,
         equipe,
         ...(viabilidade !== null && { viabilidade }),
@@ -276,6 +315,7 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
         && financeiros.prazoRetorno !== "" && financeiros.rentabilidadeEstimada !== "",
     },
     { id: "viabilidade", label: "Calculadora de viabilidade", done: formToViabilidade(viabilidadeForm) !== null },
+    { id: "documentos", label: "Documentos", done: catalogoProjeto.length > 0 && obrigatoriosFaltando(catalogoProjeto, documentosChecklist).length === 0 },
     { id: "equipe", label: "Equipe (mín. 1)", done: equipe.length >= 1 },
   ];
 
@@ -387,47 +427,16 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
             <div className="space-y-4 animate-in">
               <h2 className="font-semibold text-foreground">Documentos do Projeto</h2>
               <p className="text-sm text-muted-foreground">
-                PDF, JPG ou PNG · máx. 50 MB. Os arquivos são enviados com segurança para o armazenamento Atlas.
+                PDF, JPG ou PNG · máx. 50 MB. Os itens marcados como obrigatórios precisam ser enviados para submeter o projeto.
               </p>
-              <div className="space-y-2">
-                {DOC_FIELDS.map(({ key, label, hint }) => {
-                  const url = documentos[key];
-                  const done = typeof url === "string" && url !== "";
-                  const busy = uploadingKey === key;
-                  return (
-                    <div key={key} className="flex items-center justify-between border border-border px-4 py-3">
-                      <div className="min-w-0 pr-3">
-                        <p className="text-sm font-medium text-foreground">
-                          {label}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{hint !== "" ? `Opcional · ${hint}` : "Opcional"}</p>
-                        {done && (
-                          <a href={url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-navy hover:underline">
-                            {fileLabel(url)}
-                          </a>
-                        )}
-                      </div>
-                      <label className={cn(
-                        "btn btn-secondary btn-sm cursor-pointer shrink-0",
-                        busy && "pointer-events-none opacity-50",
-                        done && "border-status-success text-status-success",
-                      )}>
-                        {busy ? "Enviando…" : done ? "Trocar" : "Selecionar"}
-                        <input
-                          type="file"
-                          className="sr-only"
-                          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-                          disabled={busy || isLoading}
-                          onChange={(e) => {
-                            void handleDocUpload(key, e.target.files?.[0]);
-                            e.target.value = "";
-                          }}
-                        />
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
+              <DocumentosChecklist
+                items={catalogoProjeto}
+                valores={documentosChecklist}
+                onUpload={handleDocUpload}
+                onSetEmitidoEm={handleDocEmitidoEm}
+                onRemove={handleDocRemove}
+                uploadingKey={uploadingKey}
+              />
             </div>
           )}
 
@@ -463,9 +472,9 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
                 <div className="bg-muted p-4">
                   <p className="mb-3 text-xs font-medium tracking-normal text-muted-foreground">Documentos</p>
                   <p className="text-sm text-foreground">
-                    {DOC_FIELDS.filter((d) => typeof documentos[d.key] === "string" && documentos[d.key] !== "").length}
+                    {Object.values(documentosChecklist).filter((a) => a.url !== "").length}
                     {" / "}
-                    {DOC_FIELDS.length} enviados
+                    {catalogoProjeto.length} enviados
                   </p>
                 </div>
               </div>

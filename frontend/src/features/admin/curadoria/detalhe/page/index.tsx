@@ -7,8 +7,9 @@ import {
 } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { analytics } from "@/lib/analytics";
+import { empresaDocsComFallback, fetchCatalogo } from "@/lib/documentos-catalogo";
 import { useToastStore } from "@/stores/toast";
-import type { Projeto, Scorecard, Incorporadora, AuditoriaEntry, NotaInterna } from "@/types";
+import type { DocumentoCatalogoItem, Projeto, Scorecard, Incorporadora, AuditoriaEntry, NotaInterna } from "@/types";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
@@ -16,6 +17,7 @@ import { formatDateTime, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
 import { DocumentLink } from "@/components/shared/document-link";
+import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
 import { HelpHint } from "@/components/ui/help-hint";
 
 interface CuradoriaDetalhe {
@@ -78,6 +80,13 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
     speScp: false,
     elegibilidadeCvm: false,
   });
+  const [catalogoEmpresa, setCatalogoEmpresa] = useState<DocumentoCatalogoItem[]>([]);
+  const [catalogoProjeto, setCatalogoProjeto] = useState<DocumentoCatalogoItem[]>([]);
+
+  useEffect(() => {
+    void fetchCatalogo("EMPRESA").then(setCatalogoEmpresa).catch(() => undefined);
+    void fetchCatalogo("PROJETO").then(setCatalogoProjeto).catch(() => undefined);
+  }, []);
 
   const checklistOk = checklist.patrimonioAfetacao && checklist.seguroObra && checklist.speScp && checklist.elegibilidadeCvm;
 
@@ -339,17 +348,48 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 )}
 
                 {tab === "docs" && (
-                  <div className="animate-in space-y-2">
-                    {projeto.documentos !== undefined
-                      ? Object.entries(projeto.documentos).flatMap(([key, url]) => {
+                  <div className="animate-in space-y-6">
+                    {catalogoEmpresa.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documentos da empresa</p>
+                        <DocumentosChecklist
+                          items={catalogoEmpresa}
+                          valores={empresaDocsComFallback(data.incorporadora ?? {})}
+                          onUpload={() => undefined}
+                          onSetEmitidoEm={() => undefined}
+                          onRemove={() => undefined}
+                          readOnly
+                        />
+                      </div>
+                    )}
+                    {catalogoProjeto.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documentos do projeto</p>
+                        <DocumentosChecklist
+                          items={catalogoProjeto}
+                          valores={projeto.documentosChecklist ?? {}}
+                          onUpload={() => undefined}
+                          onSetEmitidoEm={() => undefined}
+                          onRemove={() => undefined}
+                          readOnly
+                        />
+                      </div>
+                    )}
+                    {projeto.documentos !== undefined && Object.keys(projeto.documentos).length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Outros documentos</p>
+                        {Object.entries(projeto.documentos).flatMap(([key, url]) => {
                           if (!url) return [];
                           const urls = Array.isArray(url) ? url : [url as string];
                           return urls.map((u: string, i: number) => (
                             <DocumentLink key={`${key}-${String(i)}`} href={u} label={key} />
                           ));
-                        })
-                      : <p className="py-6 text-center text-sm text-muted-foreground">Nenhum documento</p>
-                    }
+                        })}
+                      </div>
+                    )}
+                    {catalogoEmpresa.length === 0 && catalogoProjeto.length === 0 && Object.keys(projeto.documentos ?? {}).length === 0 && (
+                      <p className="py-6 text-center text-sm text-muted-foreground">Nenhum documento</p>
+                    )}
                   </div>
                 )}
 

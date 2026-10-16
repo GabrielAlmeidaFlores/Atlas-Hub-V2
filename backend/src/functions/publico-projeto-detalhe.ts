@@ -56,7 +56,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (id === undefined || id === '') return notFound(event, 'Projeto não encontrado');
 
     const projeto = await getProjeto(id);
-    if (projeto === null || projeto.status !== 'OFERTA_CRIADA') {
+    if (projeto === null || (projeto.status !== 'OFERTA_CRIADA' && projeto.status !== 'APROVADO')) {
       return notFound(event, 'Projeto não encontrado');
     }
 
@@ -110,7 +110,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       atualizadoEm: projeto.atualizadoEm,
       submetidoEm: projeto.submetidoEm ?? null,
       aprovadoEm: projeto.aprovadoEm ?? null,
-      statusLabel: 'Oferta Publicada',
+      statusLabel: projeto.status === 'APROVADO' ? 'Captação em breve' : 'Oferta Publicada',
       publicadoEm: publishedAt(projeto),
     });
   } catch (err) {

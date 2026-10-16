@@ -40,6 +40,7 @@ provider:
     NOTIFICACOES_TABLE: AtlasNotificacoes-${self:provider.stage}
     AUDITORIA_TABLE: AtlasAuditoria-${self:provider.stage}
     NOTAS_TABLE: AtlasNotas-${self:provider.stage}
+    DOCUMENTOS_CATALOGO_TABLE: AtlasDocumentoCatalogo-${self:provider.stage}
     SPE_CONTAS_TABLE: AtlasSpeContas-${self:provider.stage}
     FINANCEIRO_LEDGER_TABLE: AtlasFinanceiroLedger-${self:provider.stage}
     FINANCEIRO_SOLICITACOES_TABLE: AtlasFinanceiroSolicitacoes-${self:provider.stage}
@@ -562,6 +563,76 @@ functions:
       - http:
           path: admin/usuarios/{id}/desativar
           method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminDocumentoCatalogoListar:
+    handler: src/functions/admin-documento-catalogo-listar.handler
+    role: !GetAtt DocumentoCatalogoReadLambdaRole.Arn
+    timeout: 10
+    description: "Lists document catalog items, including inactive (admin master only)"
+    events:
+      - http:
+          path: admin/documentos/catalogo
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminDocumentoCatalogoCriar:
+    handler: src/functions/admin-documento-catalogo-criar.handler
+    role: !GetAtt DocumentoCatalogoLambdaRole.Arn
+    timeout: 10
+    description: "Creates a document catalog item (admin master only)"
+    events:
+      - http:
+          path: admin/documentos/catalogo
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminDocumentoCatalogoAtualizar:
+    handler: src/functions/admin-documento-catalogo-atualizar.handler
+    role: !GetAtt DocumentoCatalogoLambdaRole.Arn
+    timeout: 10
+    description: "Updates a document catalog item (admin master only)"
+    events:
+      - http:
+          path: admin/documentos/catalogo/{key}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminDocumentoCatalogoRemover:
+    handler: src/functions/admin-documento-catalogo-remover.handler
+    role: !GetAtt DocumentoCatalogoLambdaRole.Arn
+    timeout: 10
+    description: "Deactivates a document catalog item (admin master only)"
+    events:
+      - http:
+          path: admin/documentos/catalogo/{key}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  documentoCatalogoListar:
+    handler: src/functions/documento-catalogo-listar.handler
+    role: !GetAtt DocumentoCatalogoReadLambdaRole.Arn
+    timeout: 10
+    description: "Lists active document catalog items (any authenticated user)"
+    events:
+      - http:
+          path: documentos/catalogo
+          method: get
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
@@ -1336,6 +1407,15 @@ resources:
                   Action: [s3:PutObject]
                   Resource:
                     - !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/projetos/*'
+                - Effect: Allow
+                  Action: [dynamodb:Scan, dynamodb:GetItem, dynamodb:Query]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasDocumentoCatalogo-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasDocumentoCatalogo-${self:provider.stage}/index/*'
+                - Effect: Allow
+                  Action: [dynamodb:GetItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
 
     AdminUsuarioLambdaRole:
       Type: AWS::IAM::Role
@@ -1361,6 +1441,50 @@ resources:
                   Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup, cognito-idp:AdminDisableUser]
                   Resource:
                     - !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
+
+    DocumentoCatalogoLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-documentoCatalogo-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:Scan, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem, dynamodb:Query]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasDocumentoCatalogo-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasDocumentoCatalogo-${self:provider.stage}/index/*'
+
+    DocumentoCatalogoReadLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-documentoCatalogoRead-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:Query, dynamodb:Scan]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasDocumentoCatalogo-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasDocumentoCatalogo-${self:provider.stage}/index/*'
 
     NotificacoesLambdaRole:
       Type: AWS::IAM::Role
@@ -1731,6 +1855,18 @@ resources:
             KeyType: HASH
           - AttributeName: criadoEm
             KeyType: RANGE
+
+    AtlasDocumentoCatalogoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasDocumentoCatalogo-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH
 
     AtlasAnalyticsEventsTable:
       Type: AWS::DynamoDB::Table

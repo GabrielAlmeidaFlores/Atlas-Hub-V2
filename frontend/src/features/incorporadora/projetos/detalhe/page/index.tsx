@@ -5,7 +5,8 @@ import {
   FileText, Users, BarChart3, History,
 } from "lucide-react";
 import { api } from "@/services/api";
-import type { Projeto, AuditoriaEntry, StatusProjeto } from "@/types";
+import { fetchCatalogo, obrigatoriosFaltando } from "@/lib/documentos-catalogo";
+import type { DocumentoCatalogoItem, Projeto, AuditoriaEntry, StatusProjeto } from "@/types";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { getProjetoProgressItems, ProjetoProgressBar } from "@/components/shared/projeto-progress";
 import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator";
 import { DocumentLink } from "@/components/shared/document-link";
+import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
 
 type Tab = "visao-geral" | "documentos" | "equipe" | "historico";
 
@@ -31,12 +33,14 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
   const [projeto, setProjeto] = useState<(Projeto & { historico?: AuditoriaEntry[] }) | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("visao-geral");
+  const [catalogoProjeto, setCatalogoProjeto] = useState<DocumentoCatalogoItem[]>([]);
 
   useEffect(() => {
     if (id === undefined) return;
     void api.get<Projeto & { historico?: AuditoriaEntry[] }>(`/projetos/${id}`)
       .then(setProjeto)
       .finally(() => setIsLoading(false));
+    void fetchCatalogo("PROJETO").then(setCatalogoProjeto).catch(() => undefined);
   }, [id]);
 
   if (isLoading) return <PageSpinner />;
@@ -170,17 +174,32 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
 
 
                 {tab === "documentos" && (
-                  <div className="animate-in space-y-2">
-                    {projeto.documentos !== undefined
-                      ? Object.entries(projeto.documentos).flatMap(([key, url]) => {
+                  <div className="animate-in space-y-6">
+                    {catalogoProjeto.length > 0 && (
+                      <DocumentosChecklist
+                        items={catalogoProjeto}
+                        valores={projeto.documentosChecklist ?? {}}
+                        onUpload={() => undefined}
+                        onSetEmitidoEm={() => undefined}
+                        onRemove={() => undefined}
+                        readOnly
+                      />
+                    )}
+                    {projeto.documentos !== undefined && Object.keys(projeto.documentos).length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Outros documentos</p>
+                        {Object.entries(projeto.documentos).flatMap(([key, url]) => {
                           if (url === undefined || url === null) return [];
                           const urls = Array.isArray(url) ? url : [url as string];
                           return urls.map((u: string, i: number) => (
                             <DocumentLink key={`${key}-${String(i)}`} href={u} label={key} />
                           ));
-                        })
-                      : <p className="py-4 text-center text-sm text-muted-foreground">Nenhum documento enviado</p>
-                    }
+                        })}
+                      </div>
+                    )}
+                    {catalogoProjeto.length === 0 && Object.keys(projeto.documentos ?? {}).length === 0 && (
+                      <p className="py-4 text-center text-sm text-muted-foreground">Nenhum documento enviado</p>
+                    )}
                   </div>
                 )}
 
@@ -227,7 +246,9 @@ export default function IncorporadoraProjetoDetalhePage(): ReactNode {
           </div>
 
           <div className="space-y-5">
-            <ProjetoProgressBar items={getProjetoProgressItems(projeto)} />
+            <ProjetoProgressBar items={getProjetoProgressItems(projeto, {
+              documentosOk: catalogoProjeto.length > 0 && obrigatoriosFaltando(catalogoProjeto, projeto.documentosChecklist ?? {}).length === 0,
+            })} />
             <div className="card p-6">
               <p className="mb-3.5 text-xs font-medium tracking-normal text-muted-foreground">Status Atual</p>
               <StatusBadge status={projeto.status} size="md" />
