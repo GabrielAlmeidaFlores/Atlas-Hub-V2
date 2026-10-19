@@ -123,7 +123,7 @@ function Ecossistema(): ReactNode {
       description:
         "A partir de R$10. Sem taxa de entrada. Acompanhe o projeto até a entrega.",
       href: "/para-investidores",
-      action: "Começar a investir",
+      action: "Saiba mais",
       color: "#43669C",
       desktopColor: "#4169A1",
     },
@@ -134,7 +134,7 @@ function Ecossistema(): ReactNode {
       description:
         "Análise em até 5 dias úteis. Captação de recursos sem financiamento bancário.",
       href: "/para-incorporadoras",
-      action: "Apresentar meu projeto",
+      action: "Saiba mais",
       color: "#192145",
       desktopColor: "#1C285B",
     },

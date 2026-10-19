@@ -52,6 +52,10 @@ function IncorporadorasHero(): ReactNode {
             >
               Apresentar meu projeto
             </Link>
+            <p className="mt-4 text-center text-xs text-white/80">
+              Já tem conta?{" "}
+              <Link to="/login" className="font-semibold text-[#D2A047] hover:underline">Entrar</Link>
+            </p>
           </div>
         </div>
 
@@ -83,6 +87,10 @@ function IncorporadorasHero(): ReactNode {
             >
               Solicitar avaliação do meu projeto
             </Link>
+            <p className="mt-4 text-xs text-white/80">
+              Já tem conta?{" "}
+              <Link to="/login" className="font-semibold text-[#D2A047] hover:underline">Entrar</Link>
+            </p>
           </div>
         </div>
       </div>

@@ -54,6 +54,10 @@ function InvestidoresHero(): ReactNode {
             >
               Quero Investir
             </Link>
+            <p className="mt-4 text-center text-xs text-white/80">
+              Já tem conta?{" "}
+              <Link to="/investir/login" className="font-semibold text-[#D2A047] hover:underline">Entrar</Link>
+            </p>
           </div>
         </div>
 
@@ -84,6 +88,10 @@ function InvestidoresHero(): ReactNode {
             >
               Criar minha conta de investidor
             </Link>
+            <p className="mt-4 text-xs text-white/80">
+              Já tem conta?{" "}
+              <Link to="/investir/login" className="font-semibold text-[#D2A047] hover:underline">Entrar</Link>
+            </p>
           </div>
         </div>
       </div>

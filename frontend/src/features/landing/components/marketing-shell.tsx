@@ -1,5 +1,5 @@
 import { type ReactNode, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { WhatsappFab, WhatsappLink } from "@/components/shared/whatsapp-cta";
@@ -14,6 +14,8 @@ const NAV = [
 ] as const;
 
 function MarketingNavbar(): ReactNode {
+  const { pathname } = useLocation();
+  const loginHref = pathname.startsWith("/para-investidores") ? "/investir/login" : "/login";
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -68,6 +70,12 @@ function MarketingNavbar(): ReactNode {
 
         <div className="hidden items-center gap-3 lg:flex">
           <Link
+            to={loginHref}
+            className="inline-flex h-[32px] w-auto items-center justify-center whitespace-nowrap px-2 text-[12px] font-semibold leading-none text-[#1B2B5E] transition-colors duration-200 hover:text-[#D2A047]"
+          >
+            Entrar
+          </Link>
+          <Link
             to="/cadastro"
             className="inline-flex h-[32px] w-auto items-center justify-center whitespace-nowrap rounded-[4px] bg-[#D2A047] px-3 text-[12px] font-semibold leading-none text-white transition-opacity duration-200 hover:opacity-90"
           >
@@ -119,6 +127,13 @@ function MarketingNavbar(): ReactNode {
             ))}
           </div>
           <div className="mt-5 flex flex-col gap-2 border-t border-[#D9D9D9] pt-5">
+            <Link
+              to={loginHref}
+              onClick={() => setOpen(false)}
+              className="inline-flex h-11 items-center justify-center rounded-[4px] border border-[#1B2B5E]/20 px-4 text-sm font-semibold text-[#1B2B5E] transition-colors hover:bg-white"
+            >
+              Entrar
+            </Link>
             <Link
               to="/cadastro"
               onClick={() => setOpen(false)}
