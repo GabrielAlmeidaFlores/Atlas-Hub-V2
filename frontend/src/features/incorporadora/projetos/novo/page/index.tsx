@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode, type ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, DollarSign, FileText, Users, Eye } from "lucide-react";
 import { api, getApiErrorMessage, getApiErrorFields } from "@/services/api";
 import { buscarCep, formatCep } from "@/lib/cep";
@@ -76,13 +76,15 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [cepErro, setCepErro] = useState<string | undefined>(undefined);
+  const [empresaCarregada, setEmpresaCarregada] = useState(false);
 
   useEffect(() => {
     void fetchCatalogo("PROJETO").then(setCatalogoProjeto).catch(() => undefined);
     void fetchCatalogo("EMPRESA").then(setCatalogoEmpresa).catch(() => undefined);
     void api.get<Incorporadora>("/incorporadora/perfil")
       .then((d) => setEmpresaDocs(empresaDocsComFallback(d)))
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setEmpresaCarregada(true));
   }, []);
 
   const FIELD_STEP: Record<string, Etapa> = {
@@ -244,6 +246,13 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       setIsLoading(true);
       try { await salvarRascunho(); } catch (err) { addToast({ type: "error", title: "Erro ao salvar", description: getApiErrorMessage(err) }); aplicarErros(err); return; } finally { setIsLoading(false); }
     }
+    if (etapa === 3) {
+      const faltando = obrigatoriosFaltando(catalogoProjeto, documentosChecklist);
+      if (faltando.length > 0) {
+        const seguir = window.confirm(`Faltam ${String(faltando.length)} documento(s) obrigatório(s). Você pode continuar e enviar depois, mas o projeto não poderá ser submetido até completar. Deseja continuar?`);
+        if (!seguir) return;
+      }
+    }
     if (etapa < 5) setEtapa((p) => (p + 1) as Etapa);
   }
 
@@ -305,6 +314,8 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
   }
 
   const progress = Math.round(((etapa - 1) / 4) * 100);
+  const faltandoProjetoDocs = obrigatoriosFaltando(catalogoProjeto, documentosChecklist);
+  const faltandoEmpresaDocs = empresaCarregada ? obrigatoriosFaltando(catalogoEmpresa, empresaDocs) : [];
 
   const progressItems: ProgressItem[] = [
     { id: "dados", label: "Dados gerais", done: gerais.nome.length >= 3 },
@@ -324,6 +335,14 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
       <PageHeader title="Novo Projeto" description="Preencha as informações para submeter à curadoria" />
 
       <div className="page-content">
+        {faltandoEmpresaDocs.length > 0 && (
+          <div className="mb-5 alert alert-warn flex flex-col gap-3 text-sm text-status-warning sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Sua empresa tem {String(faltandoEmpresaDocs.length)} documento(s) obrigatório(s) pendente(s). Envie em Perfil › Empresa para poder submeter o projeto.
+            </span>
+            <Link to="/perfil" className="btn btn-secondary btn-sm shrink-0">Ir para Perfil</Link>
+          </div>
+        )}
         <div className="mb-6 card p-4">
           <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-medium">{ETAPAS[etapa - 1]?.label ?? ""}</span>
@@ -429,6 +448,11 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <p className="text-sm text-muted-foreground">
                 PDF, JPG ou PNG · máx. 50 MB. Os itens marcados como obrigatórios precisam ser enviados para submeter o projeto.
               </p>
+              {faltandoProjetoDocs.length > 0 && (
+                <div className="alert alert-warn text-sm text-status-warning">
+                  Faltam {String(faltandoProjetoDocs.length)} documento(s) obrigatório(s) para submeter. Você pode continuar preenchendo e enviar depois.
+                </div>
+              )}
               <DocumentosChecklist
                 items={catalogoProjeto}
                 valores={documentosChecklist}

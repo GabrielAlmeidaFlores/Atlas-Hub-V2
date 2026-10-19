@@ -37,6 +37,7 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
   const [catalogoProjeto, setCatalogoProjeto] = useState<DocumentoCatalogoItem[]>([]);
   const [catalogoEmpresa, setCatalogoEmpresa] = useState<DocumentoCatalogoItem[]>([]);
   const [empresaDocs, setEmpresaDocs] = useState<Record<string, DocumentoArquivo>>({});
+  const [empresaCarregada, setEmpresaCarregada] = useState(false);
   const [documentosChecklist, setDocumentosChecklist] = useState<Record<string, DocumentoArquivo>>({});
   const [fotosUrls, setFotosUrls] = useState<string[]>([]);
   const [equipe, setEquipe] = useState<MembroEquipe[]>([]);
@@ -84,7 +85,8 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     void fetchCatalogo("EMPRESA").then(setCatalogoEmpresa).catch(() => undefined);
     void api.get<Incorporadora>("/incorporadora/perfil")
       .then((d) => setEmpresaDocs(empresaDocsComFallback(d)))
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setEmpresaCarregada(true));
   }, []);
 
   function setField(field: keyof typeof form) {
@@ -242,6 +244,9 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
     );
   }
 
+  const faltandoProjetoDocs = obrigatoriosFaltando(catalogoProjeto, documentosChecklist);
+  const faltandoEmpresaDocs = empresaCarregada ? obrigatoriosFaltando(catalogoEmpresa, empresaDocs) : [];
+
   return (
     <div className="animate-in">
       <PageHeader
@@ -258,6 +263,15 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
       <form onSubmit={(e) => void handleSubmit(e)} className="page-content space-y-6">
         {projeto.status === "AJUSTE_SOLICITADO" && projeto.textoAjuste !== undefined && (
           <div className="alert alert-warn text-sm">{projeto.textoAjuste}</div>
+        )}
+
+        {faltandoEmpresaDocs.length > 0 && (
+          <div className="alert alert-warn flex flex-col gap-3 text-sm text-status-warning sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Sua empresa tem {String(faltandoEmpresaDocs.length)} documento(s) obrigatório(s) pendente(s). Envie em Perfil › Empresa para poder submeter o projeto.
+            </span>
+            <Link to="/perfil" className="btn btn-secondary btn-sm shrink-0">Ir para Perfil</Link>
+          </div>
         )}
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -344,6 +358,11 @@ export default function IncorporadoraProjetoEditarPage(): ReactNode {
         <div className="card space-y-4 p-6 sm:p-7">
           <h2 className="font-semibold text-foreground">Documentos</h2>
           <p className="text-sm text-muted-foreground">PDF, JPG ou PNG · máx. 50 MB. Itens obrigatórios são exigidos para submeter.</p>
+          {faltandoProjetoDocs.length > 0 && (
+            <div className="alert alert-warn text-sm text-status-warning">
+              Faltam {String(faltandoProjetoDocs.length)} documento(s) obrigatório(s) para submeter.
+            </div>
+          )}
           <DocumentosChecklist
             items={catalogoProjeto}
             valores={documentosChecklist}
