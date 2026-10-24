@@ -93,7 +93,7 @@ export default function CadastroPage(): ReactNode {
       analytics.track("form_start", { form: "cadastro" });
       const { signUp } = await import("@aws-amplify/auth");
       const email = form.email.trim().toLowerCase();
-      await signUp({ username: email, password: form.senha, options: { userAttributes: { email } } });
+      await signUp({ username: email, password: form.senha, options: { userAttributes: { email, "custom:tipo": "incorporadora" } } });
       analytics.track("form_submit", { form: "cadastro" });
       analytics.track("signup");
       sessionStorage.setItem("atlas.pendingConfirmEmail", email);

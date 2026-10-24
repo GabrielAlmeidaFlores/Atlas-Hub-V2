@@ -63,7 +63,7 @@ export default function CadastroInvestidorPage(): ReactNode {
       const { signUp } = await import("@aws-amplify/auth");
       const email = form.email.trim().toLowerCase();
       const nome = form.nome.trim();
-      await signUp({ username: email, password: form.senha, options: { userAttributes: { email, name: nome } } });
+      await signUp({ username: email, password: form.senha, options: { userAttributes: { email, name: nome, "custom:tipo": "investidor" } } });
       analytics.track("form_submit", { form: "cadastro_investidor" });
       analytics.track("signup");
       sessionStorage.setItem("atlas.pendingConfirmEmail", email);

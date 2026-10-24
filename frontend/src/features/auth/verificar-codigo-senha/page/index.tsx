@@ -2,37 +2,10 @@ import { useState, type ReactNode, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToastStore } from "@/stores/toast";
 import { AuthShell } from "@/features/auth/auth-shell";
-import { getApiErrorMessage } from "@/services/api";
+import { api, getApiErrorMessage } from "@/services/api";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
-}
-
-function isInvalidPasswordError(err: unknown): boolean {
-  if (!err || typeof err !== "object") return false;
-  const name = "name" in err ? String(err.name) : "";
-  const message = err instanceof Error ? err.message : "";
-  return (
-    name === "InvalidPasswordException" ||
-    message.includes("Password did not conform") ||
-    message.includes("Password does not conform") ||
-    (message.includes("password") && message.includes("policy")) ||
-    message.includes("RequireNumbers") ||
-    message.includes("PasswordPolicy")
-  );
-}
-
-function isBadCodeError(err: unknown): boolean {
-  if (!err || typeof err !== "object") return false;
-  const name = "name" in err ? String(err.name) : "";
-  const message = err instanceof Error ? err.message.toLowerCase() : "";
-  return (
-    name === "CodeMismatchException" ||
-    name === "ExpiredCodeException" ||
-    message.includes("invalid verification code") ||
-    message.includes("invalid code") ||
-    message.includes("expired")
-  );
 }
 
 export default function VerificarCodigoSenhaPage(): ReactNode {
@@ -51,24 +24,22 @@ export default function VerificarCodigoSenhaPage(): ReactNode {
     if (!username || code.length < 6) return;
     setIsLoading(true);
     try {
-      const { confirmResetPassword } = await import("@aws-amplify/auth");
-      await confirmResetPassword({
-        username,
-        confirmationCode: code,
-        newPassword: "abcdefgh",
+      const res = await api.post<{ resetToken: string; needsProfile: boolean; tipo: string | null }>(
+        "/publico/auth/reset-validar",
+        { email: username, code },
+      );
+      sessionStorage.setItem("atlas.resetEmail", username);
+      sessionStorage.setItem("atlas.resetToken", res.resetToken);
+      sessionStorage.setItem("atlas.resetNeedsProfile", res.needsProfile ? "1" : "0");
+      if (res.tipo !== null) {
+        sessionStorage.setItem("atlas.resetTipo", res.tipo);
+      } else {
+        sessionStorage.removeItem("atlas.resetTipo");
+      }
+      navigate("/redefinir-senha", {
+        state: { email: username, resetToken: res.resetToken, needsProfile: res.needsProfile, tipo: res.tipo },
       });
-      addToast({ type: "error", title: "Não foi possível validar o código" });
     } catch (err) {
-      if (isInvalidPasswordError(err)) {
-        sessionStorage.setItem("atlas.resetEmail", username);
-        sessionStorage.setItem("atlas.resetCode", code);
-        navigate("/redefinir-senha", { state: { email: username, code } });
-        return;
-      }
-      if (isBadCodeError(err)) {
-        addToast({ type: "error", title: "Código inválido", description: "Confira o código do e-mail ou solicite um novo." });
-        return;
-      }
       addToast({ type: "error", title: "Não foi possível validar", description: getApiErrorMessage(err) });
     } finally {
       setIsLoading(false);
@@ -83,11 +54,10 @@ export default function VerificarCodigoSenhaPage(): ReactNode {
     }
     setIsResending(true);
     try {
-      const { resetPassword } = await import("@aws-amplify/auth");
-      await resetPassword({ username });
+      await api.post("/publico/auth/reset-solicitar", { email: username });
       addToast({ type: "success", title: "Novo código enviado", description: "Verifique sua caixa de entrada e o spam." });
-    } catch {
-      addToast({ type: "success", title: "Novo código enviado", description: "Se o e-mail estiver cadastrado, você receberá o código em breve." });
+    } catch (err) {
+      addToast({ type: "error", title: "Não foi possível reenviar", description: getApiErrorMessage(err) });
     } finally {
       setIsResending(false);
     }

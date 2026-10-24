@@ -24,6 +24,10 @@ export const FIELD_LABELS: Record<string, string> = {
   nomeResponsavel: 'Nome do responsável',
   cargoResponsavel: 'Cargo do responsável',
   email: 'E-mail',
+  code: 'Código',
+  resetToken: 'Sessão',
+  newPassword: 'Nova senha',
+  tipo: 'Tipo de conta',
   telefone: 'Telefone',
   cidade: 'Cidade',
   estado: 'Estado',
@@ -524,6 +528,28 @@ export const solicitarCartaoObraSchema = z.object({
 
 export const solicitarLiberacaoCartaoSchema = z.object({
   etapaId: z.string().min(1).max(80),
+});
+
+export const resetSolicitarSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+});
+
+export const resetValidarSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  code: z.string().regex(/^\d{6}$/, 'Informe o código de 6 dígitos'),
+});
+
+export const resetConfirmarSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  resetToken: z.string().min(32).max(128),
+  newPassword: z.string().min(8).max(128).regex(/[0-9]/, 'A senha deve conter ao menos 1 número'),
+  tipo: z.enum(['investidor', 'incorporadora']).optional(),
+  cnpj: z.string().max(20).optional(),
+  razaoSocial: z.string().max(200).optional(),
+  nomeResponsavel: z.string().max(200).optional(),
+  cpfResponsavel: z.string().max(20).optional(),
+  cargoResponsavel: z.string().max(120).optional(),
+  telefone: z.string().max(20).optional(),
 });
 
 export { cnpjRegex, cpfRegex, isValidCnpjDigits, isValidCpfDigits };

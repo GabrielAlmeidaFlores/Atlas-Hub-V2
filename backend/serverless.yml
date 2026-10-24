@@ -41,6 +41,8 @@ provider:
     AUDITORIA_TABLE: AtlasAuditoria-${self:provider.stage}
     NOTAS_TABLE: AtlasNotas-${self:provider.stage}
     DOCUMENTOS_CATALOGO_TABLE: AtlasDocumentoCatalogo-${self:provider.stage}
+    PASSWORD_RESETS_TABLE: AtlasPasswordResets-${self:provider.stage}
+    PASSWORD_RESET_SECRET: ${env:PASSWORD_RESET_SECRET, ''}
     SPE_CONTAS_TABLE: AtlasSpeContas-${self:provider.stage}
     FINANCEIRO_LEDGER_TABLE: AtlasFinanceiroLedger-${self:provider.stage}
     FINANCEIRO_SOLICITACOES_TABLE: AtlasFinanceiroSolicitacoes-${self:provider.stage}
@@ -102,6 +104,45 @@ functions:
       - http:
           path: publico/projetos/{id}
           method: get
+          cors: true
+
+  publicoResetSolicitar:
+    handler: src/functions/publico-reset-solicitar.handler
+    role: !GetAtt PasswordResetLambdaRole.Arn
+    timeout: 10
+    description: "Requests a password reset code"
+    environment:
+      COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+    events:
+      - http:
+          path: publico/auth/reset-solicitar
+          method: post
+          cors: true
+
+  publicoResetValidar:
+    handler: src/functions/publico-reset-validar.handler
+    role: !GetAtt PasswordResetLambdaRole.Arn
+    timeout: 10
+    description: "Validates a password reset code"
+    environment:
+      COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+    events:
+      - http:
+          path: publico/auth/reset-validar
+          method: post
+          cors: true
+
+  publicoResetConfirmar:
+    handler: src/functions/publico-reset-confirmar.handler
+    role: !GetAtt PasswordResetLambdaRole.Arn
+    timeout: 15
+    description: "Confirms a password reset and activates the account"
+    environment:
+      COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+    events:
+      - http:
+          path: publico/auth/reset-confirmar
+          method: post
           cors: true
 
   # ── Cognito Triggers ───────────────────────────────────────────────
@@ -1583,6 +1624,53 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
 
+    AtlasPasswordResetsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasPasswordResets-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        TimeToLiveSpecification:
+          AttributeName: expiresAt
+          Enabled: true
+
+    PasswordResetLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-passwordReset-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem]
+                  Resource: !GetAtt AtlasPasswordResetsTable.Arn
+                - Effect: Allow
+                  Action:
+                    - cognito-idp:AdminGetUser
+                    - cognito-idp:AdminSetUserPassword
+                    - cognito-idp:AdminUpdateUserAttributes
+                    - cognito-idp:AdminAddUserToGroup
+                  Resource: !GetAtt CognitoUserPool.Arn
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}/index/*'
+
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -1610,6 +1698,10 @@ resources:
           - Name: email
             Required: true
             Mutable: true
+          - Name: tipo
+            AttributeDataType: String
+            Mutable: true
+            Required: false
 
     CognitoLambdaPermission:
       Type: AWS::Lambda::Permission
