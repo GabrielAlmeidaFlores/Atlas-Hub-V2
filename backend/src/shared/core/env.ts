@@ -33,6 +33,7 @@ export const OBRA_ETAPAS_TABLE = process.env['OBRA_ETAPAS_TABLE'] ?? 'AtlasObraE
 export const OBRA_LANCAMENTOS_TABLE = process.env['OBRA_LANCAMENTOS_TABLE'] ?? 'AtlasObraLancamentos-dev';
 export const SPE_CARTOES_TABLE = process.env['SPE_CARTOES_TABLE'] ?? 'AtlasSpeCartoes-dev';
 export const SPE_CARTAO_LIBERACOES_TABLE = process.env['SPE_CARTAO_LIBERACOES_TABLE'] ?? 'AtlasSpeCartaoLiberacoes-dev';
+export const PASSWORD_RESETS_TABLE = process.env['PASSWORD_RESETS_TABLE'] ?? 'AtlasPasswordResets-dev';
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
 export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';
@@ -46,6 +47,8 @@ export const STARK_PRIVATE_KEY = (process.env['STARK_PRIVATE_KEY'] ?? '').replac
 export const DOCUMENTS_BUCKET = process.env['DOCUMENTS_BUCKET'] ?? 'atlas-hub-documents-dev';
 
 export const USER_POOL_ID = process.env['USER_POOL_ID'] ?? '';
+export const COGNITO_USER_POOL_ID = process.env['COGNITO_USER_POOL_ID'] ?? '';
+export const PASSWORD_RESET_SECRET = process.env['PASSWORD_RESET_SECRET'] ?? '';
 
 export const RESEND_API_KEY = process.env['RESEND_API_KEY'] ?? '';
 export const EMAIL_FROM = process.env['EMAIL_FROM'] ?? 'noreply@atlascomp.com.br';

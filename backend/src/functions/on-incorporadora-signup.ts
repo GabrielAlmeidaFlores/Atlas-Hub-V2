@@ -12,6 +12,14 @@ function meta(event: PostConfirmationTriggerEvent, key: string): string {
   return event.request.clientMetadata?.[key]?.trim() ?? '';
 }
 
+function attr(event: PostConfirmationTriggerEvent, key: string): string {
+  return event.request.userAttributes[key]?.trim() ?? '';
+}
+
+function tipoUsuario(event: PostConfirmationTriggerEvent): string {
+  return attr(event, 'custom:tipo') || meta(event, 'tipo');
+}
+
 export const handler = async (event: PostConfirmationTriggerEvent): Promise<PostConfirmationTriggerEvent> => {
   const log = createLogger('onIncorporadoraSignup');
 
@@ -22,7 +30,13 @@ export const handler = async (event: PostConfirmationTriggerEvent): Promise<Post
 
   log.info('Signup confirmed', { userId, email });
 
-  if (meta(event, 'tipo') === 'investidor') {
+  const tipo = tipoUsuario(event);
+  if (tipo === '') {
+    log.warn('Confirmacao sem tipo de conta', { userId, email });
+    return event;
+  }
+
+  if (tipo === 'investidor') {
     await cognito.send(new AdminAddUserToGroupCommand({
       UserPoolId: poolId,
       Username: userId,
@@ -45,11 +59,22 @@ export const handler = async (event: PostConfirmationTriggerEvent): Promise<Post
   const cnpj = meta(event, 'cnpj').replace(/\D/g, '');
   const cpfResponsavel = meta(event, 'cpfResponsavel').replace(/\D/g, '');
   const telefone = meta(event, 'telefone').replace(/\D/g, '');
+  const razaoSocial = meta(event, 'razaoSocial');
+
+  if (cnpj.length !== 14 || razaoSocial.length === 0) {
+    log.warn('Incorporadora confirmada sem dados da empresa', { userId, email });
+    await cognito.send(new AdminAddUserToGroupCommand({
+      UserPoolId: poolId,
+      Username: userId,
+      GroupName: 'INCORPORADORA',
+    }));
+    return event;
+  }
 
   const incorporadora: Incorporadora = {
     id: userId,
     cnpj,
-    razaoSocial: meta(event, 'razaoSocial'),
+    razaoSocial,
     nomeResponsavel: meta(event, 'nomeResponsavel'),
     cpfResponsavel,
     cargoResponsavel: meta(event, 'cargoResponsavel'),

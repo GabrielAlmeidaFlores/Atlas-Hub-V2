@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail } from "lucide-react";
 import { useToastStore } from "@/stores/toast";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { api, getApiErrorMessage } from "@/services/api";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -19,17 +20,16 @@ export default function EsqueciSenhaPage(): ReactNode {
     const username = normalizeEmail(email);
     setIsLoading(true);
     try {
-      const { resetPassword } = await import("@aws-amplify/auth");
-      await resetPassword({ username });
+      await api.post("/publico/auth/reset-solicitar", { email: username });
       const { analytics } = await import("@/lib/analytics");
       analytics.track("password_recovery");
-    } catch {
-      void 0;
-    } finally {
-      setIsLoading(false);
       sessionStorage.setItem("atlas.resetEmail", username);
       addToast({ type: "success", title: "Código enviado", description: "Se o e-mail estiver cadastrado, você receberá o código em breve." });
       navigate(`/verificar-codigo-senha?email=${encodeURIComponent(username)}`);
+    } catch (err) {
+      addToast({ type: "error", title: "Não foi possível enviar", description: getApiErrorMessage(err) });
+    } finally {
+      setIsLoading(false);
     }
   }
 
