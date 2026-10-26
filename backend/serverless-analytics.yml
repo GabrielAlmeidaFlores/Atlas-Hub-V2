@@ -5,8 +5,22 @@ frameworkVersion: '>=3'
 plugins:
   - serverless-esbuild
   - serverless-offline
+  - ./plugins/tag-resources.cjs
 
 custom:
+  criticality:
+    dev: low
+    prod: high
+
+  tagging:
+    Project: atlas-hub
+    Owner: team-atlas
+    ManagedBy: serverless
+    CostCenter: atlas
+    Repository: Atlas-Hub-V2
+    DataClassification: confidential
+    defaultComponent: analytics
+
   coreStack: atlas-hub-backend-${self:provider.stage}
   esbuild:
     bundle: true
@@ -30,6 +44,29 @@ provider:
   region: sa-east-1
   stage: ${opt:stage, 'dev'}
   versionFunctions: false
+
+  tags:
+    Project: atlas-hub
+    Environment: ${self:provider.stage}
+    Owner: team-atlas
+    ManagedBy: serverless
+    CostCenter: atlas
+    Repository: Atlas-Hub-V2
+    DataClassification: confidential
+    Component: analytics
+    Criticality: ${self:custom.criticality.${self:provider.stage}}
+
+  stackTags:
+    Project: atlas-hub
+    Environment: ${self:provider.stage}
+    Owner: team-atlas
+    ManagedBy: serverless
+    CostCenter: atlas
+    Repository: Atlas-Hub-V2
+    DataClassification: confidential
+    Component: analytics
+    Criticality: ${self:custom.criticality.${self:provider.stage}}
+
   apiGateway:
     restApiId: ${cf:${self:custom.coreStack}.ApiGatewayRestApiId}
     restApiRootResourceId: ${cf:${self:custom.coreStack}.ApiGatewayRestApiRootResourceId}
