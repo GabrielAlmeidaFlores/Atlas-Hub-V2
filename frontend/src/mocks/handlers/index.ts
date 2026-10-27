@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import type { Projeto, Incorporadora, DashboardMetricas, Notificacao, AuditoriaEntry } from "@/types";
 import { cronogramaHandlers } from "./cronograma";
+import { boardsHandlers } from "./boards";
 
 const BASE = "";
 
@@ -630,4 +631,5 @@ export const handlers = [
     ],
   })),
   ...cronogramaHandlers(mockProjetos),
+  ...boardsHandlers,
 ];

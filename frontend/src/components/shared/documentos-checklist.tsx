@@ -3,6 +3,7 @@ import type { DocumentoArquivo, DocumentoCatalogoItem } from "@/types";
 import { CATEGORIA_LABELS, CATEGORIA_ORDER, documentoStatus, type DocumentoStatus } from "@/lib/documentos-catalogo";
 import { openDocument } from "@/lib/documents";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import { AlertTriangle, CheckCircle2, Circle, FileText, Trash2, Upload, XCircle } from "lucide-react";
 
 interface DocumentosChecklistProps {
@@ -85,12 +86,12 @@ export function DocumentosChecklist({
                     {item.validadeDias !== undefined && enviado && (
                       <label className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         Emitido em
-                        <input
-                          type="date"
-                          className="input-base h-8 w-auto py-0"
+                        <DatePicker
                           value={arquivo.emitidoEm ?? ""}
+                          onValueChange={(value) => void onSetEmitidoEm(item.key, value)}
+                          className="h-8 w-auto py-0"
                           disabled={readOnly === true}
-                          onChange={(e) => void onSetEmitidoEm(item.key, e.target.value)}
+                          ariaLabel="Emitido em"
                         />
                         <span>· válido por {String(item.validadeDias)} dias</span>
                       </label>

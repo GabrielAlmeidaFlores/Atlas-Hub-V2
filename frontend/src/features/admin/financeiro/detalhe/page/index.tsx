@@ -17,6 +17,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
+import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, formatDateTime, parseMoneyInput, cn, formatCpfCnpj, isValidCpfCnpj } from "@/lib/utils";
 import { CurrencyInput } from "@/components/shared/currency-input";
 import { CartaoObraPainel } from "@/components/shared/cartao-obra-painel";
@@ -111,6 +113,24 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
     semRotativo: false,
     cashbackNaSpe: false,
   });
+  const pixDirty = form.amountReais.length > 0 || form.pixKey.length > 0 || form.description.length > 0;
+  const splitDirty = splitForm.name.length > 0 || splitForm.taxId.length > 0 || splitForm.pixKey.length > 0;
+  const cartaoDirty = cartaoChecks.titularSpe || cartaoChecks.faturaIntegral || cartaoChecks.semRotativo || cartaoChecks.cashbackNaSpe;
+  const closePix = (): void => {
+    setShowPix(false);
+    setForm({ amountReais: "", description: "", pixKey: "" });
+  };
+  const closeSplit = (): void => {
+    setShowSplit(false);
+    setSplitForm({ name: "", taxId: "", pixKey: "" });
+  };
+  const closeCartao = (): void => {
+    setShowCartao(false);
+    setCartaoChecks({ titularSpe: false, faturaIntegral: false, semRotativo: false, cashbackNaSpe: false });
+  };
+  const requestClosePix = useDiscardGuard(pixDirty, closePix);
+  const requestCloseSplit = useDiscardGuard(splitDirty, closeSplit);
+  const requestCloseCartao = useDiscardGuard(cartaoDirty, closeCartao);
 
   async function load(): Promise<void> {
     const encoded = encodeURIComponent(projetoId);
@@ -399,7 +419,7 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
 
       <Modal
         open={showPix}
-        onOpenChange={setShowPix}
+        onOpenChange={(next) => { if (!next) void requestClosePix(); }}
         title="Solicitar Pix"
         description="O valor não sai agora. Outro admin master precisa abrir esta tela e clicar em Aprovar e enviar."
       >
@@ -437,7 +457,7 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
             <p className="text-xs text-muted-foreground">Esta é a tesouraria da Atlas, não o caixa da obra.</p>
           )}
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowPix(false)}>Cancelar</button>
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestClosePix()}>Cancelar</button>
             <button type="submit" disabled={isSaving} className="btn btn-primary rounded-[8px]">
               {isSaving ? "Enviando…" : "Solicitar"}
             </button>
@@ -447,7 +467,7 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
 
       <Modal
         open={showCartao}
-        onOpenChange={setShowCartao}
+        onOpenChange={(next) => { if (!next) void requestCloseCartao(); }}
         title="Registrar pedido do cartão"
         description="Abre o pedido interno. Não emite o cartão. A incorporadora pede depois a liberação de cada etapa em andamento."
       >
@@ -459,19 +479,16 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
               { key: "semRotativo" as const, label: "Não haverá crédito rotativo ou empréstimo" },
               { key: "cashbackNaSpe" as const, label: "O cashback permanece na SPE; Atlas recebe só por contrato comercial" },
             ]).map(({ key, label }) => (
-              <label key={key} className="flex cursor-pointer items-start gap-2 text-xs text-foreground">
-                <input
-                  type="checkbox"
-                  className="mt-0.5"
-                  checked={cartaoChecks[key]}
-                  onChange={(e) => setCartaoChecks((p) => ({ ...p, [key]: e.target.checked }))}
-                />
-                <span>{label}</span>
-              </label>
+              <Checkbox
+                key={key}
+                checked={cartaoChecks[key]}
+                onChange={(checked) => setCartaoChecks((p) => ({ ...p, [key]: checked }))}
+                label={<span className="text-xs">{label}</span>}
+              />
             ))}
           </div>
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowCartao(false)}>Cancelar</button>
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestCloseCartao()}>Cancelar</button>
             <button
               type="submit"
               disabled={isSaving || !cartaoChecks.titularSpe || !cartaoChecks.faturaIntegral || !cartaoChecks.semRotativo || !cartaoChecks.cashbackNaSpe}
@@ -485,7 +502,7 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
 
       <Modal
         open={showSplit}
-        onOpenChange={setShowSplit}
+        onOpenChange={(next) => { if (!next) void requestCloseSplit(); }}
         title="Cadastrar beneficiário de split"
         description="Prepara o receptor Stark para divisão operacional de recebíveis desta conta. Distribuição de rendimentos da oferta continua automática na Divify."
       >
@@ -537,7 +554,7 @@ export default function AdminFinanceiroDetalhePage(): ReactNode {
             />
           </div>
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowSplit(false)}>Cancelar</button>
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestCloseSplit()}>Cancelar</button>
             <button
               type="submit"
               disabled={isSaving || !isValidCpfCnpj(splitForm.taxId)}

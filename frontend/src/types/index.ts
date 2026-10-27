@@ -53,6 +53,26 @@ export type {
   LancamentoObra,
   CronogramaDetalhe,
   CronogramaListaItem,
+  BoardIcon,
+  BoardColumnColor,
+  BoardFile,
+  BoardFieldType,
+  BoardFieldValue,
+  BoardMemberRole,
+  BoardAccessRole,
+  BoardMember,
+  BoardLabelColor,
+  BoardTemplateField,
+  BoardTemplate,
+  BoardColumn,
+  BoardLabel,
+  BoardCard,
+  BoardCardHistoryEntry,
+  BoardCardHistoryAction,
+  Board,
+  BoardView,
 } from "./domain";
+
+export { BOARD_COLUMN_COLORS, BOARD_FIELD_TYPES, BOARD_ICONS, BOARD_LABEL_COLORS } from "./domain";
 
 export { TESOURARIA_CONTA_ID } from "./domain";

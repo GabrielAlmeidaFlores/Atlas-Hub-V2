@@ -41,6 +41,7 @@ interface Crumb {
 
 const LABELS: Record<string, string> = {
   dashboard: "Dashboard",
+  boards: "Quadros",
   perfil: "Empresa",
   notificacoes: "Notificações",
   projetos: "Projetos",

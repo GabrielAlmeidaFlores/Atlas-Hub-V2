@@ -170,11 +170,16 @@ export default function RedefinirSenhaPage(): ReactNode {
             <p className="text-sm font-medium text-foreground">Complete seu cadastro</p>
             <div className="form-group">
               <label className="form-label">Tipo de conta</label>
-              <select className="field" value={tipo} onChange={(e) => setTipo(e.target.value as TipoConta | "")}>
-                <option value="">Selecione...</option>
-                <option value="investidor">Investidor</option>
-                <option value="incorporadora">Incorporadora</option>
-              </select>
+              <Select
+                value={tipo}
+                onValueChange={(value) => setTipo(value as TipoConta | "")}
+                options={[
+                  { value: "", label: "Selecione..." },
+                  { value: "investidor", label: "Investidor" },
+                  { value: "incorporadora", label: "Incorporadora" },
+                ]}
+                ariaLabel="Tipo de conta"
+              />
             </div>
 
             {mostraEmpresa && (

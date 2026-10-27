@@ -103,7 +103,7 @@ jobs:
           STAGE=dev
           REGION="${{ vars.AWS_REGION }}"
           FAIL=0
-          for TABLE in AtlasIncorporadoras AtlasAdmins AtlasProjetos AtlasScorecard AtlasNotificacoes AtlasAuditoria AtlasNotas; do
+          for TABLE in AtlasIncorporadoras AtlasAdmins AtlasProjetos AtlasScorecard AtlasNotificacoes AtlasAuditoria AtlasNotas AtlasBoards AtlasBoardItems; do
             STATUS=$(aws dynamodb describe-table \
               --table-name "${TABLE}-${STAGE}" \
               --query 'Table.TableStatus' \

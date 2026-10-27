@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
 import type { DocumentoArquivo, DocumentoCatalogoItem, Incorporadora } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
+import { Select } from "@/components/ui/select";
 import { PageSpinner } from "@/components/ui/spinner";
 import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
 import { Building2, Globe, FileText, Phone, User, Mail } from "lucide-react";
@@ -263,12 +264,15 @@ export default function IncorporadoraPerfilPage(): ReactNode {
                   </div>
                   <div className="form-group sm:col-span-1">
                     <label className="form-label">Estado</label>
-                    <select className="input-base w-full" value={endereco.estado} onChange={setEnderecoField("estado")}>
-                      <option value="">UF</option>
-                      {UFS.map((uf) => (
-                        <option key={uf} value={uf}>{uf}</option>
-                      ))}
-                    </select>
+                    <Select
+                      value={endereco.estado}
+                      onValueChange={(value) => setEndereco((prev) => ({ ...prev, estado: value.toUpperCase().slice(0, 2) }))}
+                      options={[
+                        { value: "", label: "UF" },
+                        ...UFS.map((uf) => ({ value: uf, label: uf })),
+                      ]}
+                      ariaLabel="Estado"
+                    />
                   </div>
                 </div>
               </div>

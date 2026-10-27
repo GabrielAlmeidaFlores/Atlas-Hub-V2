@@ -1,4 +1,4 @@
-import { VITE_API_URL } from "@/lib/env";
+import { USE_LOCAL_MOCKS, VITE_API_URL } from "@/lib/env";
 import type { ApiErrorCode } from "@/types";
 
 const API_ERROR_PREFIX = "API_ERROR::";
@@ -160,9 +160,16 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const authHeaders = await getAuthHeaders();
+  const mockEmail = USE_LOCAL_MOCKS && typeof window !== "undefined"
+    ? window.localStorage.getItem("atlas.mock-user-email") ?? ""
+    : "";
   const response = await fetch(`${VITE_API_URL}${path}`, {
     method,
-    headers: { "Content-Type": "application/json", ...authHeaders },
+    headers: {
+      "Content-Type": "application/json",
+      ...(mockEmail.length > 0 ? { "x-mock-user-email": mockEmail } : {}),
+      ...authHeaders,
+    },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 

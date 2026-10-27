@@ -6,6 +6,8 @@ import {
 import { api, getApiErrorMessage } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
+import { Select } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 import { SkeletonPage } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/ui/stat-card";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -20,6 +22,7 @@ import type {
 } from "../types";
 import { ALERT_RULES, eventLabel, descreverAlerta } from "../labels";
 import { HeatmapPreview } from "../components/heatmap-preview";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type Tab = "overview" | "funnel" | "heatmap" | "alerts" | "export";
 
@@ -143,6 +146,7 @@ function StepPreview({ eventName, label }: { readonly eventName: string; readonl
 }
 
 export default function AdminAnalyticsPage(): ReactNode {
+  const confirm = useConfirm();
   const addToast = useToastStore((s) => s.addToast);
   const [tab, setTab] = useState<Tab>("overview");
   const [filters, setFilters] = useState<AnalyticsFilters>(EMPTY_FILTERS);
@@ -247,7 +251,12 @@ export default function AdminAnalyticsPage(): ReactNode {
   }
 
   async function removeAlert(alert: AnalyticsAlert): Promise<void> {
-    if (!confirm(`Excluir o alerta "${alert.name}"? Esta ação não pode ser desfeita.`)) return;
+    const confirmed = await confirm({
+      title: "Excluir alerta",
+      description: `Excluir o alerta "${alert.name}"? Esta ação não pode ser desfeita.`,
+      confirmLabel: "Excluir alerta",
+    });
+    if (!confirmed) return;
     setBusy(true);
     try {
       await api.delete(`/analytics/admin/alerts/${alert.id}`);
@@ -321,19 +330,20 @@ export default function AdminAnalyticsPage(): ReactNode {
         action={
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <select
-              className="field h-9 w-auto py-1 text-sm"
-              value={filters.days}
-              onChange={(e) => {
-                const days = Number(e.target.value);
+            <Select
+              value={String(filters.days)}
+              onValueChange={(value) => {
+                const days = Number(value);
                 setFilters((p) => ({ ...p, days }));
                 setAppliedFilters((p) => ({ ...p, days }));
               }}
-            >
-              {[1, 7, 14, 30].map((d) => (
-                <option key={d} value={d}>{d === 1 ? "Dia atual" : `${String(d)} dias`}</option>
-              ))}
-            </select>
+              options={[1, 7, 14, 30].map((days) => ({
+                value: String(days),
+                label: days === 1 ? "Dia atual" : `${String(days)} dias`,
+              }))}
+              className="field h-9 w-auto py-1 text-sm"
+              ariaLabel="Período"
+            />
           </div>
         }
       />
@@ -346,12 +356,17 @@ export default function AdminAnalyticsPage(): ReactNode {
           </label>
           <label className="form-group mb-0">
             <span className="form-label">Dispositivo</span>
-            <select className="field" value={filters.device} onChange={(e) => setFilters((p) => ({ ...p, device: e.target.value }))}>
-              <option value="">Todos</option>
-              <option value="desktop">Computador</option>
-              <option value="mobile">Celular</option>
-              <option value="tablet">Tablet</option>
-            </select>
+            <Select
+              value={filters.device}
+              onValueChange={(value) => setFilters((p) => ({ ...p, device: value }))}
+              options={[
+                { value: "", label: "Todos" },
+                { value: "desktop", label: "Computador" },
+                { value: "mobile", label: "Celular" },
+                { value: "tablet", label: "Tablet" },
+              ]}
+              ariaLabel="Dispositivo"
+            />
           </label>
           <label className="form-group mb-0">
             <span className="form-label">Navegador / Sistema</span>
@@ -531,30 +546,31 @@ export default function AdminAnalyticsPage(): ReactNode {
               <div className="flex flex-wrap items-end gap-3">
                 <label className="form-group mb-0 min-w-[15rem]">
                   <span className="form-label">Tela</span>
-                  <select className="field" value={heatPath} onChange={(e) => setHeatPath(e.target.value)}>
-                    {HEAT_SCREENS.map((s) => (
-                      <option key={s.path} value={s.path}>{s.label}</option>
-                    ))}
-                  </select>
+                  <Select
+                    value={heatPath}
+                    onValueChange={setHeatPath}
+                    options={HEAT_SCREENS.map((screen) => ({ value: screen.path, label: screen.label }))}
+                    ariaLabel="Tela"
+                  />
                 </label>
                 <label className="form-group mb-0">
                   <span className="form-label">De</span>
-                  <input
-                    type="date"
-                    className="field max-w-[11rem]"
+                  <DatePicker
                     value={heatFrom}
+                    onValueChange={setHeatFrom}
+                    className="field max-w-[11rem]"
                     max={heatTo}
-                    onChange={(e) => setHeatFrom(e.target.value)}
+                    ariaLabel="De"
                   />
                 </label>
                 <label className="form-group mb-0">
                   <span className="form-label">Até</span>
-                  <input
-                    type="date"
-                    className="field max-w-[11rem]"
+                  <DatePicker
                     value={heatTo}
+                    onValueChange={setHeatTo}
+                    className="field max-w-[11rem]"
                     min={heatFrom}
-                    onChange={(e) => setHeatTo(e.target.value)}
+                    ariaLabel="Até"
                   />
                 </label>
                 <div className="form-group mb-0">
@@ -619,17 +635,15 @@ export default function AdminAnalyticsPage(): ReactNode {
               </label>
               <label className="form-group mb-0">
                 <span className="form-label">O que monitorar</span>
-                <select
-                  className="field"
+                <Select
                   value={alertForm.rule}
-                  onChange={(e) => {
-                    const rule = e.target.value;
+                  onValueChange={(rule) => {
                     const padrao = ALERT_RULES.find((r) => r.rule === rule)?.defaultValue;
                     setAlertForm((p) => ({ ...p, rule, ...(padrao !== undefined ? { threshold: padrao } : {}) }));
                   }}
-                >
-                  {ALERT_RULES.map((r) => <option key={r.rule} value={r.rule}>{r.label}</option>)}
-                </select>
+                  options={ALERT_RULES.map((r) => ({ value: r.rule, label: r.label }))}
+                  ariaLabel="O que monitorar"
+                />
                 {alertRuleAtual !== null && <p className="form-hint">{alertRuleAtual.desc}</p>}
               </label>
               <label className="form-group mb-0">
@@ -682,7 +696,7 @@ export default function AdminAnalyticsPage(): ReactNode {
             <h3 className="text-sm font-semibold text-foreground">Exportar planilha</h3>
             <label className="form-group">
               <span className="form-label">Dia</span>
-              <input type="date" className="field" value={exportDay} onChange={(e) => setExportDay(e.target.value)} />
+              <DatePicker value={exportDay} onValueChange={setExportDay} ariaLabel="Dia" />
             </label>
             <p className="text-sm text-muted-foreground">Usa o ID do usuário do filtro global quando preenchido.</p>
             <button type="button" disabled={busy} className="btn btn-primary" onClick={() => void exportCsv()}>

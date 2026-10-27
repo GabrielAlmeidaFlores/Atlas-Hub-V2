@@ -11,6 +11,8 @@ import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
+import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
+import { Select } from "@/components/ui/select";
 import { formatCurrency, formatCnpj, formatDate, isValidCnpj, cn } from "@/lib/utils";
 
 const COLUMNS = [
@@ -38,6 +40,12 @@ export default function AdminFinanceiroListaPage(): ReactNode {
   const [showSpe, setShowSpe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ projetoId: "", cnpjSpe: "", razaoSocialSpe: "" });
+  const formDirty = form.projetoId.length > 0 || form.cnpjSpe.length > 0 || form.razaoSocialSpe.length > 0;
+  const closeSpe = (): void => {
+    setShowSpe(false);
+    setForm({ projetoId: "", cnpjSpe: "", razaoSocialSpe: "" });
+  };
+  const requestCloseSpe = useDiscardGuard(formDirty, closeSpe);
 
   async function load(): Promise<void> {
     const r = await api.get<FinanceiroContasResponse>("/admin/financeiro/contas");
@@ -242,7 +250,7 @@ export default function AdminFinanceiroListaPage(): ReactNode {
 
       <Modal
         open={showSpe}
-        onOpenChange={setShowSpe}
+        onOpenChange={(next) => { if (!next) void requestCloseSpe(); }}
         title="Abrir conta da obra"
         description="Cria a conta bancária isolada deste projeto. Informe o CNPJ da SPE só para identificação — a conta opera no CNPJ Atlas."
         className="max-w-xl"
@@ -250,17 +258,19 @@ export default function AdminFinanceiroListaPage(): ReactNode {
         <form onSubmit={(e) => void openSpe(e)} className="space-y-5">
           <div className="form-group">
             <label className="form-label">Projeto</label>
-            <select
-              className="input-base"
+            <Select
               value={form.projetoId}
-              onChange={(e) => setForm((p) => ({ ...p, projetoId: e.target.value }))}
+              onValueChange={(value) => setForm((p) => ({ ...p, projetoId: value }))}
+              options={[
+                { value: "", label: "Selecione" },
+                ...elegiveis.map((projeto) => ({
+                  value: projeto.id,
+                  label: `${projeto.nome} — ${projeto.cidade}/${projeto.estado}`,
+                })),
+              ]}
               required
-            >
-              <option value="">Selecione</option>
-              {elegiveis.map((p) => (
-                <option key={p.id} value={p.id}>{p.nome} — {p.cidade}/{p.estado}</option>
-              ))}
-            </select>
+              ariaLabel="Projeto"
+            />
             {elegiveis.length === 0 && (
               <p className="mt-1 text-xs text-muted-foreground">Não há oferta publicada sem conta. Confirme a publicação no histórico de curadoria.</p>
             )}
@@ -294,7 +304,7 @@ export default function AdminFinanceiroListaPage(): ReactNode {
             )}
           </div>
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowSpe(false)}>Cancelar</button>
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestCloseSpe()}>Cancelar</button>
             <button type="submit" disabled={isSaving || form.projetoId.length === 0 || !cnpjSpeValido} className="btn btn-primary rounded-[8px]">
               {isSaving ? "Abrindo…" : "Abrir conta"}
             </button>

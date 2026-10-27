@@ -48,7 +48,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       await new Promise((resolve) => setTimeout(resolve, 500));
       const normalizedEmail = email.trim().toLowerCase();
       const perfil = extractPerfilFromEmail(normalizedEmail);
-      const mockId = `mock-${Math.random().toString(36).slice(2, 11)}`;
+      const mockId = `mock-${normalizedEmail.split("@")[0] ?? "user"}`;
+      if (typeof window !== "undefined") window.localStorage.setItem("atlas.mock-user-email", normalizedEmail);
       set({
         user: { id: mockId, email: normalizedEmail, nome: normalizedEmail.split("@")[0] ?? "", perfil },
         isAuthenticated: true,
@@ -113,7 +114,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       analytics.track("logout");
       void analytics.flush();
     });
-    void import("@aws-amplify/auth").then(({ signOut }) => { void signOut(); });
+    if (!USE_LOCAL_MOCKS) {
+      void import("@aws-amplify/auth").then(({ signOut }) => { void signOut(); });
+    }
+    if (typeof window !== "undefined") window.localStorage.removeItem("atlas.mock-user-email");
     set({ user: null, isAuthenticated: false, isLoading: false, pendingChallenge: null });
   },
 

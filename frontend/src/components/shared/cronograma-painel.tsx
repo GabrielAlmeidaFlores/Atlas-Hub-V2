@@ -9,6 +9,10 @@ import { StatCard } from "@/components/ui/stat-card";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
+import { Select } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 import { CurrencyInput } from "@/components/shared/currency-input";
 import { DocumentLink } from "@/components/shared/document-link";
 import { formatCurrency, parseMoneyInput, formatMoneyFromNumber, cn } from "@/lib/utils";
@@ -93,12 +97,20 @@ function Field({ label, children }: { readonly label: string; readonly children:
 }
 
 export function CronogramaPainel({ data, onReload }: Props): ReactNode {
+  const confirm = useConfirm();
   const addToast = useToastStore((s) => s.addToast);
   const [etapaOpen, setEtapaOpen] = useState(false);
   const [gastoOpen, setGastoOpen] = useState(false);
   const [editingEtapa, setEditingEtapa] = useState<EtapaCronograma | null>(null);
   const [etapaForm, setEtapaForm] = useState<EtapaForm>(ETAPA_VAZIA);
+  const [etapaInitial, setEtapaInitial] = useState<EtapaForm>(ETAPA_VAZIA);
   const [gastoForm, setGastoForm] = useState<GastoForm>({
+    etapaId: "",
+    descricao: "",
+    valor: "",
+    dataLancamento: new Date().toISOString().slice(0, 10),
+  });
+  const [gastoInitial, setGastoInitial] = useState<GastoForm>({
     etapaId: "",
     descricao: "",
     valor: "",
@@ -113,12 +125,15 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
   function openNovaEtapa(): void {
     setEditingEtapa(null);
     setEtapaForm(ETAPA_VAZIA);
+    setEtapaInitial(ETAPA_VAZIA);
     setEtapaOpen(true);
   }
 
   function openEditarEtapa(etapa: EtapaCronograma): void {
     setEditingEtapa(etapa);
-    setEtapaForm(etapaToForm(etapa));
+    const next = etapaToForm(etapa);
+    setEtapaForm(next);
+    setEtapaInitial(next);
     setEtapaOpen(true);
   }
 
@@ -128,15 +143,28 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
       addToast({ type: "error", title: "Cadastre uma etapa antes de lançar gastos" });
       return;
     }
-    setGastoForm({
+    const next = {
       etapaId: primeira.etapaId,
       descricao: "",
       valor: "",
       dataLancamento: new Date().toISOString().slice(0, 10),
-    });
+    };
+    setGastoForm(next);
+    setGastoInitial(next);
     setComprovante(null);
     setGastoOpen(true);
   }
+
+  const etapaDirty = etapaOpen && JSON.stringify(etapaForm) !== JSON.stringify(etapaInitial);
+  const gastoDirty = gastoOpen && (JSON.stringify(gastoForm) !== JSON.stringify(gastoInitial) || comprovante !== null);
+  const requestCloseEtapa = useDiscardGuard(etapaDirty, () => {
+    setEtapaOpen(false);
+    setComprovante(null);
+  });
+  const requestCloseGasto = useDiscardGuard(gastoDirty, () => {
+    setGastoOpen(false);
+    setComprovante(null);
+  });
 
   async function saveEtapa(e: FormEvent): Promise<void> {
     e.preventDefault();
@@ -188,7 +216,12 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
   }
 
   async function removeEtapa(etapa: EtapaCronograma): Promise<void> {
-    if (!window.confirm(`Excluir a etapa ${etapa.nome}?`)) return;
+    const confirmed = await confirm({
+      title: "Excluir etapa",
+      description: `Excluir a etapa ${etapa.nome}?`,
+      confirmLabel: "Excluir etapa",
+    });
+    if (!confirmed) return;
     setSaving(true);
     try {
       await api.delete(`/projetos/${data.projeto.id}/cronograma/etapas/${etapa.etapaId}`);
@@ -244,7 +277,12 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
   }
 
   async function cancelarGasto(item: LancamentoObra): Promise<void> {
-    if (!window.confirm("Cancelar este lançamento?")) return;
+    const confirmed = await confirm({
+      title: "Cancelar lançamento",
+      description: "Cancelar este lançamento?",
+      confirmLabel: "Cancelar lançamento",
+    });
+    if (!confirmed) return;
     setSaving(true);
     try {
       await api.put(`/projetos/${data.projeto.id}/cronograma/lancamentos/${item.lancamentoId}`, { status: "CANCELADO" });
@@ -368,23 +406,23 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
         )}
       </section>
 
-      <Modal open={etapaOpen} onOpenChange={setEtapaOpen} title={editingEtapa === null ? "Nova etapa" : "Editar etapa"} className="max-w-xl">
+      <Modal open={etapaOpen} onOpenChange={(next) => { if (!next) void requestCloseEtapa(); }} title={editingEtapa === null ? "Nova etapa" : "Editar etapa"} className="max-w-xl">
         <form className="space-y-4" onSubmit={(e) => void saveEtapa(e)}>
           <Field label="Nome">
             <input className="input-base" required maxLength={120} value={etapaForm.nome} onChange={(e) => setEtapaForm((p) => ({ ...p, nome: e.target.value }))} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Início previsto">
-              <input type="date" className="input-base" required value={etapaForm.inicioPrevisto} onChange={(e) => setEtapaForm((p) => ({ ...p, inicioPrevisto: e.target.value }))} />
+              <DatePicker value={etapaForm.inicioPrevisto} onValueChange={(value) => setEtapaForm((p) => ({ ...p, inicioPrevisto: value }))} required ariaLabel="Início previsto" />
             </Field>
             <Field label="Término previsto">
-              <input type="date" className="input-base" required value={etapaForm.fimPrevisto} onChange={(e) => setEtapaForm((p) => ({ ...p, fimPrevisto: e.target.value }))} />
+              <DatePicker value={etapaForm.fimPrevisto} onValueChange={(value) => setEtapaForm((p) => ({ ...p, fimPrevisto: value }))} required ariaLabel="Término previsto" />
             </Field>
             <Field label="Início real">
-              <input type="date" className="input-base" value={etapaForm.inicioReal} onChange={(e) => setEtapaForm((p) => ({ ...p, inicioReal: e.target.value }))} />
+              <DatePicker value={etapaForm.inicioReal} onValueChange={(value) => setEtapaForm((p) => ({ ...p, inicioReal: value }))} ariaLabel="Início real" />
             </Field>
             <Field label="Término real">
-              <input type="date" className="input-base" value={etapaForm.fimReal} onChange={(e) => setEtapaForm((p) => ({ ...p, fimReal: e.target.value }))} />
+              <DatePicker value={etapaForm.fimReal} onValueChange={(value) => setEtapaForm((p) => ({ ...p, fimReal: value }))} ariaLabel="Término real" />
             </Field>
             <Field label="% execução">
               <input type="number" min={0} max={100} className="input-base" value={etapaForm.percentualExecucao} onChange={(e) => setEtapaForm((p) => ({ ...p, percentualExecucao: e.target.value }))} />
@@ -394,20 +432,22 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
             </Field>
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" className="btn btn-ghost" onClick={() => setEtapaOpen(false)}>Cancelar</button>
+            <button type="button" className="btn btn-ghost" onClick={() => void requestCloseEtapa()}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? "Salvando…" : "Salvar"}</button>
           </div>
         </form>
       </Modal>
 
-      <Modal open={gastoOpen} onOpenChange={setGastoOpen} title="Lançar gasto" className="max-w-xl">
+      <Modal open={gastoOpen} onOpenChange={(next) => { if (!next) void requestCloseGasto(); }} title="Lançar gasto" className="max-w-xl">
         <form className="space-y-4" onSubmit={(e) => void saveGasto(e)}>
           <Field label="Etapa">
-            <select className="input-base" required value={gastoForm.etapaId} onChange={(e) => setGastoForm((p) => ({ ...p, etapaId: e.target.value }))}>
-              {etapas.map((etapa) => (
-                <option key={etapa.etapaId} value={etapa.etapaId}>{etapa.nome}</option>
-              ))}
-            </select>
+            <Select
+              value={gastoForm.etapaId}
+              onValueChange={(value) => setGastoForm((p) => ({ ...p, etapaId: value }))}
+              options={etapas.map((etapa) => ({ value: etapa.etapaId, label: etapa.nome }))}
+              required
+              ariaLabel="Etapa"
+            />
           </Field>
           <Field label="Despesa">
             <input className="input-base" required maxLength={200} value={gastoForm.descricao} onChange={(e) => setGastoForm((p) => ({ ...p, descricao: e.target.value }))} />
@@ -417,14 +457,14 @@ export function CronogramaPainel({ data, onReload }: Props): ReactNode {
               <CurrencyInput required value={gastoForm.valor} onValueChange={(v) => setGastoForm((p) => ({ ...p, valor: v }))} />
             </Field>
             <Field label="Data">
-              <input type="date" className="input-base" required value={gastoForm.dataLancamento} onChange={(e) => setGastoForm((p) => ({ ...p, dataLancamento: e.target.value }))} />
+              <DatePicker value={gastoForm.dataLancamento} onValueChange={(value) => setGastoForm((p) => ({ ...p, dataLancamento: value }))} required ariaLabel="Data" />
             </Field>
           </div>
           <Field label="Comprovante (opcional)">
             <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="text-sm" onChange={(e) => setComprovante(e.target.files?.[0] ?? null)} />
           </Field>
           <div className="flex justify-end gap-2">
-            <button type="button" className="btn btn-ghost" onClick={() => setGastoOpen(false)}>Cancelar</button>
+            <button type="button" className="btn btn-ghost" onClick={() => void requestCloseGasto()}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? "Salvando…" : "Lançar"}</button>
           </div>
         </form>

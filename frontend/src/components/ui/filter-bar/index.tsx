@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
+import { Select } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export interface SelectFilterField {
   type: "select";
@@ -68,20 +70,16 @@ export function FilterBar({
                 <span className="text-[11px] font-medium tracking-normal text-muted-foreground">
                   {field.label}
                 </span>
-                <select
+                <Select
                   value={currentValue}
-                  onChange={(e) => {
-                    onChange(field.key, e.target.value);
-                  }}
+                  onValueChange={(value) => onChange(field.key, value)}
+                  options={[
+                    { value: "all", label: field.allLabel ?? "Todos" },
+                    ...field.options,
+                  ]}
                   className={`field h-9 py-1 text-xs ${field.width ?? "min-w-[130px]"}`}
-                >
-                  <option value="all">{field.allLabel ?? "Todos"}</option>
-                  {field.options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  ariaLabel={field.label}
+                />
               </div>
             );
           }
@@ -113,13 +111,11 @@ export function FilterBar({
               <span className="text-[11px] font-medium tracking-normal text-muted-foreground">
                 {field.label}
               </span>
-              <input
-                type="date"
+              <DatePicker
+                value={values[field.key] ?? ""}
+                onValueChange={(value) => onChange(field.key, value)}
                 className={`field h-9 text-xs ${field.width ?? "w-[140px]"}`}
-                defaultValue={values[field.key] ?? ""}
-                onChange={(e) => {
-                  onChange(field.key, e.target.value);
-                }}
+                ariaLabel={field.label}
               />
             </div>
           );

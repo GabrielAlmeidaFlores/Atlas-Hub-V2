@@ -8,6 +8,7 @@ import { empresaDocsComFallback, fetchCatalogo, obrigatoriosFaltando } from "@/l
 import { analytics } from "@/lib/analytics";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
+import { Select } from "@/components/ui/select";
 import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
 import { cn, parseMoneyInput, formatCurrency } from "@/lib/utils";
 import type { DocumentoArquivo, DocumentoCatalogoItem, Incorporadora, MembroEquipe } from "@/types";
@@ -21,6 +22,7 @@ import { ProjetoProgressBar, type ProgressItem } from "@/components/shared/proje
 import { EquipeEditor } from "@/components/shared/equipe-editor";
 import { ProjetoFotosField } from "@/components/shared/projeto-fotos-field";
 import { CurrencyInput } from "@/components/shared/currency-input";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type Etapa = 1 | 2 | 3 | 4 | 5;
 
@@ -58,6 +60,7 @@ function Field({ label, hint, error, children }: { label: string; hint?: string;
 }
 
 export default function IncorporadoraProjetoNovoPage(): ReactNode {
+  const confirm = useConfirm();
   const [etapa, setEtapa] = useState<Etapa>(1);
   const [gerais, setGerais] = useState<DadosGerais>(g0);
   const [financeiros, setFinanceiros] = useState<DadosFinanceiros>(f0);
@@ -249,7 +252,12 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
     if (etapa === 3) {
       const faltando = obrigatoriosFaltando(catalogoProjeto, documentosChecklist);
       if (faltando.length > 0) {
-        const seguir = window.confirm(`Faltam ${String(faltando.length)} documento(s) obrigatório(s). Você pode continuar e enviar depois, mas o projeto não poderá ser submetido até completar. Deseja continuar?`);
+        const seguir = await confirm({
+          title: "Documentos obrigatórios pendentes",
+          description: `Faltam ${String(faltando.length)} documento(s) obrigatório(s). Você pode continuar e enviar depois, mas o projeto não poderá ser submetido até completar. Deseja continuar?`,
+          confirmLabel: "Continuar",
+          destructive: false,
+        });
         if (!seguir) return;
       }
     }
@@ -372,18 +380,34 @@ export default function IncorporadoraProjetoNovoPage(): ReactNode {
               <Field label="Nome do Projeto" error={fieldErrors.nome}><input className="input-base" placeholder="Ex: Residencial Park View" value={gerais.nome} onChange={g("nome")} required /></Field>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Modelo de Investimento" error={fieldErrors.modelo}>
-                  <select className="input-base" value={gerais.modelo} onChange={g("modelo")}>
-                    <option value="VENDA">Construção para Venda</option>
-                    <option value="RENDA">Construção para Renda</option>
-                    <option value="MISTO">Modelo Misto</option>
-                  </select>
+                  <Select
+                    value={gerais.modelo}
+                    onValueChange={(value) => {
+                      setGerais((prev) => ({ ...prev, modelo: value }));
+                      limparErro("modelo");
+                    }}
+                    options={[
+                      { value: "VENDA", label: "Construção para Venda" },
+                      { value: "RENDA", label: "Construção para Renda" },
+                      { value: "MISTO", label: "Modelo Misto" },
+                    ]}
+                    ariaLabel="Modelo de Investimento"
+                  />
                 </Field>
                 <Field label="Tipo de Imóvel" error={fieldErrors.tipoImovel}>
-                  <select className="input-base" value={gerais.tipoImovel} onChange={g("tipoImovel")}>
-                    <option value="RESIDENCIAL">Residencial</option>
-                    <option value="COMERCIAL">Comercial</option>
-                    <option value="MISTO">Misto</option>
-                  </select>
+                  <Select
+                    value={gerais.tipoImovel}
+                    onValueChange={(value) => {
+                      setGerais((prev) => ({ ...prev, tipoImovel: value }));
+                      limparErro("tipoImovel");
+                    }}
+                    options={[
+                      { value: "RESIDENCIAL", label: "Residencial" },
+                      { value: "COMERCIAL", label: "Comercial" },
+                      { value: "MISTO", label: "Misto" },
+                    ]}
+                    ariaLabel="Tipo de Imóvel"
+                  />
                 </Field>
               </div>
               <Field label="CEP" hint="Preenchemos o endereço automaticamente" error={cepErro}>
