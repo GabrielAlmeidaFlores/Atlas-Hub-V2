@@ -8,6 +8,9 @@ import { SkeletonPage } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DataTable } from "@/components/ui/data-table";
 import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
 import { formatDate } from "@/lib/utils";
 import { Users, UserPlus } from "lucide-react";
 import { Navigate } from "react-router-dom";
@@ -24,11 +27,18 @@ const COLUMNS = [
 export default function AdminUsuariosPage(): ReactNode {
   const user = useAuthStore((s) => s.user);
   const addToast = useToastStore((s) => s.addToast);
+  const confirm = useConfirm();
   const [items, setItems] = useState<Admin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ nome: "", email: "", perfil: "ANALISTA" as "ANALISTA" | "ADMIN_MASTER" });
+  const formDirty = form.nome.length > 0 || form.email.length > 0 || form.perfil !== "ANALISTA";
+  const closeForm = (): void => {
+    setShowForm(false);
+    setForm({ nome: "", email: "", perfil: "ANALISTA" });
+  };
+  const requestClose = useDiscardGuard(formDirty, closeForm);
 
   async function load(): Promise<void> {
     const r = await api.get<{ items: Admin[] }>("/admin/usuarios");
@@ -67,7 +77,12 @@ export default function AdminUsuariosPage(): ReactNode {
   }
 
   async function handleDesativar(id: string, nome: string): Promise<void> {
-    if (!window.confirm(`Desativar o usuário ${nome}?`)) return;
+    const confirmed = await confirm({
+      title: "Desativar usuário",
+      description: `Desativar o usuário ${nome}? Ele perderá o acesso à plataforma.`,
+      confirmLabel: "Desativar",
+    });
+    if (!confirmed) return;
     try {
       await api.put(`/admin/usuarios/${id}/desativar`, {});
       addToast({ type: "success", title: "Usuário desativado" });
@@ -123,7 +138,7 @@ export default function AdminUsuariosPage(): ReactNode {
 
       <Modal
         open={showForm}
-        onOpenChange={setShowForm}
+        onOpenChange={(next) => { if (!next) void requestClose(); }}
         title="Criar analista / admin master"
         description="O usuário receberá uma senha temporária no primeiro acesso."
         className="max-w-xl"
@@ -140,10 +155,15 @@ export default function AdminUsuariosPage(): ReactNode {
             </div>
             <div className="form-group">
               <label className="form-label">Perfil</label>
-              <select className="input-base" value={form.perfil} onChange={(e) => setForm((p) => ({ ...p, perfil: e.target.value as "ANALISTA" | "ADMIN_MASTER" }))}>
-                <option value="ANALISTA">Analista</option>
-                <option value="ADMIN_MASTER">Admin master</option>
-              </select>
+              <Select
+                value={form.perfil}
+                onValueChange={(value) => setForm((p) => ({ ...p, perfil: value as "ANALISTA" | "ADMIN_MASTER" }))}
+                options={[
+                  { value: "ANALISTA", label: "Analista" },
+                  { value: "ADMIN_MASTER", label: "Admin master" },
+                ]}
+                ariaLabel="Perfil"
+              />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-1">

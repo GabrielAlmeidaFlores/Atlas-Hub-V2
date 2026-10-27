@@ -78,6 +78,8 @@ provider:
     NOTAS_TABLE: AtlasNotas-${self:provider.stage}
     DOCUMENTOS_CATALOGO_TABLE: AtlasDocumentoCatalogo-${self:provider.stage}
     PASSWORD_RESETS_TABLE: AtlasPasswordResets-${self:provider.stage}
+    BOARDS_TABLE: AtlasBoards-${self:provider.stage}
+    BOARD_ITEMS_TABLE: AtlasBoardItems-${self:provider.stage}
     PASSWORD_RESET_SECRET: ${env:PASSWORD_RESET_SECRET, ''}
     SPE_CONTAS_TABLE: AtlasSpeContas-${self:provider.stage}
     FINANCEIRO_LEDGER_TABLE: AtlasFinanceiroLedger-${self:provider.stage}
@@ -695,6 +697,174 @@ functions:
     events:
       - http:
           path: admin/documentos/catalogo/{key}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  adminBoards:
+    handler: src/functions/admin-boards.handler
+    role: !GetAtt AdminBoardsLambdaRole.Arn
+    timeout: 20
+    description: "Boards, columns, labels, templates and cards management"
+    events:
+      - http:
+          path: admin/boards
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/columns
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/columns/{columnId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/columns/{columnId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/labels
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/labels/{labelId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/labels/{labelId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/templates
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/templates/{templateId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/templates/{templateId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/files/presign
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/files/download-url
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/cards
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/cards/{cardId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/cards/{cardId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/cards/{cardId}/move
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/members/candidates
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/members
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/boards/{boardId}/members/{email}
           method: delete
           cors: true
           authorizer:
@@ -1674,6 +1844,60 @@ resources:
         TimeToLiveSpecification:
           AttributeName: expiresAt
           Enabled: true
+
+    AtlasBoardsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasBoards-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: boardId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: boardId
+            KeyType: HASH
+
+    AtlasBoardItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasBoardItems-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: boardId
+            AttributeType: S
+          - AttributeName: itemKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: boardId
+            KeyType: HASH
+          - AttributeName: itemKey
+            KeyType: RANGE
+
+    AdminBoardsLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-boards-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem, dynamodb:Query, dynamodb:Scan]
+                  Resource:
+                    - !GetAtt AtlasBoardsTable.Arn
+                    - !GetAtt AtlasBoardItemsTable.Arn
+                    - !GetAtt AtlasAdminsTable.Arn
+                - Effect: Allow
+                  Action: [s3:PutObject, s3:GetObject]
+                  Resource: !Sub 'arn:aws:s3:::atlas-hub-documents-${self:provider.stage}/boards/*'
 
     PasswordResetLambdaRole:
       Type: AWS::IAM::Role

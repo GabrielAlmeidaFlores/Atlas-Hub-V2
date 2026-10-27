@@ -3,6 +3,9 @@ import { Plus, Pencil, PowerOff, Power, X } from "lucide-react";
 import { api, getApiErrorMessage } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 import { PageHeader } from "@/components/ui/page-header";
+import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { PageSpinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { CATEGORIA_LABELS, CATEGORIA_ORDER, clearCatalogoCache } from "@/lib/documentos-catalogo";
@@ -31,6 +34,7 @@ const emptyForm: FormState = {
 
 export default function AdminDocumentosPage(): ReactNode {
   const addToast = useToastStore((s) => s.addToast);
+  const confirm = useConfirm();
   const [items, setItems] = useState<DocumentoCatalogoItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -115,6 +119,14 @@ export default function AdminDocumentosPage(): ReactNode {
   }
 
   async function toggleAtivo(item: DocumentoCatalogoItem): Promise<void> {
+    if (item.ativo) {
+      const confirmed = await confirm({
+        title: "Desativar item",
+        description: `Desativar o item “${item.label}”? Ele deixará de ser exigido no cadastro e na submissão de projetos.`,
+        confirmLabel: "Desativar item",
+      });
+      if (!confirmed) return;
+    }
     try {
       if (item.ativo) {
         await api.delete(`/admin/documentos/catalogo/${encodeURIComponent(item.key)}`);
@@ -174,15 +186,21 @@ export default function AdminDocumentosPage(): ReactNode {
                 </label>
                 <label className="form-group mb-0">
                   <span className="form-label">Escopo</span>
-                  <select className="input-base" value={form.scope} onChange={(e) => setForm((p) => (p === null ? p : { ...p, scope: e.target.value as DocumentoScope }))}>
-                    {SCOPES.map((s) => <option key={s} value={s}>{SCOPE_LABEL[s]}</option>)}
-                  </select>
+                  <Select
+                    value={form.scope}
+                    onValueChange={(value) => setForm((p) => (p === null ? p : { ...p, scope: value as DocumentoScope }))}
+                    options={SCOPES.map((scope) => ({ value: scope, label: SCOPE_LABEL[scope] }))}
+                    ariaLabel="Escopo"
+                  />
                 </label>
                 <label className="form-group mb-0">
                   <span className="form-label">Categoria</span>
-                  <select className="input-base" value={form.categoria} onChange={(e) => setForm((p) => (p === null ? p : { ...p, categoria: e.target.value as DocumentoCategoria }))}>
-                    {CATEGORIAS.map((c) => <option key={c} value={c}>{CATEGORIA_LABELS[c]}</option>)}
-                  </select>
+                  <Select
+                    value={form.categoria}
+                    onValueChange={(value) => setForm((p) => (p === null ? p : { ...p, categoria: value as DocumentoCategoria }))}
+                    options={CATEGORIAS.map((categoria) => ({ value: categoria, label: CATEGORIA_LABELS[categoria] }))}
+                    ariaLabel="Categoria"
+                  />
                 </label>
                 <label className="form-group mb-0">
                   <span className="form-label">Ordem</span>
@@ -198,14 +216,16 @@ export default function AdminDocumentosPage(): ReactNode {
                 </label>
               </div>
               <div className="flex flex-wrap items-center gap-5">
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-                  <input type="checkbox" checked={form.obrigatorio} onChange={(e) => setForm((p) => (p === null ? p : { ...p, obrigatorio: e.target.checked }))} />
-                  Obrigatório
-                </label>
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-                  <input type="checkbox" checked={form.ativo} onChange={(e) => setForm((p) => (p === null ? p : { ...p, ativo: e.target.checked }))} />
-                  Ativo
-                </label>
+                <Checkbox
+                  checked={form.obrigatorio}
+                  onChange={(checked) => setForm((p) => (p === null ? p : { ...p, obrigatorio: checked }))}
+                  label="Obrigatório"
+                />
+                <Checkbox
+                  checked={form.ativo}
+                  onChange={(checked) => setForm((p) => (p === null ? p : { ...p, ativo: checked }))}
+                  label="Ativo"
+                />
               </div>
               <div className="flex justify-end gap-2">
                 <button type="button" className="btn btn-secondary btn-sm" onClick={cancel}>Cancelar</button>

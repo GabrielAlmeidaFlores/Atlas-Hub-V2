@@ -34,6 +34,8 @@ export const OBRA_LANCAMENTOS_TABLE = process.env['OBRA_LANCAMENTOS_TABLE'] ?? '
 export const SPE_CARTOES_TABLE = process.env['SPE_CARTOES_TABLE'] ?? 'AtlasSpeCartoes-dev';
 export const SPE_CARTAO_LIBERACOES_TABLE = process.env['SPE_CARTAO_LIBERACOES_TABLE'] ?? 'AtlasSpeCartaoLiberacoes-dev';
 export const PASSWORD_RESETS_TABLE = process.env['PASSWORD_RESETS_TABLE'] ?? 'AtlasPasswordResets-dev';
+export const BOARDS_TABLE = process.env['BOARDS_TABLE'] ?? 'AtlasBoards-dev';
+export const BOARD_ITEMS_TABLE = process.env['BOARD_ITEMS_TABLE'] ?? 'AtlasBoardItems-dev';
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
 export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';

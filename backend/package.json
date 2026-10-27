@@ -9,7 +9,8 @@
     "migrar:tipo-usuarios": "tsx scripts/migrar-tipo-usuarios.ts",
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
-    "logs:health": "serverless logs -f health --tail"
+    "logs:health": "serverless logs -f health --tail",
+    "test": "tsx --test src/shared/board/*.test.ts src/functions/*.test.ts"
   },
   "dependencies": {
     "@aws-crypto/client-node": "^5.0.2",

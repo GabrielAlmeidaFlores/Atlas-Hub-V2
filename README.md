@@ -463,7 +463,7 @@ Atlas-Hub-V2/
 |---|---|
 | Pública | `/`, `/login`, `/cadastro`, `/confirmar-email`, `/esqueci-senha` |
 | Incorporadora | `/dashboard`, `/projetos/novo`, `/projetos/:id`, `/perfil`, `/notificacoes` |
-| Admin | `/admin`, `/admin/curadoria`, `/admin/historico`, `/admin/incorporadoras` |
+| Admin | `/admin`, `/admin/boards`, `/admin/boards/:boardId`, `/admin/curadoria`, `/admin/historico`, `/admin/incorporadoras` |
 
 ---
 
@@ -528,6 +528,7 @@ VITE_MODE=development
 yarn build
 yarn lint
 yarn typecheck
+yarn test
 ```
 
 ---

@@ -1,4 +1,5 @@
 import { api } from "@/services/api";
+import type { BoardFile } from "@/types";
 
 const ALLOWED_MIME = new Set(["application/pdf", "image/jpeg", "image/png"]);
 const IMAGE_MIME = new Set(["image/jpeg", "image/png"]);
@@ -91,4 +92,19 @@ export async function uploadProjetoFoto(
 
 export async function uploadIncorporadoraDocumento(file: File): Promise<string> {
   return uploadToS3("/incorporadora/documentos/pre-sign", file);
+}
+
+export async function uploadBoardFile(boardId: string, file: File): Promise<BoardFile> {
+  const contentType = file.type.length > 0 ? file.type : "application/octet-stream";
+  const presign = await api.post<{ uploadUrl: string; file: BoardFile }>(
+    `/admin/boards/${boardId}/files/presign`,
+    { fileName: file.name, contentType, size: file.size },
+  );
+  const put = await fetch(presign.uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": contentType },
+    body: file,
+  });
+  if (!put.ok) throw new Error(`Falha ao enviar ${file.name}`);
+  return presign.file;
 }

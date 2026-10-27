@@ -19,6 +19,7 @@ import { ViabilidadeReadOnly } from "@/components/shared/viabilidade-calculator"
 import { DocumentLink } from "@/components/shared/document-link";
 import { DocumentosChecklist } from "@/components/shared/documentos-checklist";
 import { HelpHint } from "@/components/ui/help-hint";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CuradoriaDetalhe {
   projeto: Projeto;
@@ -502,18 +503,17 @@ export default function AdminCuradoriaDetalhePage(): ReactNode {
                 { key: "speScp" as const, label: "SPE/SCP constituída ou em processo", hint: "A empresa criada especificamente para este projeto. Precisa estar constituída (ou em processo) para virar emissora da oferta." },
                 { key: "elegibilidadeCvm" as const, label: "Elegibilidade CVM 88 (receita ≤ R$40M / até R$80M)", hint: "A incorporadora pode captar pela regra da CVM 88 se faturou até R$ 40 milhões no ano (até R$ 80 milhões em casos específicos)." },
               ]).map(({ key, label, hint }) => (
-                <label key={key} className="flex cursor-pointer items-start gap-2 text-xs text-foreground">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5"
-                    checked={checklist[key]}
-                    onChange={(e) => setChecklist((p) => ({ ...p, [key]: e.target.checked }))}
-                  />
-                  <span className="inline-flex items-center gap-1">
-                    {label}
-                    <HelpHint content={hint} />
-                  </span>
-                </label>
+                <Checkbox
+                  key={key}
+                  checked={checklist[key]}
+                  onChange={(checked) => setChecklist((p) => ({ ...p, [key]: checked }))}
+                  label={(
+                    <span className="inline-flex items-center gap-1 text-xs">
+                      {label}
+                      <HelpHint content={hint} />
+                    </span>
+                  )}
+                />
               ))}
             </div>
             <button
