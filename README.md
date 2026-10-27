@@ -30,7 +30,7 @@ Detalhes: [`docs/SCOPE.md`](docs/SCOPE.md). Docs históricos Plano A **não** s�
 | Cronograma da obra (etapas, orçado × realizado, lançamentos) | Implementado |
 | Curadoria: fila, scorecard, notas, ajuste/reprovar/aprovar | Implementado |
 | Checklist pré-aprovação (UI + validação no `POST .../aprovar`) | Implementado |
-| Admin usuários (`/admin/usuarios`) + senha temporária na resposta | Implementado |
+| Admin usuários (`/admin/usuarios`) + convite por e-mail e senha temporária de fallback | Implementado |
 | CRM incorporadoras + métricas + histórico | Implementado |
 | SES / domínio / white-label contrato | Pendente — ver [`pending.md`](pending.md) |
 
@@ -220,7 +220,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Funcionalidade | Descrição | API |
 |---|---|---|
 | Listar usuários admin | Analistas e masters | `GET /admin/usuarios` |
-| Criar analista | Nome, e-mail; API devolve `temporaryPassword` (UI: toast + copiar); redefine no 1º acesso | `POST /admin/usuarios` |
+| Criar analista ou admin master | Nome, e-mail e perfil; envia convite customizado por e-mail e exibe senha temporária de fallback; redefine no 1º acesso | `POST /admin/usuarios` |
 | Desativar usuário | Remove acesso | `PUT /admin/usuarios/{id}/desativar` |
 | Reatribuir projeto | Troca analista responsável (com motivo); scorecard parcial é herdado | `POST /admin/curadoria/{id}/reatribuir` |
 

@@ -120,7 +120,6 @@ functions:
       - http:
           path: health
           method: get
-          cors: true
 
   publicoProjetosListar:
     handler: src/functions/publico-projetos-listar.handler
@@ -711,161 +710,14 @@ functions:
     events:
       - http:
           path: admin/boards
-          method: get
+          method: any
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ApiGatewayAuthorizer
       - http:
-          path: admin/boards
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}
-          method: get
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}
-          method: put
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}
-          method: delete
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/columns
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/columns/{columnId}
-          method: put
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/columns/{columnId}
-          method: delete
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/labels
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/labels/{labelId}
-          method: put
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/labels/{labelId}
-          method: delete
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/templates
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/templates/{templateId}
-          method: put
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/templates/{templateId}
-          method: delete
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/files/presign
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/files/download-url
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/cards
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/cards/{cardId}
-          method: put
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/cards/{cardId}
-          method: delete
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/cards/{cardId}/move
-          method: put
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/members/candidates
-          method: get
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/members
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: !Ref ApiGatewayAuthorizer
-      - http:
-          path: admin/boards/{boardId}/members/{email}
-          method: delete
+          path: admin/boards/{proxy+}
+          method: any
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
@@ -1006,7 +858,6 @@ functions:
       - http:
           path: webhooks/starkbank
           method: post
-          cors: true
 
   adminCaptacaoListar:
     handler: src/functions/admin-captacao-listar.handler
@@ -1115,7 +966,6 @@ functions:
       - http:
           path: publico/financeiro/projetos/{projetoId}/extrato
           method: get
-          cors: true
 
   webhookDivify:
     handler: src/functions/webhook-divify.handler
@@ -1126,7 +976,6 @@ functions:
       - http:
           path: webhooks/divify
           method: post
-          cors: true
 
   cronogramaObter:
     handler: src/functions/cronograma-obter.handler

@@ -343,7 +343,7 @@ export const handlers = [
   http.get(`${BASE}/admin/incorporadoras`, () => HttpResponse.json({ items: [mockIncorporadora] })),
   http.get(`${BASE}/admin/incorporadoras/:id`, () => HttpResponse.json({ incorporadora: mockIncorporadora, projetos: mockProjetos })),
   http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: [] })),
-  http.post(`${BASE}/admin/usuarios`, () => HttpResponse.json({ id: "admin-new" }, { status: 201 })),
+  http.post(`${BASE}/admin/usuarios`, () => HttpResponse.json({ id: "admin-new", temporaryPassword: "Atlas@Mock1234", emailSent: true }, { status: 201 })),
   http.put(`${BASE}/admin/usuarios/:id/desativar`, () => HttpResponse.json({ updated: true })),
 
   http.get(`${BASE}/admin/financeiro/contas`, () => HttpResponse.json({

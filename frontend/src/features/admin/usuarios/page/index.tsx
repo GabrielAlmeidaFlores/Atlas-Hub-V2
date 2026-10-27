@@ -11,9 +11,17 @@ import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
-import { formatDate } from "@/lib/utils";
-import { Users, UserPlus } from "lucide-react";
+import { cn, formatDate } from "@/lib/utils";
+import { Check, Copy, MailCheck, MailX, Users, UserPlus } from "lucide-react";
 import { Navigate } from "react-router-dom";
+
+interface CreatedInvite {
+  readonly nome: string;
+  readonly email: string;
+  readonly perfil: "ANALISTA" | "ADMIN_MASTER";
+  readonly temporaryPassword: string;
+  readonly emailSent: boolean;
+}
 
 const COLUMNS = [
   { label: "Nome" },
@@ -32,13 +40,25 @@ export default function AdminUsuariosPage(): ReactNode {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [createdInvite, setCreatedInvite] = useState<CreatedInvite | null>(null);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({ nome: "", email: "", perfil: "ANALISTA" as "ANALISTA" | "ADMIN_MASTER" });
   const formDirty = form.nome.length > 0 || form.email.length > 0 || form.perfil !== "ANALISTA";
   const closeForm = (): void => {
     setShowForm(false);
+    setCreatedInvite(null);
+    setCopied(false);
     setForm({ nome: "", email: "", perfil: "ANALISTA" });
   };
-  const requestClose = useDiscardGuard(formDirty, closeForm);
+  const closeDirty = formDirty || (createdInvite !== null && !createdInvite.emailSent && !copied);
+  const requestClose = useDiscardGuard(closeDirty, closeForm, createdInvite !== null && !createdInvite.emailSent
+    ? {
+        title: "Sair sem copiar a senha?",
+        description: "O e-mail não foi enviado e a senha temporária ainda não foi copiada. Se sair agora, o usuário pode ficar sem acesso.",
+        confirmLabel: "Sair mesmo assim",
+        cancelLabel: "Continuar aqui",
+      }
+    : {});
 
   async function load(): Promise<void> {
     const r = await api.get<{ items: Admin[] }>("/admin/usuarios");
@@ -57,22 +77,43 @@ export default function AdminUsuariosPage(): ReactNode {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const created = await api.post<{ id: string; temporaryPassword: string }>("/admin/usuarios", form);
-      addToast({
-        type: "success",
-        title: "Usuário criado",
-        description: `Senha temporária: ${created.temporaryPassword} — copie e envie ao usuário (válida só no 1º acesso).`,
+      const created = await api.post<{ id: string; temporaryPassword: string; emailSent: boolean }>("/admin/usuarios", form);
+      setCreatedInvite({
+        nome: form.nome,
+        email: form.email,
+        perfil: form.perfil,
+        temporaryPassword: created.temporaryPassword,
+        emailSent: created.emailSent,
       });
-      if (typeof navigator !== "undefined" && navigator.clipboard !== undefined) {
-        void navigator.clipboard.writeText(created.temporaryPassword);
-      }
+      setCopied(false);
+      addToast({
+        type: created.emailSent ? "success" : "warning",
+        title: "Usuário criado",
+        description: created.emailSent
+          ? `Convite enviado para ${form.email}.`
+          : "O e-mail não pôde ser enviado. Copie a senha temporária e envie manualmente.",
+      });
       setForm({ nome: "", email: "", perfil: "ANALISTA" });
-      setShowForm(false);
       await load();
     } catch (err) {
       addToast({ type: "error", title: "Erro ao criar", description: getApiErrorMessage(err) });
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function copyPassword(): Promise<void> {
+    if (createdInvite === null) return;
+    try {
+      if (navigator.clipboard === undefined) throw new Error("Área de transferência indisponível");
+      await navigator.clipboard.writeText(createdInvite.temporaryPassword);
+      setCopied(true);
+    } catch (err) {
+      addToast({
+        type: "error",
+        title: "Não foi possível copiar",
+        description: err instanceof Error ? err.message : "Copie a senha manualmente.",
+      });
     }
   }
 
@@ -139,10 +180,47 @@ export default function AdminUsuariosPage(): ReactNode {
       <Modal
         open={showForm}
         onOpenChange={(next) => { if (!next) void requestClose(); }}
-        title="Criar analista / admin master"
-        description="O usuário receberá uma senha temporária no primeiro acesso."
+        title={createdInvite !== null ? "Convite criado" : "Criar analista / admin master"}
+        description={createdInvite !== null ? "Confira o envio e a senha temporária abaixo." : "O usuário receberá um convite por e-mail e definirá uma nova senha no primeiro acesso."}
         className="max-w-xl"
       >
+        {createdInvite !== null ? (
+          <div className="space-y-5">
+            <div className={cn("flex items-start gap-3 rounded-[8px] border p-3.5", createdInvite.emailSent ? "border-status-success-border bg-status-success-subtle" : "border-status-warning-border bg-status-warning-subtle")}>
+              {createdInvite.emailSent ? <MailCheck className="mt-0.5 h-5 w-5 shrink-0 text-status-success" /> : <MailX className="mt-0.5 h-5 w-5 shrink-0 text-status-warning" />}
+              <div>
+                <p className={cn("text-sm font-semibold", createdInvite.emailSent ? "text-status-success" : "text-status-warning")}>
+                  {createdInvite.emailSent ? "Convite enviado" : "E-mail não enviado"}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-foreground">
+                  {createdInvite.emailSent
+                    ? `O convite foi enviado para ${createdInvite.email}.`
+                    : "Não foi possível enviar o convite. Copie a senha temporária abaixo e envie ao usuário."}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3 rounded-[8px] border border-border bg-muted/20 p-4">
+              <div className="grid gap-2 text-sm sm:grid-cols-[130px_minmax(0,1fr)]">
+                <span className="text-muted-foreground">Nome</span>
+                <span className="font-medium text-foreground">{createdInvite.nome}</span>
+                <span className="text-muted-foreground">E-mail</span>
+                <span className="truncate font-medium text-foreground">{createdInvite.email}</span>
+                <span className="text-muted-foreground">Perfil</span>
+                <span className="font-medium text-foreground">{createdInvite.perfil === "ADMIN_MASTER" ? "Admin Master" : "Analista"}</span>
+                <span className="text-muted-foreground">Senha temporária</span>
+                <span className="break-all rounded-[6px] border border-border bg-card px-3 py-2 font-mono text-sm font-semibold text-foreground">{createdInvite.temporaryPassword}</span>
+              </div>
+              <button type="button" className="btn btn-outline btn-sm w-full" onClick={() => void copyPassword()}>
+                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copiada" : "Copiar senha temporária"}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">No primeiro acesso, o usuário será solicitado a definir uma nova senha.</p>
+            <div className="flex justify-end">
+              <button type="button" className="btn btn-primary rounded-[8px]" onClick={() => void requestClose()}>Fechar</button>
+            </div>
+          </div>
+        ) : (
         <form onSubmit={(e) => void handleCreate(e)} className="space-y-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="form-group sm:col-span-2">
@@ -167,7 +245,7 @@ export default function AdminUsuariosPage(): ReactNode {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => setShowForm(false)}>
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestClose()}>
               Cancelar
             </button>
             <button type="submit" disabled={isSaving} className="btn btn-primary rounded-[8px]">
@@ -175,6 +253,7 @@ export default function AdminUsuariosPage(): ReactNode {
             </button>
           </div>
         </form>
+        )}
       </Modal>
     </div>
   );

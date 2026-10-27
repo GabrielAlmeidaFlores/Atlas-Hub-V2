@@ -7,6 +7,7 @@ import reprovadoTpl from './templates/reprovado.html';
 import aprovadoTpl from './templates/aprovado.html';
 import ofertaTpl from './templates/oferta-criada.html';
 import novoAcessoTpl from './templates/novo-acesso.html';
+import conviteUsuarioTpl from './templates/convite-usuario.html';
 import codigoTpl from './templates/codigo.html';
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -139,6 +140,27 @@ export function emailOfertaCriada(to: string, nomeProjeto: string, ofertaLink: s
     htmlBody: renderEmail(ofertaTpl, 'Sua oferta está no ar', { nomeProjeto }, {
       label: 'Acessar oferta',
       url: ofertaLink.length > 0 ? ofertaLink : APP_URL,
+    }),
+  });
+}
+
+export function emailConviteUsuario(
+  to: string,
+  nome: string,
+  perfil: string,
+  temporaryPassword: string,
+): Promise<void> {
+  return sendEmail({
+    to,
+    subject: 'Seu acesso à Atlas Hub',
+    htmlBody: renderEmail(conviteUsuarioTpl, 'Bem-vindo à Atlas Hub', {
+      nome,
+      email: to,
+      perfil,
+      senhaTemporaria: temporaryPassword,
+    }, {
+      label: 'Acessar a Atlas Hub',
+      url: `${APP_URL}/login`,
     }),
   });
 }
