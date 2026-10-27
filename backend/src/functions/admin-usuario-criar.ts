@@ -3,6 +3,7 @@ import { created, unauthorized, forbidden, badRequest, conflict, serverError } f
 import { getUserId, AuthError, ForbiddenError, requireAdminMaster, getUserEmail } from '../shared/http/auth.js';
 import { validate, criarUsuarioAdminSchema, ValidationError } from '../shared/http/validators.js';
 import { putAdmin } from '../shared/db/index.js';
+import { emailConviteUsuario } from '../shared/email/index.js';
 import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { AWS_REGION, USER_POOL_ID } from '../shared/core/env.js';
 import { createLogger } from '../shared/core/logger.js';
@@ -56,8 +57,25 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
 
     await putAdmin(admin);
-    log.info('Admin user created', { newUserId: cognitoUserId, perfil: body.perfil, adminMasterId });
-    return created(event, { id: cognitoUserId, temporaryPassword });
+
+    let emailSent = false;
+    try {
+      await emailConviteUsuario(
+        body.email,
+        body.nome,
+        body.perfil === 'ADMIN_MASTER' ? 'Admin Master' : 'Analista',
+        temporaryPassword,
+      );
+      emailSent = true;
+    } catch (emailErr) {
+      log.warn('Admin invite email failed', {
+        newUserId: cognitoUserId,
+        err: emailErr instanceof Error ? `${emailErr.name}: ${emailErr.message}` : String(emailErr),
+      });
+    }
+
+    log.info('Admin user created', { newUserId: cognitoUserId, perfil: body.perfil, adminMasterId, emailSent });
+    return created(event, { id: cognitoUserId, temporaryPassword, emailSent });
   } catch (err) {
     if (err instanceof AuthError) return unauthorized(event);
     if (err instanceof ForbiddenError) return forbidden(event);

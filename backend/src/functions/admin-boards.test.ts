@@ -347,3 +347,17 @@ test('assigns sequential numbers to cards within a board', async () => {
   assert.equal((bodyOf(first) as { card: { cardNumber: number } }).card.cardNumber, 1);
   assert.equal((bodyOf(second) as { card: { cardNumber: number } }).card.cardNumber, 2);
 });
+
+
+test('resolves board paths through the API Gateway proxy route', async () => {
+  const handler = makeHandler();
+  const created = await handler(makeEvent('POST', '/admin/boards', { body: { name: 'Proxy' }, email: 'admin1@atlashub.com' }));
+  const boardId = (bodyOf(created) as { board: { board: { boardId: string } } }).board.board.boardId;
+  const event = makeEvent('GET', '/admin/boards/{proxy+}', {
+    params: { proxy: boardId },
+    email: 'admin1@atlashub.com',
+  });
+  event.path = `/admin/boards/${boardId}`;
+  const detail = await handler(event);
+  assert.equal(detail.statusCode, 200);
+});

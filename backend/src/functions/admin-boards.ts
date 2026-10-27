@@ -47,19 +47,79 @@ function parseBody(event: APIGatewayProxyEvent): unknown {
   return JSON.parse(event.body) as unknown;
 }
 
+function decodeParam(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function pathParam(event: APIGatewayProxyEvent, key: string): string | undefined {
+  const parts = event.path.split('/').filter(Boolean);
+  if (parts[0] !== 'admin' || parts[1] !== 'boards') return undefined;
+  const boardId = parts[2];
+  const rest = parts.slice(3);
+  if (key === 'boardId') {
+    return boardId !== undefined && boardId !== 'files' ? decodeParam(boardId) : undefined;
+  }
+  if (key === 'columnId' && rest[0] === 'columns' && rest[1] !== undefined) return decodeParam(rest[1]);
+  if (key === 'labelId' && rest[0] === 'labels' && rest[1] !== undefined) return decodeParam(rest[1]);
+  if (key === 'templateId' && rest[0] === 'templates' && rest[1] !== undefined) return decodeParam(rest[1]);
+  if (key === 'cardId' && rest[0] === 'cards' && rest[1] !== undefined) return decodeParam(rest[1]);
+  if (key === 'email' && rest[0] === 'members' && rest[1] !== undefined && rest[1] !== 'candidates') {
+    return decodeParam(rest[1]);
+  }
+  return undefined;
+}
+
+function optionalParam(event: APIGatewayProxyEvent, key: string): string | undefined {
+  const direct = event.pathParameters?.[key];
+  if (direct !== undefined && direct !== '') return direct;
+  return pathParam(event, key);
+}
+
 function param(event: APIGatewayProxyEvent, key: string): string {
-  const value = event.pathParameters?.[key];
+  const value = optionalParam(event, key);
   if (value === undefined || value === '') throw new ValidationError([{ field: key, message: 'Parâmetro obrigatório' }]);
   return value;
 }
 
 function routeKey(event: APIGatewayProxyEvent): string {
-  const resource = event.resource ?? event.path;
-  return `${event.httpMethod} ${resource}`;
+  const method = event.httpMethod;
+  const path = event.path;
+  if (path === '/admin/boards') return `${method} /admin/boards`;
+  if (path === '/admin/boards/files/download-url') return `${method} /admin/boards/files/download-url`;
+  const parts = path.split('/').filter(Boolean);
+  if (parts[0] !== 'admin' || parts[1] !== 'boards' || parts[2] === undefined) {
+    return `${method} ${event.resource ?? path}`;
+  }
+  const rest = parts.slice(3);
+  const base = '/admin/boards/{boardId}';
+  if (rest.length === 0) return `${method} ${base}`;
+  if (rest[0] === 'columns') {
+    return rest[1] === undefined ? `${method} ${base}/columns` : `${method} ${base}/columns/{columnId}`;
+  }
+  if (rest[0] === 'labels') {
+    return rest[1] === undefined ? `${method} ${base}/labels` : `${method} ${base}/labels/{labelId}`;
+  }
+  if (rest[0] === 'templates') {
+    return rest[1] === undefined ? `${method} ${base}/templates` : `${method} ${base}/templates/{templateId}`;
+  }
+  if (rest[0] === 'files' && rest[1] === 'presign') return `${method} ${base}/files/presign`;
+  if (rest[0] === 'cards') {
+    if (rest[1] === undefined) return `${method} ${base}/cards`;
+    return rest[2] === 'move' ? `${method} ${base}/cards/{cardId}/move` : `${method} ${base}/cards/{cardId}`;
+  }
+  if (rest[0] === 'members') {
+    if (rest[1] === undefined) return `${method} ${base}/members`;
+    return rest[1] === 'candidates' ? `${method} ${base}/members/candidates` : `${method} ${base}/members/{email}`;
+  }
+  return `${method} ${event.resource ?? path}`;
 }
 
 function boardRequirement(event: APIGatewayProxyEvent): 'view' | 'write' | 'manage' | 'owner' {
-  const resource = event.resource ?? event.path;
+  const resource = event.path;
   if (resource.includes('/members')) return 'manage';
   if (event.httpMethod === 'GET') return 'view';
   if (resource.includes('/cards') || resource.endsWith('/files/presign')) return 'write';
@@ -79,7 +139,7 @@ export function createAdminBoardsHandler(
       const email = getUserEmail(event).trim().toLowerCase();
       requireAdmin(event);
       const actor = { userId, email };
-      const boardId = event.pathParameters?.['boardId'];
+      const boardId = optionalParam(event, 'boardId');
       if (boardId !== undefined) {
         await service.assertBoardAccess(boardId, actor, boardRequirement(event));
       }
