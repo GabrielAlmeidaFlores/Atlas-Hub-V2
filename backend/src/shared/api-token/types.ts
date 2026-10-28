@@ -20,7 +20,6 @@ export interface ApiTokenSummary {
   readonly tokenId: string;
   readonly name: string;
   readonly permission: ApiTokenPermission;
-  readonly prefix: string;
   readonly createdAt: string;
   readonly expiresAt?: string;
   readonly lastUsedAt?: string;

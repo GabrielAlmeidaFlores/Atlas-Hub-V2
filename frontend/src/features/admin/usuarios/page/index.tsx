@@ -12,7 +12,7 @@ import { Select } from "@/components/ui/select";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
 import { cn, formatDate } from "@/lib/utils";
-import { Check, Copy, MailCheck, MailX, Users, UserPlus } from "lucide-react";
+import { Check, Copy, MailCheck, MailX, Power, PowerOff, Trash2, Users, UserPlus } from "lucide-react";
 import { Navigate } from "react-router-dom";
 
 interface CreatedInvite {
@@ -39,6 +39,7 @@ export default function AdminUsuariosPage(): ReactNode {
   const [items, setItems] = useState<Admin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [createdInvite, setCreatedInvite] = useState<CreatedInvite | null>(null);
   const [copied, setCopied] = useState(false);
@@ -117,19 +118,45 @@ export default function AdminUsuariosPage(): ReactNode {
     }
   }
 
-  async function handleDesativar(id: string, nome: string): Promise<void> {
+  async function handleStatus(id: string, nome: string, ativar: boolean): Promise<void> {
     const confirmed = await confirm({
-      title: "Desativar usuário",
-      description: `Desativar o usuário ${nome}? Ele perderá o acesso à plataforma.`,
-      confirmLabel: "Desativar",
+      title: ativar ? "Ativar usuário" : "Desativar usuário",
+      description: ativar
+        ? `Reativar o acesso de ${nome} à plataforma?`
+        : `Desativar o usuário ${nome}? Ele perderá o acesso à plataforma até ser reativado.`,
+      confirmLabel: ativar ? "Ativar" : "Desativar",
+      destructive: false,
     });
     if (!confirmed) return;
+    setBusyId(id);
     try {
-      await api.put(`/admin/usuarios/${id}/desativar`, {});
-      addToast({ type: "success", title: "Usuário desativado" });
+      await api.put(`/admin/usuarios/${id}/${ativar ? "ativar" : "desativar"}`, {});
+      addToast({ type: "success", title: ativar ? "Usuário ativado" : "Usuário desativado" });
       await load();
     } catch (err) {
-      addToast({ type: "error", title: "Erro ao desativar", description: getApiErrorMessage(err) });
+      addToast({ type: "error", title: ativar ? "Erro ao ativar" : "Erro ao desativar", description: getApiErrorMessage(err) });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleDelete(id: string, nome: string, email: string): Promise<void> {
+    const confirmed = await confirm({
+      title: "Excluir usuário",
+      description: `Excluir permanentemente ${nome} (${email})? A conta será removida do Cognito e do DynamoDB. Esta ação não pode ser desfeita.`,
+      confirmLabel: "Excluir usuário",
+      destructive: true,
+    });
+    if (!confirmed) return;
+    setBusyId(id);
+    try {
+      await api.delete(`/admin/usuarios/${id}`);
+      addToast({ type: "success", title: "Usuário excluído" });
+      await load();
+    } catch (err) {
+      addToast({ type: "error", title: "Erro ao excluir", description: getApiErrorMessage(err) });
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -165,10 +192,28 @@ export default function AdminUsuariosPage(): ReactNode {
                 </td>
                 <td className="text-muted-foreground">{formatDate(u.criadoEm)}</td>
                 <td className="text-right">
-                  {u.ativo && u.id !== user?.id && (
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => void handleDesativar(u.id, u.nome)}>
-                      Desativar
-                    </button>
+                  {u.id === user?.id || u.email.trim().toLowerCase() === user?.email.trim().toLowerCase() ? (
+                    <span className="text-[11px] font-medium text-muted-foreground">Sessão atual</span>
+                  ) : (
+                    <div className="flex justify-end gap-1.5">
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        disabled={busyId === u.id}
+                        onClick={() => void handleStatus(u.id, u.nome, !u.ativo)}
+                      >
+                        {u.ativo ? <PowerOff className="h-3.5 w-3.5" /> : <Power className="h-3.5 w-3.5" />}
+                        {u.ativo ? "Desativar" : "Ativar"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm text-status-danger"
+                        disabled={busyId === u.id}
+                        onClick={() => void handleDelete(u.id, u.nome, u.email)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Excluir
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>

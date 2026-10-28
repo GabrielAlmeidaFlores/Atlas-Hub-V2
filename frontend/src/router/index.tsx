@@ -44,7 +44,7 @@ const AdminCronogramaListaPage     = React.lazy(() => import("@/features/admin/c
 const AdminCronogramaDetalhePage   = React.lazy(() => import("@/features/admin/cronograma/detalhe/page"));
 const AdminBoardsListaPage        = React.lazy(() => import("@/features/admin/boards/lista/page"));
 const AdminBoardsDetalhePage      = React.lazy(() => import("@/features/admin/boards/detalhe/page"));
-const AdminApiTokensPage          = React.lazy(() => import("@/features/admin/api-tokens/page"));
+const AdminConfiguracoesPage      = React.lazy(() => import("@/features/admin/configuracoes/page"));
 
 const InvestidorLayout       = React.lazy(() => import("@/app/layouts/investidor-layout"));
 const InvestidorProjetosPage = React.lazy(() => import("@/features/investidor/projetos/page"));
@@ -175,7 +175,9 @@ const router = createBrowserRouter([
       { index: true,                 element: withSuspense(<AdminDashboardPage />) },
       { path: "boards",              element: withSuspense(<AdminBoardsListaPage />), errorElement: <RouteError /> },
       { path: "boards/:boardId",     element: withSuspense(<AdminBoardsDetalhePage />), errorElement: <RouteError /> },
-      { path: "api-tokens",           element: withSuspense(<AdminApiTokensPage />), errorElement: <RouteError /> },
+      { path: "configuracoes",       element: withSuspense(<AdminConfiguracoesPage />), errorElement: <RouteError /> },
+      { path: "api-tokens",           element: <Navigate to="/admin/configuracoes?tab=tokens" replace /> },
+      { path: "api-docs",             element: <Navigate to="/admin/configuracoes?tab=docs" replace /> },
       { path: "curadoria",           element: withSuspense(<AdminCuradoriaFilaPage />) },
       { path: "curadoria/:id",       element: withSuspense(<AdminCuradoriaDetalhePage />) },
       { path: "historico",           element: withSuspense(<AdminHistoricoPage />) },

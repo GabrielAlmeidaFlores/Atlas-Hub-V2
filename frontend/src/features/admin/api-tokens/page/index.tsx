@@ -16,7 +16,6 @@ import { cn, formatDate, formatDateTime } from "@/lib/utils";
 const COLUMNS = [
   { label: "Nome" },
   { label: "Permissão" },
-  { label: "Token" },
   { label: "Criado em" },
   { label: "Expira em" },
   { label: "Último uso" },
@@ -49,7 +48,7 @@ function tokenStatus(token: ApiTokenSummary): { readonly label: string; readonly
   return { label: "Ativo", className: "text-status-success" };
 }
 
-export default function AdminApiTokensPage(): ReactNode {
+export default function AdminApiTokensPage({ embedded = false }: { readonly embedded?: boolean }): ReactNode {
   const addToast = useToastStore((s) => s.addToast);
   const confirm = useConfirm();
   const [items, setItems] = useState<readonly ApiTokenSummary[]>([]);
@@ -65,21 +64,28 @@ export default function AdminApiTokensPage(): ReactNode {
   });
 
   const formDirty = form.name.length > 0 || form.permission !== "read" || form.expires !== "90";
-  const closeDirty = formDirty || (createdToken !== null && !copied);
-  const closeCreate = (): void => {
+  const closeForm = (): void => {
     setShowCreate(false);
     setCreatedToken(null);
     setCopied(false);
     setForm({ name: "", permission: "read", expires: "90" });
   };
-  const requestClose = useDiscardGuard(closeDirty, closeCreate, createdToken !== null
-    ? {
-        title: "Sair sem copiar o token?",
-        description: "O token só será exibido uma vez. Se sair agora, não será possível recuperá-lo.",
-        confirmLabel: "Sair mesmo assim",
-        cancelLabel: "Continuar aqui",
-      }
-    : {});
+  const requestFormClose = useDiscardGuard(formDirty, closeForm);
+
+  async function requestCreatedClose(): Promise<void> {
+    if (createdToken === null || copied) {
+      closeForm();
+      return;
+    }
+    const confirmed = await confirm({
+      title: "Token não copiado",
+      description: "O token já foi criado e está ativo, mas não poderá ser exibido novamente. Feche apenas se não precisar mais dele.",
+      confirmLabel: "Fechar sem copiar",
+      cancelLabel: "Voltar e copiar",
+      destructive: false,
+    });
+    if (confirmed) closeForm();
+  }
 
   async function load(): Promise<void> {
     const next = await apiTokensApi.list();
@@ -143,7 +149,129 @@ export default function AdminApiTokensPage(): ReactNode {
     }
   }
 
-  if (isLoading) return <SkeletonPage />;
+  if (isLoading) return embedded ? <div className="py-8"><SkeletonPage /></div> : <SkeletonPage />;
+
+  const content = (
+    <div className={embedded ? "space-y-5" : "page-content space-y-5"}>
+      {embedded && (
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">Meus tokens de API</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Cada usuário vê e revoga apenas os próprios tokens.</p>
+          </div>
+          <button type="button" className="btn btn-primary btn-sm rounded-[8px]" onClick={() => setShowCreate(true)}>
+            <Plus className="h-4 w-4" /> Novo token
+          </button>
+        </div>
+      )}
+      {items.length === 0 ? (
+        <EmptyState icon={KeyRound} title="Nenhum token criado" description="Crie um token para liberar acesso programático aos endpoints." />
+      ) : (
+        <DataTable columns={COLUMNS} total={items.length} minWidth={920} emptyMessage="Nenhum token criado.">
+          {items.map((token) => {
+            const status = tokenStatus(token);
+            return (
+              <tr key={token.tokenId} className="table-row">
+                <td className="font-medium text-foreground">{token.name}</td>
+                <td className="text-muted-foreground">{permissionLabel(token.permission)}</td>
+                <td className="text-muted-foreground">{formatDateTime(token.createdAt)}</td>
+                <td className="text-muted-foreground">{token.expiresAt === undefined ? "Sem expiração" : formatDate(token.expiresAt)}</td>
+                <td className="text-muted-foreground">{token.lastUsedAt === undefined ? "Nunca" : formatDateTime(token.lastUsedAt)}</td>
+                <td className={cn("font-medium", status.className)}>{status.label}</td>
+                <td className="text-right">
+                  {token.revokedAt === undefined && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm text-status-danger"
+                      onClick={() => void handleRevoke(token)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Revogar
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </DataTable>
+      )}
+    </div>
+  );
+
+  const modal = (
+    <Modal
+      open={showCreate}
+      onOpenChange={(next) => { if (!next) void (createdToken !== null ? requestCreatedClose() : requestFormClose()); }}
+      title={createdToken !== null ? "Token criado" : "Novo token de API"}
+      description={createdToken !== null ? "Copie o token agora. Ele não será exibido novamente." : "O token herda as permissões do seu usuário admin."}
+      className="max-w-2xl"
+    >
+      {createdToken !== null ? (
+        <div className="space-y-5">
+          <div className="rounded-[8px] border border-status-warning-border bg-status-warning-subtle p-3.5 text-xs leading-relaxed text-status-warning">
+            Guarde este token em um local seguro. Ele não poderá ser exibido novamente.
+          </div>
+          <div className="space-y-3 rounded-[8px] border border-border bg-muted/20 p-4">
+            <div className="grid gap-1 text-sm sm:grid-cols-[110px_minmax(0,1fr)]">
+              <span className="text-muted-foreground">Nome</span>
+              <span className="font-medium text-foreground">{createdToken.name}</span>
+              <span className="text-muted-foreground">Permissão</span>
+              <span className="font-medium text-foreground">{permissionLabel(createdToken.permission)}</span>
+            </div>
+            <p className="break-all rounded-[6px] border border-border bg-card px-3 py-2 font-mono text-xs font-semibold text-foreground">{createdToken.token}</p>
+            <button type="button" className="btn btn-outline btn-sm w-full" onClick={() => void copyToken()}>
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? "Token copiado" : "Copiar token"}
+            </button>
+          </div>
+          <div className="flex justify-end">
+            <button type="button" className="btn btn-primary rounded-[8px]" onClick={() => void requestCreatedClose()}>Fechar</button>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={(event) => void handleCreate(event)} className="space-y-5">
+          <div className="form-group">
+            <label className="form-label" htmlFor="token-name">Nome do token</label>
+            <input
+              id="token-name"
+              className="input-base"
+              value={form.name}
+              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+              placeholder="Ex.: Integração CRM"
+              maxLength={80}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Permissão</label>
+            <Select
+              value={form.permission}
+              onValueChange={(value) => setForm((current) => ({ ...current, permission: value as ApiTokenPermission }))}
+              options={PERMISSION_OPTIONS}
+              ariaLabel="Permissão"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Expiração</label>
+            <Select
+              value={form.expires}
+              onValueChange={(value) => setForm((current) => ({ ...current, expires: value }))}
+              options={EXPIRY_OPTIONS}
+              ariaLabel="Expiração"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestFormClose()}>Cancelar</button>
+            <button type="submit" className="btn btn-primary rounded-[8px]" disabled={isSaving || form.name.trim().length === 0}>
+              {isSaving ? "Criando…" : "Criar token"}
+            </button>
+          </div>
+        </form>
+      )}
+    </Modal>
+  );
+
+  if (embedded) return <>{content}{modal}</>;
 
   return (
     <div className="animate-in">
@@ -156,112 +284,8 @@ export default function AdminApiTokensPage(): ReactNode {
           </button>
         )}
       />
-
-      <div className="page-content space-y-5">
-        {items.length === 0 ? (
-          <EmptyState icon={KeyRound} title="Nenhum token criado" description="Crie um token para liberar acesso programático aos endpoints." />
-        ) : (
-          <DataTable columns={COLUMNS} total={items.length} minWidth={1040} emptyMessage="Nenhum token criado.">
-            {items.map((token) => {
-              const status = tokenStatus(token);
-              return (
-                <tr key={token.tokenId} className="table-row">
-                  <td className="font-medium text-foreground">{token.name}</td>
-                  <td className="text-muted-foreground">{permissionLabel(token.permission)}</td>
-                  <td className="font-mono text-xs text-muted-foreground">{token.prefix}…</td>
-                  <td className="text-muted-foreground">{formatDateTime(token.createdAt)}</td>
-                  <td className="text-muted-foreground">{token.expiresAt === undefined ? "Sem expiração" : formatDate(token.expiresAt)}</td>
-                  <td className="text-muted-foreground">{token.lastUsedAt === undefined ? "Nunca" : formatDateTime(token.lastUsedAt)}</td>
-                  <td className={cn("font-medium", status.className)}>{status.label}</td>
-                  <td className="text-right">
-                    {token.revokedAt === undefined && (
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm text-status-danger"
-                        onClick={() => void handleRevoke(token)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> Revogar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </DataTable>
-        )}
-      </div>
-
-      <Modal
-        open={showCreate}
-        onOpenChange={(next) => { if (!next) void requestClose(); }}
-        title={createdToken !== null ? "Token criado" : "Novo token de API"}
-        description={createdToken !== null ? "Copie o token agora. Ele não será exibido novamente." : "O token herda as permissões do seu usuário admin."}
-        className="max-w-2xl"
-      >
-        {createdToken !== null ? (
-          <div className="space-y-5">
-            <div className="rounded-[8px] border border-status-warning-border bg-status-warning-subtle p-3.5 text-xs leading-relaxed text-status-warning">
-              Guarde este token em um local seguro. Ele não poderá ser exibido novamente.
-            </div>
-            <div className="space-y-3 rounded-[8px] border border-border bg-muted/20 p-4">
-              <div className="grid gap-1 text-sm sm:grid-cols-[110px_minmax(0,1fr)]">
-                <span className="text-muted-foreground">Nome</span>
-                <span className="font-medium text-foreground">{createdToken.name}</span>
-                <span className="text-muted-foreground">Permissão</span>
-                <span className="font-medium text-foreground">{permissionLabel(createdToken.permission)}</span>
-              </div>
-              <p className="break-all rounded-[6px] border border-border bg-card px-3 py-2 font-mono text-xs font-semibold text-foreground">{createdToken.token}</p>
-              <button type="button" className="btn btn-outline btn-sm w-full" onClick={() => void copyToken()}>
-                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Token copiado" : "Copiar token"}
-              </button>
-            </div>
-            <div className="flex justify-end">
-              <button type="button" className="btn btn-primary rounded-[8px]" onClick={() => void requestClose()}>Fechar</button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={(event) => void handleCreate(event)} className="space-y-5">
-            <div className="form-group">
-              <label className="form-label" htmlFor="token-name">Nome do token</label>
-              <input
-                id="token-name"
-                className="input-base"
-                value={form.name}
-                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                placeholder="Ex.: Integração CRM"
-                maxLength={80}
-                required
-                autoFocus
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Permissão</label>
-              <Select
-                value={form.permission}
-                onValueChange={(value) => setForm((current) => ({ ...current, permission: value as ApiTokenPermission }))}
-                options={PERMISSION_OPTIONS}
-                ariaLabel="Permissão"
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Expiração</label>
-              <Select
-                value={form.expires}
-                onValueChange={(value) => setForm((current) => ({ ...current, expires: value }))}
-                options={EXPIRY_OPTIONS}
-                ariaLabel="Expiração"
-              />
-            </div>
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" className="btn btn-secondary rounded-[8px]" onClick={() => void requestClose()}>Cancelar</button>
-              <button type="submit" className="btn btn-primary rounded-[8px]" disabled={isSaving || form.name.trim().length === 0}>
-                {isSaving ? "Criando…" : "Criar token"}
-              </button>
-            </div>
-          </form>
-        )}
-      </Modal>
+      {content}
+      {modal}
     </div>
   );
 }

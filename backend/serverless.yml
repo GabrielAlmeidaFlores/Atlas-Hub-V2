@@ -642,14 +642,28 @@ functions:
   adminUsuarioDesativar:
     handler: src/functions/admin-usuario-desativar.handler
     role: !GetAtt AdminUsuarioLambdaRole.Arn
-    timeout: 10
-    description: "Deactivates an analyst account (admin master only)"
+    timeout: 15
+    description: "Activates, deactivates and deletes admin accounts (admin master only)"
     environment:
       USER_POOL_ID: !Ref CognitoUserPool
     events:
       - http:
           path: admin/usuarios/{id}/desativar
           method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/usuarios/{id}/ativar
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/usuarios/{id}
+          method: delete
           cors: true
           authorizer:
             type: CUSTOM
@@ -1573,10 +1587,11 @@ resources:
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
                 - Effect: Allow
-                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
+                  Action: [dynamodb:GetItem, dynamodb:UpdateItem, dynamodb:Query]
                   Resource:
                     - !GetAtt AtlasApiTokensTable.Arn
                     - !GetAtt AtlasAdminsTable.Arn
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}/index/*'
 
     AdminApiTokensLambdaRole:
       Type: AWS::IAM::Role
@@ -1616,11 +1631,11 @@ resources:
                   Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
                   Resource: arn:aws:logs:*:*:*
                 - Effect: Allow
-                  Action: [dynamodb:Scan, dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
+                  Action: [dynamodb:Scan, dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasAdmins-${self:provider.stage}'
                 - Effect: Allow
-                  Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup, cognito-idp:AdminDisableUser]
+                  Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminAddUserToGroup, cognito-idp:AdminDisableUser, cognito-idp:AdminEnableUser, cognito-idp:AdminDeleteUser]
                   Resource:
                     - !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
 

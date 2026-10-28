@@ -1,15 +1,22 @@
 import { http, HttpResponse } from "msw";
-import type { Projeto, Incorporadora, DashboardMetricas, Notificacao, AuditoriaEntry } from "@/types";
+import type { Projeto, Incorporadora, DashboardMetricas, Notificacao, AuditoriaEntry, Admin } from "@/types";
 import { cronogramaHandlers } from "./cronograma";
 import { boardsHandlers } from "./boards";
 
 const BASE = "";
 
+type MockAdmin = Omit<Admin, "ativo"> & { ativo: boolean };
+
+const mockAdmins: MockAdmin[] = [
+  { id: "mock-master", nome: "Admin Master", email: "master@atlashub.com", perfil: "ADMIN_MASTER", ativo: true, criadoPor: "seed", criadoEm: "2026-01-01T10:00:00.000Z" },
+  { id: "admin-analista", nome: "Felipe Analista", email: "felipe.analista@atlascomp.com.br", perfil: "ANALISTA", ativo: true, criadoPor: "seed", criadoEm: "2026-02-10T10:00:00.000Z" },
+  { id: "admin-inativo", nome: "Usuário Inativo", email: "inativo@atlascomp.com.br", perfil: "ANALISTA", ativo: false, criadoPor: "seed", criadoEm: "2026-03-15T10:00:00.000Z" },
+];
+
 const mockApiTokens: {
   tokenId: string;
   name: string;
   permission: "read" | "write";
-  prefix: string;
   createdAt: string;
   expiresAt?: string;
   lastUsedAt?: string;
@@ -353,9 +360,33 @@ export const handlers = [
   http.get(`${BASE}/admin/historico`, () => HttpResponse.json({ items: mockProjetos.filter((p) => ["APROVADO", "OFERTA_CRIADA", "REPROVADO"].includes(p.status)), cursor: null, hasMore: false })),
   http.get(`${BASE}/admin/incorporadoras`, () => HttpResponse.json({ items: [mockIncorporadora] })),
   http.get(`${BASE}/admin/incorporadoras/:id`, () => HttpResponse.json({ incorporadora: mockIncorporadora, projetos: mockProjetos })),
-  http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: [] })),
-  http.post(`${BASE}/admin/usuarios`, () => HttpResponse.json({ id: "admin-new", temporaryPassword: "Atlas@Mock1234", emailSent: true }, { status: 201 })),
-  http.put(`${BASE}/admin/usuarios/:id/desativar`, () => HttpResponse.json({ updated: true })),
+  http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: mockAdmins })),
+  http.post(`${BASE}/admin/usuarios`, async ({ request }) => {
+    const body = await request.json() as { nome?: string; email?: string; perfil?: "ANALISTA" | "ADMIN_MASTER" };
+    if (body.email === undefined || body.nome === undefined) return HttpResponse.json({ code: "VALIDATION_ERROR", message: "Dados inválidos" }, { status: 400 });
+    if (mockAdmins.some((admin) => admin.email === body.email)) return HttpResponse.json({ code: "CONFLICT", message: "Já existe um usuário com este e-mail" }, { status: 409 });
+    const admin: MockAdmin = { id: crypto.randomUUID(), nome: body.nome, email: body.email, perfil: body.perfil ?? "ANALISTA", ativo: true, criadoPor: "master@atlashub.com", criadoEm: new Date().toISOString() };
+    mockAdmins.unshift(admin);
+    return HttpResponse.json({ id: admin.id, temporaryPassword: "Atlas@Mock1234", emailSent: true }, { status: 201 });
+  }),
+  http.put(`${BASE}/admin/usuarios/:id/desativar`, ({ params }) => {
+    const admin = mockAdmins.find((item) => item.id === params["id"]);
+    if (admin === undefined) return HttpResponse.json({ code: "NOT_FOUND", message: "Usuário não encontrado" }, { status: 404 });
+    admin.ativo = false;
+    return HttpResponse.json({ updated: true });
+  }),
+  http.put(`${BASE}/admin/usuarios/:id/ativar`, ({ params }) => {
+    const admin = mockAdmins.find((item) => item.id === params["id"]);
+    if (admin === undefined) return HttpResponse.json({ code: "NOT_FOUND", message: "Usuário não encontrado" }, { status: 404 });
+    admin.ativo = true;
+    return HttpResponse.json({ updated: true });
+  }),
+  http.delete(`${BASE}/admin/usuarios/:id`, ({ params }) => {
+    const index = mockAdmins.findIndex((item) => item.id === params["id"]);
+    if (index < 0) return HttpResponse.json({ code: "NOT_FOUND", message: "Usuário não encontrado" }, { status: 404 });
+    mockAdmins.splice(index, 1);
+    return HttpResponse.json({ deleted: true });
+  }),
   http.get(`${BASE}/admin/api-tokens`, () => HttpResponse.json({ items: mockApiTokens })),
 
   http.post(`${BASE}/admin/api-tokens`, async ({ request }) => {
@@ -369,7 +400,6 @@ export const handlers = [
       tokenId: crypto.randomUUID(),
       name: body.name.trim(),
       permission: body.permission ?? "read",
-      prefix: token.slice(0, 12),
       createdAt: now.toISOString(),
       ...(body.expiresInDays === null || body.expiresInDays === undefined
         ? {}

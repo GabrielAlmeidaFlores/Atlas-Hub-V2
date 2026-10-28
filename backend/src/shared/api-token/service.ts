@@ -74,10 +74,11 @@ export class ApiTokenService {
   }
 
   private toSummary(record: ApiTokenRecord): ApiTokenSummary {
-    const { tokenHash, ownerId, ownerEmail, ...summary } = record;
+    const { tokenHash, ownerId, ownerEmail, prefix, ...summary } = record;
     void tokenHash;
     void ownerId;
     void ownerEmail;
+    void prefix;
     return summary;
   }
 }

@@ -31,3 +31,6 @@ backend/scripts/*-retest.ts
 backend/scripts/seed-local-rich.ts
 frontend/scripts/*-retest.ts
 
+
+# TypeScript incremental build
+*.tsbuildinfo

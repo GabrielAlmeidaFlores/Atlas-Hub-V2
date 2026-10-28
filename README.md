@@ -221,13 +221,18 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 |---|---|---|
 | Listar usuários admin | Analistas e masters | `GET /admin/usuarios` |
 | Criar analista ou admin master | Nome, e-mail e perfil; envia convite customizado por e-mail e exibe senha temporária de fallback; redefine no 1º acesso | `POST /admin/usuarios` |
-| Desativar usuário | Remove acesso | `PUT /admin/usuarios/{id}/desativar` |
+| Ativar/desativar usuário | Suspende ou devolve o acesso ao Cognito | `PUT /admin/usuarios/{id}/ativar` e `PUT /admin/usuarios/{id}/desativar` |
+| Excluir usuário | Remove permanentemente do Cognito e do DynamoDB; bloqueia a exclusão da própria conta | `DELETE /admin/usuarios/{id}` |
 | Reatribuir projeto | Troca analista responsável (com motivo); scorecard parcial é herdado | `POST /admin/curadoria/{id}/reatribuir` |
 
-#### 3.2 Tokens de API
+#### 3.2 Configurações pessoais e tokens de API
 
-Admins (`ADMIN_MASTER` e `ANALISTA`) podem criar tokens de integração em `/admin/api-tokens`.
+Cada admin acessa `Configurações` pela engrenagem no rodapé do menu. A área contém apenas as credenciais do próprio usuário e a documentação da API.
 
+- Tokens de API: criar, listar e revogar em `/admin/configuracoes?tab=tokens`.
+- Documentação interativa: `/admin/configuracoes?tab=docs`; o OpenAPI fica em `frontend/public/docs/openapi.json`.
+- Segurança: alteração da própria senha em `/admin/configuracoes?tab=security`.
+- A tela é modular: novas seções são adicionadas à lista `SECTIONS` em `frontend/src/features/admin/configuracoes/page/index.tsx`.
 - `POST /admin/api-tokens`: cria token com nome, permissão (`read`/`write`) e expiração.
 - `GET /admin/api-tokens`: lista os tokens do próprio usuário.
 - `DELETE /admin/api-tokens/{tokenId}`: revoga um token.
