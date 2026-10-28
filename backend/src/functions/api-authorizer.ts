@@ -2,7 +2,7 @@ import type { APIGatewayAuthorizerResult, APIGatewayRequestAuthorizerEvent } fro
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { DynamoApiTokenRepository } from '../shared/api-token/dynamo-repository.js';
 import { ApiTokenService } from '../shared/api-token/service.js';
-import { getAdmin } from '../shared/db/index.js';
+import { getAdmin, getAdminByEmail } from '../shared/db/index.js';
 import { COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID } from '../shared/core/env.js';
 import { createLogger } from '../shared/core/logger.js';
 import type { Perfil } from '../shared/core/types/index.js';
@@ -88,6 +88,11 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<
     const groups = Array.isArray(payload['cognito:groups']) ? payload['cognito:groups'].map(String) : [];
     const perfil = perfilFromGroups(groups);
     if (perfil === null) return deny();
+    if (perfil === 'ADMIN_MASTER' || perfil === 'ANALISTA') {
+      const email = typeof payload['email'] === 'string' ? payload['email'] : '';
+      const admin = await getAdmin(String(payload.sub)) ?? (email.length > 0 ? await getAdminByEmail(email) : null);
+      if (admin === null || !admin.ativo) return deny();
+    }
     return policy(String(payload.sub), 'Allow', event.methodArn, {
       authType: 'cognito',
       userId: String(payload.sub),

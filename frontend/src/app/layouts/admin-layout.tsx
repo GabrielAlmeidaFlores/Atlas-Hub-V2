@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, BarChart3, Landmark, CircleDollarSign, CalendarRange, FileText, LayoutGrid, KeyRound } from "lucide-react";
+import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, BarChart3, Landmark, CircleDollarSign, CalendarRange, FileText, LayoutGrid, Settings } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { Logo } from "@/components/shared/logo";
 import { AppBreadcrumb } from "@/components/shared/app-breadcrumb";
@@ -20,7 +20,6 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
   const navItems = [
     { to: "/admin", label: "Visão geral", icon: LayoutDashboard, end: true },
     { to: "/admin/boards", label: "Quadros", icon: LayoutGrid, end: false },
-    { to: "/admin/api-tokens", label: "Tokens de API", icon: KeyRound, end: false },
     { to: "/admin/curadoria", label: "Fila de Curadoria", icon: ClipboardList, end: false },
     { to: "/admin/historico", label: "Histórico", icon: History, end: false },
     { to: "/admin/financeiro", label: "Financeiro", icon: Landmark, end: false },
@@ -82,6 +81,14 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
             </p>
           </div>
         </div>
+        <NavLink
+          to="/admin/configuracoes"
+          onClick={onClose}
+          className={({ isActive }) => cn("nav-item mb-1", isActive && "nav-item-active")}
+        >
+          <Settings className="h-4 w-4" />
+          Configurações
+        </NavLink>
         <button type="button" onClick={handleLogout} className="nav-item w-full text-destructive hover:bg-status-danger-subtle hover:text-destructive">
           <LogOut className="h-4 w-4" />
           Sair

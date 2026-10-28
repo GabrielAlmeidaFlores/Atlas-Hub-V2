@@ -5,6 +5,7 @@ import {
   GetCommand,
   PutCommand,
   UpdateCommand,
+  DeleteCommand,
   QueryCommand,
   ScanCommand,
 } from '@aws-sdk/lib-dynamodb';
@@ -86,6 +87,17 @@ export async function getAdmin(id: string): Promise<Admin | null> {
   return (result.Item as Admin | undefined) ?? null;
 }
 
+export async function getAdminByEmail(email: string): Promise<Admin | null> {
+  const result = await db.send(new QueryCommand({
+    TableName: Tables.ADMINS,
+    IndexName: 'email-index',
+    KeyConditionExpression: 'email = :email',
+    ExpressionAttributeValues: { ':email': email.trim().toLowerCase() },
+    Limit: 1,
+  }));
+  return (result.Items?.[0] as Admin | undefined) ?? null;
+}
+
 export async function putAdmin(item: Admin): Promise<void> {
   await db.send(new PutCommand({ TableName: Tables.ADMINS, Item: item }));
 }
@@ -97,6 +109,10 @@ export async function updateAdminAtivo(id: string, ativo: boolean): Promise<void
     UpdateExpression: 'SET ativo = :a',
     ExpressionAttributeValues: { ':a': ativo },
   }));
+}
+
+export async function deleteAdmin(id: string): Promise<void> {
+  await db.send(new DeleteCommand({ TableName: Tables.ADMINS, Key: { id } }));
 }
 
 export async function listAdmins(): Promise<Admin[]> {
