@@ -66,6 +66,7 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<
       const owner = await getAdmin(record.ownerId);
       if (owner === null || !owner.ativo) return deny();
       const request = methodAndPath(event);
+      if (request.path.startsWith('analytics/')) return deny(record.tokenId);
       const readAllowed = request.method === 'GET'
         || request.method === 'HEAD'
         || (request.method === 'POST' && (request.path === 'admin/boards/files/download-url' || request.path === 'documentos/download-url'));
