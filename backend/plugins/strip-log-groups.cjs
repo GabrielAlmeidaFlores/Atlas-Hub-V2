@@ -5,13 +5,21 @@ const REMOVED_LOG_GROUPS = [
   'AdminDashboardMetricasLogGroup',
   'PublicoFinanceiroExtratoLogGroup',
   'AdminHistoricoListarLogGroup',
+  'OnLoginLogGroup',
+  'OnIncorporadoraSignupLogGroup',
+  'ApiAuthorizerLogGroup',
+  'AdminApiTokensLogGroup',
+  'AdminUsuarioCriarLogGroup',
+  'AdminUsuariosListarLogGroup',
+  'AdminBoardsLogGroup',
+  'PublicoResetSolicitarLogGroup',
 ];
 
 class StripLogGroupsPlugin {
   constructor(serverless) {
     this.serverless = serverless;
     this.hooks = {
-      'after:aws:package:finalize:mergeCustomProviderResources': () => this.strip(),
+      'before:aws:package:finalize:mergeCustomProviderResources': () => this.strip(),
     };
   }
 
