@@ -6,8 +6,14 @@ plugins:
   - serverless-esbuild
   - serverless-offline
   - ./plugins/tag-resources.cjs
+  - serverless-plugin-split-stacks
+  - ./plugins/strip-log-groups.cjs
 
 custom:
+  splitStacks:
+    perFunction: true
+    perType: false
+    perGroupFunction: false
   criticality:
     dev: low
     prod: high
@@ -80,6 +86,7 @@ provider:
     PASSWORD_RESETS_TABLE: AtlasPasswordResets-${self:provider.stage}
     BOARDS_TABLE: AtlasBoards-${self:provider.stage}
     BOARD_ITEMS_TABLE: AtlasBoardItems-${self:provider.stage}
+    API_TOKENS_TABLE: AtlasApiTokens-${self:provider.stage}
     PASSWORD_RESET_SECRET: ${env:PASSWORD_RESET_SECRET, ''}
     SPE_CONTAS_TABLE: AtlasSpeContas-${self:provider.stage}
     FINANCEIRO_LEDGER_TABLE: AtlasFinanceiroLedger-${self:provider.stage}
@@ -103,6 +110,8 @@ provider:
     EMAIL_FROM: ${env:EMAIL_FROM, 'noreply@atlascomp.com.br'}
     APP_URL: ${env:APP_URL, 'https://master.d3vqf6k21x668r.amplifyapp.com'}
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
+    COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+    COGNITO_CLIENT_ID: !Ref CognitoUserPoolClient
 
   logRetentionInDays: 14
 
@@ -211,7 +220,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   incorporadoraPutPerfil:
@@ -225,7 +234,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   incorporadoraDocumentoPresign:
@@ -239,7 +248,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   # ── Projetos — Incorporadora ───────────────────────────────────────
@@ -255,7 +264,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   projetosListar:
@@ -269,7 +278,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   projetoGet:
@@ -283,7 +292,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   projetoAtualizar:
@@ -297,7 +306,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   projetoSubmeter:
@@ -311,7 +320,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   projetoResubmeter:
@@ -325,7 +334,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   projetoDocumentoPresign:
@@ -339,7 +348,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   documentoDownloadPresign:
@@ -353,7 +362,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   documentoDelete:
@@ -367,7 +376,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   # ── Notificações ───────────────────────────────────────────────────
@@ -383,7 +392,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   notificacaoMarcarLida:
@@ -397,7 +406,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   # ── Admin — Curadoria ──────────────────────────────────────────────
@@ -413,7 +422,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaIniciar:
@@ -427,7 +436,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaGet:
@@ -441,7 +450,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaScorecard:
@@ -455,7 +464,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaAjuste:
@@ -469,7 +478,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaReprovar:
@@ -483,7 +492,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaAprovar:
@@ -497,7 +506,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaConfirmarPublicacao:
@@ -511,7 +520,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaNota:
@@ -525,7 +534,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCuradoriaReatribuir:
@@ -539,7 +548,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   # ── Admin — Gestão ─────────────────────────────────────────────────
@@ -555,7 +564,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminIncorporadorasListar:
@@ -569,7 +578,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminIncorporadoraGet:
@@ -583,7 +592,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminDashboardMetricas:
@@ -597,7 +606,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminUsuariosListar:
@@ -611,7 +620,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminUsuarioCriar:
@@ -627,7 +636,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminUsuarioDesativar:
@@ -643,7 +652,41 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  apiAuthorizer:
+    handler: src/functions/api-authorizer.handler
+    role: !GetAtt ApiAuthorizerLambdaRole.Arn
+    timeout: 10
+    description: "API Gateway authorizer for Cognito sessions and API tokens"
+
+  adminApiTokens:
+    handler: src/functions/admin-api-tokens.handler
+    role: !GetAtt AdminApiTokensLambdaRole.Arn
+    timeout: 10
+    description: "Creates, lists and revokes API tokens (admin users)"
+    events:
+      - http:
+          path: admin/api-tokens
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/api-tokens
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/api-tokens/{tokenId}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminDocumentoCatalogoListar:
@@ -657,7 +700,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminDocumentoCatalogoCriar:
@@ -671,7 +714,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminDocumentoCatalogoAtualizar:
@@ -685,7 +728,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminDocumentoCatalogoRemover:
@@ -699,7 +742,7 @@ functions:
           method: delete
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminBoards:
@@ -713,14 +756,14 @@ functions:
           method: any
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
       - http:
           path: admin/boards/{proxy+}
           method: any
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   documentoCatalogoListar:
@@ -734,7 +777,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroContasListar:
@@ -748,7 +791,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroContasCriar:
@@ -762,7 +805,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroContasGet:
@@ -776,7 +819,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroExtrato:
@@ -790,7 +833,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroMovimentos:
@@ -804,7 +847,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroSolicitacaoCriar:
@@ -818,7 +861,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroSolicitacaoAprovar:
@@ -832,7 +875,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroSolicitacaoRejeitar:
@@ -846,7 +889,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   webhookStarkbank:
@@ -870,7 +913,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCaptacaoOferta:
@@ -884,7 +927,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroSplitCriar:
@@ -898,7 +941,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroCartaoGet:
@@ -912,7 +955,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroCartaoSolicitar:
@@ -926,7 +969,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroCartaoLiberacaoConfirmar:
@@ -940,7 +983,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminFinanceiroCartaoLiberacaoRejeitar:
@@ -954,7 +997,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   publicoFinanceiroExtrato:
@@ -988,7 +1031,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaCartaoObter:
@@ -1002,7 +1045,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaCartaoLiberacaoSolicitar:
@@ -1016,7 +1059,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaEtapaCriar:
@@ -1030,7 +1073,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaEtapaAtualizar:
@@ -1044,7 +1087,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaEtapaRemover:
@@ -1058,7 +1101,7 @@ functions:
           method: delete
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaLancamentoCriar:
@@ -1072,7 +1115,7 @@ functions:
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   cronogramaLancamentoAtualizar:
@@ -1086,7 +1129,7 @@ functions:
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCronogramaListar:
@@ -1100,7 +1143,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
   adminCronogramaProjeto:
@@ -1114,7 +1157,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
 
 resources:
@@ -1513,6 +1556,49 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
 
+    ApiAuthorizerLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-apiAuthorizer-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:UpdateItem]
+                  Resource:
+                    - !GetAtt AtlasApiTokensTable.Arn
+                    - !GetAtt AtlasAdminsTable.Arn
+
+    AdminApiTokensLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-apiTokens-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:Query, dynamodb:UpdateItem]
+                  Resource:
+                    - !GetAtt AtlasApiTokensTable.Arn
+
     AdminUsuarioLambdaRole:
       Type: AWS::IAM::Role
       Properties:
@@ -1878,12 +1964,20 @@ resources:
     ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
       Properties:
-        Name: AtlasHubCognitoAuthorizer
-        Type: COGNITO_USER_POOLS
+        Name: AtlasHubRequestAuthorizer
+        Type: REQUEST
+        AuthorizerUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiAuthorizerLambdaFunction.Arn}/invocations'
         IdentitySource: method.request.header.Authorization
         RestApiId: !Ref ApiGatewayRestApi
-        ProviderARNs:
-          - !GetAtt CognitoUserPool.Arn
+        AuthorizerResultTtlInSeconds: 0
+
+    ApiAuthorizerLambdaPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !Ref ApiAuthorizerLambdaFunction
+        Principal: apigateway.amazonaws.com
+        SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*'
 
     # ── DynamoDB Tables ────────────────────────────────────────────────
 
@@ -1913,6 +2007,31 @@ resources:
             KeySchema:
               - AttributeName: email
                 KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    AtlasApiTokensTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasApiTokens-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: tokenHash
+            AttributeType: S
+          - AttributeName: ownerId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tokenHash
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ownerId-createdAt-index
+            KeySchema:
+              - AttributeName: ownerId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
 

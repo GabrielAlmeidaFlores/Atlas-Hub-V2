@@ -26,6 +26,7 @@ import {
   PASSWORD_RESETS_TABLE,
   BOARDS_TABLE,
   BOARD_ITEMS_TABLE,
+  API_TOKENS_TABLE,
 } from './env.js';
 
 export const Tables = {
@@ -56,4 +57,5 @@ export const Tables = {
   PASSWORD_RESETS: PASSWORD_RESETS_TABLE,
   BOARDS: BOARDS_TABLE,
   BOARD_ITEMS: BOARD_ITEMS_TABLE,
+  API_TOKENS: API_TOKENS_TABLE,
 } as const;

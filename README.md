@@ -224,7 +224,19 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Desativar usuário | Remove acesso | `PUT /admin/usuarios/{id}/desativar` |
 | Reatribuir projeto | Troca analista responsável (com motivo); scorecard parcial é herdado | `POST /admin/curadoria/{id}/reatribuir` |
 
-#### 3.2 Dashboard admin
+#### 3.2 Tokens de API
+
+Admins (`ADMIN_MASTER` e `ANALISTA`) podem criar tokens de integração em `/admin/api-tokens`.
+
+- `POST /admin/api-tokens`: cria token com nome, permissão (`read`/`write`) e expiração.
+- `GET /admin/api-tokens`: lista os tokens do próprio usuário.
+- `DELETE /admin/api-tokens/{tokenId}`: revoga um token.
+- O token é exibido somente na criação.
+- Use `Authorization: Bearer atl_...` nas chamadas externas.
+- Tokens `read` aceitam `GET`/`HEAD` e os endpoints de download por `POST`; tokens `write` herdam as permissões do admin que os criou.
+- Tokens não podem criar ou revogar outros tokens.
+
+#### 3.3 Dashboard admin
 
 | Funcionalidade | Descrição |
 |---|---|
@@ -232,7 +244,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Tempo médio de análise | Em dias (mês atual) |
 | Funil visual | Submetidos → Em análise → Aprovados → Oferta criada (com desvios para ajuste/reprovação) |
 
-#### 3.3 Fila de curadoria
+#### 3.4 Fila de curadoria
 
 | Funcionalidade | Descrição |
 |---|---|
@@ -242,7 +254,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Ordenação FIFO | Mais antigo primeiro |
 | Iniciar análise | Atribui ao analista logado → `EM_ANALISE`; outros só visualizam |
 
-#### 3.4 Análise, scorecard e decisão
+#### 3.5 Análise, scorecard e decisão
 
 | Funcionalidade | Descrição |
 |---|---|
@@ -258,7 +270,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Confirmar publicação da oferta | Registra ID + link da oferta → `OFERTA_CRIADA` |
 | Histórico de resubmissões | Exibe “Revisão N” e scorecards anteriores |
 
-#### 3.5 Histórico de decisões
+#### 3.6 Histórico de decisões
 
 | Funcionalidade | Descrição |
 |---|---|
@@ -267,7 +279,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Filtros | Decisão, analista, datas, tipo de oferta |
 | Ver análise completa | Abre o detalhe com scorecard e notas |
 
-#### 3.6 CRM de incorporadoras
+#### 3.7 CRM de incorporadoras
 
 | Funcionalidade | Descrição |
 |---|---|
@@ -275,7 +287,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Detalhe | Dados cadastrais, documentos, histórico declarado, todos os projetos com status/nota/decisão |
 | Resumo | Contagens: submetidos / aprovados / reprovados / publicados |
 
-#### 3.7 Financeiro (pós-sucesso)
+#### 3.8 Financeiro (pós-sucesso)
 
 | Funcionalidade | Descrição |
 |---|---|
@@ -288,7 +300,7 @@ Progresso salvo automaticamente como **rascunho** ao avançar cada etapa. Pode f
 | Auditoria | Trilha de abertura de conta, solicitações, aprovações e conciliação |
 | Fora desta fase | Escrow da oferta, portal investidor, cartão CDI |
 
-#### 3.8 Captação (admin)
+#### 3.9 Captação (admin)
 
 | Funcionalidade | Descrição |
 |---|---|

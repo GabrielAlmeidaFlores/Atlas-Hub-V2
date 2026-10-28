@@ -5,6 +5,17 @@ import { boardsHandlers } from "./boards";
 
 const BASE = "";
 
+const mockApiTokens: {
+  tokenId: string;
+  name: string;
+  permission: "read" | "write";
+  prefix: string;
+  createdAt: string;
+  expiresAt?: string;
+  lastUsedAt?: string;
+  revokedAt?: string;
+}[] = [];
+
 const mockIncorporadora: Incorporadora = {
   id: "user-inc-1",
   cnpj: "12345678000195",
@@ -345,6 +356,35 @@ export const handlers = [
   http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: [] })),
   http.post(`${BASE}/admin/usuarios`, () => HttpResponse.json({ id: "admin-new", temporaryPassword: "Atlas@Mock1234", emailSent: true }, { status: 201 })),
   http.put(`${BASE}/admin/usuarios/:id/desativar`, () => HttpResponse.json({ updated: true })),
+  http.get(`${BASE}/admin/api-tokens`, () => HttpResponse.json({ items: mockApiTokens })),
+
+  http.post(`${BASE}/admin/api-tokens`, async ({ request }) => {
+    const body = await request.json() as { name?: string; permission?: "read" | "write"; expiresInDays?: number | null };
+    if (body.name === undefined || body.name.trim().length === 0) {
+      return HttpResponse.json({ code: "VALIDATION_ERROR", message: "Informe o nome do token" }, { status: 400 });
+    }
+    const now = new Date();
+    const token = `atl_mock_${crypto.randomUUID().replace(/-/g, "")}`;
+    const record = {
+      tokenId: crypto.randomUUID(),
+      name: body.name.trim(),
+      permission: body.permission ?? "read",
+      prefix: token.slice(0, 12),
+      createdAt: now.toISOString(),
+      ...(body.expiresInDays === null || body.expiresInDays === undefined
+        ? {}
+        : { expiresAt: new Date(now.getTime() + body.expiresInDays * 86_400_000).toISOString() }),
+    };
+    mockApiTokens.unshift(record);
+    return HttpResponse.json({ token: { ...record, token } }, { status: 201 });
+  }),
+
+  http.delete(`${BASE}/admin/api-tokens/:tokenId`, ({ params }) => {
+    const token = mockApiTokens.find((item) => item.tokenId === params.tokenId);
+    if (token === undefined) return HttpResponse.json({ code: "NOT_FOUND", message: "Token não encontrado" }, { status: 404 });
+    token.revokedAt = new Date().toISOString();
+    return HttpResponse.json({ ok: true });
+  }),
 
   http.get(`${BASE}/admin/financeiro/contas`, () => HttpResponse.json({
     configured: false,
