@@ -14,6 +14,7 @@ import type {
   BoardTemplateField,
   BoardView,
 } from "@/types";
+import type { BoardMetricsDashboard, BoardMetricsRequest, BoardMetricsResponse } from "@/features/admin/boards/metrics/types";
 
 export interface BoardCreateInput {
   readonly name: string;
@@ -24,6 +25,7 @@ export interface BoardCreateInput {
 export interface BoardUpdateInput {
   readonly name?: string;
   readonly description?: string | null;
+  readonly metricsDashboard?: BoardMetricsDashboard;
 }
 
 export interface BoardMemberCandidate {
@@ -111,6 +113,19 @@ export const boardsApi = {
   },
   update: async (boardId: string, input: BoardUpdateInput): Promise<Board> => {
     const response = await api.put<{ board: Board }>(boardPath(boardId), input);
+    return response.board;
+  },
+  getMetrics: async (boardId: string, request: BoardMetricsRequest = {}): Promise<BoardMetricsResponse> => {
+    const params = new URLSearchParams({ view: "metrics" });
+    if (request.from !== undefined) params.set("from", request.from);
+    if (request.to !== undefined) params.set("to", request.to);
+    if (request.variableValues !== undefined && Object.keys(request.variableValues).length > 0) {
+      params.set("variables", JSON.stringify(request.variableValues));
+    }
+    return api.get<BoardMetricsResponse>(`${boardPath(boardId)}?${params.toString()}`);
+  },
+  saveMetricsDashboard: async (boardId: string, dashboard: BoardMetricsDashboard): Promise<Board> => {
+    const response = await api.put<{ board: Board }>(boardPath(boardId), { metricsDashboard: dashboard });
     return response.board;
   },
   archive: async (boardId: string): Promise<Board> => {

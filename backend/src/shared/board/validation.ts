@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { BOARD_COLUMN_COLORS, BOARD_FIELD_TYPES, BOARD_ICONS, BOARD_LABEL_COLORS, BOARD_MEMBER_ROLES } from './types.js';
+import { metricsDashboardSchema } from './metrics/validation.js';
 
 const boardFileSchema = z.object({
   key: z.string().trim().min(1).max(1024),
@@ -26,7 +27,12 @@ export const boardCreateSchema = z.object({
 export const boardUpdateSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
   description: z.string().trim().max(300).nullable().optional(),
-}).strict().refine((value) => value.name !== undefined || value.description !== undefined, {
+  metricsDashboard: metricsDashboardSchema.optional(),
+}).strict().refine((value) => (
+  value.name !== undefined
+  || value.description !== undefined
+  || value.metricsDashboard !== undefined
+), {
   message: 'Informe ao menos um campo',
 });
 

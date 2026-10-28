@@ -15,6 +15,7 @@ import type {
   BoardMemberRole,
   BoardAccessRole,
 } from "@/types";
+import type { BoardMetricsDashboard, BoardMetricsResponse, DashboardPanelResult, MetricDefinition, MetricFilterGroup, MetricGroupResult, MetricQuery, MetricSourceField } from "@/features/admin/boards/metrics/types";
 
 const DEFAULT_COLUMNS = [
   { name: "Novo", color: "blue" },
@@ -493,6 +494,187 @@ function validateCardFields(templateId: string | undefined, values: Readonly<Rec
   }
 }
 
+
+
+function mockSourceValue(card: BoardCard, source: MetricSourceField): unknown {
+  if (source.sourceType === "board_column") return card.columnId;
+  if (source.sourceType === "template_field") return card.fieldValues[source.fieldId];
+  if (source.sourceType === "board_label") return card.labelIds;
+  if (source.sourceType === "board_assignee") return card.assigneeEmails ?? [];
+  if (source.sourceType === "template") return card.templateId ?? null;
+  if (source.sourceType === "board_archived_state") return card.archivedAt !== undefined;
+  if (source.sourceType === "system_field") {
+    if (source.systemField === "updatedAt") return card.updatedAt;
+    if (source.systemField === "createdAt") return card.createdAt;
+    if (source.systemField === "cardTitle") return card.title;
+    if (source.systemField === "columnId") return card.columnId;
+    if (source.systemField === "templateId") return card.templateId;
+    return null;
+  }
+  return null;
+}
+
+function mockConditionMatches(card: BoardCard, condition: { readonly sourceField: MetricSourceField; readonly comparisonOperator: string; readonly comparisonValue?: unknown }): boolean {
+  const value = mockSourceValue(card, condition.sourceField);
+  const expected = condition.comparisonValue;
+  if (condition.comparisonOperator === "is_archived") return value === true;
+  if (condition.comparisonOperator === "is_not_archived") return value !== true;
+  if (condition.comparisonOperator === "exists") return value !== null && value !== undefined && value !== "";
+  if (condition.comparisonOperator === "not_exists") return value === null || value === undefined || value === "";
+  if (condition.comparisonOperator === "equals") return Array.isArray(value) ? value.includes(expected) : String(value) === String(expected);
+  if (condition.comparisonOperator === "not_equals") return !(Array.isArray(value) ? value.includes(expected) : String(value) === String(expected));
+  if (condition.comparisonOperator === "contains") return Array.isArray(value) ? value.includes(expected) : String(value).includes(String(expected));
+  if (condition.comparisonOperator === "greater_than" || condition.comparisonOperator === "less_than") {
+    const number = Number(value);
+    return condition.comparisonOperator === "greater_than" ? number > Number(expected) : number < Number(expected);
+  }
+  if (condition.comparisonOperator === "older_than_days" || condition.comparisonOperator === "within_last_days") {
+    const timestamp = Date.parse(String(value));
+    if (Number.isNaN(timestamp)) return false;
+    const threshold = Date.now() - Number(expected) * 86_400_000;
+    return condition.comparisonOperator === "older_than_days" ? timestamp < threshold : timestamp >= threshold;
+  }
+  return true;
+}
+
+function mockFilterMatches(card: BoardCard, group?: MetricFilterGroup): boolean {
+  if (group === undefined) return true;
+  const results = [
+    ...(group.filterConditions ?? []).map((condition) => mockConditionMatches(card, condition)),
+    ...(group.nestedFilterGroups ?? []).map((nested) => mockFilterMatches(card, nested)),
+  ];
+  return results.length === 0 ? true : group.logicalOperator === "and" ? results.every(Boolean) : results.some(Boolean);
+}
+
+function mockMetric(card: BoardCard, query: MetricQuery): boolean {
+  return mockFilterMatches(card, query.filterGroup);
+}
+
+function mockGroupValue(card: BoardCard, dimension: NonNullable<MetricQuery["grouping"]>["groupByDimensions"] extends readonly (infer T)[] ? T : never, view: BoardView): string {
+  if (dimension.dimensionType === "board_column") return view.columns.find((column) => column.columnId === card.columnId)?.name ?? "Sem coluna";
+  if (dimension.dimensionType === "board_label") return card.labelIds.map((id) => view.labels.find((label) => label.labelId === id)?.name).filter(Boolean).join(", ") || "Sem label";
+  if (dimension.dimensionType === "board_assignee") return (card.assigneeEmails ?? []).join(", ") || "Sem responsável";
+  if (dimension.dimensionType === "template") return view.templates.find((template) => template.templateId === card.templateId)?.name ?? "Sem template";
+  if (dimension.dimensionType === "template_field") return String(card.fieldValues[dimension.fieldId] ?? "Não preenchido");
+  if (dimension.dimensionType === "board_archived_state") return card.archivedAt === undefined ? "Ativo" : "Arquivado";
+  return card.createdAt.slice(0, 10);
+}
+
+function mockMeasure(cards: BoardCard[], query: MetricQuery): number {
+  const measurement = query.measurement;
+  if (measurement.aggregationType === "count") return cards.length;
+  if (measurement.aggregationType === "distinct_count") return new Set(cards.map((card) => card.cardId)).size;
+  if (measurement.aggregationType === "completeness") return cards.length === 0 ? 0 : (cards.filter((card) => measurement.sourceField !== undefined && mockSourceValue(card, measurement.sourceField) !== null).length / cards.length) * 100;
+  const fieldId = measurement.numericField?.fieldId;
+  if (measurement.aggregationType === "weighted_sum") {
+    const weights = new Map((measurement.weightDefinition?.columnWeights ?? []).map((weight) => [weight.columnId, weight.weight]));
+    return cards.reduce((sum, card) => sum + Number(card.fieldValues[fieldId ?? ""] ?? 0) * (weights.get(card.columnId) ?? 0), 0);
+  }
+  const values = cards.map((card) => Number(card.fieldValues[fieldId ?? ""] ?? 0)).filter(Number.isFinite);
+  if (values.length === 0) return 0;
+  if (measurement.aggregationType === "sum") return values.reduce((sum, value) => sum + value, 0);
+  if (measurement.aggregationType === "average") return values.reduce((sum, value) => sum + value, 0) / values.length;
+  if (measurement.aggregationType === "minimum") return Math.min(...values);
+  if (measurement.aggregationType === "maximum") return Math.max(...values);
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.9) - 1);
+  return measurement.aggregationType === "p90" ? sorted[index] ?? 0 : sorted[Math.floor(sorted.length / 2)] ?? 0;
+}
+
+function mockMetricResult(metric: MetricDefinition, view: BoardView): DashboardPanelResult["metric"] {
+  const queries = Object.values(metric.calculation.namedQueries);
+  const first = queries[0];
+  if (first === undefined) return { metricId: metric.metricId, metricName: metric.metricName, formatType: metric.calculation.formatting.formatType, value: null, groups: [], sampleSize: 0, error: "Métrica sem queries" };
+  const cards = view.cards.filter((card) => mockMetric(card, first));
+  const dimensions = first.grouping?.groupByDimensions ?? [];
+  const groups = dimensions.length === 0 ? [] : [...cards.reduce((map, card) => {
+    const dimensionValues = Object.fromEntries(dimensions.map((dimension, index) => [`${dimension.dimensionType}-${index}`, mockGroupValue(card, dimension, view)]));
+    const key = Object.values(dimensionValues).join("|");
+    const current = map.get(key) ?? { dimensionValues, cards: [] };
+    current.cards.push(card);
+    map.set(key, current);
+    return map;
+  }, new Map<string, { dimensionValues: Record<string, string>; cards: BoardCard[] }>()).values()].map((group) => ({ dimensionValues: group.dimensionValues, value: mockMeasure(group.cards, first) }));
+  const value = dimensions.length === 0 ? mockMeasure(cards, first) : null;
+  if (metric.calculation.resultFormula !== undefined && queries.length >= 2) {
+    const values = queries.map((query) => mockMeasure(view.cards.filter((card) => mockMetric(card, query)), query));
+    const [a = 0, b = 0] = values;
+    return { metricId: metric.metricId, metricName: metric.metricName, formatType: metric.calculation.formatting.formatType, value: (a / (a + b)) * 100, groups: [], sampleSize: cards.length };
+  }
+  return { metricId: metric.metricId, metricName: metric.metricName, formatType: metric.calculation.formatting.formatType, value, groups, sampleSize: cards.length };
+}
+
+function metricsView(view: BoardView): BoardMetricsResponse {
+  const timestamp = iso();
+  const savedDashboard = (view.board as Board & { metricsDashboard?: BoardMetricsDashboard }).metricsDashboard;
+  const dashboard: BoardMetricsDashboard = savedDashboard ?? {
+    schemaVersion: 1,
+    documentType: "boardMetricsDashboard",
+    dashboardMetadata: {
+      dashboardId: `dashboard-${view.board.boardId}`,
+      dashboardName: view.board.name,
+      dashboardDescription: "Dashboard local de demonstração.",
+      dashboardOwnerUserId: view.board.createdBy,
+      createdAt: view.board.createdAt,
+      updatedAt: timestamp,
+      metricsDataSince: view.board.createdAt,
+      documentStatus: "active",
+    },
+    dashboardSettings: {
+      gridSettings: { columnCount: 12, rowHeightPixels: 88, horizontalGapPixels: 16, verticalGapPixels: 16, allowPanelOverlap: false, compactVerticalLayout: true },
+      timeRangeSettings: { defaultRelativeDays: 30 },
+      refreshSettings: { automaticRefreshEnabled: false, refreshIntervalSeconds: 60 },
+    },
+    dashboardVariables: [],
+    metricDefinitions: [
+      {
+        metricId: "cards-active", metricName: "Cards ativos",
+        calculation: {
+          dataSource: { dataSourceType: "board_cards", includeArchivedCards: false, applyDashboardVariables: false, applyDashboardTimeRange: false },
+          namedQueries: { value: { measurement: { aggregationType: "count", nullValueHandling: "ignore_nulls" } } },
+          formatting: { formatType: "number", decimalPlaces: 0 },
+        },
+      },
+      {
+        metricId: "cards-by-column", metricName: "Cards por coluna",
+        calculation: {
+          dataSource: { dataSourceType: "board_cards", includeArchivedCards: false, applyDashboardVariables: false, applyDashboardTimeRange: false },
+          namedQueries: { value: { grouping: { groupByDimensions: [{ dimensionType: "board_column" }] }, measurement: { aggregationType: "count", nullValueHandling: "ignore_nulls" } } },
+          formatting: { formatType: "number", decimalPlaces: 0 },
+        },
+      },
+    ],
+    panelDefinitions: [
+      { panelId: "active", panelTitle: "Cards ativos", metricId: "cards-active", visualization: { visualizationType: "stat" }, layout: { horizontalStartColumn: 0, verticalStartRow: 0, horizontalSpanColumns: 3, verticalSpanRows: 2, minimumHorizontalSpanColumns: 2, minimumVerticalSpanRows: 2 } },
+      { panelId: "by-column", panelTitle: "Cards por coluna", metricId: "cards-by-column", visualization: { visualizationType: "bar_chart" }, layout: { horizontalStartColumn: 3, verticalStartRow: 0, horizontalSpanColumns: 9, verticalSpanRows: 4, minimumHorizontalSpanColumns: 3, minimumVerticalSpanRows: 2 } },
+    ],
+  };
+  const metricMap = new Map(dashboard.metricDefinitions.map((metric) => [metric.metricId, metric]));
+  const panels = dashboard.panelDefinitions.map((panel) => {
+    const metric = metricMap.get(panel.metricId);
+    return {
+      panelId: panel.panelId,
+      panelTitle: panel.panelTitle,
+      visualizationType: panel.visualization.visualizationType,
+      metric: metric === undefined
+        ? { metricId: panel.metricId, metricName: panel.metricId, formatType: "text" as const, value: null, groups: [], sampleSize: 0, error: "Métrica não encontrada" }
+        : mockMetricResult(metric, view),
+    };
+  });
+  return {
+    board: view,
+    dashboard,
+    panels,
+    filterOptions: {
+      columns: view.columns.map((column) => ({ columnId: column.columnId, columnName: column.name })),
+      labels: view.labels.map((label) => ({ labelId: label.labelId, labelName: label.name })),
+      assignees: [...new Set(view.cards.flatMap((card) => card.assigneeEmails ?? []))].map((email) => ({ assigneeEmail: email, assigneeName: email })),
+      templates: view.templates.map((template) => ({ templateId: template.templateId, templateName: template.name })),
+    },
+    metadata: { generatedAt: timestamp, metricsDataSince: view.board.createdAt, totalCards: view.cards.length, archivedCards: 0, historyTruncated: false },
+  };
+}
+
 export const boardsHandlers = [
   http.get("/admin/boards", ({ request }) => {
     const email = normalizedEmail(request);
@@ -557,15 +739,19 @@ export const boardsHandlers = [
   http.get("/admin/boards/:boardId", ({ params, request }) => {
     const view = listView(String(params.boardId), normalizedEmail(request));
     if (view === null) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
+    if (new URL(request.url).searchParams.get("view") === "metrics") return HttpResponse.json(metricsView(view));
     return HttpResponse.json({ board: view });
   }),
 
   http.put("/admin/boards/:boardId", async ({ params, request }) => {
     const board = store.boards.find((item) => item.boardId === params.boardId);
     if (board === undefined) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
-    const input = await bodyOf<{ name?: string; description?: string | null }>(request);
+    const input = await bodyOf<{ name?: string; description?: string | null; metricsDashboard?: BoardMetricsDashboard }>(request);
     if (input.name !== undefined) board.name = input.name;
     if (input.description !== undefined) board.description = input.description ?? "";
+    if (input.metricsDashboard !== undefined) {
+      (board as Board & { metricsDashboard?: BoardMetricsDashboard }).metricsDashboard = input.metricsDashboard;
+    }
     board.updatedAt = iso();
     return HttpResponse.json({ board });
   }),

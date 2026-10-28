@@ -1,3 +1,5 @@
+import type { BoardMetricsDashboard } from './metrics/types.js';
+
 export const BOARD_FIELD_TYPES = [
   'text',
   'longText',
@@ -162,6 +164,7 @@ export interface Board {
   readonly cardSequence?: number;
   readonly members?: readonly BoardMember[];
   readonly archivedAt?: string;
+  readonly metricsDashboard?: BoardMetricsDashboard;
 }
 
 export interface BoardView {

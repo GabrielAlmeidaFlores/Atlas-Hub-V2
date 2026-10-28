@@ -1,5 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ValidationError } from '../http/validators.js';
+import { buildDefaultDashboard, evaluateDashboard } from './metrics/engine.js';
+import { validateDashboardReferences } from './metrics/validation.js';
+import type { BoardMetricsDashboard, BoardMetricsQuery, BoardMetricsResponse } from './metrics/types.js';
 import { BoardConflictError, BoardForbiddenError, BoardNotFoundError } from './errors.js';
 import type {
   BoardRepository,
@@ -178,6 +181,15 @@ export class BoardService {
     return this.toView(board, items, role);
   }
 
+  async getBoardMetrics(boardId: string, actor: BoardActor, query: BoardMetricsQuery): Promise<BoardMetricsResponse> {
+    const board = await this.requireBoard(boardId);
+    if (this.accessRole(board, actor) === null) throw new BoardForbiddenError();
+    const items = await this.repository.listItems(boardId);
+    const view = this.toView(board, items, this.accessRole(board, actor) ?? undefined);
+    const dashboard = board.metricsDashboard ?? buildDefaultDashboard(board, view);
+    return evaluateDashboard(dashboard, view, items, query);
+  }
+
   async createBoard(
     input: BoardCreateInput,
     userIdOrActor: string | BoardActor,
@@ -234,11 +246,19 @@ export class BoardService {
   }
 
   async updateBoard(boardId: string, input: BoardUpdateInput): Promise<Board> {
-    await this.requireBoard(boardId);
+    const board = await this.requireBoard(boardId);
+    if (input.metricsDashboard !== undefined) {
+      const items = await this.repository.listItems(boardId);
+      validateDashboardReferences(input.metricsDashboard as unknown as BoardMetricsDashboard, this.toView(board, items));
+      if (Buffer.byteLength(JSON.stringify(input.metricsDashboard), 'utf8') > 64 * 1024) {
+        throw new ValidationError([{ field: 'metricsDashboard', message: 'Dashboard excede o limite de 64 KB' }]);
+      }
+    }
     const patch: Partial<Board> = {
       updatedAt: now(),
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.description !== undefined ? { description: input.description ?? '' } : {}),
+      ...(input.metricsDashboard !== undefined ? { metricsDashboard: input.metricsDashboard as unknown as BoardMetricsDashboard } : {}),
     };
     const updated = await this.repository.updateBoard(boardId, patch);
     if (updated === null) throw new BoardNotFoundError('Board não encontrado');

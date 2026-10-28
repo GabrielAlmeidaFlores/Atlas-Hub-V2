@@ -11,6 +11,7 @@ interface EventOptions {
   readonly groups?: readonly string[];
   readonly sub?: string | null;
   readonly email?: string;
+  readonly query?: Record<string, string>;
 }
 
 const ADMINS = [
@@ -31,7 +32,7 @@ function makeEvent(method: string, resource: string, options: EventOptions = {})
     path: resource,
     headers: {},
     multiValueHeaders: {},
-    queryStringParameters: null,
+    queryStringParameters: options.query ?? null,
     multiValueQueryStringParameters: null,
     pathParameters: options.params ?? null,
     stageVariables: null,
@@ -360,4 +361,31 @@ test('resolves board paths through the API Gateway proxy route', async () => {
   event.path = `/admin/boards/${boardId}`;
   const detail = await handler(event);
   assert.equal(detail.statusCode, 200);
+});
+
+
+test('returns board metrics through the existing board route', async () => {
+  const handler = makeHandler();
+  const created = await handler(makeEvent('POST', '/admin/boards', { body: { name: 'Métricas' } }));
+  const boardId = (bodyOf(created) as { board: { board: { boardId: string } } }).board.board.boardId;
+  const metrics = await handler(makeEvent('GET', '/admin/boards/{boardId}', {
+    params: { boardId },
+    query: { view: 'metrics', from: '2026-01-01', to: '2026-12-31' },
+  }));
+  assert.equal(metrics.statusCode, 200);
+  const result = bodyOf(metrics) as { dashboard: { documentType: string }; panels: unknown[]; board: { accessRole: string } };
+  assert.equal(result.dashboard.documentType, 'boardMetricsDashboard');
+  assert.ok(result.panels.length > 0);
+  assert.equal(result.board.accessRole, 'owner');
+});
+
+test('rejects invalid metrics date parameters', async () => {
+  const handler = makeHandler();
+  const created = await handler(makeEvent('POST', '/admin/boards', { body: { name: 'Métricas' } }));
+  const boardId = (bodyOf(created) as { board: { board: { boardId: string } } }).board.board.boardId;
+  const metrics = await handler(makeEvent('GET', '/admin/boards/{boardId}', {
+    params: { boardId },
+    query: { view: 'metrics', to: '2026-12-31T12:00:00Z' },
+  }));
+  assert.equal(metrics.statusCode, 400);
 });
