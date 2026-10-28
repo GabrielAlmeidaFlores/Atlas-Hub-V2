@@ -5,9 +5,6 @@ const REMOVED_LOG_GROUPS = [
   'AdminDashboardMetricasLogGroup',
   'PublicoFinanceiroExtratoLogGroup',
   'AdminHistoricoListarLogGroup',
-  'AdminUsuarioCriarLogGroup',
-  'AdminUsuarioDesativarLogGroup',
-  'AdminUsuariosListarLogGroup',
 ];
 
 class StripLogGroupsPlugin {
