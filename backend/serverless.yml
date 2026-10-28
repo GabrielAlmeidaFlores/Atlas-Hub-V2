@@ -111,8 +111,6 @@ provider:
     EMAIL_FROM: ${env:EMAIL_FROM, 'noreply@atlascomp.com.br'}
     APP_URL: ${env:APP_URL, 'https://master.d3vqf6k21x668r.amplifyapp.com'}
     CORS_ORIGINS: ${env:CORS_ORIGINS, '*'}
-    COGNITO_USER_POOL_ID: !Ref CognitoUserPool
-    COGNITO_CLIENT_ID: !Ref CognitoUserPoolClient
 
   logRetentionInDays: 14
 
@@ -675,6 +673,9 @@ functions:
     role: !GetAtt ApiAuthorizerLambdaRole.Arn
     timeout: 10
     description: "API Gateway authorizer for Cognito sessions and API tokens"
+    environment:
+      COGNITO_USER_POOL_ID: !Ref CognitoUserPool
+      COGNITO_CLIENT_ID: !Ref CognitoUserPoolClient
 
   adminApiTokens:
     handler: src/functions/admin-api-tokens.handler
