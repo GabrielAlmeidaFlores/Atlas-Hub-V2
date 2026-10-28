@@ -10,7 +10,7 @@
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
     "logs:health": "serverless logs -f health --tail",
-    "test": "tsx --test src/shared/board/*.test.ts src/shared/api-token/*.test.ts src/functions/*.test.ts"
+    "test": "tsx --test src/shared/board/*.test.ts src/shared/board/metrics/*.test.ts src/shared/api-token/*.test.ts src/functions/*.test.ts"
   },
   "dependencies": {
     "@aws-crypto/client-node": "^5.0.2",

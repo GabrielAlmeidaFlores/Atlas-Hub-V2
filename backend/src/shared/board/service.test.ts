@@ -174,3 +174,32 @@ test('creates custom templates and keeps board-scoped labels', async () => {
     [green.labelId, blue.labelId].sort(),
   );
 });
+
+test('returns a default metrics dashboard for a board', async () => {
+  const { service } = createService();
+  const view = await service.createBoard({ name: 'Métricas' }, 'admin-1');
+  const column = view.columns[0];
+  assert.ok(column !== undefined);
+  await service.createCard(view.board.boardId, { columnId: column.columnId, title: 'Lead' }, 'admin-1');
+  const metrics = await service.getBoardMetrics(view.board.boardId, { userId: 'admin-1', email: '' }, {});
+  assert.ok(metrics.dashboard.metricDefinitions.length > 0);
+  assert.ok(metrics.panels.length > 0);
+  assert.equal(metrics.metadata.totalCards, 1);
+  assert.equal(metrics.board.accessRole, 'owner');
+});
+
+
+test('generates a default metrics dashboard and persists a custom dashboard', async () => {
+  const { service } = createService();
+  const view = await service.createBoard({ name: 'Métricas' }, 'admin-1');
+  const metrics = await service.getBoardMetrics(view.board.boardId, { userId: 'admin-1', email: '' }, {});
+  assert.ok(metrics.panels.length > 0);
+  assert.equal(metrics.dashboard.documentType, 'boardMetricsDashboard');
+  assert.equal(metrics.metadata.totalCards, 0);
+
+  await service.updateBoard(view.board.boardId, {
+    metricsDashboard: metrics.dashboard as unknown as Parameters<BoardService['updateBoard']>[1]['metricsDashboard'],
+  });
+  const saved = await service.getBoard(view.board.boardId);
+  assert.equal(saved.board.metricsDashboard?.dashboardMetadata.dashboardName, 'Métricas');
+});

@@ -157,7 +157,39 @@ export function createAdminBoardsHandler(
           return created(event, { board });
         }
         case 'GET /admin/boards/{boardId}': {
-          const board = await service.getBoard(param(event, 'boardId'), actor);
+          const boardId = param(event, 'boardId');
+          if (event.queryStringParameters?.['view'] === 'metrics') {
+            let variableValues: Record<string, readonly string[]> = {};
+            const rawVariables = event.queryStringParameters['variables'];
+            if (rawVariables !== undefined && rawVariables !== '') {
+              try {
+                const parsed = JSON.parse(rawVariables) as unknown;
+                if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                  variableValues = Object.fromEntries(
+                    Object.entries(parsed as Record<string, unknown>).map(([key, value]) => [
+                      key,
+                      Array.isArray(value) ? value.map(String) : [String(value)],
+                    ]),
+                  );
+                }
+              } catch {
+                return badRequest(event, 'Parâmetro variables inválido');
+              }
+            }
+            const from = event.queryStringParameters['from'];
+            const to = event.queryStringParameters['to'];
+            const isDateOnly = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+            if (from !== undefined && from !== '' && !isDateOnly(from)) return badRequest(event, 'Parâmetro from deve usar YYYY-MM-DD');
+            if (to !== undefined && to !== '' && !isDateOnly(to)) return badRequest(event, 'Parâmetro to deve usar YYYY-MM-DD');
+            if (from !== undefined && to !== undefined && from !== '' && to !== '' && from > to) return badRequest(event, 'from não pode ser posterior a to');
+            const metrics = await service.getBoardMetrics(boardId, actor, {
+              ...(from !== undefined && from !== '' ? { from } : {}),
+              ...(to !== undefined && to !== '' ? { to } : {}),
+              variableValues,
+            });
+            return ok(event, metrics);
+          }
+          const board = await service.getBoard(boardId, actor);
           return ok(event, { board });
         }
         case 'GET /admin/boards/{boardId}/members/candidates': {

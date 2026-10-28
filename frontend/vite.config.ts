@@ -19,5 +19,16 @@ export default defineConfig({
   build: {
     target: "es2022",
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("/node_modules/recharts/")) return "charts";
+          if (id.includes("/node_modules/victory-vendor/") || id.includes("/node_modules/d3-")) return "charts-vendor";
+          if (id.includes("/node_modules/lodash/")) return "charts-utils";
+          if (id.includes("/node_modules/react-grid-layout/") || id.includes("/node_modules/react-resizable/")) return "dashboardGrid";
+          return undefined;
+        },
+      },
+    },
   },
 });

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, GripVertical, Plus, Settings2, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, GripVertical, Plus, Settings2, Users } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -539,6 +539,7 @@ export default function AdminBoardsDetalhePage(): ReactNode {
         action={(
           <div className="flex flex-wrap gap-2">
             <Link to="/admin/boards" className="btn btn-outline btn-sm"><ArrowLeft className="h-4 w-4" /> Quadros</Link>
+            <Link to={`/admin/boards/${board.board.boardId}/metrics`} className="btn btn-outline btn-sm"><BarChart3 className="h-4 w-4" /> Métricas</Link>
             {canManage && (
               <button type="button" className="btn btn-outline btn-sm" onClick={() => setMembersOpen(true)}>
                 <Users className="h-4 w-4" /> Participantes
