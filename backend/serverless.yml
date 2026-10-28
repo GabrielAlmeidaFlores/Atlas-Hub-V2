@@ -11,6 +11,7 @@ plugins:
 
 custom:
   splitStacks:
+    custom: ./stacks-map.cjs
     perFunction: true
     perType: false
     perGroupFunction: false
