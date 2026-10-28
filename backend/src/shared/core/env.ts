@@ -36,6 +36,7 @@ export const SPE_CARTAO_LIBERACOES_TABLE = process.env['SPE_CARTAO_LIBERACOES_TA
 export const PASSWORD_RESETS_TABLE = process.env['PASSWORD_RESETS_TABLE'] ?? 'AtlasPasswordResets-dev';
 export const BOARDS_TABLE = process.env['BOARDS_TABLE'] ?? 'AtlasBoards-dev';
 export const BOARD_ITEMS_TABLE = process.env['BOARD_ITEMS_TABLE'] ?? 'AtlasBoardItems-dev';
+export const API_TOKENS_TABLE = process.env['API_TOKENS_TABLE'] ?? 'AtlasApiTokens-dev';
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';
 export const DIVIFY_TENANT_ID = process.env['DIVIFY_TENANT_ID'] ?? '';
@@ -50,6 +51,7 @@ export const DOCUMENTS_BUCKET = process.env['DOCUMENTS_BUCKET'] ?? 'atlas-hub-do
 
 export const USER_POOL_ID = process.env['USER_POOL_ID'] ?? '';
 export const COGNITO_USER_POOL_ID = process.env['COGNITO_USER_POOL_ID'] ?? '';
+export const COGNITO_CLIENT_ID = process.env['COGNITO_CLIENT_ID'] ?? '';
 export const PASSWORD_RESET_SECRET = process.env['PASSWORD_RESET_SECRET'] ?? '';
 
 export const RESEND_API_KEY = process.env['RESEND_API_KEY'] ?? '';

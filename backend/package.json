@@ -10,7 +10,7 @@
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
     "logs:health": "serverless logs -f health --tail",
-    "test": "tsx --test src/shared/board/*.test.ts src/functions/*.test.ts"
+    "test": "tsx --test src/shared/board/*.test.ts src/shared/api-token/*.test.ts src/functions/*.test.ts"
   },
   "dependencies": {
     "@aws-crypto/client-node": "^5.0.2",
@@ -20,6 +20,7 @@
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/lib-dynamodb": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "aws-jwt-verify": "^4.0.1",
     "starkbank": "^2.42.0",
     "uuid": "^9.0.0",
     "zod": "^3.23.0"
@@ -32,6 +33,7 @@
     "serverless": "^4.0.0",
     "serverless-esbuild": "^1.50.0",
     "serverless-offline": "^13.0.0",
+    "serverless-plugin-split-stacks": "^1.15.0",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0"
   }
