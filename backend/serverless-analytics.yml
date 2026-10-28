@@ -106,7 +106,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsFunnel:
@@ -120,7 +120,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsUser:
@@ -134,7 +134,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsHeatmap:
@@ -148,7 +148,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsAlerts:
@@ -162,28 +162,28 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
       - http:
           path: analytics/admin/alerts
           method: post
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
       - http:
           path: analytics/admin/alerts/{id}
           method: put
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
       - http:
           path: analytics/admin/alerts/{id}
           method: delete
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsExport:
@@ -197,7 +197,7 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsReplay:
@@ -212,14 +212,14 @@ functions:
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
       - http:
           path: analytics/admin/replay/{id}
           method: get
           cors: true
           authorizer:
-            type: COGNITO_USER_POOLS
+            type: CUSTOM
             authorizerId: ${cf:${self:custom.coreStack}.ApiGatewayAuthorizerId}
 
   analyticsAlertsEvaluate:
