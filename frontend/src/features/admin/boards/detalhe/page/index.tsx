@@ -85,6 +85,7 @@ function CardItem({
     : [];
   const participants = boardParticipants(board);
   const assignees = participants.filter((participant) => (card.assigneeEmails ?? []).includes(participant.email));
+  const labelsExpanded = board.board.labelDisplayMode === "expanded";
   return (
     <button
       type="button"
@@ -104,11 +105,18 @@ function CardItem({
               <span
                 key={labelId}
                 className={cn(
-                  "inline-flex h-2.5 w-10 items-center overflow-hidden px-0 transition-all duration-300 ease-out group-hover:h-5 group-hover:w-auto group-hover:max-w-[180px] group-hover:px-1.5",
+                  "inline-flex items-center overflow-hidden transition-all duration-300 ease-out",
+                  labelsExpanded
+                    ? "h-5 max-w-[180px] px-1.5"
+                    : "h-2.5 w-10 px-0 group-hover:h-5 group-hover:w-auto group-hover:max-w-[180px] group-hover:px-1.5",
                   LABEL_COLOR_CLASSES[label.color],
                 )}
               >
-                <span className={cn("max-w-0 overflow-hidden whitespace-nowrap text-[10px] font-semibold opacity-0 transition-all duration-300 ease-out group-hover:max-w-[180px] group-hover:opacity-100", LABEL_TEXT_CLASSES[label.color])}>
+                <span className={cn(
+                  "overflow-hidden whitespace-nowrap text-[10px] font-semibold transition-all duration-300 ease-out",
+                  labelsExpanded ? "max-w-[180px] opacity-100" : "max-w-0 opacity-0 group-hover:max-w-[180px] group-hover:opacity-100",
+                  LABEL_TEXT_CLASSES[label.color],
+                )}>
                   {label.name}
                 </span>
               </span>

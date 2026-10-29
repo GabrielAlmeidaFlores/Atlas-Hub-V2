@@ -84,6 +84,9 @@ export const BOARD_LABEL_COLORS = [
 
 export type BoardLabelColor = (typeof BOARD_LABEL_COLORS)[number];
 
+export const BOARD_LABEL_DISPLAY_MODES = ['hover', 'expanded'] as const;
+export type BoardLabelDisplayMode = (typeof BOARD_LABEL_DISPLAY_MODES)[number];
+
 export interface BoardTemplateField {
   readonly fieldId: string;
   readonly label: string;
@@ -163,6 +166,7 @@ export interface Board {
   readonly createdByEmail?: string;
   readonly cardSequence?: number;
   readonly members?: readonly BoardMember[];
+  readonly labelDisplayMode?: BoardLabelDisplayMode;
   readonly archivedAt?: string;
   readonly metricsDashboard?: BoardMetricsDashboard;
 }

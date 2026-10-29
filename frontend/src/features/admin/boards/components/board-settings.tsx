@@ -6,6 +6,8 @@ import { useToastStore } from "@/stores/toast";
 import type {
   BoardColumnColor,
   BoardFieldType,
+  BoardLabelColor,
+  BoardLabelDisplayMode,
   BoardTemplate,
   BoardTemplateField,
   BoardView,
@@ -16,8 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guard";
 import { cn } from "@/lib/utils";
-import { BOARD_COLUMN_COLORS } from "@/types";
-import { COLUMN_COLOR_CLASSES, COLUMN_COLOR_LABELS } from "../labels";
+import { BOARD_COLUMN_COLORS, BOARD_LABEL_COLORS } from "@/types";
+import { COLUMN_COLOR_CLASSES, COLUMN_COLOR_LABELS, LABEL_COLOR_CLASSES, LABEL_COLOR_LABELS } from "../labels";
 
 interface BoardSettingsProps {
   readonly open: boolean;
@@ -40,7 +42,7 @@ interface TemplateDraft {
   readonly fields: readonly FieldDraft[];
 }
 
-type Tab = "columns" | "templates";
+type Tab = "general" | "labels" | "columns" | "templates";
 
 function fieldDraftFrom(field: BoardTemplateField): FieldDraft {
   return {
@@ -67,9 +69,17 @@ function draftFrom(template: BoardTemplate): TemplateDraft {
 export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsProps): ReactNode {
   const addToast = useToastStore((s) => s.addToast);
   const confirm = useConfirm();
-  const [tab, setTab] = useState<Tab>("columns");
+  const [tab, setTab] = useState<Tab>("general");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [boardName, setBoardName] = useState(board.board.name);
+  const [boardDescription, setBoardDescription] = useState(board.board.description ?? "");
+  const [labelDisplayMode, setLabelDisplayMode] = useState<BoardLabelDisplayMode>(board.board.labelDisplayMode ?? "hover");
+  const [newLabel, setNewLabel] = useState("");
+  const [newLabelColor, setNewLabelColor] = useState<BoardLabelColor>("blue");
+  const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
+  const [labelName, setLabelName] = useState("");
+  const [labelColor, setLabelColor] = useState<BoardLabelColor>("blue");
   const [newColumn, setNewColumn] = useState("");
   const [newColumnColor, setNewColumnColor] = useState<BoardColumnColor>("slate");
   const [editingColumnId, setEditingColumnId] = useState<string | null>(null);
@@ -81,14 +91,26 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
   useEffect(() => {
     if (!open) {
       setError(null);
+      setBoardName(board.board.name);
+      setBoardDescription(board.board.description ?? "");
+      setLabelDisplayMode(board.board.labelDisplayMode ?? "hover");
+      setNewLabel("");
+      setNewLabelColor("blue");
+      setEditingLabelId(null);
+      setLabelName("");
+      setLabelColor("blue");
       setNewColumn("");
       setNewColumnColor("slate");
       setEditingColumnId(null);
       setColumnName("");
       setTemplateDraft(null);
       setTemplateInitial(null);
+      return;
     }
-  }, [open]);
+    setBoardName(board.board.name);
+    setBoardDescription(board.board.description ?? "");
+    setLabelDisplayMode(board.board.labelDisplayMode ?? "hover");
+  }, [open, board.board.boardId]);
 
   function startTemplate(draft: TemplateDraft): void {
     setTemplateDraft(draft);
@@ -103,13 +125,32 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
   const editingColumn = editingColumnId === null
     ? undefined
     : board.columns.find((column) => column.columnId === editingColumnId);
+  const editingLabel = editingLabelId === null
+    ? undefined
+    : board.labels.find((label) => label.labelId === editingLabelId);
   const templateDirty = templateDraft !== null
     && JSON.stringify(templateDraft) !== JSON.stringify(templateInitial);
-  const settingsDirty = newColumn.trim().length > 0
+  const generalDirty = boardName.trim() !== board.board.name
+    || boardDescription.trim() !== (board.board.description ?? "")
+    || labelDisplayMode !== (board.board.labelDisplayMode ?? "hover");
+  const labelsDirty = newLabel.trim().length > 0
+    || newLabelColor !== "blue"
+    || (editingLabel !== undefined && (labelName.trim() !== editingLabel.name || labelColor !== editingLabel.color));
+  const settingsDirty = generalDirty
+    || labelsDirty
+    || newColumn.trim().length > 0
     || newColumnColor !== "slate"
     || (editingColumn !== undefined && (columnName.trim() !== editingColumn.name || columnColor !== (editingColumn.color ?? "slate")))
     || templateDirty;
   const closeSettings = (): void => {
+    setBoardName(board.board.name);
+    setBoardDescription(board.board.description ?? "");
+    setLabelDisplayMode(board.board.labelDisplayMode ?? "hover");
+    setNewLabel("");
+    setNewLabelColor("blue");
+    setEditingLabelId(null);
+    setLabelName("");
+    setLabelColor("blue");
     setNewColumn("");
     setNewColumnColor("slate");
     setEditingColumnId(null);
@@ -133,6 +174,52 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
     } finally {
       setBusy(false);
     }
+  }
+
+  async function saveGeneral(): Promise<void> {
+    if (boardName.trim().length === 0) {
+      setError("Informe o nome do quadro");
+      return;
+    }
+    if (boardDescription.trim().length > 300) {
+      setError("A descrição deve ter no máximo 300 caracteres");
+      return;
+    }
+    await execute(async () => {
+      await boardsApi.update(board.board.boardId, {
+        name: boardName.trim(),
+        description: boardDescription.trim().length > 0 ? boardDescription.trim() : null,
+        labelDisplayMode,
+      });
+    }, "Quadro atualizado");
+  }
+
+  async function addLabel(): Promise<void> {
+    if (newLabel.trim().length === 0) return;
+    await execute(async () => {
+      await boardsApi.createLabel(board.board.boardId, { name: newLabel.trim(), color: newLabelColor });
+      setNewLabel("");
+      setNewLabelColor("blue");
+    }, "Label criada");
+  }
+
+  async function saveLabel(labelId: string): Promise<void> {
+    if (labelName.trim().length === 0) return;
+    await execute(async () => {
+      await boardsApi.updateLabel(board.board.boardId, labelId, { name: labelName.trim(), color: labelColor });
+      setEditingLabelId(null);
+      setLabelName("");
+    }, "Label atualizada");
+  }
+
+  async function deleteLabel(labelId: string): Promise<void> {
+    const confirmed = await confirm({
+      title: "Excluir label",
+      description: "A label será removida dos cards que a utilizam. Deseja continuar?",
+      confirmLabel: "Excluir label",
+    });
+    if (!confirmed) return;
+    await execute(() => boardsApi.deleteLabel(board.board.boardId, labelId), "Label excluída");
   }
 
   async function addColumn(): Promise<void> {
@@ -237,8 +324,10 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
     <Modal open={open} onOpenChange={(next) => { if (!next) void requestClose(); }} title="Configurar quadro" className="max-h-[90vh] max-w-3xl overflow-y-auto">
       <div className="mb-5 flex gap-1 border-b border-border">
         {([
+          ["general", "Geral"],
+          ["labels", "Labels"],
           ["columns", "Colunas"],
-              ["templates", "Templates"],
+          ["templates", "Templates"],
         ] as const).map(([value, label]) => (
           <button
             key={value}
@@ -255,6 +344,161 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
       </div>
 
       {error !== null && <p className="mb-4 text-sm text-status-danger">{error}</p>}
+
+      {tab === "general" && (
+        <div className="space-y-4">
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <div className="form-group gap-1.5">
+              <label className="form-label" htmlFor="board-name-config">Nome do quadro</label>
+              <input
+                id="board-name-config"
+                className="input-base h-9"
+                value={boardName}
+                onChange={(event) => setBoardName(event.target.value)}
+                maxLength={80}
+                autoFocus
+              />
+            </div>
+            <div className="form-group gap-1.5">
+              <div className="flex items-baseline justify-between gap-2">
+                <label className="form-label" htmlFor="board-description-config">Descrição</label>
+                <span className="text-[10px] tabular-nums text-muted-foreground">{boardDescription.length}/300</span>
+              </div>
+              <textarea
+                id="board-description-config"
+                className="input-base !h-[74px] !min-h-[74px] resize-y py-2 text-sm"
+                value={boardDescription}
+                onChange={(event) => setBoardDescription(event.target.value)}
+                maxLength={300}
+                rows={3}
+                placeholder="Objetivo e contexto deste quadro"
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-3">
+            <p className="text-xs font-semibold text-foreground">Exibição das labels</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Como os nomes das labels aparecem nos cards.</p>
+            <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2" role="radiogroup" aria-label="Exibição das labels">
+              {([
+                ["hover", "Expandir ao passar o mouse", "O card fica compacto e mostra os nomes no hover."],
+                ["expanded", "Sempre expandidas", "Os nomes das labels ficam visíveis o tempo todo."],
+              ] as const).map(([value, title, description]) => (
+                <label key={value} className="inline-flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                  <input
+                    type="radio"
+                    name="label-display-mode"
+                    className="sr-only"
+                    checked={labelDisplayMode === value}
+                    onChange={() => setLabelDisplayMode(value)}
+                  />
+                  <span className={cn(
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
+                    labelDisplayMode === value ? "border-navy bg-navy" : "border-border bg-card",
+                  )}>
+                    {labelDisplayMode === value && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                  </span>
+                  <span>{title}</span>
+                  <span className="sr-only">{description}</span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {labelDisplayMode === "hover"
+                ? "O card fica compacto e mostra os nomes no hover."
+                : "Os nomes das labels ficam visíveis o tempo todo."}
+            </p>
+          </div>
+
+          <div className="flex justify-end border-t border-border pt-3">
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void saveGeneral()} disabled={busy || !generalDirty}>
+              {busy ? "Salvando…" : "Salvar configurações"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tab === "labels" && (
+        <div className="space-y-4">
+          <div className="space-y-2 rounded-[8px] border border-border p-3">
+            <div className="flex gap-2">
+              <input
+                className="input-base"
+                placeholder="Nova label"
+                value={newLabel}
+                onChange={(event) => setNewLabel(event.target.value)}
+                maxLength={40}
+              />
+              <button type="button" className="btn btn-primary btn-sm shrink-0" onClick={() => void addLabel()} disabled={busy || newLabel.trim().length === 0}>
+                <Plus className="h-3.5 w-3.5" /> Adicionar
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="mr-1 text-[11px] text-muted-foreground">Cor</span>
+              {BOARD_LABEL_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  aria-label={`Cor ${LABEL_COLOR_LABELS[color]}`}
+                  title={LABEL_COLOR_LABELS[color]}
+                  onClick={() => setNewLabelColor(color)}
+                  className={cn(
+                    "h-5 w-5 rounded-full border transition-transform",
+                    LABEL_COLOR_CLASSES[color],
+                    newLabelColor === color ? "ring-2 ring-navy ring-offset-1" : "hover:scale-110",
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="divide-y divide-border rounded-[8px] border border-border">
+            {board.labels.map((label) => {
+              const usage = board.cards.filter((card) => card.labelIds.includes(label.labelId)).length;
+              return (
+                <div key={label.labelId} className="flex items-center gap-2 p-3">
+                  {editingLabelId === label.labelId ? (
+                    <>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <input className="input-base h-9 min-w-0 flex-1" value={labelName} onChange={(event) => setLabelName(event.target.value)} maxLength={40} autoFocus />
+                          <button type="button" className="btn btn-primary btn-sm h-9 w-9 shrink-0 p-0" onClick={() => void saveLabel(label.labelId)} disabled={busy} aria-label="Confirmar label"><Check className="h-3.5 w-3.5" /></button>
+                          <button type="button" className="btn btn-outline btn-sm h-9 w-9 shrink-0 p-0" onClick={() => setEditingLabelId(null)} aria-label="Cancelar edição da label"><X className="h-3.5 w-3.5" /></button>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {BOARD_LABEL_COLORS.map((color) => (
+                            <button
+                              key={color}
+                              type="button"
+                              aria-label={`Cor ${LABEL_COLOR_LABELS[color]}`}
+                              title={LABEL_COLOR_LABELS[color]}
+                              onClick={() => setLabelColor(color)}
+                              className={cn(
+                                "h-5 w-5 rounded-full border transition-transform",
+                                LABEL_COLOR_CLASSES[color],
+                                labelColor === color ? "ring-2 ring-navy ring-offset-1" : "hover:scale-110",
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <span className={cn("h-3 w-3 shrink-0 rounded-full border", LABEL_COLOR_CLASSES[label.color])} />
+                      <span className="flex-1 font-medium text-foreground">{label.name}</span>
+                      <span className="text-[10px] text-muted-foreground">{usage} card{usage === 1 ? "" : "s"}</span>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => { setEditingLabelId(label.labelId); setLabelName(label.name); setLabelColor(label.color); }} disabled={busy}><Pencil className="h-3.5 w-3.5" /></button>
+                      <button type="button" className="btn btn-outline btn-sm text-status-danger" onClick={() => void deleteLabel(label.labelId)} disabled={busy}><Trash2 className="h-3.5 w-3.5" /></button>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+            {board.labels.length === 0 && <p className="p-4 text-sm text-muted-foreground">Nenhuma label criada.</p>}
+          </div>
+        </div>
+      )}
 
       {tab === "columns" && (
         <div className="space-y-4">

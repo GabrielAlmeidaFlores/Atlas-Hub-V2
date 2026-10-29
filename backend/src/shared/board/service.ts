@@ -258,6 +258,7 @@ export class BoardService {
       updatedAt: now(),
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.description !== undefined ? { description: input.description ?? '' } : {}),
+      ...(input.labelDisplayMode !== undefined ? { labelDisplayMode: input.labelDisplayMode } : {}),
       ...(input.metricsDashboard !== undefined ? { metricsDashboard: input.metricsDashboard as unknown as BoardMetricsDashboard } : {}),
     };
     const updated = await this.repository.updateBoard(boardId, patch);
