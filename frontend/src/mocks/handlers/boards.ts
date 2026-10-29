@@ -7,6 +7,7 @@ import type {
   BoardFieldValue,
   BoardLabel,
   BoardLabelColor,
+  BoardLabelDisplayMode,
   BoardTemplate,
   BoardTemplateField,
   BoardView,
@@ -746,9 +747,10 @@ export const boardsHandlers = [
   http.put("/admin/boards/:boardId", async ({ params, request }) => {
     const board = store.boards.find((item) => item.boardId === params.boardId);
     if (board === undefined) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
-    const input = await bodyOf<{ name?: string; description?: string | null; metricsDashboard?: BoardMetricsDashboard }>(request);
+    const input = await bodyOf<{ name?: string; description?: string | null; labelDisplayMode?: BoardLabelDisplayMode; metricsDashboard?: BoardMetricsDashboard }>(request);
     if (input.name !== undefined) board.name = input.name;
     if (input.description !== undefined) board.description = input.description ?? "";
+    if (input.labelDisplayMode !== undefined) board.labelDisplayMode = input.labelDisplayMode;
     if (input.metricsDashboard !== undefined) {
       (board as Board & { metricsDashboard?: BoardMetricsDashboard }).metricsDashboard = input.metricsDashboard;
     }

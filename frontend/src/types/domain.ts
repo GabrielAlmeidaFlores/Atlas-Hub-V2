@@ -612,6 +612,9 @@ export const BOARD_LABEL_COLORS = [
 
 export type BoardLabelColor = (typeof BOARD_LABEL_COLORS)[number];
 
+export const BOARD_LABEL_DISPLAY_MODES = ["hover", "expanded"] as const;
+export type BoardLabelDisplayMode = (typeof BOARD_LABEL_DISPLAY_MODES)[number];
+
 export const BOARD_ICONS = [
   'layout-grid',
   'briefcase',
@@ -742,6 +745,7 @@ export interface Board {
   readonly createdByEmail?: string;
   readonly cardSequence?: number;
   readonly members?: readonly BoardMember[];
+  readonly labelDisplayMode?: BoardLabelDisplayMode;
   readonly archivedAt?: string;
 }
 

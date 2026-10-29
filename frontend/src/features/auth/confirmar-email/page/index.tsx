@@ -4,6 +4,7 @@ import { CheckCircle } from "lucide-react";
 import { useToastStore } from "@/stores/toast";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { getApiErrorMessage } from "@/services/api";
+import { USE_LOCAL_MOCKS } from "@/lib/env";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -66,6 +67,12 @@ export default function ConfirmarEmailPage(): ReactNode {
     }
     setIsLoading(true);
     try {
+      if (USE_LOCAL_MOCKS) {
+        sessionStorage.removeItem("atlas.pendingConfirmEmail");
+        sessionStorage.removeItem("atlas.pendingCadastro");
+        setDone(true);
+        return;
+      }
       const { confirmSignUp } = await import("@aws-amplify/auth");
       let clientMetadata: Record<string, string> | undefined;
       try {

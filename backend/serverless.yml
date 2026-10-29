@@ -1914,6 +1914,18 @@ resources:
             AttributeDataType: String
             Mutable: true
             Required: false
+          - Name: termos_aceitos
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+          - Name: termos_versao
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+          - Name: marketing_optin
+            AttributeDataType: String
+            Mutable: true
+            Required: false
 
     CognitoLambdaPermission:
       Type: AWS::Lambda::Permission

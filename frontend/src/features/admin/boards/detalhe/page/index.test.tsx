@@ -61,6 +61,8 @@ describe("AdminBoardsDetalhePage", () => {
     );
     fireEvent.click(await screen.findByRole("button", { name: /Configurar/i }));
     expect(await screen.findByText("Configurar quadro")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nome do quadro")).toHaveValue("Leads");
+    fireEvent.click(screen.getByRole("button", { name: "Colunas" }));
     expect(screen.getByPlaceholderText("Nova coluna")).toBeInTheDocument();
   });
 });

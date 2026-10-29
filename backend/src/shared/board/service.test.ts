@@ -21,6 +21,17 @@ test('creates a board with default columns and lead template', async () => {
   assert.equal((await service.listBoards()).length, 1);
 });
 
+test('updates board name and label display mode', async () => {
+  const { service } = createService();
+  const view = await service.createBoard({ name: 'Antigo' }, 'admin-1');
+  const updated = await service.updateBoard(view.board.boardId, {
+    name: 'Novo nome',
+    labelDisplayMode: 'expanded',
+  });
+  assert.equal(updated.name, 'Novo nome');
+  assert.equal(updated.labelDisplayMode, 'expanded');
+});
+
 test('creates labels, cards, moves and updates them', async () => {
   const { service } = createService();
   const view = await service.createBoard({ name: 'Leads' }, 'admin-1');

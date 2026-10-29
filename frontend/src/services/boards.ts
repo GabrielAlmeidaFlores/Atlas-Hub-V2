@@ -10,6 +10,7 @@ import type {
   BoardFieldValue,
   BoardLabel,
   BoardLabelColor,
+  BoardLabelDisplayMode,
   BoardTemplate,
   BoardTemplateField,
   BoardView,
@@ -25,6 +26,7 @@ export interface BoardCreateInput {
 export interface BoardUpdateInput {
   readonly name?: string;
   readonly description?: string | null;
+  readonly labelDisplayMode?: BoardLabelDisplayMode;
   readonly metricsDashboard?: BoardMetricsDashboard;
 }
 
