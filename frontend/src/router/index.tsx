@@ -10,6 +10,10 @@ const ProjetosLandingPage    = React.lazy(() => import("@/features/landing/proje
 const QuemSomosLandingPage   = React.lazy(() => import("@/features/landing/quem-somos/page"));
 const TermosPage              = React.lazy(() => import("@/features/legal/termos/page"));
 const PrivacidadePage         = React.lazy(() => import("@/features/legal/privacidade/page"));
+const CentralLegalPage        = React.lazy(() => import("@/features/legal/central/page"));
+const CookiesPage             = React.lazy(() => import("@/features/legal/cookies/page"));
+const ComunicacoesPage        = React.lazy(() => import("@/features/legal/comunicacoes/page"));
+const SegurancaPage           = React.lazy(() => import("@/features/legal/seguranca/page"));
 const LoginPage            = React.lazy(() => import("@/features/auth/login/page"));
 const CadastroPage         = React.lazy(() => import("@/features/auth/cadastro/page"));
 const ConfirmarEmailPage   = React.lazy(() => import("@/features/auth/confirmar-email/page"));
@@ -122,8 +126,12 @@ const router = createBrowserRouter([
   { path: "/para-investidores",   element: withSuspense(<ParaInvestidoresPage />) },
   { path: "/projetos",          element: withSuspense(<ProjetosLandingPage />) },
   { path: "/quem-somos",        element: withSuspense(<QuemSomosLandingPage />) },
+  { path: "/legal",              element: withSuspense(<CentralLegalPage />) },
   { path: "/termos",             element: withSuspense(<TermosPage />) },
   { path: "/privacidade",        element: withSuspense(<PrivacidadePage />) },
+  { path: "/cookies",            element: withSuspense(<CookiesPage />) },
+  { path: "/comunicacoes",       element: withSuspense(<ComunicacoesPage />) },
+  { path: "/seguranca",          element: withSuspense(<SegurancaPage />) },
   { path: "/login",             element: withSuspense(<LoginPage />) },
   { path: "/cadastro",          element: withSuspense(<CadastroPage />) },
   { path: "/confirmar-email",   element: withSuspense(<ConfirmarEmailPage />) },

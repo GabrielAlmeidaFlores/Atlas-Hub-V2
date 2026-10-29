@@ -29,6 +29,22 @@ export default function TermosPage(): ReactNode {
           ],
         },
         {
+          title: "Condições para incorporadoras",
+          paragraphs: [
+            "A incorporadora é responsável pela veracidade, atualidade e integridade das informações e documentos enviados, inclusive dados do empreendimento, da SPE/SCP e da equipe.",
+            "A aprovação na curadoria não representa garantia de captação, de retorno, de conclusão da obra ou de aprovação por parceiros regulados. A publicação e as condições da oferta dependem das etapas e dos contratos aplicáveis.",
+            "A incorporadora deve manter as autorizações necessárias para uso de imagens, documentos e informações de terceiros, respondendo por eventuais violações.",
+          ],
+        },
+        {
+          title: "Condições para investidores",
+          paragraphs: [
+            "O investidor declara que avaliará cada oportunidade com base nos documentos da oferta, no seu perfil e na sua capacidade financeira. A Atlas Hub não garante rentabilidade, liquidez ou devolução do capital.",
+            "A jornada de cadastro, KYC, pagamento, custódia, eventuais reembolsos e distribuições pode ser executada por parceiro regulado, conforme os termos da oferta e da plataforma parceira.",
+            "O investidor deve manter seus dados atualizados e comunicar qualquer suspeita de fraude ou acesso não autorizado.",
+          ],
+        },
+        {
           title: "Uso permitido",
           paragraphs: [
             "Você concorda em não utilizar a plataforma para fraudes, lavagem de dinheiro, manipulação de informações, assédio, violação de direitos de terceiros ou qualquer finalidade ilícita.",

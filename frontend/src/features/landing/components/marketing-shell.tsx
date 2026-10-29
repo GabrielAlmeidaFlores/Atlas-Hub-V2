@@ -203,6 +203,9 @@ function MarketingFooter(): ReactNode {
             </div>
             <div className="space-y-3 text-center md:space-y-[9.6px] md:text-left">
               <p className="font-semibold text-[#D2A047]">Legal</p>
+              <Link to="/legal" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
+                Central Legal
+              </Link>
               <Link to="/termos" className="block text-white/80 transition-colors duration-300 hover:text-white md:text-white/70">
                 Termos de Uso
               </Link>
