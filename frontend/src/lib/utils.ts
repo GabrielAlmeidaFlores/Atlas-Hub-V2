@@ -94,8 +94,13 @@ export function formatCpf(value: string): string {
     .replace(/\.(\d{3})(\d)/, ".$1-$2");
 }
 
+export function normalizePhoneDigits(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  return digits.startsWith("55") && digits.length > 11 ? digits.slice(2) : digits;
+}
+
 export function formatCelular(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
+  const digits = normalizePhoneDigits(value).slice(0, 11);
   if (digits.length <= 2) return digits.length ? `(${digits}` : "";
   if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
