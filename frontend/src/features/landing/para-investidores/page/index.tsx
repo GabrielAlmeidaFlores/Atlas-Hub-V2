@@ -38,7 +38,7 @@ function InvestidoresHero(): ReactNode {
             <h1 className="text-[30px] font-extrabold uppercase leading-[1.12] tracking-[0.04em]">
               INVISTA EM IMÓVEIS
               <br />
-              A PARTIR DE R$10,
+              A PARTIR DE R$10,00,
               <br />
               COM CURADORIA
               <br />
@@ -76,7 +76,7 @@ function InvestidoresHero(): ReactNode {
             <h1 className="text-[36px] font-extrabold uppercase leading-[1.05] tracking-[0.04em] text-white md:text-[42px] lg:text-[48px]">
               Diversifique com imóveis,
               <br />
-              a partir de R$10
+              a partir de R$10,00
             </h1>
             <p className="mt-5 text-[20px] font-medium leading-snug tracking-[-0.04em] text-[#D2A047] lg:text-[24px]">
               Acesse projetos curados por especialistas.
@@ -102,7 +102,7 @@ function InvestidoresHero(): ReactNode {
 const INVESTIR_PASSOS = [
   { n: "01", desc: "Crie sua conta e complete seu cadastro de investidor.", color: "#3F629C" },
   { n: "02", desc: "Escolha um projeto entre os disponíveis na plataforma.", color: "#294574" },
-  { n: "03", desc: "Aplique o valor desejado, a partir de R$10.", color: "#1C2E5E" },
+  { n: "03", desc: "Aplique o valor desejado, a partir de R$10,00.", color: "#1C2E5E" },
   { n: "04", desc: "Acompanhe o andamento do projeto pela sua área logada.", color: "#161F48" },
 ] as const;
 

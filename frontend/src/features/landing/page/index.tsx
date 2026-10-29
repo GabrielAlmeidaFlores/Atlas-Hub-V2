@@ -69,7 +69,7 @@ function Hero(): ReactNode {
                 <br />
                 A PARTIR DE
                 <br />
-                R$10, COM
+                R$10,00, COM
                 <br />
                 CURADORIA
                 <br />
@@ -121,7 +121,7 @@ function Ecossistema(): ReactNode {
       image: "/investidor.png",
       mobileImage: "/investidores-mobile.png",
       description:
-        "A partir de R$10. Sem taxa de entrada. Acompanhe o projeto até a entrega.",
+        "A partir de R$10,00. Sem taxa de entrada. Acompanhe o projeto até a entrega.",
       href: "/para-investidores",
       action: "Saiba mais",
       color: "#43669C",
