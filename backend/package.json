@@ -7,6 +7,7 @@
     "dev": "serverless offline --stage dev",
     "build": "tsc --noEmit",
     "migrar:tipo-usuarios": "tsx scripts/migrar-tipo-usuarios.ts",
+    "backfill:investidores": "tsx scripts/backfill-investidores.ts",
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
     "logs:health": "serverless logs -f health --tail",

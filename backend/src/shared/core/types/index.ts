@@ -12,6 +12,7 @@ export type {
   DocumentoCatalogoItem,
   Incorporadora,
   Admin,
+  Investidor,
   Projeto,
   ViabilidadeProjeto,
   Scorecard,

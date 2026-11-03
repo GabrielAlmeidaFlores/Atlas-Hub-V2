@@ -201,6 +201,18 @@ export const perfilSchema = z.object({
   documentosEmpresa: documentosMapSchema.optional(),
 });
 
+export const investidorInteresseSchema = z.object({
+  wantsOpportunityAlerts: z.boolean(),
+});
+
+export const investidorPerfilSchema = z.object({
+  nome: z.string().trim().min(1, 'Informe o nome').max(200),
+  telefone: z.string().regex(/^\+55\d{10,11}$/, 'Telefone inválido'),
+  marketingOptIn: z.boolean(),
+  termosAceitosEm: z.string().max(40).optional(),
+  termosVersao: z.string().max(30).optional(),
+});
+
 export const criarProjetoSchema = z.object({
   nome: z.string().max(200).default(''),
   modelo: z.enum(['VENDA', 'RENDA', 'MISTO']).default('VENDA'),

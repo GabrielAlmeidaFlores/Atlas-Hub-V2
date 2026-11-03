@@ -10,6 +10,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const userId = getUserId(event);
     const perfil = getUserPerfil(event);
     if (perfil === null) return forbidden(event);
+    if (perfil !== 'INCORPORADORA' && perfil !== 'ANALISTA' && perfil !== 'ADMIN_MASTER') return forbidden(event);
     const id = event.pathParameters?.['id'];
     if (id === undefined || id === '') return notFound(event, 'Projeto não encontrado');
 

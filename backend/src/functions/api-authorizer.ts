@@ -50,6 +50,7 @@ function perfilFromGroups(groups: readonly string[]): Perfil | null {
   if (groups.includes('ADMIN_MASTER')) return 'ADMIN_MASTER';
   if (groups.includes('ANALISTA')) return 'ANALISTA';
   if (groups.includes('INCORPORADORA')) return 'INCORPORADORA';
+  if (groups.includes('INVESTIDOR')) return 'INVESTIDOR';
   return null;
 }
 
@@ -93,6 +94,10 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<
       const email = typeof payload['email'] === 'string' ? payload['email'] : '';
       const admin = await getAdmin(String(payload.sub)) ?? (email.length > 0 ? await getAdminByEmail(email) : null);
       if (admin === null || !admin.ativo) return deny();
+    }
+    if (perfil === 'INVESTIDOR') {
+      const request = methodAndPath(event);
+      if (!request.path.startsWith('investidor/')) return deny(String(payload.sub));
     }
     return policy(String(payload.sub), 'Allow', event.methodArn, {
       authType: 'cognito',

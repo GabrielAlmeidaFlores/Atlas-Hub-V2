@@ -9,6 +9,7 @@ export type {
   AuthUser,
   Incorporadora,
   Admin,
+  Investidor,
   MembroEquipe,
   DocumentosProjeto,
   ViabilidadeProjeto,

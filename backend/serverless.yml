@@ -78,6 +78,7 @@ provider:
     STAGE: ${self:provider.stage}
     INCORPORADORAS_TABLE: AtlasIncorporadoras-${self:provider.stage}
     ADMINS_TABLE: AtlasAdmins-${self:provider.stage}
+    INVESTIDORES_TABLE: AtlasInvestidores-${self:provider.stage}
     PROJETOS_TABLE: AtlasProjetos-${self:provider.stage}
     SCORECARD_TABLE: AtlasScorecard-${self:provider.stage}
     NOTIFICACOES_TABLE: AtlasNotificacoes-${self:provider.stage}
@@ -663,6 +664,48 @@ functions:
       - http:
           path: admin/usuarios/{id}
           method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  investidores:
+    handler: src/functions/investidores.handler
+    role: !GetAtt InvestidoresLambdaRole.Arn
+    timeout: 15
+    description: "Admin investor listing/export and investor opportunity interest"
+    events:
+      - http:
+          path: admin/investidores
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: admin/investidores/export
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: investidor/interesse
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: investidor/interesse
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: !Ref ApiGatewayAuthorizer
+      - http:
+          path: investidor/perfil
+          method: put
           cors: true
           authorizer:
             type: CUSTOM
@@ -1452,6 +1495,10 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                 - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
+                  Resource:
+                    - !GetAtt AtlasInvestidoresTable.Arn
+                - Effect: Allow
                   Action: [cognito-idp:AdminAddUserToGroup]
                   Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
@@ -1571,6 +1618,28 @@ resources:
                   Action: [dynamodb:GetItem]
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
+
+    InvestidoresLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-investidores-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:Query]
+                  Resource:
+                    - !GetAtt AtlasInvestidoresTable.Arn
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasInvestidores-${self:provider.stage}/index/*'
 
     ApiAuthorizerLambdaRole:
       Type: AWS::IAM::Role
@@ -1882,6 +1951,7 @@ resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasIncorporadoras-${self:provider.stage}/index/*'
+                    - !GetAtt AtlasInvestidoresTable.Arn
 
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -2060,6 +2130,31 @@ resources:
               - AttributeName: ownerId
                 KeyType: HASH
               - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    AtlasInvestidoresTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AtlasInvestidores-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: entityType
+            AttributeType: S
+          - AttributeName: criadoEm
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: entity-criadoEm-index
+            KeySchema:
+              - AttributeName: entityType
+                KeyType: HASH
+              - AttributeName: criadoEm
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

@@ -9,6 +9,7 @@ export const LOG_LEVEL = process.env['LOG_LEVEL'] ?? 'INFO';
 
 export const INCORPORADORAS_TABLE = process.env['INCORPORADORAS_TABLE'] ?? 'AtlasIncorporadoras-dev';
 export const ADMINS_TABLE = process.env['ADMINS_TABLE'] ?? 'AtlasAdmins-dev';
+export const INVESTIDORES_TABLE = process.env['INVESTIDORES_TABLE'] ?? 'AtlasInvestidores-dev';
 export const PROJETOS_TABLE = process.env['PROJETOS_TABLE'] ?? 'AtlasProjetos-dev';
 export const SCORECARD_TABLE = process.env['SCORECARD_TABLE'] ?? 'AtlasScorecard-dev';
 export const NOTIFICACOES_TABLE = process.env['NOTIFICACOES_TABLE'] ?? 'AtlasNotificacoes-dev';

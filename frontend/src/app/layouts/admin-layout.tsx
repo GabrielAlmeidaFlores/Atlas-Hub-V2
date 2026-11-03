@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, History, Building2, Users, LogOut, Menu, X, BarChart3, Landmark, CircleDollarSign, CalendarRange, FileText, LayoutGrid, Settings } from "lucide-react";
+import { LayoutDashboard, ClipboardList, History, Building2, Users, UsersRound, LogOut, Menu, X, BarChart3, Landmark, CircleDollarSign, CalendarRange, FileText, LayoutGrid, Settings } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { Logo } from "@/components/shared/logo";
 import { AppBreadcrumb } from "@/components/shared/app-breadcrumb";
@@ -26,6 +26,7 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
     { to: "/admin/cronograma", label: "Cronograma", icon: CalendarRange, end: false },
     { to: "/admin/captacao", label: "Captação", icon: CircleDollarSign, end: false },
     { to: "/admin/incorporadoras", label: "Incorporadoras", icon: Building2, end: false },
+    { to: "/admin/investidores", label: "Investidores", icon: UsersRound, end: false },
     { to: "/admin/analytics", label: "Uso da plataforma", icon: BarChart3, end: false },
     ...(user?.perfil === "ADMIN_MASTER"
       ? [

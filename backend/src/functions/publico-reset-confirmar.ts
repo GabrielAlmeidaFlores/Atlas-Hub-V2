@@ -16,9 +16,9 @@ import {
 } from '../shared/http/validators.js';
 import { AWS_REGION, COGNITO_USER_POOL_ID } from '../shared/core/env.js';
 import { limparReset, resetConfigurado, validarToken } from '../shared/password-reset/service.js';
-import { getIncorporadora, putIncorporadora } from '../shared/db/index.js';
+import { getIncorporadora, getInvestidor, putIncorporadora, putInvestidor } from '../shared/db/index.js';
 import { createLogger } from '../shared/core/logger.js';
-import type { Incorporadora } from '../shared/core/types/index.js';
+import type { Incorporadora, Investidor } from '../shared/core/types/index.js';
 
 const cognito = new CognitoIdentityProviderClient({ region: AWS_REGION });
 
@@ -111,6 +111,30 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return badRequest(event, 'Informe o tipo de conta', 'VALIDATION_ERROR', [
         { field: 'tipo', message: 'Informe se a conta é de investidor ou incorporadora' },
       ]);
+    }
+
+    if (tipo === 'investidor') {
+      const attr = (name: string): string => user.UserAttributes?.find((item) => item.Name === name)?.Value?.trim() ?? '';
+      const investidorId = attr('sub') || username;
+      const existente = await getInvestidor(investidorId);
+      const agora = new Date().toISOString();
+      const telefone = attr('phone_number');
+      const termosAceitosEm = attr('custom:termos_aceitos');
+      const termosVersao = attr('custom:termos_versao');
+      const registro: Investidor = {
+        id: investidorId,
+        email,
+        nome: attr('name') || existente?.nome || email,
+        ...(telefone.length > 0 ? { telefone } : {}),
+        marketingOptIn: attr('custom:marketing_optin') === 'true',
+        ...(termosAceitosEm.length > 0 ? { termosAceitosEm } : {}),
+        ...(termosVersao.length > 0 ? { termosVersao } : {}),
+        wantsOpportunityAlerts: existente?.wantsOpportunityAlerts ?? false,
+        ...(existente?.interestUpdatedAt !== undefined ? { interestUpdatedAt: existente.interestUpdatedAt } : {}),
+        criadoEm: existente?.criadoEm ?? agora,
+        atualizadoEm: agora,
+      };
+      await putInvestidor(registro);
     }
 
     if (tipo === 'incorporadora') {

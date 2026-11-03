@@ -1,8 +1,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, TrendingUp, Building2 } from "lucide-react";
-import { api } from "@/services/api";
+import { Bell, CheckCircle2, MapPin, TrendingUp, Building2 } from "lucide-react";
+import { api, getApiErrorMessage } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
+import { useToastStore } from "@/stores/toast";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -71,7 +72,10 @@ function ProjetoCard({ projeto }: { readonly projeto: ProjetoPublico }): ReactNo
 
 export default function InvestidorProjetosPage(): ReactNode {
   const [items, setItems] = useState<ProjetoPublico[] | null>(null);
+  const [interestSaving, setInterestSaving] = useState(false);
+  const [interestSaved, setInterestSaved] = useState(false);
   const nome = useAuthStore((s) => s.user?.nome);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,10 +87,29 @@ export default function InvestidorProjetosPage(): ReactNode {
       .catch(() => {
         if (!cancelled) setItems([]);
       });
+    void api
+      .get<{ investidor: { wantsOpportunityAlerts: boolean } }>("/investidor/interesse")
+      .then((data) => {
+        if (!cancelled && data.investidor.wantsOpportunityAlerts) setInterestSaved(true);
+      })
+      .catch(() => undefined);
     return () => {
       cancelled = true;
     };
   }, []);
+
+  async function saveInterest(): Promise<void> {
+    setInterestSaving(true);
+    try {
+      await api.post("/investidor/interesse", { wantsOpportunityAlerts: true });
+      setInterestSaved(true);
+      addToast({ type: "success", title: "Interesse registrado", description: "Você será avisado quando uma nova oportunidade abrir." });
+    } catch (err) {
+      addToast({ type: "error", title: "Não foi possível registrar", description: getApiErrorMessage(err) });
+    } finally {
+      setInterestSaving(false);
+    }
+  }
 
   const loading = items === null;
   const empty = items !== null && items.length === 0;
@@ -125,8 +148,17 @@ export default function InvestidorProjetosPage(): ReactNode {
         {empty && (
           <EmptyState
             icon={Building2}
-            title="Nenhum projeto disponível"
-            description="Em breve novas oportunidades de investimento serão publicadas na sua área."
+            title="Novas oportunidades em análise"
+            description="Nossa equipe está avaliando projetos rigorosamente para garantir as melhores oportunidades de investimento."
+            action={interestSaved ? (
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-status-success">
+                <CheckCircle2 className="h-4 w-4" /> Você será avisado quando uma oportunidade abrir.
+              </span>
+            ) : (
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => void saveInterest()} disabled={interestSaving}>
+                <Bell className="h-4 w-4" /> {interestSaving ? "Registrando…" : "Quero ser avisado"}
+              </button>
+            )}
           />
         )}
 

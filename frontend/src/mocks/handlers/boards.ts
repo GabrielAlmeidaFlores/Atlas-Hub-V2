@@ -737,6 +737,18 @@ export const boardsHandlers = [
     return HttpResponse.json({ ok: true });
   }),
 
+  http.get("/admin/boards/:boardId/export", ({ params, request }) => {
+    const view = listView(String(params.boardId), normalizedEmail(request));
+    if (view === null) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
+    const type = new URL(request.url).searchParams.get("type") ?? "leads";
+    const rows = type === "funnel"
+      ? ["Grupo,Valor,Quantidade", ...view.columns.map((column) => `Etapa,${column.name},${String(view.cards.filter((card) => card.columnId === column.columnId).length)}`)]
+      : ["Número,Título,Etapa,Responsáveis", ...view.cards.map((card) => `${String(card.cardNumber)},"${card.title.replace(/"/g, '""')}",${view.columns.find((column) => column.columnId === card.columnId)?.name ?? ""},"${(card.assigneeEmails ?? []).join("; ")}"`)];
+    return new HttpResponse(rows.join("\r\n"), {
+      headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${type}.csv"` },
+    });
+  }),
+
   http.get("/admin/boards/:boardId", ({ params, request }) => {
     const view = listView(String(params.boardId), normalizedEmail(request));
     if (view === null) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
