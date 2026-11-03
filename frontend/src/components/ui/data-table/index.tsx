@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 interface DataTableColumn {
-  label: string;
+  label: ReactNode;
   align?: "left" | "center" | "right";
   className?: string;
 }
@@ -46,7 +46,7 @@ export function DataTable({
             <tr className="border-b border-border bg-muted/70">
               {columns.map((col, i) => (
                 <th
-                  key={`${col.label}-${String(i)}`}
+                  key={String(i)}
                   className={cn(
                     "px-5 py-3.5 text-[11px] font-semibold tracking-normal text-muted-foreground",
                     alignClass(col.align),
