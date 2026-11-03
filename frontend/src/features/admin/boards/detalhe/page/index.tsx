@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, BarChart3, GripVertical, Plus, Settings2, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, Download, GripVertical, Plus, Settings2, Users } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -393,6 +393,7 @@ export default function AdminBoardsDetalhePage(): ReactNode {
   const [movedCardId, setMovedCardId] = useState<string | null>(null);
   const [movedColumnId, setMovedColumnId] = useState<string | null>(null);
   const [activeColumnId, setActiveColumnId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   async function load(): Promise<void> {
     if (boardId === undefined) return;
@@ -520,6 +521,24 @@ export default function AdminBoardsDetalhePage(): ReactNode {
     }
   }
 
+  async function handleExport(type: "leads" | "funnel"): Promise<void> {
+    if (boardId === undefined) return;
+    setExporting(true);
+    try {
+      const blob = await boardsApi.exportCsv(boardId, type);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${type === "funnel" ? "funil" : "leads"}-${boardId}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      addToast({ type: "error", title: "Não foi possível exportar", description: getApiErrorMessage(err) });
+    } finally {
+      setExporting(false);
+    }
+  }
+
   if (isLoading) return <SkeletonPage />;
   if (board === null) {
     return (
@@ -548,6 +567,8 @@ export default function AdminBoardsDetalhePage(): ReactNode {
           <div className="flex flex-wrap gap-2">
             <Link to="/admin/boards" className="btn btn-outline btn-sm"><ArrowLeft className="h-4 w-4" /> Quadros</Link>
             <Link to={`/admin/boards/${board.board.boardId}/metrics`} className="btn btn-outline btn-sm"><BarChart3 className="h-4 w-4" /> Métricas</Link>
+            <button type="button" className="btn btn-outline btn-sm" disabled={exporting} onClick={() => void handleExport("leads")}><Download className="h-4 w-4" /> Leads CSV</button>
+            <button type="button" className="btn btn-outline btn-sm" disabled={exporting} onClick={() => void handleExport("funnel")}><Download className="h-4 w-4" /> Funil CSV</button>
             {canManage && (
               <button type="button" className="btn btn-outline btn-sm" onClick={() => setMembersOpen(true)}>
                 <Users className="h-4 w-4" /> Participantes

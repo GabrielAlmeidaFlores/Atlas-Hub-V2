@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CircleUserRound, Mail, Phone, KeyRound } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
-import { getApiErrorMessage } from "@/services/api";
+import { api, getApiErrorMessage } from "@/services/api";
 import { cn, formatCelular, normalizePhoneDigits } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TERMS_VERSION } from "@/lib/legal";
@@ -90,16 +90,24 @@ export default function InvestidorPerfilPage(): ReactNode {
     setSaving(true);
     try {
       const now = new Date().toISOString();
+      const acceptedAt = termosVersao === TERMS_VERSION && termosAceitosEm !== null ? termosAceitosEm : now;
+      const profile = {
+        nome: nome.trim(),
+        telefone: `+55${telefoneDigits}`,
+        marketingOptIn: consentimentoMarketing,
+        termosAceitosEm: acceptedAt,
+        termosVersao: TERMS_VERSION,
+      };
       if (USE_LOCAL_MOCKS) {
-        const acceptedAt = termosVersao === TERMS_VERSION && termosAceitosEm !== null ? termosAceitosEm : now;
         localStorage.setItem(`atlas.mock-investor:${user?.email ?? ""}`, JSON.stringify({
-          nome: nome.trim(),
-          telefone: `+55${telefoneDigits}`,
+          nome: profile.nome,
+          telefone: profile.telefone,
           aceiteTermos: true,
           consentimentoMarketing,
           termosAceitosEm: acceptedAt,
           termosVersao: TERMS_VERSION,
         }));
+        await api.put("/investidor/perfil", profile).catch(() => undefined);
         setTermosAceitosEm(acceptedAt);
         setTermosVersao(TERMS_VERSION);
         phoneTouched.current = false;
@@ -107,20 +115,29 @@ export default function InvestidorPerfilPage(): ReactNode {
         return;
       }
       const { updateUserAttributes } = await import("@aws-amplify/auth");
-      const acceptedAt = termosVersao === TERMS_VERSION && termosAceitosEm !== null ? termosAceitosEm : now;
       await updateUserAttributes({
         userAttributes: {
-          name: nome.trim(),
-          phone_number: `+55${telefoneDigits}`,
+          name: profile.nome,
+          phone_number: profile.telefone,
           "custom:termos_aceitos": acceptedAt,
           "custom:termos_versao": TERMS_VERSION,
           "custom:marketing_optin": consentimentoMarketing ? "true" : "false",
         },
       });
+      let synced = true;
+      try {
+        await api.put("/investidor/perfil", profile);
+      } catch {
+        synced = false;
+      }
       setTermosAceitosEm(acceptedAt);
       setTermosVersao(TERMS_VERSION);
       phoneTouched.current = false;
-      addToast({ type: "success", title: "Perfil atualizado" });
+      if (synced) {
+        addToast({ type: "success", title: "Perfil atualizado" });
+      } else {
+        addToast({ type: "warning", title: "Perfil salvo parcialmente", description: "Os dados de acesso foram atualizados, mas a sincronização administrativa pode atrasar." });
+      }
     } catch (err) {
       addToast({ type: "error", title: "Não foi possível salvar", description: getApiErrorMessage(err) });
     } finally {

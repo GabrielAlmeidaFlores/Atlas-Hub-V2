@@ -14,6 +14,7 @@ import { Tables } from '../core/tables.js';
 import type {
   Incorporadora,
   Admin,
+  Investidor,
   Projeto,
   Scorecard,
   Notificacao,
@@ -118,6 +119,38 @@ export async function deleteAdmin(id: string): Promise<void> {
 export async function listAdmins(): Promise<Admin[]> {
   const result = await db.send(new ScanCommand({ TableName: Tables.ADMINS }));
   return (result.Items ?? []) as Admin[];
+}
+
+// ── Investidores ────────────────────────────────────────────────────
+
+export async function getInvestidor(id: string): Promise<Investidor | null> {
+  const result = await db.send(new GetCommand({ TableName: Tables.INVESTIDORES, Key: { id } }));
+  return (result.Item as Investidor | undefined) ?? null;
+}
+
+export async function putInvestidor(item: Investidor): Promise<void> {
+  await db.send(new PutCommand({ TableName: Tables.INVESTIDORES, Item: { ...item, entityType: 'INVESTIDOR' } }));
+}
+
+export interface InvestidoresPage {
+  readonly items: readonly Investidor[];
+  readonly nextCursor?: string;
+}
+
+export async function listInvestidores(cursor?: string, limit = 20): Promise<InvestidoresPage> {
+  const result = await db.send(new QueryCommand({
+    TableName: Tables.INVESTIDORES,
+    IndexName: 'entity-criadoEm-index',
+    KeyConditionExpression: 'entityType = :entity',
+    ExpressionAttributeValues: { ':entity': 'INVESTIDOR' },
+    ScanIndexForward: false,
+    Limit: limit,
+    ...(cursor !== undefined ? { ExclusiveStartKey: decodeCursor(cursor) } : {}),
+  }));
+  return {
+    items: (result.Items ?? []) as Investidor[],
+    ...(result.LastEvaluatedKey !== undefined ? { nextCursor: encodeCursor(result.LastEvaluatedKey as Record<string, unknown>) } : {}),
+  };
 }
 
 // ── Projetos ────────────────────────────────────────────────────────

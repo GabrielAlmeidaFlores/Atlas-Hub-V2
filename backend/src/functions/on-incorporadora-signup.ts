@@ -1,6 +1,6 @@
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { CognitoIdentityProviderClient, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider';
-import { putIncorporadora } from '../shared/db/index.js';
+import { getInvestidor, putIncorporadora, putInvestidor } from '../shared/db/index.js';
 import { emailBoasVindas } from '../shared/email/index.js';
 import { AWS_REGION } from '../shared/core/env.js';
 import { createLogger } from '../shared/core/logger.js';
@@ -43,7 +43,25 @@ export const handler = async (event: PostConfirmationTriggerEvent): Promise<Post
       GroupName: 'INVESTIDOR',
     }));
 
-    const nome = meta(event, 'nome');
+    const nome = meta(event, 'nome') || attr(event, 'name');
+    const investidorId = attr(event, 'sub') || userId;
+    const existingInvestidor = await getInvestidor(investidorId);
+    const termosAceitosEm = attr(event, 'custom:termos_aceitos');
+    const termosVersao = attr(event, 'custom:termos_versao');
+    const telefone = attr(event, 'phone_number');
+    await putInvestidor({
+      id: investidorId,
+      email,
+      nome: nome.length > 0 ? nome : email,
+      ...(telefone.length > 0 ? { telefone } : {}),
+      marketingOptIn: attr(event, 'custom:marketing_optin') === 'true',
+      ...(termosAceitosEm.length > 0 ? { termosAceitosEm } : {}),
+      ...(termosVersao.length > 0 ? { termosVersao } : {}),
+      wantsOpportunityAlerts: existingInvestidor?.wantsOpportunityAlerts ?? false,
+      ...(existingInvestidor?.interestUpdatedAt !== undefined ? { interestUpdatedAt: existingInvestidor.interestUpdatedAt } : {}),
+      criadoEm: existingInvestidor?.criadoEm ?? now,
+      atualizadoEm: now,
+    });
     if (email.length > 0) {
       try {
         await emailBoasVindas(email, nome.length > 0 ? nome : email);

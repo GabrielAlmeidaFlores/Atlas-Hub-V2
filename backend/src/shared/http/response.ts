@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { CORS_ORIGINS } from '../core/env.js';
 import type { ApiErrorCode } from '../core/types/index.js';
 
-function getCorsHeaders(event: APIGatewayProxyEvent): Record<string, string> {
+export function getCorsHeaders(event: APIGatewayProxyEvent): Record<string, string> {
   if (CORS_ORIGINS === '*') {
     return {
       'Access-Control-Allow-Origin': '*',

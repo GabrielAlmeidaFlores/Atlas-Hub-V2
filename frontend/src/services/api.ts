@@ -187,7 +187,26 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return responseBody as T;
 }
 
+async function download(path: string): Promise<Blob> {
+  const authHeaders = await getAuthHeaders();
+  const mockEmail = USE_LOCAL_MOCKS && typeof window !== "undefined"
+    ? window.localStorage.getItem("atlas.mock-user-email") ?? ""
+    : "";
+  const response = await fetch(`${VITE_API_URL}${path}`, {
+    headers: {
+      ...(mockEmail.length > 0 ? { "x-mock-user-email": mockEmail } : {}),
+      ...authHeaders,
+    },
+  });
+  if (!response.ok) {
+    const raw = await parseResponseBody(response);
+    throwApiError(extractCode(raw), extractMessage(raw, response.statusText), extractFields(raw));
+  }
+  return response.blob();
+}
+
 export const api = {
+  download,
   get: async <T>(path: string): Promise<T> => request<T>("GET", path),
   post: async <T>(path: string, body: unknown): Promise<T> => request<T>("POST", path, body),
   put: async <T>(path: string, body: unknown): Promise<T> => request<T>("PUT", path, body),

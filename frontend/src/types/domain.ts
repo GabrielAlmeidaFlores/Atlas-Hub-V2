@@ -83,6 +83,20 @@ export interface Admin {
   readonly criadoEm: string;
 }
 
+export interface Investidor {
+  readonly id: string;
+  readonly email: string;
+  readonly nome: string;
+  readonly telefone?: string;
+  readonly marketingOptIn: boolean;
+  readonly termosAceitosEm?: string;
+  readonly termosVersao?: string;
+  readonly wantsOpportunityAlerts: boolean;
+  readonly interestUpdatedAt?: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+}
+
 export interface MembroEquipe {
   readonly nome: string;
   readonly cargo: string;

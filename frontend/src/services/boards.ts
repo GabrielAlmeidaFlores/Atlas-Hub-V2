@@ -109,6 +109,8 @@ export const boardsApi = {
     const response = await api.post<{ board: BoardView }>("/admin/boards", input);
     return response.board;
   },
+  exportCsv: async (boardId: string, type: "leads" | "funnel"): Promise<Blob> =>
+    api.download(`${boardPath(boardId, "/export")}?type=${type}`),
   get: async (boardId: string): Promise<BoardView> => {
     const response = await api.get<{ board: BoardView }>(boardPath(boardId));
     return response.board;

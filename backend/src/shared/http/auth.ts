@@ -49,10 +49,14 @@ export function getUserEmail(event: APIGatewayProxyEvent): string {
   return context.claims?.['email'] ?? context.email ?? '';
 }
 
-export function getUserName(event: APIGatewayProxyEvent): string {
+export function getUserNameRaw(event: APIGatewayProxyEvent): string | null {
   const context = authorizerContext(event);
   const name = context.claims?.['name'] ?? context.name;
-  return name !== undefined && name.trim().length > 0 ? name.trim() : 'Incorporadora';
+  return name !== undefined && name.trim().length > 0 ? name.trim() : null;
+}
+
+export function getUserName(event: APIGatewayProxyEvent): string {
+  return getUserNameRaw(event) ?? 'Incorporadora';
 }
 
 export function getUserGroups(event: APIGatewayProxyEvent): string[] {
@@ -64,13 +68,14 @@ export function getUserGroups(event: APIGatewayProxyEvent): string[] {
 
 export function getUserPerfil(event: APIGatewayProxyEvent): Perfil | null {
   const context = authorizerContext(event);
-  if (context.perfil === 'ADMIN_MASTER' || context.perfil === 'ANALISTA' || context.perfil === 'INCORPORADORA') {
+  if (context.perfil === 'ADMIN_MASTER' || context.perfil === 'ANALISTA' || context.perfil === 'INCORPORADORA' || context.perfil === 'INVESTIDOR') {
     return context.perfil;
   }
   const groups = getUserGroups(event);
   if (groups.includes('ADMIN_MASTER')) return 'ADMIN_MASTER';
   if (groups.includes('ANALISTA')) return 'ANALISTA';
   if (groups.includes('INCORPORADORA')) return 'INCORPORADORA';
+  if (groups.includes('INVESTIDOR')) return 'INVESTIDOR';
   return null;
 }
 

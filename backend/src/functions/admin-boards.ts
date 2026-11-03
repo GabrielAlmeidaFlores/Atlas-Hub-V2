@@ -2,6 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { BoardService } from '../shared/board/service.js';
 import { DynamoBoardRepository } from '../shared/board/dynamo-repository.js';
 import { presignBoardFileDownload, presignBoardFileUpload } from '../shared/board/files.js';
+import { funnelCsv, leadsCsv } from '../shared/board/csv.js';
 import { BoardConflictError, BoardForbiddenError, BoardNotFoundError } from '../shared/board/errors.js';
 import {
   boardCreateSchema,
@@ -38,6 +39,7 @@ import {
   ok,
   serverError,
   unauthorized,
+  getCorsHeaders,
 } from '../shared/http/response.js';
 import { validate, ValidationError } from '../shared/http/validators.js';
 import { createLogger } from '../shared/core/logger.js';
@@ -97,6 +99,7 @@ function routeKey(event: APIGatewayProxyEvent): string {
   const rest = parts.slice(3);
   const base = '/admin/boards/{boardId}';
   if (rest.length === 0) return `${method} ${base}`;
+  if (rest[0] === 'export') return `${method} ${base}/export`;
   if (rest[0] === 'columns') {
     return rest[1] === undefined ? `${method} ${base}/columns` : `${method} ${base}/columns/{columnId}`;
   }
@@ -191,6 +194,22 @@ export function createAdminBoardsHandler(
           }
           const board = await service.getBoard(boardId, actor);
           return ok(event, { board });
+        }
+        case 'GET /admin/boards/{boardId}/export': {
+          const boardId = param(event, 'boardId');
+          const board = await service.getBoard(boardId, actor);
+          const type = event.queryStringParameters?.['type'] ?? 'leads';
+          const csv = type === 'funnel' ? funnelCsv(board) : leadsCsv(board);
+          return {
+            statusCode: 200,
+            headers: {
+              'Content-Type': 'text/csv; charset=utf-8',
+              'Content-Disposition': `attachment; filename="${type === 'funnel' ? 'funil' : 'leads'}-${boardId}.csv"`,
+              ...getCorsHeaders(event),
+            },
+            body: csv,
+            isBase64Encoded: false,
+          };
         }
         case 'GET /admin/boards/{boardId}/members/candidates': {
           const users = await userDirectory();

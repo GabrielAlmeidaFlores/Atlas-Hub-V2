@@ -7,7 +7,7 @@ export type ApiErrorCode =
   | 'INVALID_STATUS_TRANSITION'
   | 'INTERNAL_ERROR';
 
-export type Perfil = 'INCORPORADORA' | 'ANALISTA' | 'ADMIN_MASTER';
+export type Perfil = 'INCORPORADORA' | 'INVESTIDOR' | 'ANALISTA' | 'ADMIN_MASTER';
 
 export type StatusProjeto =
   | 'RASCUNHO'
@@ -74,6 +74,21 @@ export interface Admin {
   readonly ativo: boolean;
   readonly criadoPor: string;
   readonly criadoEm: string;
+}
+
+export interface Investidor {
+  readonly id: string;
+  readonly entityType?: 'INVESTIDOR';
+  readonly email: string;
+  readonly nome: string;
+  readonly telefone?: string;
+  readonly marketingOptIn: boolean;
+  readonly termosAceitosEm?: string;
+  readonly termosVersao?: string;
+  readonly wantsOpportunityAlerts: boolean;
+  readonly interestUpdatedAt?: string;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
 }
 
 export interface MembroEquipe {
