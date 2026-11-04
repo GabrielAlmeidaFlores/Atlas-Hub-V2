@@ -36,6 +36,7 @@ export const SPE_CARTOES_TABLE = process.env['SPE_CARTOES_TABLE'] ?? 'AtlasSpeCa
 export const SPE_CARTAO_LIBERACOES_TABLE = process.env['SPE_CARTAO_LIBERACOES_TABLE'] ?? 'AtlasSpeCartaoLiberacoes-dev';
 export const PASSWORD_RESETS_TABLE = process.env['PASSWORD_RESETS_TABLE'] ?? 'AtlasPasswordResets-dev';
 export const BOARDS_TABLE = process.env['BOARDS_TABLE'] ?? 'AtlasBoards-dev';
+export const LEADS_BOARD_ID = process.env['LEADS_BOARD_ID'] ?? '';
 export const BOARD_ITEMS_TABLE = process.env['BOARD_ITEMS_TABLE'] ?? 'AtlasBoardItems-dev';
 export const API_TOKENS_TABLE = process.env['API_TOKENS_TABLE'] ?? 'AtlasApiTokens-dev';
 
