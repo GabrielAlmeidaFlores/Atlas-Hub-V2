@@ -171,11 +171,11 @@ function DiagnosticForm(): ReactNode {
         consentimento: true,
         ...tracking,
       });
-      trackMetaEvent("Lead", { content_name: "Diagnostico de captacao" });
       if (result.duplicate === true || result.qualificationToken === null) {
         navigate("/para-incorporadoras/obrigado?duplicate=1");
         return;
       }
+      trackMetaEvent("Lead", { content_name: "Diagnostico de captacao" });
       navigate(`/para-incorporadoras/obrigado?leadId=${encodeURIComponent(result.leadId)}&token=${encodeURIComponent(result.qualificationToken)}`);
     } catch (err) {
       setError(getApiErrorMessage(err));
