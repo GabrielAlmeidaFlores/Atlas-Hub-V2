@@ -19,6 +19,10 @@ custom:
     dev: low
     prod: high
 
+  leadsBoardId:
+    dev: '034b17e5-2389-496c-8bb1-f497597ab49e'
+    prod: 'ed0ddd27-086e-4c09-8efa-4da53bad2c25'
+
   tagging:
     Project: atlas-hub
     Owner: team-atlas
@@ -88,6 +92,7 @@ provider:
     PASSWORD_RESETS_TABLE: AtlasPasswordResets-${self:provider.stage}
     BOARDS_TABLE: AtlasBoards-${self:provider.stage}
     BOARD_ITEMS_TABLE: AtlasBoardItems-${self:provider.stage}
+    LEADS_BOARD_ID: ${self:custom.leadsBoardId.${self:provider.stage}}
     API_TOKENS_TABLE: AtlasApiTokens-${self:provider.stage}
     PASSWORD_RESET_SECRET: ${env:PASSWORD_RESET_SECRET, ''}
     SPE_CONTAS_TABLE: AtlasSpeContas-${self:provider.stage}
@@ -710,6 +715,21 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: !Ref ApiGatewayAuthorizer
+
+  publicoLeads:
+    handler: src/functions/publico-leads.handler
+    role: !GetAtt PublicoLeadsLambdaRole.Arn
+    timeout: 20
+    description: "Public lead capture and qualification into the leads board"
+    events:
+      - http:
+          path: publico/leads
+          method: post
+          cors: true
+      - http:
+          path: publico/leads/{leadId}/qualificacao
+          method: put
+          cors: true
 
   apiAuthorizer:
     handler: src/functions/api-authorizer.handler
@@ -1893,6 +1913,28 @@ resources:
             KeyType: HASH
           - AttributeName: itemKey
             KeyType: RANGE
+
+    PublicoLeadsLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-publico-leads-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:Query]
+                  Resource:
+                    - !GetAtt AtlasBoardsTable.Arn
+                    - !GetAtt AtlasBoardItemsTable.Arn
 
     AdminBoardsLambdaRole:
       Type: AWS::IAM::Role

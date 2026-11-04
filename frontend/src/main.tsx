@@ -2,10 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "@/app/app";
 import { configureAmplify } from "@/lib/cognito";
+import { initMetaPixel } from "@/lib/meta-pixel";
 import { USE_LOCAL_MOCKS } from "@/lib/env";
 import "@/styles/globals.css";
 
 configureAmplify();
+initMetaPixel();
 
 async function enableMocking(): Promise<void> {
   if (!USE_LOCAL_MOCKS) return;

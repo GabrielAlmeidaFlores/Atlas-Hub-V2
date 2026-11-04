@@ -5,6 +5,8 @@ import { homeForPerfil } from "@/lib/perfil";
 
 const LandingPage          = React.lazy(() => import("@/features/landing/page"));
 const ParaIncorporadorasPage = React.lazy(() => import("@/features/landing/para-incorporadoras/page"));
+const ParaIncorporadorasObrigadoPage = React.lazy(() => import("@/features/landing/para-incorporadoras/obrigado/page"));
+const ParaIncorporadorasQualificacaoPage = React.lazy(() => import("@/features/landing/para-incorporadoras/qualificacao/page"));
 const ParaInvestidoresPage   = React.lazy(() => import("@/features/landing/para-investidores/page"));
 const ProjetosLandingPage    = React.lazy(() => import("@/features/landing/projetos/page"));
 const QuemSomosLandingPage   = React.lazy(() => import("@/features/landing/quem-somos/page"));
@@ -124,6 +126,8 @@ const router = createBrowserRouter([
   /* ── Pública ─────────────────────────────────────────── */
   { path: "/",                  element: withSuspense(<LandingPage />) },
   { path: "/para-incorporadoras", element: withSuspense(<ParaIncorporadorasPage />) },
+  { path: "/para-incorporadoras/obrigado", element: withSuspense(<ParaIncorporadorasObrigadoPage />) },
+  { path: "/para-incorporadoras/qualificacao", element: withSuspense(<ParaIncorporadorasQualificacaoPage />) },
   { path: "/para-investidores",   element: withSuspense(<ParaInvestidoresPage />) },
   { path: "/projetos",          element: withSuspense(<ProjetosLandingPage />) },
   { path: "/quem-somos",        element: withSuspense(<QuemSomosLandingPage />) },

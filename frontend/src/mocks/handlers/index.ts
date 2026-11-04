@@ -3,6 +3,7 @@ import type { Projeto, Incorporadora, DashboardMetricas, Notificacao, AuditoriaE
 import { cronogramaHandlers } from "./cronograma";
 import { boardsHandlers } from "./boards";
 import { investidoresHandlers } from "./investidores";
+import { leadsHandlers } from "./leads";
 
 const BASE = "";
 
@@ -704,4 +705,5 @@ export const handlers = [
   ...cronogramaHandlers(mockProjetos),
   ...boardsHandlers,
   ...investidoresHandlers,
+  ...leadsHandlers,
 ];
