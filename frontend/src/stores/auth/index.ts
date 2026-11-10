@@ -19,6 +19,7 @@ const cognitoConfigured = VITE_COGNITO_USER_POOL_ID !== "" && VITE_COGNITO_CLIEN
 function extractPerfilFromEmail(email: string): Perfil {
   const lower = email.toLowerCase();
   if (lower.includes("master") || lower.includes("admin@atlashub")) return "ADMIN_MASTER";
+  if (lower.includes("marketing")) return "MARKETING";
   if (lower.includes("analista") || lower.includes("@atlashub")) return "ANALISTA";
   if (lower.includes("invest")) return "INVESTIDOR";
   return "INCORPORADORA";

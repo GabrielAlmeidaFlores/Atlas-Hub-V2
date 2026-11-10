@@ -18,7 +18,7 @@ import { Navigate } from "react-router-dom";
 interface CreatedInvite {
   readonly nome: string;
   readonly email: string;
-  readonly perfil: "ANALISTA" | "ADMIN_MASTER";
+  readonly perfil: "MARKETING" | "ANALISTA" | "ADMIN_MASTER";
   readonly temporaryPassword: string;
   readonly emailSent: boolean;
 }
@@ -43,7 +43,7 @@ export default function AdminUsuariosPage(): ReactNode {
   const [showForm, setShowForm] = useState(false);
   const [createdInvite, setCreatedInvite] = useState<CreatedInvite | null>(null);
   const [copied, setCopied] = useState(false);
-  const [form, setForm] = useState({ nome: "", email: "", perfil: "ANALISTA" as "ANALISTA" | "ADMIN_MASTER" });
+  const [form, setForm] = useState({ nome: "", email: "", perfil: "ANALISTA" as "MARKETING" | "ANALISTA" | "ADMIN_MASTER" });
   const formDirty = form.nome.length > 0 || form.email.length > 0 || form.perfil !== "ANALISTA";
   const closeForm = (): void => {
     setShowForm(false);
@@ -184,7 +184,7 @@ export default function AdminUsuariosPage(): ReactNode {
               <tr key={u.id} className="table-row">
                 <td className="font-medium text-foreground">{u.nome}</td>
                 <td className="text-muted-foreground">{u.email}</td>
-                <td className="text-foreground">{u.perfil === "ADMIN_MASTER" ? "Admin master" : "Analista"}</td>
+                <td className="text-foreground">{u.perfil === "ADMIN_MASTER" ? "Admin master" : u.perfil === "MARKETING" ? "Marketing" : "Analista"}</td>
                 <td>
                   <span className={u.ativo ? "text-status-success" : "text-muted-foreground"}>
                     {u.ativo ? "Ativo" : "Inativo"}
@@ -251,7 +251,7 @@ export default function AdminUsuariosPage(): ReactNode {
                 <span className="text-muted-foreground">E-mail</span>
                 <span className="truncate font-medium text-foreground">{createdInvite.email}</span>
                 <span className="text-muted-foreground">Perfil</span>
-                <span className="font-medium text-foreground">{createdInvite.perfil === "ADMIN_MASTER" ? "Admin Master" : "Analista"}</span>
+                <span className="font-medium text-foreground">{createdInvite.perfil === "ADMIN_MASTER" ? "Admin Master" : createdInvite.perfil === "MARKETING" ? "Marketing" : "Analista"}</span>
                 <span className="text-muted-foreground">Senha temporária</span>
                 <span className="break-all rounded-[6px] border border-border bg-card px-3 py-2 font-mono text-sm font-semibold text-foreground">{createdInvite.temporaryPassword}</span>
               </div>
@@ -280,9 +280,10 @@ export default function AdminUsuariosPage(): ReactNode {
               <label className="form-label">Perfil</label>
               <Select
                 value={form.perfil}
-                onValueChange={(value) => setForm((p) => ({ ...p, perfil: value as "ANALISTA" | "ADMIN_MASTER" }))}
+                onValueChange={(value) => setForm((p) => ({ ...p, perfil: value as "MARKETING" | "ANALISTA" | "ADMIN_MASTER" }))}
                 options={[
                   { value: "ANALISTA", label: "Analista" },
+                  { value: "MARKETING", label: "Marketing" },
                   { value: "ADMIN_MASTER", label: "Admin master" },
                 ]}
                 ariaLabel="Perfil"

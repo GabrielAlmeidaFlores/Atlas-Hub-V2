@@ -364,7 +364,7 @@ export const handlers = [
   http.get(`${BASE}/admin/incorporadoras/:id`, () => HttpResponse.json({ incorporadora: mockIncorporadora, projetos: mockProjetos })),
   http.get(`${BASE}/admin/usuarios`, () => HttpResponse.json({ items: mockAdmins })),
   http.post(`${BASE}/admin/usuarios`, async ({ request }) => {
-    const body = await request.json() as { nome?: string; email?: string; perfil?: "ANALISTA" | "ADMIN_MASTER" };
+    const body = await request.json() as { nome?: string; email?: string; perfil?: "MARKETING" | "ANALISTA" | "ADMIN_MASTER" };
     if (body.email === undefined || body.nome === undefined) return HttpResponse.json({ code: "VALIDATION_ERROR", message: "Dados inválidos" }, { status: 400 });
     if (mockAdmins.some((admin) => admin.email === body.email)) return HttpResponse.json({ code: "CONFLICT", message: "Já existe um usuário com este e-mail" }, { status: 409 });
     const admin: MockAdmin = { id: crypto.randomUUID(), nome: body.nome, email: body.email, perfil: body.perfil ?? "ANALISTA", ativo: true, criadoPor: "master@atlashub.com", criadoEm: new Date().toISOString() };

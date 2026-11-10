@@ -34,7 +34,7 @@ export interface BoardMemberCandidate {
   readonly id: string;
   readonly email: string;
   readonly nome: string;
-  readonly perfil: "ANALISTA" | "ADMIN_MASTER";
+  readonly perfil: "MARKETING" | "ANALISTA" | "ADMIN_MASTER";
 }
 
 export interface BoardMemberInput {

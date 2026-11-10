@@ -48,6 +48,7 @@ function deny(principalId = 'unauthorized'): APIGatewayAuthorizerResult {
 
 function perfilFromGroups(groups: readonly string[]): Perfil | null {
   if (groups.includes('ADMIN_MASTER')) return 'ADMIN_MASTER';
+  if (groups.includes('MARKETING')) return 'MARKETING';
   if (groups.includes('ANALISTA')) return 'ANALISTA';
   if (groups.includes('INCORPORADORA')) return 'INCORPORADORA';
   if (groups.includes('INVESTIDOR')) return 'INVESTIDOR';
@@ -90,7 +91,7 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<
     const groups = Array.isArray(payload['cognito:groups']) ? payload['cognito:groups'].map(String) : [];
     const perfil = perfilFromGroups(groups);
     if (perfil === null) return deny();
-    if (perfil === 'ADMIN_MASTER' || perfil === 'ANALISTA') {
+    if (perfil === 'ADMIN_MASTER' || perfil === 'ANALISTA' || perfil === 'MARKETING') {
       const email = typeof payload['email'] === 'string' ? payload['email'] : '';
       const admin = await getAdmin(String(payload.sub)) ?? (email.length > 0 ? await getAdminByEmail(email) : null);
       if (admin === null || !admin.ativo) return deny();
