@@ -7,7 +7,7 @@ export type ApiErrorCode =
   | "INVALID_STATUS_TRANSITION"
   | "INTERNAL_ERROR";
 
-export type Perfil = "INCORPORADORA" | "INVESTIDOR" | "ANALISTA" | "ADMIN_MASTER";
+export type Perfil = "INCORPORADORA" | "INVESTIDOR" | "MARKETING" | "ANALISTA" | "ADMIN_MASTER";
 
 export type StatusProjeto =
   | "RASCUNHO"
@@ -77,7 +77,7 @@ export interface Admin {
   readonly id: string;
   readonly nome: string;
   readonly email: string;
-  readonly perfil: "ANALISTA" | "ADMIN_MASTER";
+  readonly perfil: "MARKETING" | "ANALISTA" | "ADMIN_MASTER";
   readonly ativo: boolean;
   readonly criadoPor: string;
   readonly criadoEm: string;

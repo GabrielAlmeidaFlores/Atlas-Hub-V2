@@ -2069,6 +2069,13 @@ resources:
         UserPoolId: !Ref CognitoUserPool
         Description: "Atlas Hub internal analysts"
 
+    CognitoMarketingGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: MARKETING
+        UserPoolId: !Ref CognitoUserPool
+        Precedence: 20
+
     CognitoAdminMasterGroup:
       Type: AWS::Cognito::UserPoolGroup
       Properties:

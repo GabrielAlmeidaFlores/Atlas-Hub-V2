@@ -108,9 +108,11 @@ function RequireIncorporadora({ children }: { readonly children: ReactNode }): R
 
 function RequireAdmin({ children }: { readonly children: ReactNode }): ReactNode {
   const { isAuthenticated, user, isLoading } = useAuthStore();
+  const location = useLocation();
   if (isLoading) return <Spinner />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (user?.perfil === "INCORPORADORA" || user?.perfil === "INVESTIDOR") return <Navigate to={homeForPerfil(user?.perfil)} replace />;
+  if (user?.perfil === "MARKETING" && !location.pathname.startsWith("/admin/boards")) return <Navigate to="/admin/boards" replace />;
   return children;
 }
 

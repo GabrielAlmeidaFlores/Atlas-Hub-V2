@@ -68,11 +68,12 @@ export function getUserGroups(event: APIGatewayProxyEvent): string[] {
 
 export function getUserPerfil(event: APIGatewayProxyEvent): Perfil | null {
   const context = authorizerContext(event);
-  if (context.perfil === 'ADMIN_MASTER' || context.perfil === 'ANALISTA' || context.perfil === 'INCORPORADORA' || context.perfil === 'INVESTIDOR') {
+  if (context.perfil === 'ADMIN_MASTER' || context.perfil === 'ANALISTA' || context.perfil === 'MARKETING' || context.perfil === 'INCORPORADORA' || context.perfil === 'INVESTIDOR') {
     return context.perfil;
   }
   const groups = getUserGroups(event);
   if (groups.includes('ADMIN_MASTER')) return 'ADMIN_MASTER';
+  if (groups.includes('MARKETING')) return 'MARKETING';
   if (groups.includes('ANALISTA')) return 'ANALISTA';
   if (groups.includes('INCORPORADORA')) return 'INCORPORADORA';
   if (groups.includes('INVESTIDOR')) return 'INVESTIDOR';
@@ -88,6 +89,10 @@ export function requirePerfil(event: APIGatewayProxyEvent, ...perfis: Perfil[]):
 
 export function requireAdmin(event: APIGatewayProxyEvent): void {
   requirePerfil(event, 'ANALISTA', 'ADMIN_MASTER');
+}
+
+export function requireAdminOrMarketing(event: APIGatewayProxyEvent): void {
+  requirePerfil(event, 'ANALISTA', 'ADMIN_MASTER', 'MARKETING');
 }
 
 export function requireAdminMaster(event: APIGatewayProxyEvent): void {

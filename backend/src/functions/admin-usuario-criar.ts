@@ -63,7 +63,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       await emailConviteUsuario(
         body.email,
         body.nome,
-        body.perfil === 'ADMIN_MASTER' ? 'Admin Master' : 'Analista',
+        body.perfil === 'ADMIN_MASTER' ? 'Admin Master' : body.perfil === 'MARKETING' ? 'Marketing' : 'Analista',
         temporaryPassword,
       );
       emailSent = true;

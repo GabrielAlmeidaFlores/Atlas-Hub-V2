@@ -17,24 +17,28 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
     navigate("/login");
   }
 
-  const navItems = [
-    { to: "/admin", label: "Visão geral", icon: LayoutDashboard, end: true },
-    { to: "/admin/boards", label: "Quadros", icon: LayoutGrid, end: false },
-    { to: "/admin/curadoria", label: "Fila de Curadoria", icon: ClipboardList, end: false },
-    { to: "/admin/historico", label: "Histórico", icon: History, end: false },
-    { to: "/admin/financeiro", label: "Financeiro", icon: Landmark, end: false },
-    { to: "/admin/cronograma", label: "Cronograma", icon: CalendarRange, end: false },
-    { to: "/admin/captacao", label: "Captação", icon: CircleDollarSign, end: false },
-    { to: "/admin/incorporadoras", label: "Incorporadoras", icon: Building2, end: false },
-    { to: "/admin/investidores", label: "Investidores", icon: UsersRound, end: false },
-    { to: "/admin/analytics", label: "Uso da plataforma", icon: BarChart3, end: false },
-    ...(user?.perfil === "ADMIN_MASTER"
-      ? [
-          { to: "/admin/documentos", label: "Documentos", icon: FileText, end: false },
-          { to: "/admin/usuarios", label: "Usuários", icon: Users, end: false },
-        ]
-      : []),
-  ] as const;
+  const navItems = user?.perfil === "MARKETING"
+    ? [
+        { to: "/admin/boards", label: "Quadros", icon: LayoutGrid, end: false },
+      ] as const
+    : [
+        { to: "/admin", label: "Visão geral", icon: LayoutDashboard, end: true },
+        { to: "/admin/boards", label: "Quadros", icon: LayoutGrid, end: false },
+        { to: "/admin/curadoria", label: "Fila de Curadoria", icon: ClipboardList, end: false },
+        { to: "/admin/historico", label: "Histórico", icon: History, end: false },
+        { to: "/admin/financeiro", label: "Financeiro", icon: Landmark, end: false },
+        { to: "/admin/cronograma", label: "Cronograma", icon: CalendarRange, end: false },
+        { to: "/admin/captacao", label: "Captação", icon: CircleDollarSign, end: false },
+        { to: "/admin/incorporadoras", label: "Incorporadoras", icon: Building2, end: false },
+        { to: "/admin/investidores", label: "Investidores", icon: UsersRound, end: false },
+        { to: "/admin/analytics", label: "Uso da plataforma", icon: BarChart3, end: false },
+        ...(user?.perfil === "ADMIN_MASTER"
+          ? [
+              { to: "/admin/documentos", label: "Documentos", icon: FileText, end: false },
+              { to: "/admin/usuarios", label: "Usuários", icon: Users, end: false },
+            ]
+          : []),
+      ] as const;
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
@@ -78,18 +82,20 @@ function Sidebar({ onClose }: { readonly onClose?: () => void }): ReactNode {
               </span>
             </Tooltip>
             <p className="text-[10px] font-medium text-muted-foreground">
-              {user?.perfil === "ADMIN_MASTER" ? "Admin Master" : "Analista"}
+              {user?.perfil === "ADMIN_MASTER" ? "Admin Master" : user?.perfil === "MARKETING" ? "Marketing" : "Analista"}
             </p>
           </div>
         </div>
-        <NavLink
-          to="/admin/configuracoes"
-          onClick={onClose}
-          className={({ isActive }) => cn("nav-item mb-1", isActive && "nav-item-active")}
-        >
-          <Settings className="h-4 w-4" />
-          Configurações
-        </NavLink>
+        {user?.perfil !== "MARKETING" && (
+          <NavLink
+            to="/admin/configuracoes"
+            onClick={onClose}
+            className={({ isActive }) => cn("nav-item mb-1", isActive && "nav-item-active")}
+          >
+            <Settings className="h-4 w-4" />
+            Configurações
+          </NavLink>
+        )}
         <button type="button" onClick={handleLogout} className="nav-item w-full text-destructive hover:bg-status-danger-subtle hover:text-destructive">
           <LogOut className="h-4 w-4" />
           Sair

@@ -25,7 +25,8 @@ import {
   ForbiddenError,
   getUserEmail,
   getUserId,
-  requireAdmin,
+  getUserPerfil,
+  requireAdminOrMarketing,
   requireAdminMaster,
 } from '../shared/http/auth.js';
 import { listAdmins } from '../shared/db/index.js';
@@ -140,8 +141,11 @@ export function createAdminBoardsHandler(
     try {
       const userId = getUserId(event);
       const email = getUserEmail(event).trim().toLowerCase();
-      requireAdmin(event);
+      requireAdminOrMarketing(event);
       const actor = { userId, email };
+      if (getUserPerfil(event) === 'MARKETING' && event.httpMethod === 'POST' && event.path === '/admin/boards/files/download-url') {
+        return forbidden(event);
+      }
       const boardId = optionalParam(event, 'boardId');
       if (boardId !== undefined) {
         await service.assertBoardAccess(boardId, actor, boardRequirement(event));

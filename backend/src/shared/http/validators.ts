@@ -361,7 +361,7 @@ export const reatribuirSchema = z.object({
 export const criarUsuarioAdminSchema = z.object({
   nome: z.string().min(2).max(200),
   email: z.string().email('E-mail inválido'),
-  perfil: z.enum(['ANALISTA', 'ADMIN_MASTER']),
+  perfil: z.enum(['MARKETING', 'ANALISTA', 'ADMIN_MASTER']),
 });
 
 export const documentoCatalogoCriarSchema = z.object({
