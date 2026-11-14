@@ -276,7 +276,7 @@ jobs:
           cd dist && zip -r /tmp/dist.zip .
       - name: Deploy to Amplify with retry
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
           set +e
