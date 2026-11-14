@@ -199,7 +199,7 @@ function DiagnosticForm(): ReactNode {
           </div>
         </AnimateIn>
         <AnimateIn delay={80} className="lg:col-span-7">
-          <form onSubmit={(event) => void handleSubmit(event)} className="rounded-[12px] border border-[#D9DEE7] bg-white p-6 shadow-[0_12px_30px_rgba(27,43,94,0.08)] sm:p-8">
+          <form noValidate onSubmit={(event) => void handleSubmit(event)} className="rounded-[12px] border border-[#D9DEE7] bg-white p-6 shadow-[0_12px_30px_rgba(27,43,94,0.08)] sm:p-8">
             <h3 className="text-lg font-bold text-navy">Solicitar meu diagnóstico</h3>
             <p className="mt-1 text-xs text-muted-foreground">O primeiro passo leva menos de um minuto.</p>
             <div className="mt-6 space-y-4">
@@ -219,7 +219,7 @@ function DiagnosticForm(): ReactNode {
                 <input type="checkbox" className="mt-0.5" checked={form.consentimento} onChange={(event) => setForm((current) => ({ ...current, consentimento: event.target.checked }))} />
                 <span>Autorizo o uso dos meus dados para contato sobre meu diagnóstico, conforme a <Link to="/privacidade" className="font-semibold text-navy underline">Política de Privacidade</Link>.</span>
               </label>
-              {error !== null && <p className="text-xs font-medium text-status-danger">{error}</p>}
+              {error !== null && <p role="alert" className="text-xs font-medium text-status-danger">{error}</p>}
               <button type="submit" disabled={saving} className="btn btn-gold w-full">
                 {saving ? "Enviando…" : "Solicitar meu diagnóstico"}
               </button>
