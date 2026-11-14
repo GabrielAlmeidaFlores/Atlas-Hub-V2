@@ -274,49 +274,36 @@ jobs:
         run: |
           test -f dist/hero-bg.mp4
           cd dist && zip -r /tmp/dist.zip .
-      - name: Create Amplify deployment
-        id: amplify
+      - name: Deploy to Amplify with retry
         env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
+          APP_ID: ${{ vars.AMPLIFY_APP_ID }}
           REGION: ${{ vars.AWS_REGION }}
         run: |
-          DEPLOY=$(aws amplify create-deployment \
-            --app-id "$APP_ID" --branch-name "dev" \
-            --region "$REGION" --output json)
-          echo "job_id=$(echo "$DEPLOY"     | python3 -c "import sys,json; print(json.load(sys.stdin)['jobId'])")"     >> $GITHUB_OUTPUT
-          echo "upload_url=$(echo "$DEPLOY" | python3 -c "import sys,json; print(json.load(sys.stdin)['zipUploadUrl'])")" >> $GITHUB_OUTPUT
-      - name: Upload build
-        run: |
-          curl -s -o /dev/null -w "HTTP %{http_code}\n" \
-            -X PUT -H "Content-Type: application/zip" \
-            --data-binary @/tmp/dist.zip \
-            "${{ steps.amplify.outputs.upload_url }}"
-      - name: Start deployment
-        env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
-          REGION: ${{ vars.AWS_REGION }}
-        run: |
-          aws amplify start-deployment \
-            --app-id "$APP_ID" --branch-name "dev" \
-            --job-id "${{ steps.amplify.outputs.job_id }}" \
-            --region "$REGION"
-      - name: Wait for completion
-        env:
-          APP_ID: ${{ vars.AMPLIFY_APP_ID_DEV }}
-          REGION: ${{ vars.AWS_REGION }}
-        run: |
-          for i in $(seq 1 30); do
-            STATUS=$(aws amplify get-job \
-              --app-id "$APP_ID" --branch-name "dev" \
-              --job-id "${{ steps.amplify.outputs.job_id }}" \
-              --region "$REGION" --output json \
-              | python3 -c "import sys,json; print(json.load(sys.stdin)['job']['summary']['status'])")
-            echo "[$i/30] $STATUS"
-            if [ "$STATUS" = "SUCCEED" ]; then echo "✓ Deploy concluído"; exit 0; fi
-            if [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then echo "✗ Falhou"; exit 1; fi
+          set +e
+          for attempt in 1 2 3; do
+            echo "Amplify deployment attempt $attempt"
+            DEPLOY=$(aws amplify create-deployment --app-id "$APP_ID" --branch-name "dev" --region "$REGION" --output json)
+            if [ $? -ne 0 ]; then echo "create-deployment failed"; sleep 10; continue; fi
+            JOB_ID=$(echo "$DEPLOY" | python3 -c "import sys,json; print(json.load(sys.stdin)['jobId'])")
+            UPLOAD_URL=$(echo "$DEPLOY" | python3 -c "import sys,json; print(json.load(sys.stdin)['zipUploadUrl'])")
+            echo "Uploading artifact for job $JOB_ID"
+            curl --fail-with-body --retry 5 --retry-all-errors --retry-delay 2 -sS \
+              -X PUT -H "Content-Type: application/zip" -T /tmp/dist.zip "$UPLOAD_URL"
+            if [ $? -ne 0 ]; then echo "artifact upload failed"; sleep 10; continue; fi
+            aws amplify start-deployment --app-id "$APP_ID" --branch-name "dev" --job-id "$JOB_ID" --region "$REGION"
+            STATUS=""
+            for i in $(seq 1 30); do
+              STATUS=$(aws amplify get-job --app-id "$APP_ID" --branch-name "dev" --job-id "$JOB_ID" --region "$REGION" --output json | python3 -c "import sys,json; print(json.load(sys.stdin)['job']['summary']['status'])")
+              echo "[$i/30] $STATUS"
+              if [ "$STATUS" = "SUCCEED" ]; then echo "Deploy concluído"; exit 0; fi
+              if [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then break; fi
+              sleep 10
+            done
+            echo "Attempt $attempt failed with status: $STATUS"
             sleep 10
           done
-          echo "✗ Timeout"; exit 1
+          echo "Deploy failed after 3 attempts"
+          exit 1
 
   create-admin-master:
     name: Create admin master user
