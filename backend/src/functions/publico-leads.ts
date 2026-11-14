@@ -26,20 +26,21 @@ const leadCreateSchema = z.object({
   metaAdId: z.string().trim().max(200).optional(),
 }).strict();
 
-const papelOptions = ['Sócio ou proprietário', 'Diretor ou gestor do projeto', 'Responsável financeiro ou de captação', 'Parceiro ou representante', 'Outro'] as const;
-const tipoOptions = ['Edifício residencial', 'Condomínio de casas', 'Loteamento', 'Comercial ou misto', 'Outro'] as const;
-const terrenoOptions = ['Terreno próprio ou da empresa', 'Permuta formalizada', 'Permuta ou aquisição em negociação', 'Terreno de terceiro com parceria em estudo', 'Ainda não tenho terreno definido'] as const;
-const estagioOptions = ['Estudo de viabilidade em andamento', 'Viabilidade concluída e projeto em desenvolvimento', 'Projeto em aprovação', 'Projeto aprovado e preparação para execução', 'Obra iniciada'] as const;
-const vgvOptions = ['Até R$ 5 milhões', 'De R$ 5 milhões a R$ 10 milhões', 'De R$ 10 milhões a R$ 30 milhões', 'Acima de R$ 30 milhões', 'Ainda não definido'] as const;
-const valorOptions = ['Até R$ 500 mil', 'De R$ 500 mil a R$ 1 milhão', 'De R$ 1 milhão a R$ 3 milhões', 'De R$ 3 milhões a R$ 5 milhões', 'Acima de R$ 5 milhões', 'Ainda estou definindo'] as const;
-const finalidadeOptions = ['Aquisição ou composição de terreno', 'Projetos, aprovações e preparação', 'Início da construção', 'Execução ou continuidade da obra', 'Expansão para outro empreendimento', 'Outra finalidade'] as const;
-const prazoOptions = ['Próximos 3 meses', 'Entre 3 e 6 meses', 'Entre 6 e 12 meses', 'Mais de 12 meses', 'Ainda estou avaliando'] as const;
-const documentosOptions = ['Estudo de viabilidade econômico-financeira', 'Projeto arquitetônico ou estudo preliminar', 'Documentação do terreno ou permuta', 'Orçamento de obra e cronograma físico-financeiro', 'Aprovações ou licenças aplicáveis', 'Ainda estou reunindo os documentos'] as const;
+const papelOptions = ['Sou sócio ou proprietário da incorporadora', 'Sou diretor ou gestor responsável pelo empreendimento', 'Sou responsável financeiro ou pela captação de recursos', 'Sou parceiro ou representante do empreendimento', 'Estou desenvolvendo minha primeira incorporação', 'Outro'] as const;
+const tipoOptions = ['Residencial voltado ao Minha Casa Minha Vida — Faixa 3', 'Residencial voltado ao Minha Casa Minha Vida — Faixa 4', 'Residencial de médio ou alto padrão', 'Condomínio de casas', 'Loteamento', 'Empreendimento comercial ou misto', 'Outro'] as const;
+const terrenoOptions = ['Terreno próprio ou da empresa', 'Permuta formalizada', 'Permuta em negociação', 'Aquisição do terreno em negociação', 'Terreno de terceiro com parceria em estudo', 'Ainda não tenho terreno definido'] as const;
+const estagioOptions = ['Tenho o terreno, mas ainda estou desenvolvendo o estudo de viabilidade', 'Viabilidade concluída e projeto em desenvolvimento', 'Projeto em aprovação nos órgãos competentes', 'Projeto aprovado e preparação para execução', 'Obra iniciada', 'Ainda estou estruturando a oportunidade'] as const;
+const vgvOptions = ['Até R$ 2 milhões', 'De R$ 2 milhões a R$ 5 milhões', 'De R$ 5 milhões a R$ 10 milhões', 'De R$ 10 milhões a R$ 30 milhões', 'Acima de R$ 30 milhões', 'Ainda não tenho o VGV definido'] as const;
+const valorOptions = ['Até R$ 300 mil', 'De R$ 300 mil a R$ 500 mil', 'De R$ 500 mil a R$ 1 milhão', 'De R$ 1 milhão a R$ 3 milhões', 'De R$ 3 milhões a R$ 5 milhões', 'Acima de R$ 5 milhões', 'Ainda estou definindo'] as const;
+const finalidadeOptions = ['Aquisição ou composição de terreno', 'Desenvolvimento de projetos e aprovações', 'Preparação e início da construção', 'Execução ou continuidade da obra', 'Complementação de capital para um empreendimento em andamento', 'Expansão para novos empreendimentos', 'Outra finalidade'] as const;
+const prazoOptions = ['Imediatamente, nos próximos 30 dias', 'Entre 1 e 3 meses', 'Entre 3 e 6 meses', 'Entre 6 e 12 meses', 'Daqui a mais de 12 meses', 'Ainda estou avaliando'] as const;
+const documentosOptions = ['Estudo de viabilidade econômico-financeira', 'Projeto arquitetônico ou estudo preliminar', 'Documentação do terreno ou permuta', 'Orçamento de obra', 'Cronograma físico-financeiro', 'Aprovações ou licenças aplicáveis', 'Ainda estou reunindo os documentos'] as const;
 
 const qualificationSchema = z.object({
   papel: z.enum(papelOptions),
   tipoEmpreendimento: z.enum(tipoOptions),
-  cidadeUf: z.string().trim().min(2).max(120),
+  estado: z.enum(['São Paulo', 'Minas Gerais', 'Outro estado']),
+  cidade: z.string().trim().min(2).max(120),
   situacaoTerreno: z.enum(terrenoOptions),
   estagio: z.enum(estagioOptions),
   vgv: z.enum(vgvOptions),
@@ -166,7 +167,8 @@ async function qualifyLead(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
   const fieldValues = valuesFor(board, {
     'Papel na empresa': body.papel,
     'Tipo de empreendimento': body.tipoEmpreendimento,
-    'Cidade/UF': body.cidadeUf,
+    'Estado': body.estado,
+    'Cidade': body.cidade,
     'Situação do terreno': body.situacaoTerreno,
     'Estágio do empreendimento': body.estagio,
     'VGV estimado': body.vgv,
