@@ -31,28 +31,13 @@ export default function ParaIncorporadorasObrigadoPage(): ReactNode {
                 <CheckCircle2 className="h-6 w-6 text-status-success" />
               </div>
               <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#D2A047]">Cadastro recebido</p>
-              <h1 className="mt-3 text-2xl font-extrabold leading-tight text-navy sm:text-3xl">Seu cadastro foi recebido</h1>
+              <h1 className="mt-3 text-2xl font-extrabold leading-tight text-navy sm:text-3xl">Descubra os próximos passos para avaliar a captação do seu empreendimento</h1>
+              <p className="mt-4 text-base font-semibold leading-relaxed text-navy">Seu cadastro foi recebido!</p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Agora faltam apenas dois passos para avançar com sua solicitação de diagnóstico.
+                Agora, responda 10 perguntas rápidas para que nossa equipe conheça seu projeto e avalie como podemos direcionar sua solicitação de diagnóstico.
               </p>
-              <div className="mt-7 space-y-4">
-                <div className="flex gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">1</span>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Conte sobre seu empreendimento</p>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Responda a 10 perguntas rápidas para conhecermos o estágio do projeto, a necessidade de capital e o momento da incorporação. Leva aproximadamente 3 minutos.</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">2</span>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Avaliação da nossa equipe</p>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Com suas respostas, verificaremos a compatibilidade inicial do empreendimento e prepararemos um contato mais direcionado.</p>
-                  </div>
-                </div>
-              </div>
               <Link to={qualificationUrl} className="btn btn-gold mt-8 w-full">
-                Continuar para as perguntas <ArrowRight className="h-4 w-4" />
+                COMEÇAR MINHA PRÉ-AVALIAÇÃO <ArrowRight className="h-4 w-4" />
               </Link>
               <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
                 <Clock3 className="h-3.5 w-3.5" /> Tempo estimado: 3 minutos
