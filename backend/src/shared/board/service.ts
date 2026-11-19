@@ -4,6 +4,7 @@ import { buildDefaultDashboard, evaluateDashboard } from './metrics/engine.js';
 import { validateDashboardReferences } from './metrics/validation.js';
 import type { BoardMetricsDashboard, BoardMetricsQuery, BoardMetricsResponse } from './metrics/types.js';
 import { BoardConflictError, BoardForbiddenError, BoardNotFoundError } from './errors.js';
+import { createLogger } from '../core/logger.js';
 import type {
   BoardRepository,
   BoardCardRecord,
@@ -22,6 +23,7 @@ import type {
   BoardFile,
   BoardLabel,
   BoardMember,
+  BoardNotificationRule,
   BoardTemplate,
   BoardTemplateField,
   BoardView,
@@ -72,6 +74,8 @@ export interface BoardActor {
 }
 
 type BoardRequirement = 'view' | 'write' | 'manage' | 'owner';
+
+const log = createLogger('boardService');
 
 function now(): string {
   return new Date().toISOString();
@@ -210,6 +214,7 @@ export class BoardService {
       createdBy: actor.userId,
       ...(actor.email.trim().length > 0 ? { createdByEmail: normalizeEmail(actor.email) } : {}),
       members: [],
+      notificationRulesVersion: 0,
     };
     const columns: BoardColumnRecord[] = DEFAULT_COLUMNS.map((column, position) => ({
       boardId,
@@ -247,12 +252,32 @@ export class BoardService {
 
   async updateBoard(boardId: string, input: BoardUpdateInput): Promise<Board> {
     const board = await this.requireBoard(boardId);
+    if (input.notificationRules === undefined && input.expectedNotificationRulesVersion !== undefined) {
+      throw fieldError('notificationRules', 'Informe as regras de notificação');
+    }
+    const needsItems = input.metricsDashboard !== undefined || input.notificationRules !== undefined;
+    const items = needsItems ? await this.repository.listItems(boardId) : undefined;
     if (input.metricsDashboard !== undefined) {
-      const items = await this.repository.listItems(boardId);
-      validateDashboardReferences(input.metricsDashboard as unknown as BoardMetricsDashboard, this.toView(board, items));
+      validateDashboardReferences(input.metricsDashboard as unknown as BoardMetricsDashboard, this.toView(board, items ?? []));
       if (Buffer.byteLength(JSON.stringify(input.metricsDashboard), 'utf8') > 64 * 1024) {
         throw new ValidationError([{ field: 'metricsDashboard', message: 'Dashboard excede o limite de 64 KB' }]);
       }
+    }
+    if (input.notificationRules !== undefined) {
+      if (input.expectedNotificationRulesVersion === undefined) {
+        throw fieldError('expectedNotificationRulesVersion', 'Informe a versão atual das regras');
+      }
+      const rules = this.validateNotificationRules(board, items ?? [], input.notificationRules);
+      const updatedRules = await this.repository.updateBoardNotificationRules(
+        boardId,
+        rules,
+        input.expectedNotificationRulesVersion,
+        now(),
+      );
+      if (updatedRules === null) {
+        throw new BoardConflictError('As regras de notificação foram alteradas por outro administrador. Recarregue o quadro e tente novamente.');
+      }
+      return updatedRules;
     }
     const patch: Partial<Board> = {
       updatedAt: now(),
@@ -344,6 +369,7 @@ export class BoardService {
     const cards = items.filter(isCard).filter((card) => card.columnId === columnId && card.archivedAt === undefined);
     if (cards.length > 0) throw new BoardConflictError('Mova os cards antes de excluir esta coluna');
     await this.repository.deleteItem(boardId, column.itemKey);
+    await this.replaceNotificationRules(boardId, (rules) => rules.filter((rule) => rule.columnId !== columnId));
     await this.touchBoard(boardId, now());
   }
 
@@ -596,6 +622,15 @@ export class BoardService {
     return updated as BoardCardRecord;
   }
 
+  async deleteCardPermanent(boardId: string, cardId: string): Promise<void> {
+    await this.requireBoard(boardId);
+    const items = await this.repository.listItems(boardId);
+    const card = items.filter(isCard).find((item) => item.cardId === cardId);
+    if (card === undefined) throw new BoardNotFoundError('Card não encontrado');
+    await this.repository.deleteItem(boardId, card.itemKey);
+    await this.touchBoard(boardId, now());
+  }
+
   async archiveCard(boardId: string, cardId: string, userId: string, userEmail = ''): Promise<BoardCard> {
     await this.requireBoard(boardId);
     const items = await this.repository.listItems(boardId);
@@ -682,6 +717,81 @@ export class BoardService {
         updatedBy: actor.userId,
       });
     }));
+    await this.replaceNotificationRules(boardId, (rules) => rules
+      .map((rule) => ({
+        ...rule,
+        recipientEmails: rule.recipientEmails.filter((recipient) => normalizeEmail(recipient) !== normalized),
+      }))
+      .filter((rule) => rule.recipientEmails.length > 0));
+  }
+
+  private validateNotificationRules(
+    board: Board,
+    items: readonly BoardItemRecord[],
+    rules: readonly BoardNotificationRule[],
+  ): BoardNotificationRule[] {
+    const columns = new Set(items.filter(isColumn).map((column) => column.columnId));
+    const allowed = new Set<string>();
+    if (board.createdByEmail !== undefined && board.createdByEmail.trim().length > 0) {
+      allowed.add(normalizeEmail(board.createdByEmail));
+    }
+    for (const member of board.members ?? []) allowed.add(normalizeEmail(member.email));
+    const ids = new Set<string>();
+    const movedColumns = new Set<string>();
+    const eventRules = new Map<string, number>();
+    const normalized = rules.map((rule, index) => {
+      if (ids.has(rule.id)) throw fieldError('notificationRules', `Regra ${String(index + 1)} duplicada`);
+      ids.add(rule.id);
+      if (rule.event === 'CARD_MOVED_TO_COLUMN') {
+        if (rule.columnId === undefined) throw fieldError('notificationRules', 'Informe a coluna da regra');
+        if (!columns.has(rule.columnId)) throw fieldError('notificationRules', 'Coluna da regra inválida');
+        if (movedColumns.has(rule.columnId)) throw fieldError('notificationRules', 'Existe mais de uma regra para esta coluna');
+        movedColumns.add(rule.columnId);
+      } else {
+        if (rule.columnId !== undefined) throw fieldError('notificationRules', 'Somente regras de movimentação aceitam coluna');
+        const count = (eventRules.get(rule.event) ?? 0) + 1;
+        eventRules.set(rule.event, count);
+        if (count > 1) throw fieldError('notificationRules', 'Existe mais de uma regra para este evento');
+      }
+      const recipientEmails = [...new Set(rule.recipientEmails.map(normalizeEmail))];
+      if (recipientEmails.length === 0) throw fieldError('notificationRules', 'Informe ao menos um destinatário');
+      if (recipientEmails.length > 20) throw fieldError('notificationRules', 'Limite de 20 destinatários por regra');
+      for (const recipient of recipientEmails) {
+        if (!allowed.has(recipient)) throw fieldError('notificationRules', 'Participante inválido');
+      }
+      return {
+        id: rule.id,
+        event: rule.event,
+        ...(rule.columnId !== undefined ? { columnId: rule.columnId } : {}),
+        recipientEmails,
+        enabled: rule.enabled,
+      };
+    });
+    if (Buffer.byteLength(JSON.stringify(normalized), 'utf8') > 64 * 1024) {
+      throw fieldError('notificationRules', 'Regras excedem o limite de 64 KB');
+    }
+    return normalized;
+  }
+
+  private async replaceNotificationRules(
+    boardId: string,
+    transform: (rules: readonly BoardNotificationRule[]) => readonly BoardNotificationRule[],
+  ): Promise<void> {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const board = await this.repository.getBoard(boardId);
+      if (board === null || board.archivedAt !== undefined) return;
+      const current = board.notificationRules ?? [];
+      const next = transform(current);
+      if (JSON.stringify(next) === JSON.stringify(current)) return;
+      const updated = await this.repository.updateBoardNotificationRules(
+        boardId,
+        next,
+        board.notificationRulesVersion ?? 0,
+        now(),
+      );
+      if (updated !== null) return;
+    }
+    log.warn('Não foi possível limpar regras de notificação', { boardId });
   }
 
   private accessRole(board: Board, actor: BoardActor): BoardAccessRole | null {

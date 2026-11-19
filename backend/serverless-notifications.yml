@@ -1,0 +1,187 @@
+service: atlas-hub-notifications
+
+frameworkVersion: '>=3'
+
+plugins:
+  - serverless-esbuild
+  - ./plugins/tag-resources.cjs
+
+custom:
+  criticality:
+    dev: low
+    prod: high
+  tagging:
+    Project: atlas-hub
+    Owner: team-atlas
+    ManagedBy: serverless
+    CostCenter: atlas
+    Repository: Atlas-Hub-V2
+    DataClassification: confidential
+    defaultComponent: notifications
+  coreStack: atlas-hub-backend-${self:provider.stage}
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    target: node22
+    platform: node
+    format: cjs
+    external:
+      - '@aws-sdk/client-dynamodb'
+      - '@aws-sdk/lib-dynamodb'
+      - '@aws-sdk/client-kms'
+    packager: npm
+    loader:
+      '.html': text
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: sa-east-1
+  stage: ${opt:stage, 'dev'}
+  versionFunctions: false
+  tags:
+    Project: atlas-hub
+    Environment: ${self:provider.stage}
+    Owner: team-atlas
+    ManagedBy: serverless
+    CostCenter: atlas
+    Repository: Atlas-Hub-V2
+    DataClassification: confidential
+    Component: notifications
+    Criticality: ${self:custom.criticality.${self:provider.stage}}
+  stackTags:
+    Project: atlas-hub
+    Environment: ${self:provider.stage}
+    Owner: team-atlas
+    ManagedBy: serverless
+    CostCenter: atlas
+    Repository: Atlas-Hub-V2
+    DataClassification: confidential
+    Component: notifications
+    Criticality: ${self:custom.criticality.${self:provider.stage}}
+  logRetentionInDays: 14
+  environment:
+    STAGE: ${self:provider.stage}
+    RESEND_API_KEY: ${env:RESEND_API_KEY, ''}
+    EMAIL_FROM: ${env:EMAIL_FROM, 'noreply@atlascomp.com.br'}
+    APP_URL: ${env:APP_URL, 'https://master.d3vqf6k21x668r.amplifyapp.com'}
+
+functions:
+  boardNotificationDispatcher:
+    handler: src/functions/board-notification-dispatcher.handler
+    role: !GetAtt BoardNotificationDispatcherRole.Arn
+    timeout: 30
+    description: "Consumes board item stream events and enqueues card emails"
+    environment:
+      BOARDS_TABLE: AtlasBoards-${self:provider.stage}
+      BOARD_ITEMS_TABLE: AtlasBoardItems-${self:provider.stage}
+      BOARD_NOTIFICATION_QUEUE_URL: !Ref BoardNotificationQueue
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${cf:${self:custom.coreStack}.BoardItemsStreamArn}
+          startingPosition: LATEST
+          batchSize: 10
+          bisectBatchOnFunctionError: true
+          maximumRetryAttempts: 10
+
+  boardNotificationWorker:
+    handler: src/functions/board-notification-worker.handler
+    role: !GetAtt BoardNotificationWorkerRole.Arn
+    timeout: 20
+    reservedConcurrency: 1
+    description: "Sends one board notification email at a time"
+    events:
+      - sqs:
+          arn: !GetAtt BoardNotificationQueue.Arn
+          batchSize: 1
+
+resources:
+  Resources:
+    BoardNotificationDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: atlas-hub-board-notifications-dlq-${self:provider.stage}.fifo
+        FifoQueue: true
+        ContentBasedDeduplication: false
+        MessageRetentionPeriod: 1209600
+        SqsManagedSseEnabled: true
+
+    BoardNotificationQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: atlas-hub-board-notifications-${self:provider.stage}.fifo
+        FifoQueue: true
+        ContentBasedDeduplication: false
+        VisibilityTimeout: 60
+        MessageRetentionPeriod: 1209600
+        SqsManagedSseEnabled: true
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt BoardNotificationDLQ.Arn
+          maxReceiveCount: 5
+
+    BoardNotificationDispatcherRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-board-notification-dispatcher-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [dynamodb:DescribeStream, dynamodb:GetRecords, dynamodb:GetShardIterator]
+                  Resource: ${cf:${self:custom.coreStack}.BoardItemsStreamArn}
+                - Effect: Allow
+                  Action: dynamodb:ListStreams
+                  Resource: '*'
+                - Effect: Allow
+                  Action: [dynamodb:GetItem, dynamodb:Query]
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasBoards-${self:provider.stage}'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/AtlasBoardItems-${self:provider.stage}'
+                - Effect: Allow
+                  Action: sqs:SendMessage
+                  Resource: !GetAtt BoardNotificationQueue.Arn
+
+    BoardNotificationWorkerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: atlas-board-notification-worker-${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: { Service: lambda.amazonaws.com }
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: Policy
+            PolicyDocument:
+              Statement:
+                - Effect: Allow
+                  Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                  Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action: [sqs:ReceiveMessage, sqs:DeleteMessage, sqs:ChangeMessageVisibility, sqs:GetQueueAttributes]
+                  Resource: !GetAtt BoardNotificationQueue.Arn
+
+  Outputs:
+    BoardNotificationQueueUrl:
+      Value: !Ref BoardNotificationQueue
+      Export:
+        Name: atlas-hub-board-notification-queue-url-${self:provider.stage}
+    BoardNotificationQueueArn:
+      Value: !GetAtt BoardNotificationQueue.Arn
+      Export:
+        Name: atlas-hub-board-notification-queue-arn-${self:provider.stage}
+    BoardNotificationDlqUrl:
+      Value: !Ref BoardNotificationDLQ
+      Export:
+        Name: atlas-hub-board-notification-dlq-url-${self:provider.stage}

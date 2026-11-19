@@ -38,6 +38,7 @@ export const PASSWORD_RESETS_TABLE = process.env['PASSWORD_RESETS_TABLE'] ?? 'At
 export const BOARDS_TABLE = process.env['BOARDS_TABLE'] ?? 'AtlasBoards-dev';
 export const LEADS_BOARD_ID = process.env['LEADS_BOARD_ID'] ?? '';
 export const BOARD_ITEMS_TABLE = process.env['BOARD_ITEMS_TABLE'] ?? 'AtlasBoardItems-dev';
+export const BOARD_NOTIFICATION_QUEUE_URL = process.env['BOARD_NOTIFICATION_QUEUE_URL'] ?? '';
 export const API_TOKENS_TABLE = process.env['API_TOKENS_TABLE'] ?? 'AtlasApiTokens-dev';
 
 export const DIVIFY_WEBHOOK_SECRET = process.env['DIVIFY_WEBHOOK_SECRET'] ?? '';

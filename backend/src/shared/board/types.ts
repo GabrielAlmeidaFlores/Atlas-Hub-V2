@@ -87,6 +87,18 @@ export type BoardLabelColor = (typeof BOARD_LABEL_COLORS)[number];
 export const BOARD_LABEL_DISPLAY_MODES = ['hover', 'expanded'] as const;
 export type BoardLabelDisplayMode = (typeof BOARD_LABEL_DISPLAY_MODES)[number];
 
+export const BOARD_NOTIFICATION_EVENTS = ['CARD_CREATED', 'CARD_MOVED_TO_COLUMN', 'CARD_UPDATED', 'CARD_ARCHIVED', 'CARD_REMOVED'] as const;
+
+export type BoardNotificationEvent = (typeof BOARD_NOTIFICATION_EVENTS)[number];
+
+export interface BoardNotificationRule {
+  readonly id: string;
+  readonly event: BoardNotificationEvent;
+  readonly columnId?: string | undefined;
+  readonly recipientEmails: readonly string[];
+  readonly enabled: boolean;
+}
+
 export interface BoardTemplateField {
   readonly fieldId: string;
   readonly label: string;
@@ -169,6 +181,8 @@ export interface Board {
   readonly labelDisplayMode?: BoardLabelDisplayMode;
   readonly archivedAt?: string;
   readonly metricsDashboard?: BoardMetricsDashboard;
+  readonly notificationRules?: readonly BoardNotificationRule[];
+  readonly notificationRulesVersion?: number;
 }
 
 export interface BoardView {

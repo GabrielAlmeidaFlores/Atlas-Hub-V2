@@ -3,6 +3,7 @@ import type {
   BoardCard,
   BoardColumn,
   BoardLabel,
+  BoardNotificationRule,
   BoardTemplate,
 } from './types.js';
 
@@ -22,6 +23,12 @@ export interface BoardRepository {
   getBoard(boardId: string): Promise<Board | null>;
   putBoard(board: Board): Promise<void>;
   updateBoard(boardId: string, patch: Partial<Board>): Promise<Board | null>;
+  updateBoardNotificationRules(
+    boardId: string,
+    rules: readonly BoardNotificationRule[],
+    expectedVersion: number,
+    updatedAt: string,
+  ): Promise<Board | null>;
   nextCardSequence(boardId: string): Promise<number>;
   listItems(boardId: string): Promise<readonly BoardItemRecord[]>;
   putItem(item: BoardItemRecord): Promise<void>;

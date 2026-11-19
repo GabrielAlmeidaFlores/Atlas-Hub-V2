@@ -1,4 +1,4 @@
-import type { Board } from '../types.js';
+import type { Board, BoardNotificationRule } from '../types.js';
 import type { BoardItemRecord, BoardRepository } from '../repository.js';
 
 export class MemoryBoardRepository implements BoardRepository {
@@ -21,6 +21,25 @@ export class MemoryBoardRepository implements BoardRepository {
     const current = this.boards.get(boardId);
     if (current === undefined) return null;
     const next = { ...current, ...patch };
+    this.boards.set(boardId, next);
+    return next;
+  }
+
+  async updateBoardNotificationRules(
+    boardId: string,
+    rules: readonly BoardNotificationRule[],
+    expectedVersion: number,
+    updatedAt: string,
+  ): Promise<Board | null> {
+    const current = this.boards.get(boardId);
+    if (current === undefined) return null;
+    if ((current.notificationRulesVersion ?? 0) !== expectedVersion) return null;
+    const next = {
+      ...current,
+      notificationRules: rules,
+      notificationRulesVersion: expectedVersion + 1,
+      updatedAt,
+    };
     this.boards.set(boardId, next);
     return next;
   }

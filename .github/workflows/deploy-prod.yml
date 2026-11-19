@@ -59,6 +59,9 @@ jobs:
       - name: Deploy with Serverless Framework
         working-directory: backend
         run: npx serverless@3 deploy --stage prod
+      - name: Deploy notifications with Serverless Framework
+        working-directory: backend
+        run: npx serverless@3 deploy --config serverless-notifications.yml --stage prod
       - name: Deploy analytics with Serverless Framework
         working-directory: backend
         run: npx serverless@3 deploy --config serverless-analytics.yml --stage prod
