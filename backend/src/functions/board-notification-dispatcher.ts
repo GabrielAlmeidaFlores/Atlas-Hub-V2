@@ -11,6 +11,7 @@ import { BOARD_NOTIFICATION_QUEUE_URL } from '../shared/core/env.js';
 import { createLogger } from '../shared/core/logger.js';
 
 const sqs = new SQSClient({ region: process.env['AWS_REGION'] ?? 'sa-east-1' });
+const NOTIFICATION_GROUP_ID = 'board-notifications';
 
 async function loadBoard(service: BoardService, boardId: string): Promise<BoardView | null> {
   try {
@@ -48,7 +49,7 @@ async function sendMessages(messages: readonly BoardNotificationMessage[]): Prom
       Entries: chunk.map((message) => ({
         Id: message.notificationId,
         MessageBody: JSON.stringify(message),
-        MessageGroupId: message.cardId,
+        MessageGroupId: NOTIFICATION_GROUP_ID,
         MessageDeduplicationId: message.notificationId,
       })),
     }));

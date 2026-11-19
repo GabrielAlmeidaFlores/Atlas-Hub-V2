@@ -90,12 +90,12 @@ functions:
     handler: src/functions/board-notification-worker.handler
     role: !GetAtt BoardNotificationWorkerRole.Arn
     timeout: 20
-    reservedConcurrency: 1
-    description: "Sends one board notification email at a time"
+    description: "Sends board notification emails serially through one FIFO group"
     events:
       - sqs:
           arn: !GetAtt BoardNotificationQueue.Arn
           batchSize: 1
+          maximumConcurrency: 2
 
 resources:
   Resources:

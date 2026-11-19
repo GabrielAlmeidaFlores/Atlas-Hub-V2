@@ -35,7 +35,7 @@ Cada tipo de evento deve ter um e-mail com os detalhes relevantes daquele evento
 | Reentrada | Saiu e voltou para a coluna: dispara novamente |
 | Reordenação | Mesma coluna: não dispara |
 | Arquitetura | DynamoDB Streams → dispatcher → SQS FIFO → worker → Resend |
-| Concorrência de envio | Worker com `batchSize: 1` e `reservedConcurrency: 1` |
+| Concorrência de envio | FIFO com grupo único, `batchSize: 1` e `maximumConcurrency: 2` |
 | Concorrência de configuração | Versão otimista em `notificationRulesVersion` |
 | Idempotência | `MessageDeduplicationId` + `Idempotency-Key` do Resend |
 | Stack | Nova stack `serverless-notifications.yml`; sem fila no core |
@@ -159,7 +159,7 @@ Notification Dispatcher Lambda
         ↓
 SQS FIFO + DLQ
         ↓
-Email Worker Lambda — batchSize 1, reservedConcurrency 1
+Email Worker Lambda — batchSize 1, maximumConcurrency 2
         ↓
 Resend
 ```
@@ -201,15 +201,16 @@ Resend
 - SSE gerenciado pelo SQS;
 - redrive para DLQ com `maxReceiveCount: 5`;
 - a DLQ também precisa ter `FifoQueue: true`;
-- `MessageGroupId = cardId`;
+- `MessageGroupId = board-notifications` (grupo único da fila);
 - `MessageDeduplicationId = sha256(streamEventId + "|" + recipientEmail)`.
 
 **Email Worker**
 
 - Lambda na stack de notificações;
 - `batchSize: 1`;
-- `reservedConcurrency: 1`;
+- `maximumConcurrency: 2` no event source;
 - timeout 20s;
+- grupo FIFO único para serializar um e-mail por vez;
 - sem acesso a DynamoDB;
 - valida payload, renderiza template, envia com idempotência, remove mensagem ou lança erro.
 
@@ -388,11 +389,14 @@ Link:
 O worker:
 
 - recebe uma mensagem por execução;
-- tem `reservedConcurrency: 1`;
-- envia um único e-mail;
+- usa `maximumConcurrency: 2` no event source;
+- usa um único `MessageGroupId`, o que mantém apenas uma mensagem em processamento por vez;
+- envia um único e-mail por execução;
 - busca a próxima mensagem somente após concluir.
 
 Um card com 20 destinatários gera 20 mensagens, processadas sequencialmente.
+
+A conta AWS não permite reservar `reservedConcurrency: 1` porque a concorrência não reservada ficaria abaixo do mínimo de 10. A serialização é garantida pelo grupo FIFO único; `maximumConcurrency: 2` limita os pollers sem reservar concorrência da conta.
 
 ### 4.10 Nova stack e impacto
 
@@ -606,7 +610,7 @@ Campos específicos:
 - `actorLabel` e `occurredAt` em todos os eventos.
 
 ```text
-MessageGroupId         = cardId
+MessageGroupId         = board-notifications
 MessageDeduplicationId = sha256(streamEventId + "|" + recipientEmail)
 Idempotency-Key        = mesmo valor
 ```
