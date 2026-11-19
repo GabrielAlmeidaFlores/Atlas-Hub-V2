@@ -34,7 +34,7 @@ A implementação local cobre criação, movimentação, alteração, arquivamen
 - Saída e retorno à coluna notificam novamente.
 - O envio não acontece dentro da requisição de criação/movimentação.
 - Arquitetura: DynamoDB Streams → dispatcher → SQS FIFO → worker → Resend.
-- Worker com `batchSize: 1` e `reservedConcurrency: 1` para processar um e-mail por vez.
+- Worker com `batchSize: 1`, grupo FIFO único e `maximumConcurrency: 2` para processar um e-mail por vez.
 - Uma mensagem por destinatário/card, com deduplicação por evento.
 - Nova stack `serverless-notifications.yml`; sem fila, worker ou tabela nova no core.
 - Regras protegidas por versão otimista (`notificationRulesVersion`) para evitar sobrescrita entre administradores.
@@ -53,7 +53,7 @@ A implementação local cobre criação, movimentação, alteração, arquivamen
 - [x] Stream da tabela `AtlasBoardItems` com imagem antiga e nova.
 - [x] Dispatcher de eventos de card.
 - [x] Fila SQS FIFO com DLQ.
-- [x] Worker de e-mail com concorrência 1.
+- [x] Worker de e-mail serializado por grupo FIFO único.
 - [x] Template visual padrão do Atlas com título e descrição do card.
 - [x] Idempotência no SQS e no Resend.
 - [x] Controle de versão otimista das regras.
@@ -85,7 +85,7 @@ Notification Dispatcher Lambda
         ↓
 SQS FIFO — uma mensagem por destinatário/card
         ↓
-Email Worker Lambda — batchSize 1, concorrência 1
+Email Worker Lambda — batchSize 1, maximumConcurrency 2, grupo FIFO único
         ↓
 Resend
 ```
