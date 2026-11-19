@@ -15,6 +15,7 @@ import type {
   BoardCardHistoryEntry,
   BoardMemberRole,
   BoardAccessRole,
+  BoardNotificationRule,
 } from "@/types";
 import type { BoardMetricsDashboard, BoardMetricsResponse, DashboardPanelResult, MetricDefinition, MetricFilterGroup, MetricGroupResult, MetricQuery, MetricSourceField } from "@/features/admin/boards/metrics/types";
 
@@ -161,6 +162,43 @@ function createSeed(): void {
     { email: "analista@atlashub.com", name: "Analista", role: "write", addedAt: timestamp, addedBy: "admin@atlashub.com" },
     { email: "leitor@atlashub.com", name: "Leitor Convidado", role: "read", addedAt: timestamp, addedBy: "admin@atlashub.com" },
   ];
+  const ganhoColumn = view.columns.find((column) => column.name === "Ganho");
+  Object.assign(board, {
+    notificationRules: [
+      {
+        id: id(),
+        event: "CARD_CREATED",
+        recipientEmails: ["admin@atlashub.com", "analista@atlashub.com"],
+        enabled: true,
+      },
+      ...(ganhoColumn !== undefined ? [{
+        id: id(),
+        event: "CARD_MOVED_TO_COLUMN" as const,
+        columnId: ganhoColumn.columnId,
+        recipientEmails: ["admin@atlashub.com", "master2@atlashub.com"],
+        enabled: true,
+      }] : []),
+      {
+        id: id(),
+        event: "CARD_UPDATED",
+        recipientEmails: ["admin@atlashub.com"],
+        enabled: true,
+      },
+      {
+        id: id(),
+        event: "CARD_ARCHIVED",
+        recipientEmails: ["admin@atlashub.com"],
+        enabled: true,
+      },
+      {
+        id: id(),
+        event: "CARD_REMOVED",
+        recipientEmails: ["admin@atlashub.com"],
+        enabled: true,
+      },
+    ],
+    notificationRulesVersion: 2,
+  });
 
   const labelSeed = [
     { name: "Quente", color: "green" as const },
@@ -759,7 +797,28 @@ export const boardsHandlers = [
   http.put("/admin/boards/:boardId", async ({ params, request }) => {
     const board = store.boards.find((item) => item.boardId === params.boardId);
     if (board === undefined) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
-    const input = await bodyOf<{ name?: string; description?: string | null; labelDisplayMode?: BoardLabelDisplayMode; metricsDashboard?: BoardMetricsDashboard }>(request);
+    const input = await bodyOf<{
+      name?: string;
+      description?: string | null;
+      labelDisplayMode?: BoardLabelDisplayMode;
+      metricsDashboard?: BoardMetricsDashboard;
+      notificationRules?: readonly BoardNotificationRule[];
+      expectedNotificationRulesVersion?: number;
+    }>(request);
+    if (input.notificationRules !== undefined) {
+      const expected = input.expectedNotificationRulesVersion ?? 0;
+      const current = board.notificationRulesVersion ?? 0;
+      if (current !== expected) {
+        return HttpResponse.json({
+          code: "CONFLICT",
+          message: "As regras de notificação foram alteradas por outro administrador.",
+        }, { status: 409 });
+      }
+      Object.assign(board, {
+        notificationRules: input.notificationRules,
+        notificationRulesVersion: current + 1,
+      });
+    }
     if (input.name !== undefined) board.name = input.name;
     if (input.description !== undefined) board.description = input.description ?? "";
     if (input.labelDisplayMode !== undefined) board.labelDisplayMode = input.labelDisplayMode;
@@ -1071,7 +1130,19 @@ export const boardsHandlers = [
     return HttpResponse.json({ card });
   }),
 
-  http.delete("/admin/boards/:boardId/cards/:cardId", ({ params }) => {
+  http.delete("/admin/boards/:boardId/cards/:cardId/permanent", ({ params, request }) => {
+    const boardId = String(params.boardId);
+    const view = listView(boardId, normalizedEmail(request));
+    if (view === null) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
+    if (view.accessRole !== "owner" && view.accessRole !== "admin") return HttpResponse.json({ message: "Acesso negado" }, { status: 403 });
+    const index = store.cards.findIndex((item) => item.boardId === boardId && item.cardId === String(params.cardId));
+    if (index < 0) return HttpResponse.json({ message: "Card não encontrado" }, { status: 404 });
+    store.cards.splice(index, 1);
+    touch(boardId);
+    return HttpResponse.json({ ok: true });
+  }),
+
+  http.delete("/admin/boards/:boardId/cards/:cardId", ({ params, request }) => {
     const boardId = String(params.boardId);
     const card = findCard(boardId, String(params.cardId));
     if (card === undefined) return HttpResponse.json({ message: "Card não encontrado" }, { status: 404 });

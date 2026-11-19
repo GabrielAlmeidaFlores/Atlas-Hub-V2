@@ -389,3 +389,29 @@ test('rejects invalid metrics date parameters', async () => {
   }));
   assert.equal(metrics.statusCode, 400);
 });
+
+test('updates notification rules and rejects stale versions', async () => {
+  const handler = makeHandler();
+  const created = await handler(makeEvent('POST', '/admin/boards', { body: { name: 'Leads' } }));
+  const createdBody = bodyOf(created) as { board: { board: { boardId: string } } };
+  const boardId = createdBody.board.board.boardId;
+  const rule = {
+    id: '44444444-4444-4444-8444-444444444444',
+    event: 'CARD_CREATED',
+    recipientEmails: ['admin-1@atlashub.com'],
+    enabled: true,
+  };
+  const first = await handler(makeEvent('PUT', '/admin/boards/{boardId}', {
+    params: { boardId },
+    body: { notificationRules: [rule], expectedNotificationRulesVersion: 0 },
+  }));
+  assert.equal(first.statusCode, 200);
+  const firstBody = bodyOf(first) as { board: { notificationRulesVersion: number } };
+  assert.equal(firstBody.board.notificationRulesVersion, 1);
+
+  const stale = await handler(makeEvent('PUT', '/admin/boards/{boardId}', {
+    params: { boardId },
+    body: { notificationRules: [rule], expectedNotificationRulesVersion: 0 },
+  }));
+  assert.equal(stale.statusCode, 409);
+});

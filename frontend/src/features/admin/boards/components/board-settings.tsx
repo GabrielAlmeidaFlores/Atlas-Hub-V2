@@ -1,13 +1,14 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { boardsApi, type TemplateFieldInput } from "@/services/boards";
-import { getApiErrorMessage } from "@/services/api";
+import { ApiRequestError, getApiErrorMessage } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 import type {
   BoardColumnColor,
   BoardFieldType,
   BoardLabelColor,
   BoardLabelDisplayMode,
+  BoardNotificationRule,
   BoardTemplate,
   BoardTemplateField,
   BoardView,
@@ -20,6 +21,8 @@ import { useDiscardGuard } from "@/components/ui/confirm-dialog/use-discard-guar
 import { cn } from "@/lib/utils";
 import { BOARD_COLUMN_COLORS, BOARD_LABEL_COLORS } from "@/types";
 import { COLUMN_COLOR_CLASSES, COLUMN_COLOR_LABELS, LABEL_COLOR_CLASSES, LABEL_COLOR_LABELS } from "../labels";
+import { boardParticipants } from "../participants";
+import { BoardNotificationRecipients } from "./board-notification-recipients";
 
 interface BoardSettingsProps {
   readonly open: boolean;
@@ -42,7 +45,7 @@ interface TemplateDraft {
   readonly fields: readonly FieldDraft[];
 }
 
-type Tab = "general" | "labels" | "columns" | "templates";
+type Tab = "general" | "labels" | "columns" | "templates" | "notifications";
 
 function fieldDraftFrom(field: BoardTemplateField): FieldDraft {
   return {
@@ -66,6 +69,16 @@ function draftFrom(template: BoardTemplate): TemplateDraft {
   };
 }
 
+function notificationRulesKey(rules: readonly BoardNotificationRule[]): string {
+  return JSON.stringify(rules.map((rule) => ({
+    id: rule.id,
+    event: rule.event,
+    columnId: rule.columnId ?? null,
+    recipientEmails: [...rule.recipientEmails].sort(),
+    enabled: rule.enabled,
+  })).sort((left, right) => left.id.localeCompare(right.id)));
+}
+
 export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsProps): ReactNode {
   const addToast = useToastStore((s) => s.addToast);
   const confirm = useConfirm();
@@ -87,6 +100,8 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
   const [columnColor, setColumnColor] = useState<BoardColumnColor>("slate");
   const [templateDraft, setTemplateDraft] = useState<TemplateDraft | null>(null);
   const [templateInitial, setTemplateInitial] = useState<TemplateDraft | null>(null);
+  const [notificationRules, setNotificationRules] = useState<BoardNotificationRule[]>([]);
+  const [expectedNotificationRulesVersion, setExpectedNotificationRulesVersion] = useState(0);
 
   useEffect(() => {
     if (!open) {
@@ -105,11 +120,15 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
       setColumnName("");
       setTemplateDraft(null);
       setTemplateInitial(null);
+      setNotificationRules([]);
+      setExpectedNotificationRulesVersion(0);
       return;
     }
     setBoardName(board.board.name);
     setBoardDescription(board.board.description ?? "");
     setLabelDisplayMode(board.board.labelDisplayMode ?? "hover");
+    setNotificationRules([...(board.board.notificationRules ?? [])]);
+    setExpectedNotificationRulesVersion(board.board.notificationRulesVersion ?? 0);
   }, [open, board.board.boardId]);
 
   function startTemplate(draft: TemplateDraft): void {
@@ -130,6 +149,7 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
     : board.labels.find((label) => label.labelId === editingLabelId);
   const templateDirty = templateDraft !== null
     && JSON.stringify(templateDraft) !== JSON.stringify(templateInitial);
+  const notificationsDirty = notificationRulesKey(notificationRules) !== notificationRulesKey(board.board.notificationRules ?? []);
   const generalDirty = boardName.trim() !== board.board.name
     || boardDescription.trim() !== (board.board.description ?? "")
     || labelDisplayMode !== (board.board.labelDisplayMode ?? "hover");
@@ -141,7 +161,8 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
     || newColumn.trim().length > 0
     || newColumnColor !== "slate"
     || (editingColumn !== undefined && (columnName.trim() !== editingColumn.name || columnColor !== (editingColumn.color ?? "slate")))
-    || templateDirty;
+    || templateDirty
+    || notificationsDirty;
   const closeSettings = (): void => {
     setBoardName(board.board.name);
     setBoardDescription(board.board.description ?? "");
@@ -157,6 +178,8 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
     setColumnName("");
     setColumnColor("slate");
     clearTemplate();
+    setNotificationRules([...(board.board.notificationRules ?? [])]);
+    setExpectedNotificationRulesVersion(board.board.notificationRulesVersion ?? 0);
     setError(null);
     onClose();
   };
@@ -320,6 +343,102 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
     await execute(() => boardsApi.deleteTemplate(board.board.boardId, templateId), "Template excluído");
   }
 
+  const participants = boardParticipants(board);
+
+  function addNotificationRule(): void {
+    if (notificationRules.length >= 30) return;
+    setNotificationRules((prev) => [...prev, {
+      id: crypto.randomUUID(),
+      event: "CARD_CREATED",
+      recipientEmails: [],
+      enabled: true,
+    }]);
+  }
+
+  function updateNotificationRule(id: string, patch: Partial<BoardNotificationRule>): void {
+    setNotificationRules((prev) => prev.map((rule) => rule.id === id ? { ...rule, ...patch } : rule));
+  }
+
+  function removeNotificationRule(id: string): void {
+    setNotificationRules((prev) => prev.filter((rule) => rule.id !== id));
+  }
+
+  function toggleNotificationRecipient(rule: BoardNotificationRule, email: string, checked: boolean): void {
+    if (checked && rule.recipientEmails.length >= 20) {
+      setError("Limite de 20 destinatários por regra");
+      return;
+    }
+    updateNotificationRule(rule.id, {
+      recipientEmails: checked
+        ? [...rule.recipientEmails, email]
+        : rule.recipientEmails.filter((item) => item !== email),
+    });
+  }
+
+  async function saveNotifications(): Promise<void> {
+    if (notificationRules.length > 30) {
+      setError("Limite de 30 regras por quadro");
+      return;
+    }
+    const eventRules = new Set<string>();
+    const movedColumns = new Set<string>();
+    for (const rule of notificationRules) {
+      if (rule.recipientEmails.length === 0) {
+        setError("Toda regra precisa de ao menos um destinatário");
+        return;
+      }
+      if (rule.recipientEmails.length > 20) {
+        setError("Limite de 20 destinatários por regra");
+        return;
+      }
+      if (rule.event === "CARD_MOVED_TO_COLUMN") {
+        if (rule.columnId === undefined || rule.columnId.length === 0) {
+          setError("Toda regra de movimentação precisa de uma coluna");
+          return;
+        }
+        if (movedColumns.has(rule.columnId)) {
+          setError("Existe mais de uma regra para a mesma coluna");
+          return;
+        }
+        movedColumns.add(rule.columnId);
+      } else {
+        if (eventRules.has(rule.event)) {
+          setError("Existe mais de uma regra para o mesmo evento");
+          return;
+        }
+        eventRules.add(rule.event);
+      }
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const saved = await boardsApi.update(board.board.boardId, {
+        notificationRules,
+        expectedNotificationRulesVersion,
+      });
+      setNotificationRules([...(saved.notificationRules ?? [])]);
+      setExpectedNotificationRulesVersion(saved.notificationRulesVersion ?? expectedNotificationRulesVersion + 1);
+      await onSaved();
+      addToast({ type: "success", title: "Notificações atualizadas" });
+    } catch (err) {
+      if (err instanceof ApiRequestError && err.code === "CONFLICT") {
+        setError("As regras de notificação foram alteradas por outro administrador. O quadro foi recarregado. Revise as regras antes de salvar novamente.");
+        try {
+          const fresh = await boardsApi.get(board.board.boardId);
+          setNotificationRules([...(fresh.board.notificationRules ?? [])]);
+          setExpectedNotificationRulesVersion(fresh.board.notificationRulesVersion ?? 0);
+          await onSaved();
+        } catch (reloadErr) {
+          setError(getApiErrorMessage(reloadErr));
+        }
+      } else {
+        setError(getApiErrorMessage(err));
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <Modal open={open} onOpenChange={(next) => { if (!next) void requestClose(); }} title="Configurar quadro" className="max-h-[90vh] max-w-3xl overflow-y-auto">
       <div className="mb-5 flex gap-1 border-b border-border">
@@ -328,6 +447,7 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
           ["labels", "Labels"],
           ["columns", "Colunas"],
           ["templates", "Templates"],
+          ["notifications", "Notificações"],
         ] as const).map(([value, label]) => (
           <button
             key={value}
@@ -633,6 +753,96 @@ export function BoardSettings({ open, board, onClose, onSaved }: BoardSettingsPr
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === "notifications" && (
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Notificações por e-mail</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Envie um e-mail quando um card for criado, movido, alterado, arquivado ou removido. Os destinatários são participantes do quadro.
+              </p>
+            </div>
+            <button type="button" className="btn btn-primary btn-sm shrink-0" onClick={addNotificationRule} disabled={busy || notificationRules.length >= 30}>
+              <Plus className="h-3.5 w-3.5" /> Nova notificação
+            </button>
+          </div>
+
+          {notificationRules.length === 0 && (
+            <div className="rounded-[8px] border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              Nenhuma notificação configurada.
+            </div>
+          )}
+
+          {notificationRules.map((rule) => (
+            <div key={rule.id} className="rounded-[8px] border border-border p-3">
+              <div className="flex flex-wrap items-start gap-2">
+                <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-medium text-muted-foreground" htmlFor={`event-${rule.id}`}>Evento</label>
+                    <Select
+                      id={`event-${rule.id}`}
+                      value={rule.event}
+                      onValueChange={(value) => {
+                        const event = value as BoardNotificationRule["event"];
+                        updateNotificationRule(rule.id, event === "CARD_MOVED_TO_COLUMN"
+                          ? { event, columnId: rule.columnId ?? board.columns[0]?.columnId ?? "" }
+                          : { event, columnId: undefined });
+                      }}
+                      options={[
+                        { value: "CARD_CREATED", label: "Card criado" },
+                        { value: "CARD_MOVED_TO_COLUMN", label: "Card movido para uma coluna" },
+                        { value: "CARD_UPDATED", label: "Card alterado" },
+                        { value: "CARD_ARCHIVED", label: "Card arquivado" },
+                        { value: "CARD_REMOVED", label: "Card removido" },
+                      ]}
+                    />
+                  </div>
+                  {rule.event === "CARD_MOVED_TO_COLUMN" && (
+                    <div>
+                      <label className="mb-1 block text-[11px] font-medium text-muted-foreground" htmlFor={`column-${rule.id}`}>Coluna</label>
+                      <Select
+                        id={`column-${rule.id}`}
+                        value={rule.columnId ?? ""}
+                        onValueChange={(value) => updateNotificationRule(rule.id, { columnId: value })}
+                        options={board.columns.map((column) => ({ value: column.columnId, label: column.name }))}
+                        placeholder="Selecione uma coluna"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 pt-5 sm:pt-6">
+                  <Checkbox
+                    checked={rule.enabled}
+                    onChange={(checked) => updateNotificationRule(rule.id, { enabled: checked })}
+                    label="Ativa"
+                    className="items-center whitespace-nowrap text-xs text-muted-foreground"
+                  />
+                  <button type="button" className="btn btn-outline btn-sm text-status-danger" onClick={() => removeNotificationRule(rule.id)} disabled={busy} aria-label="Excluir notificação">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 border-t border-border pt-3">
+                <p className="mb-1 text-[11px] font-medium text-muted-foreground">Destinatários</p>
+                <BoardNotificationRecipients
+                  participants={participants}
+                  selectedEmails={rule.recipientEmails}
+                  onChange={(email, checked) => toggleNotificationRecipient(rule, email, checked)}
+                  disabled={busy}
+                />
+              </div>
+            </div>
+          ))}
+
+          <div className="flex justify-end border-t border-border pt-3">
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void saveNotifications()} disabled={busy || !notificationsDirty}>
+              {busy ? "Salvando…" : "Salvar notificações"}
+            </button>
+          </div>
         </div>
       )}
     </Modal>

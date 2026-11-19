@@ -1913,6 +1913,8 @@ resources:
             KeyType: HASH
           - AttributeName: itemKey
             KeyType: RANGE
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
 
     PublicoLeadsLambdaRole:
       Type: AWS::IAM::Role
@@ -2708,3 +2710,7 @@ resources:
       Value: !Ref ApiGatewayAuthorizer
       Export:
         Name: atlas-hub-api-gateway-authorizer-id-${self:provider.stage}
+    BoardItemsStreamArn:
+      Value: !GetAtt AtlasBoardItemsTable.StreamArn
+      Export:
+        Name: atlas-hub-board-items-stream-arn-${self:provider.stage}

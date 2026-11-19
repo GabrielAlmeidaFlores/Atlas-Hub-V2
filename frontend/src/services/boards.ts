@@ -11,6 +11,7 @@ import type {
   BoardLabel,
   BoardLabelColor,
   BoardLabelDisplayMode,
+  BoardNotificationRule,
   BoardTemplate,
   BoardTemplateField,
   BoardView,
@@ -28,6 +29,8 @@ export interface BoardUpdateInput {
   readonly description?: string | null;
   readonly labelDisplayMode?: BoardLabelDisplayMode;
   readonly metricsDashboard?: BoardMetricsDashboard;
+  readonly notificationRules?: readonly BoardNotificationRule[];
+  readonly expectedNotificationRulesVersion?: number;
 }
 
 export interface BoardMemberCandidate {
@@ -195,5 +198,8 @@ export const boardsApi = {
   archiveCard: async (boardId: string, cardId: string): Promise<BoardCard> => {
     const response = await api.delete<{ card: BoardCard }>(boardPath(boardId, `/cards/${cardId}`));
     return response.card;
+  },
+  deleteCardPermanent: async (boardId: string, cardId: string): Promise<void> => {
+    await api.delete(boardPath(boardId, `/cards/${cardId}/permanent`));
   },
 };

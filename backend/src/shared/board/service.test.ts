@@ -214,3 +214,101 @@ test('generates a default metrics dashboard and persists a custom dashboard', as
   const saved = await service.getBoard(view.board.boardId);
   assert.equal(saved.board.metricsDashboard?.dashboardMetadata.dashboardName, 'Métricas');
 });
+
+test('updates notification rules with optimistic versioning', async () => {
+  const { service } = createService();
+  const actor = { userId: 'owner', email: 'owner@example.com' };
+  const view = await service.createBoard({ name: 'Leads' }, actor);
+  const rule = {
+    id: '11111111-1111-4111-8111-111111111111',
+    event: 'CARD_CREATED' as const,
+    recipientEmails: ['owner@example.com'],
+    enabled: true,
+  };
+  const updated = await service.updateBoard(view.board.boardId, {
+    notificationRules: [rule],
+    expectedNotificationRulesVersion: 0,
+  });
+  assert.equal(updated.notificationRulesVersion, 1);
+  assert.equal(updated.notificationRules?.[0]?.recipientEmails[0], 'owner@example.com');
+
+  const general = await service.updateBoard(view.board.boardId, { name: 'Leads atualizado' });
+  assert.equal(general.notificationRulesVersion, 1);
+  assert.equal(general.name, 'Leads atualizado');
+
+  await assert.rejects(
+    service.updateBoard(view.board.boardId, {
+      notificationRules: [rule],
+      expectedNotificationRulesVersion: 0,
+    }),
+    BoardConflictError,
+  );
+});
+
+test('cleans notification rules when a column is deleted', async () => {
+  const { service } = createService();
+  const actor = { userId: 'owner', email: 'owner@example.com' };
+  const view = await service.createBoard({ name: 'Leads' }, actor);
+  const columnId = view.columns[0]?.columnId;
+  assert.ok(columnId !== undefined);
+  await service.updateBoard(view.board.boardId, {
+    notificationRules: [{
+      id: '22222222-2222-4222-8222-222222222222',
+      event: 'CARD_MOVED_TO_COLUMN',
+      columnId,
+      recipientEmails: ['owner@example.com'],
+      enabled: true,
+    }],
+    expectedNotificationRulesVersion: 0,
+  });
+  await service.deleteColumn(view.board.boardId, columnId);
+  const after = await service.getBoard(view.board.boardId);
+  assert.deepEqual(after.board.notificationRules, []);
+  assert.equal(after.board.notificationRulesVersion, 2);
+});
+
+test('cleans notification recipients when a member is removed', async () => {
+  const { service } = createService();
+  const actor = { userId: 'owner', email: 'owner@example.com' };
+  const view = await service.createBoard({ name: 'Leads' }, actor);
+  await service.addMember(view.board.boardId, {
+    email: 'member@example.com',
+    name: 'Member',
+    role: 'read',
+    addedAt: new Date().toISOString(),
+    addedBy: 'owner@example.com',
+  }, actor);
+  await service.updateBoard(view.board.boardId, {
+    notificationRules: [{
+      id: '33333333-3333-4333-8333-333333333333',
+      event: 'CARD_CREATED',
+      recipientEmails: ['member@example.com'],
+      enabled: true,
+    }],
+    expectedNotificationRulesVersion: 0,
+  });
+  await service.removeMember(view.board.boardId, 'member@example.com', actor);
+  const after = await service.getBoard(view.board.boardId);
+  assert.deepEqual(after.board.notificationRules, []);
+  assert.equal(after.board.notificationRulesVersion, 2);
+});
+
+test('accepts every notification event and permanently deletes a card', async () => {
+  const { service } = createService();
+  const actor = { userId: 'owner', email: 'owner@example.com' };
+  const view = await service.createBoard({ name: 'Leads' }, actor);
+  const boardId = view.board.boardId;
+  const columnId = view.columns[0]?.columnId;
+  assert.ok(columnId !== undefined);
+  const rules = [
+    { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', event: 'CARD_CREATED' as const, recipientEmails: ['owner@example.com'], enabled: true },
+    { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', event: 'CARD_UPDATED' as const, recipientEmails: ['owner@example.com'], enabled: true },
+    { id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', event: 'CARD_ARCHIVED' as const, recipientEmails: ['owner@example.com'], enabled: true },
+    { id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', event: 'CARD_REMOVED' as const, recipientEmails: ['owner@example.com'], enabled: true },
+  ];
+  await service.updateBoard(boardId, { notificationRules: rules, expectedNotificationRulesVersion: 0 });
+  const card = await service.createCard(boardId, { columnId, title: 'Card removível' }, 'owner', 'owner@example.com');
+  await service.deleteCardPermanent(boardId, card.cardId);
+  const after = await service.getBoard(boardId);
+  assert.equal(after.cards.some((item) => item.cardId === card.cardId), false);
+});

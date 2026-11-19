@@ -252,6 +252,7 @@ export function CardModal({
     || !sameSelection(labelIds, initial.labelIds)
     || !sameSelection(assigneeEmails, initial.assigneeEmails)
   );
+  const canManage = board.accessRole === "owner" || board.accessRole === "admin";
 
   async function requestClose(): Promise<void> {
     if (isSaving) return;
@@ -332,6 +333,29 @@ export function CardModal({
       } else {
         setError(getApiErrorMessage(err));
       }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleDeletePermanent(): Promise<void> {
+    if (card === undefined || readOnly) return;
+    const removed = await confirm({
+      title: "Remover card definitivamente",
+      description: isDirty
+        ? "Este card tem alterações não salvas. Remover mesmo assim? Esta ação não pode ser desfeita."
+        : "Remover este card definitivamente? Esta ação não pode ser desfeita.",
+      confirmLabel: "Remover definitivamente",
+    });
+    if (!removed) return;
+    setIsSaving(true);
+    try {
+      await boardsApi.deleteCardPermanent(board.board.boardId, card.cardId);
+      addToast({ type: "success", title: "Card removido" });
+      await onSaved();
+      onClose();
+    } catch (err) {
+      setError(getApiErrorMessage(err));
     } finally {
       setIsSaving(false);
     }
@@ -547,6 +571,11 @@ export function CardModal({
             {!readOnly && card !== undefined && (
               <button type="button" className="btn btn-outline btn-sm w-full text-status-danger" onClick={() => void handleArchive()} disabled={isSaving}>
                 <Trash2 className="h-3.5 w-3.5" /> Arquivar
+              </button>
+            )}
+            {!readOnly && card !== undefined && canManage && (
+              <button type="button" className="btn btn-outline btn-sm w-full text-status-danger" onClick={() => void handleDeletePermanent()} disabled={isSaving}>
+                <Trash2 className="h-3.5 w-3.5" /> Remover definitivamente
               </button>
             )}
           </div>

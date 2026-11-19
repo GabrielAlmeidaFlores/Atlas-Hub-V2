@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BOARD_COLUMN_COLORS, BOARD_FIELD_TYPES, BOARD_ICONS, BOARD_LABEL_COLORS, BOARD_LABEL_DISPLAY_MODES, BOARD_MEMBER_ROLES } from './types.js';
+import { BOARD_COLUMN_COLORS, BOARD_FIELD_TYPES, BOARD_ICONS, BOARD_LABEL_COLORS, BOARD_LABEL_DISPLAY_MODES, BOARD_MEMBER_ROLES, BOARD_NOTIFICATION_EVENTS } from './types.js';
 import { metricsDashboardSchema } from './metrics/validation.js';
 
 const boardFileSchema = z.object({
@@ -24,18 +24,82 @@ export const boardCreateSchema = z.object({
   icon: z.enum(BOARD_ICONS).optional(),
 }).strict();
 
+export const boardNotificationRuleSchema = z.object({
+  id: z.string().uuid(),
+  event: z.enum(BOARD_NOTIFICATION_EVENTS),
+  columnId: z.string().uuid().optional(),
+  recipientEmails: z.array(z.string().trim().toLowerCase().email().max(254)).min(1).max(20),
+  enabled: z.boolean(),
+}).strict().superRefine((rule, ctx) => {
+  if (rule.event === 'CARD_MOVED_TO_COLUMN' && rule.columnId === undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['columnId'], message: 'Informe a coluna da regra' });
+  }
+  if (rule.event !== 'CARD_MOVED_TO_COLUMN' && rule.columnId !== undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['columnId'], message: 'Somente regras de movimentação aceitam coluna' });
+  }
+});
+
 export const boardUpdateSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
   description: z.string().trim().max(300).nullable().optional(),
   labelDisplayMode: z.enum(BOARD_LABEL_DISPLAY_MODES).optional(),
   metricsDashboard: metricsDashboardSchema.optional(),
-}).strict().refine((value) => (
-  value.name !== undefined
-  || value.description !== undefined
-  || value.labelDisplayMode !== undefined
-  || value.metricsDashboard !== undefined
-), {
-  message: 'Informe ao menos um campo',
+  notificationRules: z.array(boardNotificationRuleSchema).max(30).optional(),
+  expectedNotificationRulesVersion: z.number().int().min(0).optional(),
+}).strict().superRefine((value, ctx) => {
+  const hasRules = value.notificationRules !== undefined;
+  const hasExpectedVersion = value.expectedNotificationRulesVersion !== undefined;
+  const hasGeneralField = value.name !== undefined
+    || value.description !== undefined
+    || value.labelDisplayMode !== undefined
+    || value.metricsDashboard !== undefined;
+  if (hasRules !== hasExpectedVersion) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: hasRules ? ['expectedNotificationRulesVersion'] : ['notificationRules'],
+      message: 'Envie notificationRules e expectedNotificationRulesVersion juntos',
+    });
+  }
+  if (hasRules && hasGeneralField) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['notificationRules'],
+      message: 'Não misture regras de notificação com campos gerais do quadro',
+    });
+  }
+  if (!hasRules && !hasGeneralField) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: [], message: 'Informe ao menos um campo' });
+  }
+  if (value.notificationRules !== undefined) {
+    const ids = new Set<string>();
+    const eventRules = new Map<string, number>();
+    const movedColumns = new Set<string>();
+    for (const [index, rule] of value.notificationRules.entries()) {
+      if (ids.has(rule.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['notificationRules', index, 'id'], message: 'Regra duplicada' });
+      }
+      ids.add(rule.id);
+      if (rule.event === 'CARD_MOVED_TO_COLUMN' && rule.columnId !== undefined) {
+        if (movedColumns.has(rule.columnId)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['notificationRules', index, 'columnId'], message: 'Existe mais de uma regra para esta coluna' });
+        }
+        movedColumns.add(rule.columnId);
+      } else if (rule.event !== 'CARD_MOVED_TO_COLUMN') {
+        const count = (eventRules.get(rule.event) ?? 0) + 1;
+        eventRules.set(rule.event, count);
+        if (count > 1) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['notificationRules', index, 'event'], message: 'Existe mais de uma regra para este evento' });
+        }
+      }
+      const recipients = new Set<string>();
+      for (const email of rule.recipientEmails) {
+        if (recipients.has(email)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['notificationRules', index, 'recipientEmails'], message: 'Destinatário duplicado' });
+        }
+        recipients.add(email);
+      }
+    }
+  }
 });
 
 export const columnCreateSchema = z.object({

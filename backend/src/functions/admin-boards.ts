@@ -113,7 +113,9 @@ function routeKey(event: APIGatewayProxyEvent): string {
   if (rest[0] === 'files' && rest[1] === 'presign') return `${method} ${base}/files/presign`;
   if (rest[0] === 'cards') {
     if (rest[1] === undefined) return `${method} ${base}/cards`;
-    return rest[2] === 'move' ? `${method} ${base}/cards/{cardId}/move` : `${method} ${base}/cards/{cardId}`;
+    if (rest[2] === 'move') return `${method} ${base}/cards/{cardId}/move`;
+    if (rest[2] === 'permanent') return `${method} ${base}/cards/{cardId}/permanent`;
+    return `${method} ${base}/cards/{cardId}`;
   }
   if (rest[0] === 'members') {
     if (rest[1] === undefined) return `${method} ${base}/members`;
@@ -125,6 +127,7 @@ function routeKey(event: APIGatewayProxyEvent): string {
 function boardRequirement(event: APIGatewayProxyEvent): 'view' | 'write' | 'manage' | 'owner' {
   const resource = event.path;
   if (resource.includes('/members')) return 'manage';
+  if (resource.endsWith('/permanent')) return 'manage';
   if (event.httpMethod === 'GET') return 'view';
   if (resource.includes('/cards') || resource.endsWith('/files/presign')) return 'write';
   return 'manage';
@@ -347,6 +350,10 @@ export function createAdminBoardsHandler(
             email,
           );
           return ok(event, { card });
+        }
+        case 'DELETE /admin/boards/{boardId}/cards/{cardId}/permanent': {
+          await service.deleteCardPermanent(param(event, 'boardId'), param(event, 'cardId'));
+          return ok(event, { ok: true });
         }
         case 'DELETE /admin/boards/{boardId}/cards/{cardId}': {
           const card = await service.archiveCard(

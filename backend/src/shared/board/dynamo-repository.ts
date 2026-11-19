@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { db } from '../db/index.js';
 import { Tables } from '../core/tables.js';
-import type { Board } from './types.js';
+import type { Board, BoardNotificationRule } from './types.js';
 import type {
   BoardItemRecord,
   BoardRepository,
@@ -76,6 +76,36 @@ export class DynamoBoardRepository implements BoardRepository {
       ReturnValues: 'ALL_NEW',
     }));
     return (result.Attributes as Board | undefined) ?? null;
+  }
+
+  async updateBoardNotificationRules(
+    boardId: string,
+    rules: readonly BoardNotificationRule[],
+    expectedVersion: number,
+    updatedAt: string,
+  ): Promise<Board | null> {
+    const condition = expectedVersion === 0
+      ? 'attribute_exists(boardId) AND (attribute_not_exists(notificationRulesVersion) OR notificationRulesVersion = :expectedVersion)'
+      : 'attribute_exists(boardId) AND notificationRulesVersion = :expectedVersion';
+    try {
+      const result = await db.send(new UpdateCommand({
+        TableName: Tables.BOARDS,
+        Key: { boardId },
+        UpdateExpression: 'SET notificationRules = :rules, notificationRulesVersion = :nextVersion, updatedAt = :updatedAt',
+        ConditionExpression: condition,
+        ExpressionAttributeValues: {
+          ':rules': rules,
+          ':expectedVersion': expectedVersion,
+          ':nextVersion': expectedVersion + 1,
+          ':updatedAt': updatedAt,
+        },
+        ReturnValues: 'ALL_NEW',
+      }));
+      return (result.Attributes as Board | undefined) ?? null;
+    } catch (err) {
+      if (err instanceof Error && err.name === 'ConditionalCheckFailedException') return null;
+      throw err;
+    }
   }
 
   async nextCardSequence(boardId: string): Promise<number> {

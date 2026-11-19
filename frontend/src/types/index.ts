@@ -64,6 +64,8 @@ export type {
   BoardMember,
   BoardLabelColor,
   BoardLabelDisplayMode,
+  BoardNotificationEvent,
+  BoardNotificationRule,
   BoardTemplateField,
   BoardTemplate,
   BoardColumn,
@@ -75,6 +77,6 @@ export type {
   BoardView,
 } from "./domain";
 
-export { BOARD_COLUMN_COLORS, BOARD_FIELD_TYPES, BOARD_ICONS, BOARD_LABEL_COLORS, BOARD_LABEL_DISPLAY_MODES } from "./domain";
+export { BOARD_COLUMN_COLORS, BOARD_FIELD_TYPES, BOARD_ICONS, BOARD_LABEL_COLORS, BOARD_LABEL_DISPLAY_MODES, BOARD_NOTIFICATION_EVENTS } from "./domain";
 
 export { TESOURARIA_CONTA_ID } from "./domain";

@@ -9,6 +9,7 @@ import ofertaTpl from './templates/oferta-criada.html';
 import novoAcessoTpl from './templates/novo-acesso.html';
 import conviteUsuarioTpl from './templates/convite-usuario.html';
 import codigoTpl from './templates/codigo.html';
+import notificacaoCardTpl from './templates/notificacao-card.html';
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 const LOGO_URL = `${APP_URL}/atlas-logo.png`;
@@ -51,6 +52,32 @@ interface EmailParams {
   readonly subject: string;
   readonly htmlBody: string;
   readonly textBody?: string;
+  readonly idempotencyKey?: string;
+}
+
+export class EmailError extends Error {
+  readonly status: number;
+  readonly resendCode?: string | undefined;
+
+  constructor(message: string, status: number, resendCode?: string) {
+    super(message);
+    this.name = 'EmailError';
+    this.status = status;
+    this.resendCode = resendCode;
+  }
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function safeSubject(value: string): string {
+  return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 export async function sendEmail(params: EmailParams): Promise<void> {
@@ -62,6 +89,7 @@ export async function sendEmail(params: EmailParams): Promise<void> {
     headers: {
       Authorization: `Bearer ${RESEND_API_KEY}`,
       'Content-Type': 'application/json',
+      ...(params.idempotencyKey !== undefined ? { 'Idempotency-Key': params.idempotencyKey } : {}),
     },
     body: JSON.stringify({
       from: `Atlas Hub <${EMAIL_FROM}>`,
@@ -74,7 +102,14 @@ export async function sendEmail(params: EmailParams): Promise<void> {
 
   if (!res.ok) {
     const detail = await res.text();
-    throw new Error(`Resend falhou (${String(res.status)}): ${detail}`);
+    let resendCode: string | undefined;
+    try {
+      const parsed = JSON.parse(detail) as { name?: unknown; message?: unknown };
+      resendCode = typeof parsed.name === 'string' ? parsed.name : undefined;
+    } catch {
+      resendCode = undefined;
+    }
+    throw new EmailError(`Resend falhou (${String(res.status)}): ${detail}`, res.status, resendCode);
   }
 }
 
@@ -181,5 +216,73 @@ export function emailCodigo(to: string, codigo: string, opts: { readonly titulo:
     to,
     subject: `${opts.titulo} · Atlas Hub`,
     htmlBody: renderEmail(codigoTpl, opts.titulo, { codigo, texto: opts.texto }),
+  });
+}
+
+export function emailBoardCardNotification(params: {
+  readonly to: string;
+  readonly boardName: string;
+  readonly cardTitle: string;
+  readonly cardDescription?: string;
+  readonly columnName: string;
+  readonly fromColumnName?: string;
+  readonly toColumnName?: string;
+  readonly changedFields?: readonly string[];
+  readonly actorLabel?: string;
+  readonly occurredAt?: string;
+  readonly event: "CARD_CREATED" | "CARD_MOVED_TO_COLUMN" | "CARD_UPDATED" | "CARD_ARCHIVED" | "CARD_REMOVED";
+  readonly boardUrl: string;
+  readonly idempotencyKey: string;
+}): Promise<void> {
+  const eventLabels: Record<typeof params.event, string> = {
+    CARD_CREATED: 'Novo card',
+    CARD_MOVED_TO_COLUMN: 'Card movido',
+    CARD_UPDATED: 'Card alterado',
+    CARD_ARCHIVED: 'Card arquivado',
+    CARD_REMOVED: 'Card removido',
+  };
+  const eventLabel = eventLabels[params.event];
+  const subject = params.event === 'CARD_MOVED_TO_COLUMN' && params.toColumnName !== undefined
+    ? safeSubject(`Card movido para ${params.toColumnName} em ${params.boardName}: ${params.cardTitle}`)
+    : safeSubject(`${eventLabel} em ${params.boardName}: ${params.cardTitle}`);
+  const description = params.cardDescription?.trim() ?? '';
+  const descriptionBlock = description.length > 0
+    ? `<div style="margin:18px 0 0;padding:16px 18px;border-left:3px solid #C49020;background:#F8FAFC;border-radius:0 8px 8px 0"><p style="margin:0;font-size:13px;line-height:1.7;color:#475569;white-space:pre-line">${escapeHtml(description)}</p></div>`
+    : '';
+  const details: string[] = [];
+  if (params.event === 'CARD_MOVED_TO_COLUMN') {
+    if (params.fromColumnName !== undefined) details.push(`<p style="margin:0 0 6px"><strong>De:</strong> ${escapeHtml(params.fromColumnName)}</p>`);
+    if (params.toColumnName !== undefined) details.push(`<p style="margin:0 0 6px"><strong>Para:</strong> ${escapeHtml(params.toColumnName)}</p>`);
+  } else if (params.event === 'CARD_ARCHIVED' || params.event === 'CARD_REMOVED') {
+    if (params.fromColumnName !== undefined) details.push(`<p style="margin:0 0 6px"><strong>Coluna anterior:</strong> ${escapeHtml(params.fromColumnName)}</p>`);
+  } else if (params.event === 'CARD_CREATED') {
+    details.push(`<p style="margin:0 0 6px"><strong>Coluna:</strong> ${escapeHtml(params.columnName)}</p>`);
+  } else if (params.changedFields !== undefined && params.changedFields.length > 0) {
+    details.push(`<p style="margin:0 0 6px"><strong>Campos alterados:</strong> ${escapeHtml(params.changedFields.join(', '))}</p>`);
+  }
+  if (params.actorLabel !== undefined) details.push(`<p style="margin:0 0 6px"><strong>Responsável:</strong> ${escapeHtml(params.actorLabel)}</p>`);
+  if (params.occurredAt !== undefined) {
+    const date = new Date(params.occurredAt);
+    if (!Number.isNaN(date.getTime())) {
+      details.push(`<p style="margin:0"><strong>Data:</strong> ${escapeHtml(date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }))}</p>`);
+    }
+  }
+  const eventBlock = details.length > 0
+    ? `<div style="margin:18px 0 0;padding:14px 18px;background:#F4F6FA;border-radius:8px;font-size:13px;line-height:1.6;color:#475569">${details.join('')}</div>`
+    : '';
+  return sendEmail({
+    to: params.to,
+    subject,
+    htmlBody: renderEmail(notificacaoCardTpl, escapeHtml(eventLabel), {
+      boardName: escapeHtml(params.boardName),
+      cardTitle: escapeHtml(params.cardTitle),
+      columnName: escapeHtml(params.columnName),
+      descriptionBlock,
+      eventBlock,
+    }, {
+      label: 'Abrir quadro',
+      url: params.boardUrl,
+    }),
+    idempotencyKey: params.idempotencyKey,
   });
 }
