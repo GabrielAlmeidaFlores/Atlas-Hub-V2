@@ -120,6 +120,14 @@ provider:
 
   logRetentionInDays: 14
 
+  logs:
+    restApi:
+      accessLogging: true
+      executionLogging: true
+      level: ERROR
+      fullExecutionData: false
+      format: '{"requestId":"$context.requestId","time":"$context.requestTime","method":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":"$context.status","latency":"$context.responseLatency","ip":"$context.identity.sourceIp","user":"$context.authorizer.email","userId":"$context.authorizer.userId","userAgent":"$context.identity.userAgent","error":"$context.error.messageString"}'
+
 
 functions:
 
