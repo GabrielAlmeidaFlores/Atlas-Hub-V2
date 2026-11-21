@@ -516,7 +516,7 @@ function buildCards(items: readonly BoardItemRecord[]): { cards: MetricCard[]; c
   const columnMap = new Map(columns.map((column) => [column.columnId, column]));
   const templateMap = new Map(templates.map((template) => [template.templateId, template]));
   const labelMap = new Map(labels.map((label) => [label.labelId, label]));
-  const cards: MetricCard[] = items.filter(isCard).map((card) => {
+  const cards: MetricCard[] = items.filter(isCard).filter((card) => card.removedAt === undefined).map((card) => {
     const column = columnMap.get(card.columnId);
     const template = card.templateId === null || card.templateId === undefined ? undefined : templateMap.get(card.templateId);
     const labels = card.labelIds.map((labelId) => labelMap.get(labelId)).filter((label) => label !== undefined) as BoardLabel[];

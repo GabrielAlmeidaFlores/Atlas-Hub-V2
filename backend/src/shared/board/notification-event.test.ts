@@ -58,6 +58,10 @@ test('classifies update, archive and removal events', () => {
   assert.equal(archived?.event, 'CARD_ARCHIVED');
   assert.equal(archived?.fromColumnId, 'column-1');
 
+  const softRemoved = extractCardStreamEvent(record('MODIFY', { ...base, removedAt: '2026-01-02' }, base));
+  assert.equal(softRemoved?.event, 'CARD_REMOVED');
+  assert.equal(softRemoved?.fromColumnId, 'column-1');
+
   const removed = extractCardStreamEvent(record('REMOVE', base, base));
   assert.equal(removed?.event, 'CARD_REMOVED');
   assert.equal(removed?.fromColumnId, 'column-1');
@@ -66,4 +70,18 @@ test('classifies update, archive and removal events', () => {
 test('ignores reordering and non-card items', () => {
   assert.equal(extractCardStreamEvent(record('MODIFY', { ...base, position: '2' }, base)), null);
   assert.equal(extractCardStreamEvent(record('INSERT', { ...base, itemKey: 'COLUMN#column-1' })), null);
+});
+
+test('does not notify a change after the card was removed', () => {
+  const result = extractCardStreamEvent(record('MODIFY', { ...base, removedAt: '2026-01-02', title: 'Alterado' }, { ...base, removedAt: '2026-01-02' }));
+  assert.equal(result, null);
+});
+
+test('classifies removal of an archived card as removal, not archive', () => {
+  const result = extractCardStreamEvent(record(
+    'MODIFY',
+    { ...base, archivedAt: '2026-01-01', removedAt: '2026-01-02' },
+    { ...base, archivedAt: '2026-01-01' },
+  ));
+  assert.equal(result?.event, 'CARD_REMOVED');
 });

@@ -13,11 +13,11 @@ Este arquivo registra planos e implementações do Atlas Hub V2. A seção `[Nã
 
 ### Resumo
 
-Adicionar configuração por quadro para enviar e-mail quando um card for criado, movido para uma coluna específica, alterado, arquivado ou removido definitivamente. O administrador escolhe os participantes do quadro que devem receber, incluindo o criador.
+Adicionar configuração por quadro para enviar e-mail quando um card for criado, movido para uma coluna específica, alterado, arquivado ou removido do quadro. O administrador escolhe os participantes do quadro que devem receber, incluindo o criador.
 
 A entrega cobre cards criados manualmente, leads do formulário público e qualificação pública. Cada evento tem detalhes próprios no e-mail, sem expor todos os campos do card.
 
-A implementação local cobre criação, movimentação, alteração, arquivamento e remoção definitiva.
+A implementação local cobre criação, movimentação, alteração, arquivamento e remoção do quadro.
 
 ### Decisões principais
 
@@ -30,7 +30,8 @@ A implementação local cobre criação, movimentação, alteração, arquivamen
 - O e-mail usa título e descrição como base e adiciona detalhes relevantes do evento, no template padrão do Atlas.
 - Reordenação dentro da mesma coluna não notifica.
 - Alterações de conteúdo geram evento de alteração.
-- Arquivamento e remoção definitiva são eventos distintos.
+- Arquivamento e remoção do quadro são eventos distintos.
+- A remoção do quadro oculta o card, mas mantém o registro e o histórico.
 - Saída e retorno à coluna notificam novamente.
 - O envio não acontece dentro da requisição de criação/movimentação.
 - Arquitetura: DynamoDB Streams → dispatcher → SQS FIFO → worker → Resend.
@@ -48,7 +49,7 @@ A implementação local cobre criação, movimentação, alteração, arquivamen
 - [x] Regra de card movido para coluna.
 - [x] Regra de card alterado.
 - [x] Regra de card arquivado.
-- [x] Regra de card removido definitivamente.
+- [x] Regra de card removido do quadro.
 - [x] Ativação e desativação de regra.
 - [x] Stream da tabela `AtlasBoardItems` com imagem antiga e nova.
 - [x] Dispatcher de eventos de card.
@@ -66,8 +67,8 @@ A implementação local cobre criação, movimentação, alteração, arquivamen
 ### Extensão implementada localmente
 
 - [x] Adicionar `CARD_UPDATED`, `CARD_ARCHIVED` e `CARD_REMOVED` ao enum e ao schema.
-- [x] Diferenciar arquivamento de remoção definitiva.
-- [x] Criar operação de remoção definitiva com confirmação e permissão de gerenciamento.
+- [x] Diferenciar arquivamento de remoção do quadro com retenção do registro.
+- [x] Criar operação de remoção do quadro com confirmação e permissão de gerenciamento.
 - [x] Classificar `REMOVE`, arquivamento e alterações no dispatcher.
 - [x] Calcular os campos alterados no evento de alteração.
 - [x] Enviar coluna anterior, coluna nova, campos alterados, responsável e horário conforme o evento.
@@ -105,7 +106,7 @@ O fluxo de criação, movimentação, alteração, arquivamento e remoção do c
 | Card sai e volta para a coluna | Notifica novamente |
 | Card arquivado | Notifica arquivamento |
 | Card alterado em campos relevantes | Notifica alteração |
-| Card removido definitivamente | Notifica remoção |
+| Card removido do quadro | Notifica remoção |
 | Regra desativada | Não notifica |
 | Destinatário removido | Não recebe |
 | Coluna removida | Regra é limpa |

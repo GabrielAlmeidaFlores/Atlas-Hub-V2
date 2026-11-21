@@ -25,6 +25,7 @@ interface DecodedCard {
   readonly cardDescription?: string;
   readonly columnId: string;
   readonly archivedAt?: string;
+  readonly removedAt?: string;
   readonly updatedAt?: string;
   readonly createdAt?: string;
   readonly actorLabel?: string;
@@ -70,6 +71,7 @@ function cardFromImage(image: Record<string, unknown> | undefined): DecodedCard 
   if (boardId === undefined || cardId === undefined || cardTitle === undefined || columnId === undefined) return undefined;
   const cardDescription = imageString(image, 'description');
   const archivedAt = imageString(image, 'archivedAt');
+  const removedAt = imageString(image, 'removedAt');
   const updatedAt = imageString(image, 'updatedAt');
   const createdAt = imageString(image, 'createdAt');
   const actorLabel = actorFromImage(image);
@@ -80,6 +82,7 @@ function cardFromImage(image: Record<string, unknown> | undefined): DecodedCard 
     columnId,
     ...(cardDescription !== undefined ? { cardDescription } : {}),
     ...(archivedAt !== undefined ? { archivedAt } : {}),
+    ...(removedAt !== undefined ? { removedAt } : {}),
     ...(updatedAt !== undefined ? { updatedAt } : {}),
     ...(createdAt !== undefined ? { createdAt } : {}),
     ...(actorLabel !== undefined ? { actorLabel } : {}),
@@ -134,6 +137,13 @@ export function extractCardStreamEvent(record: DynamoDBRecord): CardStreamEvent 
     };
   }
   if (record.eventName !== 'MODIFY' || previous === undefined || next === undefined) return null;
+  if (previous.removedAt === undefined && next.removedAt !== undefined) {
+    return {
+      ...baseEvent(record.eventID, 'CARD_REMOVED', next),
+      fromColumnId: previous.columnId,
+      ...(next.removedAt !== undefined ? { occurredAt: next.removedAt } : {}),
+    };
+  }
   if (previous.archivedAt === undefined && next.archivedAt !== undefined) {
     return {
       ...baseEvent(record.eventID, 'CARD_ARCHIVED', next),
@@ -141,7 +151,7 @@ export function extractCardStreamEvent(record: DynamoDBRecord): CardStreamEvent 
       ...(next.archivedAt !== undefined ? { occurredAt: next.archivedAt } : {}),
     };
   }
-  if (previous.archivedAt !== undefined) return null;
+  if (previous.archivedAt !== undefined || previous.removedAt !== undefined) return null;
   if (previous.columnId !== next.columnId) {
     return {
       ...baseEvent(record.eventID, 'CARD_MOVED_TO_COLUMN', next),

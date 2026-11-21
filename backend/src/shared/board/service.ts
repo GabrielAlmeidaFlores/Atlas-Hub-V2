@@ -366,7 +366,7 @@ export class BoardService {
     const items = await this.repository.listItems(boardId);
     const column = items.filter(isColumn).find((item) => item.columnId === columnId);
     if (column === undefined) throw new BoardNotFoundError('Coluna não encontrada');
-    const cards = items.filter(isCard).filter((card) => card.columnId === columnId && card.archivedAt === undefined);
+    const cards = items.filter(isCard).filter((card) => card.columnId === columnId && card.archivedAt === undefined && card.removedAt === undefined);
     if (cards.length > 0) throw new BoardConflictError('Mova os cards antes de excluir esta coluna');
     await this.repository.deleteItem(boardId, column.itemKey);
     await this.replaceNotificationRules(boardId, (rules) => rules.filter((rule) => rule.columnId !== columnId));
@@ -413,7 +413,7 @@ export class BoardService {
     const label = items.filter(isLabel).find((item) => item.labelId === labelId);
     if (label === undefined) throw new BoardNotFoundError('Label não encontrada');
     const timestamp = now();
-    const cards = items.filter(isCard).filter((card) => card.labelIds.includes(labelId));
+    const cards = items.filter(isCard).filter((card) => card.removedAt === undefined && card.labelIds.includes(labelId));
     await Promise.all(cards.map((card) => this.repository.updateItem(boardId, card.itemKey, {
       labelIds: card.labelIds.filter((id) => id !== labelId),
       updatedAt: timestamp,
@@ -463,7 +463,7 @@ export class BoardService {
     const items = await this.repository.listItems(boardId);
     const template = items.filter(isTemplate).find((item) => item.templateId === templateId);
     if (template === undefined) throw new BoardNotFoundError('Template não encontrado');
-    if (items.filter(isCard).some((card) => card.templateId === templateId && card.archivedAt === undefined)) {
+    if (items.filter(isCard).some((card) => card.templateId === templateId && card.archivedAt === undefined && card.removedAt === undefined)) {
       throw new BoardConflictError('Template em uso por cards; edite-o ou remova o template dos cards');
     }
     await this.repository.deleteItem(boardId, template.itemKey);
@@ -486,7 +486,7 @@ export class BoardService {
     const assigneeEmails = this.validateAssignees(board, input.assigneeEmails ?? []);
     const timestamp = now();
     const cardNumber = await this.repository.nextCardSequence(boardId);
-    const cards = items.filter(isCard).filter((card) => card.columnId === input.columnId && card.archivedAt === undefined);
+    const cards = items.filter(isCard).filter((card) => card.columnId === input.columnId && card.archivedAt === undefined && card.removedAt === undefined);
     const card: BoardCardRecord = {
       boardId,
       cardId: uuidv4(),
@@ -516,7 +516,7 @@ export class BoardService {
     const board = await this.requireBoard(boardId);
     const items = await this.repository.listItems(boardId);
     const card = items.filter(isCard).find((item) => item.cardId === cardId);
-    if (card === undefined || card.archivedAt !== undefined) throw new BoardNotFoundError('Card não encontrado');
+    if (card === undefined || card.archivedAt !== undefined || card.removedAt !== undefined) throw new BoardNotFoundError('Card não encontrado');
 
     const nextTemplateId = input.templateId !== undefined
       ? (input.templateId === null ? undefined : input.templateId)
@@ -582,13 +582,13 @@ export class BoardService {
     await this.requireBoard(boardId);
     const items = await this.repository.listItems(boardId);
     const card = items.filter(isCard).find((item) => item.cardId === cardId);
-    if (card === undefined || card.archivedAt !== undefined) throw new BoardNotFoundError('Card não encontrado');
+    if (card === undefined || card.archivedAt !== undefined || card.removedAt !== undefined) throw new BoardNotFoundError('Card não encontrado');
     const column = items.filter(isColumn).find((item) => item.columnId === input.columnId);
     if (column === undefined) throw fieldError('columnId', 'Coluna inválida');
     const previousColumn = items.filter(isColumn).find((item) => item.columnId === card.columnId);
     const timestamp = now();
     const target = sortByPosition(
-      items.filter(isCard).filter((item) => item.columnId === input.columnId && item.cardId !== cardId && item.archivedAt === undefined),
+      items.filter(isCard).filter((item) => item.columnId === input.columnId && item.cardId !== cardId && item.archivedAt === undefined && item.removedAt === undefined),
     );
     const index = Math.max(0, Math.min(input.position, target.length));
     target.splice(index, 0, card);
@@ -622,20 +622,28 @@ export class BoardService {
     return updated as BoardCardRecord;
   }
 
-  async deleteCardPermanent(boardId: string, cardId: string): Promise<void> {
+  async deleteCardPermanent(boardId: string, cardId: string, userId: string, userEmail = ''): Promise<BoardCard> {
     await this.requireBoard(boardId);
     const items = await this.repository.listItems(boardId);
-    const card = items.filter(isCard).find((item) => item.cardId === cardId);
+    const card = items.filter(isCard).find((item) => item.cardId === cardId && item.removedAt === undefined);
     if (card === undefined) throw new BoardNotFoundError('Card não encontrado');
-    await this.repository.deleteItem(boardId, card.itemKey);
-    await this.touchBoard(boardId, now());
+    const timestamp = now();
+    const updated = await this.repository.updateItem(boardId, card.itemKey, {
+      removedAt: timestamp,
+      history: this.appendCardHistory(card, historyEntry('removed', 'Card removido do quadro', userId, userEmail, timestamp)),
+      updatedAt: timestamp,
+      updatedBy: userId,
+    });
+    if (updated === null) throw new BoardNotFoundError('Card não encontrado');
+    await this.touchBoard(boardId, timestamp);
+    return updated as BoardCardRecord;
   }
 
   async archiveCard(boardId: string, cardId: string, userId: string, userEmail = ''): Promise<BoardCard> {
     await this.requireBoard(boardId);
     const items = await this.repository.listItems(boardId);
     const card = items.filter(isCard).find((item) => item.cardId === cardId);
-    if (card === undefined || card.archivedAt !== undefined) throw new BoardNotFoundError('Card não encontrado');
+    if (card === undefined || card.archivedAt !== undefined || card.removedAt !== undefined) throw new BoardNotFoundError('Card não encontrado');
     const timestamp = now();
     const updated = await this.repository.updateItem(boardId, card.itemKey, {
       archivedAt: timestamp,
@@ -700,7 +708,7 @@ export class BoardService {
       updatedAt: timestamp,
     });
     const items = await this.repository.listItems(boardId);
-    await Promise.all(items.filter(isCard).map((card) => {
+    await Promise.all(items.filter(isCard).filter((card) => card.removedAt === undefined).map((card) => {
       const assignees = card.assigneeEmails ?? [];
       if (!assignees.some((item) => normalizeEmail(item) === normalized)) return Promise.resolve();
       const nextAssignees = assignees.filter((item) => normalizeEmail(item) !== normalized);
@@ -936,7 +944,7 @@ export class BoardService {
     const labels = [...items.filter(isLabel)].sort((a, b) => a.name.localeCompare(b.name)).map(withoutItemKey);
     const templates = [...items.filter(isTemplate)].sort((a, b) => a.name.localeCompare(b.name)).map(withoutItemKey);
     const cards = sortByPosition(
-      items.filter(isCard).filter((card) => card.archivedAt === undefined),
+      items.filter(isCard).filter((card) => card.archivedAt === undefined && card.removedAt === undefined),
     ).map(withoutItemKey);
     return { board, columns, labels, templates, cards, ...(accessRole !== undefined ? { accessRole } : {}) };
   }

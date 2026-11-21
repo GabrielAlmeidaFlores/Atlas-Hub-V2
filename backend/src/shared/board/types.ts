@@ -136,7 +136,7 @@ export interface BoardLabel {
   readonly updatedAt: string;
 }
 
-export type BoardCardHistoryAction = 'created' | 'updated' | 'moved' | 'archived';
+export type BoardCardHistoryAction = 'created' | 'updated' | 'moved' | 'archived' | 'removed';
 
 export interface BoardCardHistoryEntry {
   readonly historyId: string;
@@ -165,6 +165,7 @@ export interface BoardCard {
   readonly updatedBy: string;
   readonly history?: readonly BoardCardHistoryEntry[];
   readonly archivedAt?: string;
+  readonly removedAt?: string;
 }
 
 export interface Board {
