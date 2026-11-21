@@ -352,8 +352,8 @@ export function createAdminBoardsHandler(
           return ok(event, { card });
         }
         case 'DELETE /admin/boards/{boardId}/cards/{cardId}/permanent': {
-          await service.deleteCardPermanent(param(event, 'boardId'), param(event, 'cardId'));
-          return ok(event, { ok: true });
+          const card = await service.deleteCardPermanent(param(event, 'boardId'), param(event, 'cardId'), userId, email);
+          return ok(event, { card });
         }
         case 'DELETE /admin/boards/{boardId}/cards/{cardId}': {
           const card = await service.archiveCard(

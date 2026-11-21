@@ -46,6 +46,7 @@ function historyLabel(action: BoardCardHistoryAction): string {
   if (action === "created") return "Card criado";
   if (action === "updated") return "Card atualizado";
   if (action === "moved") return "Card movimentado";
+  if (action === "removed") return "Card removido do quadro";
   return "Card arquivado";
 }
 
@@ -53,6 +54,7 @@ function HistoryIcon({ action }: { readonly action: BoardCardHistoryAction }): R
   if (action === "created") return <Plus className="h-3 w-3" />;
   if (action === "updated") return <Pencil className="h-3 w-3" />;
   if (action === "moved") return <ArrowRightLeft className="h-3 w-3" />;
+  if (action === "removed") return <Trash2 className="h-3 w-3" />;
   return <Archive className="h-3 w-3" />;
 }
 
@@ -341,17 +343,17 @@ export function CardModal({
   async function handleDeletePermanent(): Promise<void> {
     if (card === undefined || readOnly) return;
     const removed = await confirm({
-      title: "Remover card definitivamente",
+      title: "Remover card do quadro",
       description: isDirty
-        ? "Este card tem alterações não salvas. Remover mesmo assim? Esta ação não pode ser desfeita."
-        : "Remover este card definitivamente? Esta ação não pode ser desfeita.",
-      confirmLabel: "Remover definitivamente",
+        ? "Este card tem alterações não salvas. Remover mesmo assim? O card será ocultado, mas o registro e o histórico serão mantidos."
+        : "Remover este card do quadro? Ele será ocultado, mas o registro e o histórico serão mantidos.",
+      confirmLabel: "Remover do quadro",
     });
     if (!removed) return;
     setIsSaving(true);
     try {
       await boardsApi.deleteCardPermanent(board.board.boardId, card.cardId);
-      addToast({ type: "success", title: "Card removido" });
+      addToast({ type: "success", title: "Card removido do quadro" });
       await onSaved();
       onClose();
     } catch (err) {
@@ -483,7 +485,7 @@ export function CardModal({
                       entry.action === "created" && "border-status-success-border bg-status-success-subtle text-status-success",
                       entry.action === "updated" && "border-navy-200 bg-navy-50 text-navy",
                       entry.action === "moved" && "border-status-warning-border bg-status-warning-subtle text-status-warning",
-                      entry.action === "archived" && "border-status-danger-border bg-status-danger-subtle text-status-danger",
+                      (entry.action === "archived" || entry.action === "removed") && "border-status-danger-border bg-status-danger-subtle text-status-danger",
                     )}>
                       <HistoryIcon action={entry.action} />
                     </span>
@@ -575,7 +577,7 @@ export function CardModal({
             )}
             {!readOnly && card !== undefined && canManage && (
               <button type="button" className="btn btn-outline btn-sm w-full text-status-danger" onClick={() => void handleDeletePermanent()} disabled={isSaving}>
-                <Trash2 className="h-3.5 w-3.5" /> Remover definitivamente
+                <Trash2 className="h-3.5 w-3.5" /> Remover do quadro
               </button>
             )}
           </div>

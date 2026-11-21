@@ -13,7 +13,7 @@ Permitir que owner/admin de um quadro configure regras para enviar e-mail quando
 - um card for movido para uma coluna específica;
 - um card for alterado em campos relevantes;
 - um card for arquivado;
-- um card for removido definitivamente.
+- um card for removido do quadro.
 
 O administrador escolhe os destinatários entre os participantes do quadro, incluindo o criador. O envio não pode bloquear a operação do card, não pode disparar em massa e não pode duplicar mensagens em retries.
 
@@ -52,7 +52,7 @@ Cada tipo de evento deve ter um e-mail com os detalhes relevantes daquele evento
 - **RF-03:** uma regra `CARD_MOVED_TO_COLUMN` dispara somente ao entrar na coluna configurada.
 - **RF-04:** uma regra `CARD_UPDATED` dispara quando campos relevantes do card mudam.
 - **RF-05:** uma regra `CARD_ARCHIVED` dispara quando o card é arquivado.
-- **RF-06:** uma regra `CARD_REMOVED` dispara quando o card é excluído definitivamente.
+- **RF-06:** uma regra `CARD_REMOVED` dispara quando o card é removido do quadro.
 - **RF-07:** cada evento tem no máximo uma regra por quadro; movimentação tem uma regra por coluna.
 - **RF-08:** destinatários são escolhidos entre participantes; o criador também pode ser selecionado.
 - **RF-09:** cada regra pode ser ativada ou desativada.
@@ -108,7 +108,7 @@ O e-mail não deve expor telefone, e-mail do lead, UTMs, respostas de qualifica�
 - [ ] Alteração de título, descrição, template, campo, label ou responsável gera e-mail.
 - [ ] Reordenação não gera.
 - [ ] Arquivamento gera e-mail de arquivamento, não de alteração.
-- [ ] Remoção definitiva gera e-mail de remoção, não de arquivamento.
+- [ ] Remoção do quadro gera e-mail de remoção, não de arquivamento.
 - [ ] Reentrada gera novo e-mail de movimentação.
 - [ ] Vários destinatários são processados um por vez.
 - [ ] Retry não duplica e-mail.
@@ -132,8 +132,8 @@ O e-mail não deve expor telefone, e-mail do lead, UTMs, respostas de qualifica�
 | Título/descrição/template/campos/labels/responsáveis alterados | Dispara `CARD_UPDATED` |
 | Apenas `position` alterada | Não dispara |
 | Card arquivado | Dispara `CARD_ARCHIVED` |
-| Card excluído definitivamente | Dispara `CARD_REMOVED` |
-| Card já arquivado é excluído definitivamente | Dispara `CARD_REMOVED` |
+| Card removido do quadro | Dispara `CARD_REMOVED` |
+| Card já arquivado é removido do quadro | Dispara `CARD_REMOVED` |
 | Regra desativada | Não dispara |
 | Regra sem destinatários | Não pode ser salva |
 | Destinatário removido antes do processamento | Não entra na fila |
@@ -148,7 +148,7 @@ O e-mail não deve expor telefone, e-mail do lead, UTMs, respostas de qualifica�
 - Regras para comentários.
 - Controle de versão de outras configurações do quadro.
 - Dashboard de entregas de e-mail.
-- Recuperação de card removido definitivamente.
+- Restauração visual de card removido do quadro.
 
 ## 4. Arquitetura
 
@@ -265,13 +265,17 @@ mudança em title, description, templateId, fieldValues, labelIds ou assigneeEma
 → CARD_UPDATED
 ```
 
-Remoção definitiva:
+Remoção do quadro:
 
 ```text
-eventName = REMOVE
+eventName = MODIFY
 itemKey começa com CARD#
+oldImage.removedAt ausente
+newImage.removedAt presente
 → CARD_REMOVED
 ```
+
+O evento físico `REMOVE` continua tratado como `CARD_REMOVED` para registros legados, mas o fluxo novo não apaga o item.
 
 Ignorados:
 
@@ -287,15 +291,15 @@ Uma movimentação não gera `CARD_UPDATED`. Um arquivamento não gera `CARD_UPD
 O fluxo atual de `DELETE /admin/boards/{boardId}/cards/{cardId}` arquiva o card. Para que existam os dois eventos distintos, o plano prevê:
 
 - **Arquivar:** mantém o item no DynamoDB com `archivedAt`; gera `CARD_ARCHIVED`.
-- **Remover definitivamente:** nova operação explícita, restrita a owner/admin, com confirmação, que apaga o item do DynamoDB; gera `CARD_REMOVED`.
+- **Remover do quadro:** operação explícita, restrita a owner/admin, com confirmação, que grava `removedAt` no item; o card some da visão, mas o registro e o histórico permanecem no DynamoDB; gera `CARD_REMOVED`.
 
-A rota prevista para remoção definitiva é:
+A rota prevista para remoção do quadro é:
 
 ```http
 DELETE /admin/boards/{boardId}/cards/{cardId}/permanent
 ```
 
-Sem essa nova operação, o evento `CARD_REMOVED` não existe no fluxo atual.
+A operação usa a rota existente `/permanent`, mas o card não é apagado: apenas recebe `removedAt` e sai da visão do quadro.
 
 ### 4.4 Resolução do quadro
 
@@ -453,6 +457,8 @@ interface BoardNotificationRule {
 ```
 
 `notificationRulesVersion` ausente equivale a `0`.
+
+O `BoardCard` também passa a ter `removedAt?: string`. Cards com `removedAt` ficam fora da visão do board e das métricas, mas permanecem em `AtlasBoardItems`.
 
 ### 5.2 Regras de unicidade
 
@@ -719,9 +725,9 @@ Responsabilidades:
 - rejeitar IDs repetidos;
 - rejeitar evento/coluna duplicado.
 
-### 6.3.1 Remoção definitiva
+### 6.3.1 Remoção do quadro
 
-Adicionar uma operação explícita de remoção definitiva:
+Adicionar uma operação explícita de remoção do quadro:
 
 ```http
 DELETE /admin/boards/{boardId}/cards/{cardId}/permanent
@@ -731,12 +737,13 @@ Regras:
 
 - exigir permissão `manage` no quadro;
 - exigir confirmação explícita na UI;
-- localizar o card e apagar o item de `AtlasBoardItems`;
-- não usar `archivedAt`;
-- gerar `REMOVE` no stream e, consequentemente, `CARD_REMOVED`;
+- localizar o card e gravar `removedAt` no item;
+- manter o item em `AtlasBoardItems` para preservar o histórico;
+- filtrar cards com `removedAt` da visão do quadro;
+- gerar `CARD_REMOVED` via `MODIFY` do stream;
 - manter o `DELETE` atual como arquivamento.
 
-O service deve expor `deleteCardPermanent`; o repositório já possui `deleteItem`, mas a operação precisa validar o card, o quadro e a permissão antes de apagar. Não deve existir restauração automática.
+O service deve expor `deleteCardPermanent`; a rota `/permanent` é mantida por compatibilidade, mas a semântica é de ocultação com retenção do registro. Não deve existir restauração automática.
 
 ### 6.4 Limpeza
 
@@ -754,6 +761,8 @@ O service deve expor `deleteCardPermanent`; o repositório já possui `deleteIte
 - remover regras sem destinatários;
 - salvar versão;
 - repetir em conflito.
+
+Cards com `removedAt` não são alterados por limpeza de labels ou remoção de membros; eles permanecem congelados como registro histórico.
 
 ### 6.5 Repositório
 
@@ -1035,7 +1044,7 @@ notificationRules?: readonly BoardNotificationRule[];
 expectedNotificationRulesVersion?: number;
 ```
 
-A configuração usa a rota existente. A remoção definitiva do card exige uma nova rota, descrita em 6.3.1.
+A configuração usa a rota existente. A remoção do quadro do card exige uma nova rota, descrita em 6.3.1.
 
 ### 7.3 Aba
 
@@ -1073,7 +1082,7 @@ Validações de UI:
 - mais de 30 regras;
 - aviso de participante removido.
 
-A UI do card deve expor uma ação de remoção definitiva separada do arquivamento, com confirmação explícita e restrita a owner/admin.
+A UI do card deve expor uma ação de remoção do quadro separada do arquivamento, com confirmação explícita e restrita a owner/admin.
 
 ### 7.4 Estado
 
@@ -1195,7 +1204,7 @@ Nome, descrição, `labelDisplayMode`, labels, colunas, templates e `metricsDash
 - expected 0 com versão ausente e com versão 0;
 - conflito 409;
 - limpeza de coluna/membro;
-- remoção definitiva exige manage e apaga o item.
+- remoção do quadro exige manage e mantém o item com `removedAt`.
 
 Arquivos de teste previstos:
 
@@ -1249,7 +1258,7 @@ Arquivos de teste previstos:
 - validações;
 - conflito;
 - dirty guard;
-- ação de remoção definitiva separada do arquivamento.
+- ação de remoção do quadro separada do arquivamento.
 
 ### 9.5 Roteiro manual em dev
 
@@ -1265,7 +1274,7 @@ Arquivos de teste previstos:
 10. reordenar;
 11. verificar ausência de envio;
 12. arquivar card e verificar e-mail de arquivamento;
-13. remover definitivamente outro card e verificar e-mail de remoção;
+13. remover do quadro outro card e verificar e-mail de remoção;
 14. sair e voltar à coluna;
 15. verificar novo e-mail de movimentação;
 16. criar lead pelo site;
@@ -1432,12 +1441,12 @@ Base já implementada localmente:
 Extensão planejada:
 
 - [x] 12. Adicionar `CARD_UPDATED`, `CARD_ARCHIVED` e `CARD_REMOVED` ao enum, schema e validação.
-- [x] 13. Criar a operação de remoção definitiva e a rota `/permanent`.
+- [x] 13. Criar a operação de remoção do quadro e a rota `/permanent`.
 - [x] 14. Classificar `REMOVE`, arquivamento e alterações no dispatcher.
 - [x] 15. Calcular campos alterados para `CARD_UPDATED`.
 - [x] 16. Enviar detalhes específicos de cada evento no template.
 - [x] 17. Atualizar a aba com os cinco tipos de evento.
-- [x] 18. Adicionar testes dos três novos eventos e da remoção definitiva.
+- [x] 18. Adicionar testes dos três novos eventos e da remoção do quadro.
 - [ ] 19. Validar em dev, incluindo arquivamento e remoção com confirmação.
 - [ ] 20. Atualizar README após o rollout; CHANGELOG, SCOPE e este plano já foram atualizados.
 
@@ -1446,7 +1455,7 @@ Extensão planejada:
 - Criação, movimentação, alteração, arquivamento e remoção sem latência de e-mail.
 - Lead público e qualificação cobertos.
 - Detalhes específicos de cada evento no e-mail.
-- Remoção definitiva distinta de arquivamento.
+- Remoção do quadro distinta de arquivamento.
 - Mensagens individuais e sequenciais.
 - Retry sem duplicidade.
 - Conflito 409 sem sobrescrita.

@@ -425,7 +425,7 @@ function listView(boardId: string, email = "admin@atlashub.com"): BoardView | nu
     columns: store.columns.filter((item) => item.boardId === boardId).sort((a, b) => a.position - b.position),
     labels: store.labels.filter((item) => item.boardId === boardId).sort((a, b) => a.name.localeCompare(b.name)),
     templates: store.templates.filter((item) => item.boardId === boardId).sort((a, b) => a.name.localeCompare(b.name)),
-    cards: store.cards.filter((item) => item.boardId === boardId && item.archivedAt === undefined).sort((a, b) => a.position - b.position),
+    cards: store.cards.filter((item) => item.boardId === boardId && item.archivedAt === undefined && item.removedAt === undefined).sort((a, b) => a.position - b.position),
   };
 }
 
@@ -472,7 +472,7 @@ function touch(boardId: string): void {
 }
 
 function findCard(boardId: string, cardId: string): BoardCard | undefined {
-  return store.cards.find((item) => item.boardId === boardId && item.cardId === cardId && item.archivedAt === undefined);
+  return store.cards.find((item) => item.boardId === boardId && item.cardId === cardId && item.archivedAt === undefined && item.removedAt === undefined);
 }
 
 function findColumn(boardId: string, columnId: string): BoardColumn | undefined {
@@ -884,7 +884,7 @@ export const boardsHandlers = [
     const boardId = String(params.boardId);
     const column = findColumn(boardId, String(params.columnId));
     if (column === undefined) return HttpResponse.json({ message: "Coluna não encontrada" }, { status: 404 });
-    if (store.cards.some((card) => card.columnId === column.columnId && card.archivedAt === undefined)) {
+    if (store.cards.some((card) => card.columnId === column.columnId && card.archivedAt === undefined && card.removedAt === undefined)) {
       return HttpResponse.json({ message: "Mova os cards antes de excluir esta coluna" }, { status: 409 });
     }
     store.columns = store.columns.filter((item) => item.columnId !== column.columnId);
@@ -974,7 +974,7 @@ export const boardsHandlers = [
     const boardId = String(params.boardId);
     const template = store.templates.find((item) => item.boardId === boardId && item.templateId === params.templateId);
     if (template === undefined) return HttpResponse.json({ message: "Template não encontrado" }, { status: 404 });
-    if (store.cards.some((card) => card.templateId === template.templateId && card.archivedAt === undefined)) {
+    if (store.cards.some((card) => card.templateId === template.templateId && card.archivedAt === undefined && card.removedAt === undefined)) {
       return HttpResponse.json({ message: "Template em uso por cards" }, { status: 409 });
     }
     store.templates = store.templates.filter((item) => item.templateId !== template.templateId);
@@ -1066,7 +1066,7 @@ export const boardsHandlers = [
     const previousColumn = store.columns.find((item) => item.boardId === boardId && item.columnId === card.columnId);
     const targetColumn = store.columns.find((item) => item.boardId === boardId && item.columnId === input.columnId);
     const target = store.cards
-      .filter((item) => item.boardId === boardId && item.columnId === input.columnId && item.cardId !== card.cardId && item.archivedAt === undefined)
+      .filter((item) => item.boardId === boardId && item.columnId === input.columnId && item.cardId !== card.cardId && item.archivedAt === undefined && item.removedAt === undefined)
       .sort((a, b) => a.position - b.position);
     const index = Math.max(0, Math.min(input.position, target.length));
     target.splice(index, 0, card);
@@ -1135,11 +1135,14 @@ export const boardsHandlers = [
     const view = listView(boardId, normalizedEmail(request));
     if (view === null) return HttpResponse.json({ message: "Board não encontrado" }, { status: 404 });
     if (view.accessRole !== "owner" && view.accessRole !== "admin") return HttpResponse.json({ message: "Acesso negado" }, { status: 403 });
-    const index = store.cards.findIndex((item) => item.boardId === boardId && item.cardId === String(params.cardId));
-    if (index < 0) return HttpResponse.json({ message: "Card não encontrado" }, { status: 404 });
-    store.cards.splice(index, 1);
+    const card = store.cards.find((item) => item.boardId === boardId && item.cardId === String(params.cardId) && item.removedAt === undefined);
+    if (card === undefined) return HttpResponse.json({ message: "Card não encontrado" }, { status: 404 });
+    card.removedAt = iso();
+    card.updatedAt = card.removedAt;
+    card.updatedBy = nowUser();
+    appendCardHistory(card, "removed", "Card removido do quadro", normalizedEmail(request));
     touch(boardId);
-    return HttpResponse.json({ ok: true });
+    return HttpResponse.json({ card });
   }),
 
   http.delete("/admin/boards/:boardId/cards/:cardId", ({ params, request }) => {

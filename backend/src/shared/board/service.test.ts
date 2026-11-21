@@ -293,8 +293,8 @@ test('cleans notification recipients when a member is removed', async () => {
   assert.equal(after.board.notificationRulesVersion, 2);
 });
 
-test('accepts every notification event and permanently deletes a card', async () => {
-  const { service } = createService();
+test('accepts every notification event and removes a card from view while retaining the record', async () => {
+  const { service, repository } = createService();
   const actor = { userId: 'owner', email: 'owner@example.com' };
   const view = await service.createBoard({ name: 'Leads' }, actor);
   const boardId = view.board.boardId;
@@ -308,7 +308,22 @@ test('accepts every notification event and permanently deletes a card', async ()
   ];
   await service.updateBoard(boardId, { notificationRules: rules, expectedNotificationRulesVersion: 0 });
   const card = await service.createCard(boardId, { columnId, title: 'Card removível' }, 'owner', 'owner@example.com');
-  await service.deleteCardPermanent(boardId, card.cardId);
+  await service.deleteCardPermanent(boardId, card.cardId, 'owner', 'owner@example.com');
   const after = await service.getBoard(boardId);
   assert.equal(after.cards.some((item) => item.cardId === card.cardId), false);
+  const stored = [...(repository.items.get(boardId)?.values() ?? [])].find((item) => 'cardId' in item && item.cardId === card.cardId);
+  assert.ok(stored !== undefined && 'removedAt' in stored);
+});
+
+test('excludes removed cards from board metrics', async () => {
+  const { service } = createService();
+  const actor = { userId: 'owner', email: 'owner@example.com' };
+  const view = await service.createBoard({ name: 'Leads' }, actor);
+  const columnId = view.columns[0]?.columnId;
+  assert.ok(columnId !== undefined);
+  const card = await service.createCard(view.board.boardId, { columnId, title: 'Oculto' }, 'owner', 'owner@example.com');
+  await service.deleteCardPermanent(view.board.boardId, card.cardId, 'owner', 'owner@example.com');
+  const response = await service.getBoardMetrics(view.board.boardId, actor, {});
+  assert.equal(response.metadata.totalCards, 0);
+  assert.equal(response.board.cards.length, 0);
 });
